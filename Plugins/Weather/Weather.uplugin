@@ -1,0 +1,25 @@
+{
+	"FileVersion": 1,
+	"Version": 1,
+	"VersionName": "1",
+	"FriendlyName": "Weather",
+	"Category": "Other",
+	"CreatedBy": "武侯笑笑生",
+	"CanContainContent": true,
+	"Modules": [
+		{
+			"Name": "Weather",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Utils",
+			"Enabled": true
+		}
+	]
+}

@@ -1,0 +1,84 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{EE19F77B-48ED-5BFE-1483-039B61EB44C8}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "SmartCity",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "EditTool",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [		{
+		"Name": "ModelingToolsEditorMode",
+		"Enabled": true,
+		"TargetAllowList": [
+			"Editor"
+		]
+	},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "Volumetrics",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationLocomotionLibrary",
+			"Enabled": true
+		},
+		{
+			"Name": "AnimationWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "ContextualAnimation",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "StateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayStateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayCameras",
+			"Enabled": true
+		},
+
+		{
+			"Name": "ChaosVehiclesPlugin",
+			"Enabled": true
+		},
+
+		{
+			"Name": "Common_UMG",
+			"Enabled": true
+		},
+		{
+			"Name": "StateProcessor",
+			"Enabled": true
+		},
+		{
+			"Name": "Utils",
+			"Enabled": true
+		},
+		{
+			"Name": "Weather",
+			"Enabled": true
+		}
+	]
+}
