@@ -56,7 +56,7 @@ void UInputProcessorSubSystemBase::Initialize(
 		[](
 		UWorld*
 
-	
+
 	)
 		{
 			PRINTINVOKEINFO();
@@ -119,8 +119,7 @@ void UInputProcessorSubSystemBase::ResetProcessor()
 FDelegateHandle UInputProcessorSubSystemBase::AddKeyEvent(
 	FKey Key,
 	const std::function<void(
-		EInputEvent
-	)>& KeyEvent
+		EInputEvent)>& KeyEvent
 )
 {
 	if (OnKeyPressedMap.Contains(Key))
@@ -176,7 +175,7 @@ bool UInputProcessorSubSystemBase::InputAxis(
 
 void UInputProcessorSubSystemBase::SwitchShowCursor(
 	bool bIsShowCursor
-	)
+)
 {
 	auto PlayerPCPtr = GEngine->GetFirstLocalPlayerController(GetWorld());
 	if (PlayerPCPtr)
@@ -185,7 +184,7 @@ void UInputProcessorSubSystemBase::SwitchShowCursor(
 		{
 			PlayerPCPtr->SetShowMouseCursor(true);
 
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerPCPtr, nullptr, EMouseLockMode::DoNotLock, true);
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerPCPtr);
 		}
 		else
 		{

@@ -54,6 +54,7 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/HumanProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/HumanProcessor/ActionProcessor");
+		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/TourProcessor/ActionProcessor");
 		
 		PrivateIncludePaths.Add("SmartCity/Private");
 

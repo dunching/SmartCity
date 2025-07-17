@@ -25,10 +25,6 @@ public:
 
 	AGameMode_Main();
 	
-	FCharacterProxy* AddCharacterProxy(FGameplayTag ProxyType);
-
-	FCharacterProxy* FindCharacterProxy(int32 ID);
-
 protected:
 
 	virtual void OnConstruction(const FTransform& Transform)override;
@@ -39,20 +35,6 @@ protected:
 
 	virtual void BeginDestroy()override;
 
-	UFUNCTION()
-	void OnVoxelWorldGenerated();
-
-	UFUNCTION()
-	void OnVoxelWorldLoad();
-	
-protected:
-
-private:
-
-	void LoadGameImp();
-
-	void SaveGameImp();
-
 	FTimerHandle SaveGameTimer;
 
 	FDelegateHandle Delegate;
@@ -60,10 +42,4 @@ private:
 	// 角色序列,第0个为Player
 	TMap<int32, FCharacterProxy*> CharacterProxyMap;
 
-};
-
-UCLASS()
-class SMARTCITY_API APlanetGameMode : public AGameMode_Main
-{
-	GENERATED_BODY()
 };

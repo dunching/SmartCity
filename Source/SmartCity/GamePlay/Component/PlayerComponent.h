@@ -27,6 +27,35 @@ class SMARTCITY_API UPlayerComponent :
 	GENERATED_BODY()
 
 public:
-	using FOwnerType = AHumanCharacter_Player;
+	using FOwnerType = APawn;
+
+	static FName ComponentName;
+
+	virtual void PossessedBy(
+		APlayerController* NewController
+		);
+
+	void SetupPlayerInputComponent(
+		UInputComponent* PlayerInputComponent
+		);
+
+	virtual void MoveForward(
+		const FInputActionValue& InputActionValue
+		);
+
+	virtual void MoveRight(
+		const FInputActionValue& InputActionValue
+		);
+
+	virtual void AddPitchInput(
+		const FInputActionValue& InputActionValue
+		);
+
+	virtual void AddYawInput(
+		const FInputActionValue& InputActionValue
+		);
+
+	UPROPERTY()
+	UInputActions* InputActionsPtr = nullptr;
 
 };

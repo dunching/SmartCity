@@ -15,13 +15,14 @@
 			"LoadingPhase": "Default"
 		}
 	],
-	"Plugins": [		{
-		"Name": "ModelingToolsEditorMode",
-		"Enabled": true,
-		"TargetAllowList": [
-			"Editor"
-		]
-	},
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
 		{
 			"Name": "EnhancedInput",
 			"Enabled": true
@@ -58,12 +59,10 @@
 			"Name": "GameplayCameras",
 			"Enabled": true
 		},
-
 		{
 			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
 		},
-
 		{
 			"Name": "Common_UMG",
 			"Enabled": true
@@ -78,6 +77,10 @@
 		},
 		{
 			"Name": "Weather",
+			"Enabled": true
+		},
+		{
+			"Name": "DatasmithImporter",
 			"Enabled": true
 		}
 	]

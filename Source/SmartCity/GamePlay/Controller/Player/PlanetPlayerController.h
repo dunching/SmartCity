@@ -24,4 +24,8 @@ class SMARTCITY_API APlanetPlayerController :
 
 public:
 
+	virtual void OnPossess(
+		APawn* InPawn
+		) override;
+
 };

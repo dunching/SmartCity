@@ -32,13 +32,25 @@ class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 public:
 	static UGameOptions* GetInstance();
 
-protected:
+#pragma region 按键映射
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey ClickItem = EKeys::LeftMouseButton;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey RotBtn = EKeys::LeftMouseButton;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey MoveBtn = EKeys::RightMouseButton;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey MouseX = EKeys::MouseX;
+#pragma endregion
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
 	
+protected:
 	
 private:
-	
-	
+
 };

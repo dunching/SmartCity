@@ -16,8 +16,8 @@ void UInputActions::InitialInputMapping()
 		MoveForwardActionPtr->ValueType = EInputActionValueType::Axis1D;
 		InputMappingContext->MapKey(MoveForwardActionPtr, EKeys::W);
 		{
-			auto& EnhancedActionKeyMapping = InputMappingContext->MapKey(MoveForwardActionPtr, EKeys::S);
 			{
+				auto& EnhancedActionKeyMapping = InputMappingContext->MapKey(MoveForwardActionPtr, EKeys::S);
 				auto InputModifierPtr = NewObject<UInputModifierNegate>();
 				EnhancedActionKeyMapping.Modifiers.Add(InputModifierPtr);
 			}
@@ -28,8 +28,8 @@ void UInputActions::InitialInputMapping()
 		MoveRightActionPtr->ValueType = EInputActionValueType::Axis1D;
 		InputMappingContext->MapKey(MoveRightActionPtr, EKeys::D);
 		{
-			auto& EnhancedActionKeyMapping = InputMappingContext->MapKey(MoveRightActionPtr, EKeys::A);
 			{
+				auto& EnhancedActionKeyMapping = InputMappingContext->MapKey(MoveRightActionPtr, EKeys::A);
 				auto InputModifierPtr = NewObject<UInputModifierNegate>();
 				EnhancedActionKeyMapping.Modifiers.Add(InputModifierPtr);
 			}
