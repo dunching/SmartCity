@@ -13,6 +13,12 @@ APlanetPlayerCameraManager::APlanetPlayerCameraManager(
 	 Super(ObjectInitializer)
 {
 	bClientSimulatingViewTarget = 1;
+
+	// 往下看的限制
+	ViewPitchMin = -70;
+
+	// 往上看的限制
+	ViewPitchMin = 50;
 }
 
 void APlanetPlayerCameraManager::BeginPlay()

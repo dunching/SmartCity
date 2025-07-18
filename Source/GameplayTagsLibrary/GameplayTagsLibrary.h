@@ -16,6 +16,18 @@ class GAMEPLAYTAGSLIBRARY_API UGameplayTagsLibrary : public UBlueprintFunctionLi
 
 public:
 
-	static FGameplayTag BaseFeature_Reply;
+	static FGameplayTag Seat_Default;
+
+	static FGameplayTag Interaction_Mode;
+
+	static FGameplayTag Interaction_Mode_Scene;
+
+	static FGameplayTag Interaction_Area;
+
+	static FGameplayTag Interaction_Area_ExternalWall;
+
+	static FGameplayTag Interaction_Area_Floor;
+
+	static FGameplayTag Interaction_Area_Space;
 
 };

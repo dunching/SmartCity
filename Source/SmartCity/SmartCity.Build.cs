@@ -30,6 +30,7 @@ public class SmartCity : ModuleRules
 
 		PublicIncludePaths.Add("SmartCity");
 		PublicIncludePaths.Add("SmartCity/OpenWorld");
+		PublicIncludePaths.Add("SmartCity/SceneInteractionDecorator");
 		PublicIncludePaths.Add("SmartCity/GamePlay");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Controller");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Controller/Player");

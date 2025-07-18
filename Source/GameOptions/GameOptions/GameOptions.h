@@ -44,11 +44,46 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey MouseX = EKeys::MouseX;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey MouseY = EKeys::MouseY;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FKey MouseWheelAxis = EKeys::MouseWheelAxis;
 #pragma endregion
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
+#pragma region 查看全局
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 RotYawSpeed = 80;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 RotPitchSpeed = 80;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MoveSpeed = 1000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MaxMoveSpeed = 12000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 Acceleration = 10000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 Deceleration = 20000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 CameraSpringArmSpeed = 500;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 DefautlCameraSpringArm = 8000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MinCameraSpringArm = 1000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MaxCameraSpringArm = 20000;
+#pragma endregion
+
 protected:
 	
 private:

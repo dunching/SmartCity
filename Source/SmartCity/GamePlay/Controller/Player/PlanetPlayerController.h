@@ -12,6 +12,8 @@
 
 #include "PlanetPlayerController.generated.h"
 
+class UPlayerControllerGameplayTasksComponent;
+
 /**
  *
  */
@@ -24,8 +26,15 @@ class SMARTCITY_API APlanetPlayerController :
 
 public:
 
+	APlanetPlayerController(
+		const FObjectInitializer& ObjectInitializer
+		);
+
 	virtual void OnPossess(
 		APawn* InPawn
 		) override;
+
+	UPROPERTY()
+	TObjectPtr<UPlayerControllerGameplayTasksComponent> GameplayTasksComponentPtr = nullptr;
 
 };
