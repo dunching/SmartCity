@@ -42,6 +42,9 @@ void AGameMode_Main::BeginPlay()
 	// 整楼、外墙
 	ProcessExternalWall();
 
+	// 楼层
+	ProcessFloor();
+	
 	// 区域
 	ProcessSpace();
 #pragma endregion
@@ -65,7 +68,7 @@ void AGameMode_Main::ProcessSpace()
 {
 }
 
-void AGameMode_Main::ProcessSpaceFloor()
+void AGameMode_Main::ProcessFloor()
 {
 	TArray<AActor*> ResultAry;
 	UGameplayStatics::GetAllActorsOfClass(this,

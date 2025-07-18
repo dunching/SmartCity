@@ -39,7 +39,7 @@ private:
 
 	void ProcessExternalWall();
 	
-	void ProcessSpaceFloor();
+	void ProcessFloor();
 	
 	void ProcessSpace();
 	

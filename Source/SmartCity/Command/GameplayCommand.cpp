@@ -1,6 +1,10 @@
 #include "GameplayCommand.h"
 
+#include "Engine/StaticMeshActor.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "AssetRefMap.h"
+#include "DatasmithAssetUserData.h"
 #include "GameplayTagsLibrary.h"
 #include "OpenWorldSystem.h"
 #include "PlanetPlayerController.h"
@@ -35,4 +39,25 @@ void SmartCityCommand::SwitchViewArea(const TArray<FString>& Args)
 void SmartCityCommand::SwitchMode(const TArray<FString>& Args)
 {
 	
+}
+
+void SmartCityCommand::TestAssetUserData()
+{
+	TArray<AActor*> ResultAry;
+	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(),
+										  AStaticMeshActor::StaticClass(),
+										  ResultAry);
+
+	for (auto Iter : ResultAry)
+	{
+		auto STMPtr = Cast<AStaticMeshActor>(Iter);
+		if (STMPtr)
+		{
+			auto AUDPtr = STMPtr->GetStaticMeshComponent()->GetStaticMesh()->GetAssetUserDataOfClass(
+				UDatasmithAssetUserData::StaticClass());
+			if (AUDPtr)
+			{
+			}
+		}
+	}
 }
