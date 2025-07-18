@@ -93,3 +93,25 @@ void UGT_ReplyCameraTransform::OnDestroy(bool bInOwnerFinished)
 {
 	Super::OnDestroy(bInOwnerFinished);
 }
+
+UGT_ModifyCameraTransform::UGT_ModifyCameraTransform(const FObjectInitializer& ObjectInitializer):
+	Super(ObjectInitializer)
+{
+	bTickingTask = true;
+	bIsPausable = true;
+}
+
+void UGT_ModifyCameraTransform::Activate()
+{
+	Super::Activate();
+}
+
+void UGT_ModifyCameraTransform::TickTask(float DeltaTime)
+{
+	Super::TickTask(DeltaTime);
+}
+
+void UGT_ModifyCameraTransform::OnDestroy(bool bInOwnerFinished)
+{
+	Super::OnDestroy(bInOwnerFinished);
+}

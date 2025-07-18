@@ -93,3 +93,47 @@ private:
 
 	float TargetTargetArmLength = 0.f;
 };
+
+/**
+ * 移动到指定Transform
+ */
+UCLASS()
+class SMARTCITY_API UGT_ModifyCameraTransform : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool)>;
+
+	UGT_ModifyCameraTransform(
+		const FObjectInitializer& ObjectInitializer
+	);
+
+	virtual void Activate() override;
+
+	virtual void TickTask(
+		float DeltaTime
+	) override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+	) override;
+
+	float Duration = 1.f;
+
+	FVector TargetLocation;
+
+	FRotator TargetRotation;
+
+	float TargetTargetArmLength = 0.f;
+	
+private:
+	float CurrentTime = 0.f;
+
+	FVector OriginalLocation;
+
+	FRotator OriginalRotation;
+
+	float OriginalSpringArmLen = 0.f;
+};

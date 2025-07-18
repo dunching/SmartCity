@@ -2,9 +2,14 @@
 
 #include "WorldPartition/DataLayer/DataLayerInstance.h"
 #include "WorldPartition/DataLayer/DataLayerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Net/WebChannelWorldSystem.h"
 
 #include "AssetRefMap.h"
+#include "CollisionDataStruct.h"
+#include "GameOptions.h"
 #include "LogWriter.h"
+#include "MessageBody.h"
 
 FDecoratorBase::FDecoratorBase(EDecoratorType InMainDecoratorType,
                                EDecoratorType InBranchDecoratorType): MainDecoratorType(InMainDecoratorType),
@@ -20,7 +25,7 @@ void FDecoratorBase::Entry() const
 {
 }
 
-void FDecoratorBase::Operation() const
+void FDecoratorBase::Operation(EOperatorType OperatorType) const
 {
 }
 
@@ -40,9 +45,9 @@ FTourDecorator::FTourDecorator():
 {
 }
 
-void FTourDecorator::Operation() const
+void FTourDecorator::Operation(EOperatorType OperatorType) const
 {
-	Super::Operation();
+	Super::Operation(OperatorType);
 
 	PRINTFUNCSTR();
 }
@@ -53,9 +58,9 @@ FSceneMode_Decorator::FSceneMode_Decorator():
 {
 }
 
-void FSceneMode_Decorator::Operation() const
+void FSceneMode_Decorator::Operation(EOperatorType OperatorType) const
 {
-	Super::Operation();
+	Super::Operation(OperatorType);
 
 	PRINTFUNCSTR();
 }
@@ -109,7 +114,7 @@ void FArea_Decorator::SwitchViewArea(const TSet<TSoftObjectPtr<UDataLayerAsset>>
 				DataLayerManagerPtr->
 				SetDataLayerRuntimeState(
 					Iter.Value.LoadSynchronous(),
-					EDataLayerRuntimeState::Loaded
+					EDataLayerRuntimeState::Unloaded
 				))
 			{
 				PRINTINVOKEWITHSTR(FString(TEXT("Unload")));
@@ -125,11 +130,23 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 {
 }
 
-void FExternalWall_Decorator::Operation() const
+void FExternalWall_Decorator::Operation(EOperatorType OperatorType) const
 {
-	Super::Operation();
+	Super::Operation(OperatorType);
 
 	PRINTFUNCSTR();
+
+	switch (OperatorType)
+	{
+	case EOperatorType::kLeftMouseButton:
+	case EOperatorType::kRightMouseButton:
+		{
+		}
+		break;
+	case EOperatorType::kNone:
+		break;
+	default: ;
+	}
 }
 
 FFloor_Decorator::FFloor_Decorator(
@@ -139,7 +156,82 @@ FFloor_Decorator::FFloor_Decorator(
 {
 }
 
-void FFloor_Decorator::Operation() const
+void FFloor_Decorator::Operation(EOperatorType OperatorType) const
 {
-	Super::Operation();
+	Super::Operation(OperatorType);
+
+	switch (OperatorType)
+	{
+	case EOperatorType::kLeftMouseButton:
+	case EOperatorType::kRightMouseButton:
+		{
+			TArray<struct FHitResult> OutHits;
+
+			auto PCPtr = GEngine->GetFirstLocalPlayerController(GetWorldImp());
+
+			FVector2D MousePosition;
+			PCPtr->GetMousePosition(MousePosition.X,
+			                        MousePosition.Y);
+
+			FVector WorldLocation;
+			FVector WorldDirection;
+			PCPtr->DeprojectScreenPositionToWorld(MousePosition.X,
+			                                      MousePosition.Y,
+			                                      WorldLocation,
+			                                      WorldDirection);
+
+			// 优先检测设备
+			{
+				FCollisionObjectQueryParams ObjectQueryParams;
+				ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+				GetWorldImp()->LineTraceMultiByObjectType(OutHits,
+				                                          WorldLocation,
+				                                          WorldLocation + (WorldDirection * UGameOptions::GetInstance()
+					                                          ->LinetraceDistance),
+				                                          ObjectQueryParams);
+
+				for (const auto& Iter : OutHits)
+				{
+					if (Iter.GetActor())
+					{
+						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+						MessageBodySPtr->DeviceID = TEXT("");
+						
+						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+						
+						return;
+					}
+				}
+			}
+
+			// 检测区域
+			{
+				FCollisionObjectQueryParams ObjectQueryParams;
+				ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+				GetWorldImp()->LineTraceMultiByObjectType(OutHits,
+				                                          WorldLocation,
+				                                          WorldLocation + (WorldDirection * UGameOptions::GetInstance()
+					                                          ->LinetraceDistance),
+				                                          ObjectQueryParams);
+
+				for (const auto& Iter : OutHits)
+				{
+					if (Iter.GetActor())
+					{
+						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
+
+						MessageBodySPtr->SpaceName = TEXT("");
+						
+						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+						return;
+					}
+				}
+			}
+		}
+		break;
+	case EOperatorType::kNone:
+		break;
+	default: ;
+	}
 }

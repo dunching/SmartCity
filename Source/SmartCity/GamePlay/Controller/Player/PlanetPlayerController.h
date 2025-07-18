@@ -13,6 +13,7 @@
 #include "PlanetPlayerController.generated.h"
 
 class UPlayerControllerGameplayTasksComponent;
+class UPixelStreamingInput;
 
 /**
  *
@@ -36,5 +37,8 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<UPlayerControllerGameplayTasksComponent> GameplayTasksComponentPtr = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UPixelStreamingInput> PixelStreamingInputPtr = nullptr;
 
 };

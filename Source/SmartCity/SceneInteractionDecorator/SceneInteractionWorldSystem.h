@@ -29,6 +29,8 @@ public:
 
 	void SwitchViewArea(const FGameplayTag&Interaction_Area);
 
+	void Operation(EOperatorType OperatorType) const;
+
 private:
 
 	TMap<EDecoratorType, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;

@@ -66,3 +66,14 @@ void USceneInteractionWorldSystem::SwitchViewArea(const FGameplayTag& Interactio
 		return;
 	}
 }
+
+void USceneInteractionWorldSystem::Operation(EOperatorType OperatorType) const
+{
+	for (const auto &Iter : DecoratorLayerAssetMap)
+	{
+		if (Iter.Value)
+		{
+			Iter.Value->Operation(OperatorType);
+		}
+	}
+}

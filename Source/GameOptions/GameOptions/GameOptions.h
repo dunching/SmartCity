@@ -84,6 +84,11 @@ public:
 	int32 MaxCameraSpringArm = 20000;
 #pragma endregion
 
+#pragma region 查看楼层
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 LinetraceDistance = 10000;
+#pragma endregion
+
 protected:
 	
 private:

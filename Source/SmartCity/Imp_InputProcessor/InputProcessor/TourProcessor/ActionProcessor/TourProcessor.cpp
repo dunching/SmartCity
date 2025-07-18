@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "GameOptions.h"
+#include "SceneInteractionWorldSystem.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
@@ -35,18 +36,17 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 
 			if (EventArgs.Key == GameOptionsPtr->RotBtn)
 			{
+				bHasRoted = false;
+						
 				bStartRot = true;
 				return true;
 			}
 
 			if (EventArgs.Key == GameOptionsPtr->MoveBtn)
 			{
+				bHasMoved = false;
+					
 				bStartMove = true;
-				return true;
-			}
-
-			if (EventArgs.Key == GameOptionsPtr->ClickItem)
-			{
 				return true;
 			}
 		}
@@ -55,14 +55,29 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 		{
 			auto GameOptionsPtr = UGameOptions::GetInstance();
 
+			if (EventArgs.Key == GameOptionsPtr->ClickItem)
+			{
+				if (bHasRoted || bHasMoved)
+				{}
+				else
+				{
+					USceneInteractionWorldSystem::GetInstance()->Operation(EOperatorType::kLeftMouseButton);
+					return true;
+				}
+			}
+			
 			if (EventArgs.Key == GameOptionsPtr->RotBtn)
 			{
+				bHasRoted = false;
+					
 				bStartRot = false;
 				return true;
 			}
 
 			if (EventArgs.Key == GameOptionsPtr->MoveBtn)
 			{
+				bHasMoved = false;
+					
 				bStartMove = false;
 				return true;
 			}
@@ -94,6 +109,8 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 				{
 					if (bStartRot)
 					{
+						bHasRoted = true;
+						
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
@@ -101,6 +118,8 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					}
 					else if (bStartMove)
 					{
+						bHasMoved = true;
+						
 						const FRotator Rotation = OnwerActorPtr->Controller->GetControlRotation();
 
 						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(FVector::UpVector,
@@ -123,6 +142,8 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 				{
 					if (bStartRot)
 					{
+						bHasRoted = true;
+						
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 							RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(Rot);
@@ -131,6 +152,8 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					}
 					else if (bStartMove)
 					{
+						bHasMoved = true;
+						
 						const FRotator Rotation = OnwerActorPtr->Controller->GetControlRotation();
 
 						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(FVector::UpVector,

@@ -35,7 +35,12 @@ namespace TourProcessor
 			) ;
 
 	private:
+
+		bool bHasRoted = false;
+		
 		bool bStartRot = false;
+		
+		bool bHasMoved = false;
 		
 		bool bStartMove = false;
 	};

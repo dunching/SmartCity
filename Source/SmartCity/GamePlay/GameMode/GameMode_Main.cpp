@@ -3,8 +3,14 @@
 #include "GameMode_Main.h"
 
 #include "DrawDebugHelpers.h"
-
+#include "GameplayCommand.h"
+#include "GameplayTagsLibrary.h"
+#include "SceneInteractionWorldSystem.h"
 #include "WeatherSystem.h"
+#include "DatasmithAssetUserData.h"
+
+#include "Engine/StaticMeshActor.h"
+#include "Kismet/GameplayStatics.h"
 
 AGameMode_Main::AGameMode_Main() :
 	Super()
@@ -20,26 +26,62 @@ void AGameMode_Main::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 天气
 	UWeatherSystem::GetInstance()->RegisterCallback();
 	UWeatherSystem::GetInstance()->ResetTime();
 
-	TArray<AActor*>ResultAry;
+	//
+	TArray<AActor*> ResultAry;
 
+	// 视角
+	SmartCityCommand::ReplyCameraTransform();
+
+	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+
+#pragma region 场景
+	// 整楼、外墙
+	ProcessExternalWall();
+
+	// 区域
+	ProcessSpace();
+#pragma endregion
 }
 
 void AGameMode_Main::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	for (auto Iter : CharacterProxyMap)
-	{
-		if (Iter.Value)
-		{
-		}
-	}
-
 	Super::EndPlay(EndPlayReason);
 }
 
 void AGameMode_Main::BeginDestroy()
 {
 	Super::BeginDestroy();
+}
+
+void AGameMode_Main::ProcessExternalWall()
+{
+}
+
+void AGameMode_Main::ProcessSpace()
+{
+}
+
+void AGameMode_Main::ProcessSpaceFloor()
+{
+	TArray<AActor*> ResultAry;
+	UGameplayStatics::GetAllActorsOfClass(this,
+	                                      AStaticMeshActor::StaticClass(),
+	                                      ResultAry);
+
+	for (auto Iter : ResultAry)
+	{
+		auto STMPtr = Cast<AStaticMeshActor>(Iter);
+		if (STMPtr)
+		{
+			auto AUDPtr = STMPtr->GetStaticMeshComponent()->GetStaticMesh()->GetAssetUserDataOfClass(
+				UDatasmithAssetUserData::StaticClass());
+			if (AUDPtr)
+			{
+			}
+		}
+	}
 }

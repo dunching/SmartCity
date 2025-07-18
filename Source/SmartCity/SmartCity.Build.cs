@@ -29,6 +29,7 @@ public class SmartCity : ModuleRules
 		PublicDefinitions.Add("TESTRAFFLE = 1");
 
 		PublicIncludePaths.Add("SmartCity");
+		PublicIncludePaths.Add("SmartCity/Net");
 		PublicIncludePaths.Add("SmartCity/OpenWorld");
 		PublicIncludePaths.Add("SmartCity/SceneInteractionDecorator");
 		PublicIncludePaths.Add("SmartCity/GamePlay");
@@ -84,6 +85,7 @@ public class SmartCity : ModuleRules
 			"ShaderConductor",
 			"Json",
 			"MediaAssets",
+			"DatasmithContent",
 
 			// 引擎插件
 			"GameplayTags",
@@ -93,6 +95,7 @@ public class SmartCity : ModuleRules
 			"GameplayAbilities",
 			"GameplayCameras",
 			"Niagara",
+			"PixelStreaming",
 
 			// 插件
 			"Common_UMG",

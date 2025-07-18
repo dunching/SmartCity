@@ -21,6 +21,15 @@ enum class EDecoratorType
 	kNone,
 };
 
+enum class EOperatorType
+{
+	kLeftMouseButton,
+	
+	kRightMouseButton,
+
+	kNone,
+};
+
 class SMARTCITY_API FDecoratorBase
 {
 public:
@@ -31,7 +40,7 @@ public:
 
 	virtual void Entry() const;
 
-	virtual void Operation() const;
+	virtual void Operation(EOperatorType OperatorType) const;
 
 	EDecoratorType GetMainDecoratorType() const;
 
@@ -55,7 +64,7 @@ public:
 
 	FTourDecorator();
 
-	virtual void Operation() const override;
+	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
 /**
@@ -69,7 +78,7 @@ public:
 
 	FSceneMode_Decorator();
 
-	virtual void Operation() const override;
+	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
 #pragma endregion
@@ -109,7 +118,7 @@ public:
 	FExternalWall_Decorator(
 		const FGameplayTag& Interaction_Area);
 
-	virtual void Operation() const override;
+	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
 /**
@@ -124,7 +133,7 @@ public:
 	FFloor_Decorator(
 		const FGameplayTag& Interaction_Area);
 
-	virtual void Operation() const override;
+	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
 #pragma endregion

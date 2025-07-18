@@ -5,13 +5,18 @@
 #include "TourProcessor.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
+#include "PixelStreamingInputComponent.h"
 
 APlanetPlayerController::APlanetPlayerController(const FObjectInitializer& ObjectInitializer) :
-	  Super(ObjectInitializer)
+	Super(ObjectInitializer)
 {
 	GameplayTasksComponentPtr = CreateDefaultSubobject<UPlayerControllerGameplayTasksComponent>(
-		 UPlayerControllerGameplayTasksComponent::ComponentName
-		);
+		UPlayerControllerGameplayTasksComponent::ComponentName
+	);
+
+	PixelStreamingInputPtr = CreateDefaultSubobject<UPixelStreamingInput>(
+		TEXT("PixelStreamingInput")
+	);
 }
 
 inline void APlanetPlayerController::OnPossess(APawn* InPawn)

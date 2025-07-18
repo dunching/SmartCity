@@ -4,7 +4,8 @@
 	"VersionName": "1",
 	"FriendlyName": "Utils",
 	"Category": "Other",
-	"CreatedBy": "武侯笑笑生",
+	"CreatedBy": "武侯笑笑生",	
+	"CanContainContent": true,
 	"Modules": [
 		{
 			"Name": "Utils",

@@ -35,11 +35,12 @@ protected:
 
 	virtual void BeginDestroy()override;
 
-	FTimerHandle SaveGameTimer;
+private:
 
-	FDelegateHandle Delegate;
+	void ProcessExternalWall();
 	
-	// 角色序列,第0个为Player
-	TMap<int32, FCharacterProxy*> CharacterProxyMap;
-
+	void ProcessSpaceFloor();
+	
+	void ProcessSpace();
+	
 };
