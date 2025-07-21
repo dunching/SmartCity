@@ -32,6 +32,13 @@ class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 public:
 	static UGameOptions* GetInstance();
 
+#pragma region 雷达控制
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Radar")
+	float RadarQueryFrequency = 1.f / 24;
+	
+#pragma endregion
+	
 #pragma region 按键映射
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey ClickItem = EKeys::LeftMouseButton;

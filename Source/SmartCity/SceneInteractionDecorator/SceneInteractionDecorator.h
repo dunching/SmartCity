@@ -12,6 +12,7 @@ enum class EDecoratorType
 	kMode,
 	kMode_Tour,
 	kMode_Scene,
+	kMode_Radar,
 
 	kArea,
 	kArea_ExternalWall,
@@ -56,13 +57,13 @@ protected:
 /**
  * 漫游时
  */
-class SMARTCITY_API FTourDecorator : public FDecoratorBase
+class SMARTCITY_API FTour_Decorator : public FDecoratorBase
 {
 public:
-	GENERATIONCLASSINFO(FTourDecorator,
+	GENERATIONCLASSINFO(FTour_Decorator,
 	                    FDecoratorBase);
 
-	FTourDecorator();
+	FTour_Decorator();
 
 	virtual void Entry() override;
 
@@ -83,6 +84,30 @@ public:
 	virtual void Entry() override;
 
 	virtual void Operation(EOperatorType OperatorType) const override;
+};
+
+/**
+ * 选择“雷达控制”模式
+ */
+class SMARTCITY_API FRadarMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(FRadarMode_Decorator,
+	                    FDecoratorBase);
+
+	FRadarMode_Decorator();
+
+	virtual ~FRadarMode_Decorator();
+	
+	virtual void Entry() override;
+
+	virtual void Operation(EOperatorType OperatorType) const override;
+
+private:
+
+	void RadarQuery();
+	
+	FTimerHandle QueryTimerHadnle;
 };
 
 #pragma endregion

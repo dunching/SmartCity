@@ -68,9 +68,26 @@ void SmartCityCommand::TestAssetUserData()
 
 void SmartCityCommand::AddFeatureItem(const TArray< FString >& Args)
 {
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+	
 	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 	if (HUDPtr )
 	{
 		HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
 	}
+}
+
+void SmartCityCommand::LocaterByID(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	
 }

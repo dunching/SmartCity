@@ -6,7 +6,14 @@
 #include "Components/TextBlock.h"
 #include "Kismet/KismetMathLibrary.h"
 
-inline void UMainHUDLayout::InitalFeaturesItem(
+void UFeatureWheel::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdatePosition, UpdateRate, true);
+}
+
+inline void UFeatureWheel::InitalFeaturesItem(
 	const FString& FeatureName,
 	const TArray<FString>& Features
 	)
@@ -43,4 +50,30 @@ inline void UMainHUDLayout::InitalFeaturesItem(
 			}
 		}
 	}
+}
+
+void UFeatureWheel::UpdatePosition()
+{
+	
+}
+
+void UMainHUDLayout::InitalFeaturesItem(
+	const FString& FeatureName,
+	const TArray<FString>& Features
+	)
+{
+	FeatureWheelPtr = CreateWidget<UFeatureWheel>(this, FeatureWheelClass);
+	if (FeatureWheelPtr)
+	{
+		FeatureWheelPtr->AddToViewport(1);
+	}
+}
+
+void UMainHUDLayout::RemoveFeatures()
+{
+	if (FeatureWheelPtr)
+	{
+		FeatureWheelPtr->RemoveFromParent();
+	}
+	FeatureWheelPtr = nullptr;
 }

@@ -9,35 +9,43 @@
 #include "DatasmithAssetUserData.h"
 #include "GameplayTagsLibrary.h"
 #include "LogWriter.h"
+#include "PlanetPlayerController.h"
+#include "PlayerGameplayTasks.h"
 #include "SceneInteractionDecorator.h"
+#include "TemplateHelper.h"
 #include "Engine/Light.h"
 #include "Engine/StaticMeshActor.h"
+#include "Kismet/KismetStringLibrary.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 {
 	return Cast<USceneInteractionWorldSystem>(
-		USubsystemBlueprintLibrary::GetWorldSubsystem(
-			GetWorldImp(),
-			USceneInteractionWorldSystem::StaticClass()
-		)
-	);
+	                                          USubsystemBlueprintLibrary::GetWorldSubsystem(
+		                                           GetWorldImp(),
+		                                           USceneInteractionWorldSystem::StaticClass()
+		                                          )
+	                                         );
 }
 
-void USceneInteractionWorldSystem::SwitchInteractionMode(const FGameplayTag& Interaction_Mode)
+void USceneInteractionWorldSystem::SwitchInteractionMode(
+	const FGameplayTag& Interaction_Mode
+	)
 {
 	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Scene)
 	{
 	}
 }
 
-void USceneInteractionWorldSystem::SwitchViewArea(const FGameplayTag& Interaction_Area)
+void USceneInteractionWorldSystem::SwitchViewArea(
+	const FGameplayTag& Interaction_Area
+	)
 {
 	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall))
 	{
 		if (DecoratorLayerAssetMap.Contains(EDecoratorType::kArea))
 		{
 			if (DecoratorLayerAssetMap[EDecoratorType::kArea]->GetBranchDecoratorType() ==
-				EDecoratorType::kArea_ExternalWall)
+			    EDecoratorType::kArea_ExternalWall)
 			{
 				return;
 			}
@@ -46,8 +54,10 @@ void USceneInteractionWorldSystem::SwitchViewArea(const FGameplayTag& Interactio
 		auto DecoratorSPtr = MakeShared<FExternalWall_Decorator>(Interaction_Area);
 		DecoratorSPtr->Entry();
 
-		DecoratorLayerAssetMap.Add(EDecoratorType::kArea,
-		                           DecoratorSPtr);
+		DecoratorLayerAssetMap.Add(
+		                           EDecoratorType::kArea,
+		                           DecoratorSPtr
+		                          );
 		return;
 	}
 
@@ -56,7 +66,7 @@ void USceneInteractionWorldSystem::SwitchViewArea(const FGameplayTag& Interactio
 		if (DecoratorLayerAssetMap.Contains(EDecoratorType::kArea))
 		{
 			if (DecoratorLayerAssetMap[EDecoratorType::kArea]->GetBranchDecoratorType() ==
-				EDecoratorType::kArea_Floor)
+			    EDecoratorType::kArea_Floor)
 			{
 				return;
 			}
@@ -65,13 +75,17 @@ void USceneInteractionWorldSystem::SwitchViewArea(const FGameplayTag& Interactio
 		auto DecoratorSPtr = MakeShared<FFloor_Decorator>(Interaction_Area);
 		DecoratorSPtr->Entry();
 
-		DecoratorLayerAssetMap.Add(EDecoratorType::kArea,
-		                           DecoratorSPtr);
+		DecoratorLayerAssetMap.Add(
+		                           EDecoratorType::kArea,
+		                           DecoratorSPtr
+		                          );
 		return;
 	}
 }
 
-void USceneInteractionWorldSystem::Operation(EOperatorType OperatorType) const
+void USceneInteractionWorldSystem::Operation(
+	EOperatorType OperatorType
+	) const
 {
 	for (const auto& Iter : DecoratorLayerAssetMap)
 	{
@@ -82,21 +96,29 @@ void USceneInteractionWorldSystem::Operation(EOperatorType OperatorType) const
 	}
 }
 
-TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(EDecoratorType DecoratorType,
-                                                const TSet<FGameplayTag>& FilterTags)
+TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(
+	EDecoratorType DecoratorType,
+	const TSet<FGameplayTag>& FilterTags
+	)
 {
-	TSet<AActor*>Result;
-	
+	TSet<AActor*> Result;
+
 	// 更新过滤条件
-	Filters.Add(DecoratorType,
-	            FilterTags);
+	Filters.Add(
+	            DecoratorType,
+	            FilterTags
+	           );
 
 	TArray<AActor*> ResultAry;
-	UGameplayStatics::GetAllActorsOfClass(this,
+	UGameplayStatics::GetAllActorsOfClass(
+	                                      this,
 	                                      AActor::StaticClass(),
-	                                      ResultAry);
+	                                      ResultAry
+	                                     );
 
-	auto Lambda = [this, &Result](AActor* Actor)
+	auto Lambda = [this, &Result](
+		AActor* Actor
+		)
 	{
 		if (SceneActorsRefMap.Contains(Actor))
 		{
@@ -113,10 +135,10 @@ TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(EDecoratorType Decorato
 			Actor->SetActorHiddenInGame(true);
 			return;
 		}
-		
+
 		auto Filter = SceneActorsRefMap[Actor];
 
-		TSet<FGameplayTag>FilterSet;
+		TSet<FGameplayTag> FilterSet;
 		for (const auto& Iter : Filters)
 		{
 			FilterSet.Append(Iter.Value);
@@ -126,7 +148,6 @@ TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(EDecoratorType Decorato
 		{
 			if (Filter.Contains(Iter))
 			{
-				
 			}
 			else
 			{
@@ -135,7 +156,7 @@ TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(EDecoratorType Decorato
 				return;
 			}
 		}
-		
+
 		PRINTINVOKEWITHSTR(FString(TEXT("")));
 		Actor->SetActorHiddenInGame(false);
 
@@ -155,33 +176,18 @@ TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(EDecoratorType Decorato
 
 void USceneInteractionWorldSystem::InitializeSceneActors()
 {
-	TArray<AActor*> ResultAry;
-	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(),
-										  AActor::StaticClass(),
-										  ResultAry);
+	SCOPE_LOG_TIME_FUNC();
 
-	for (auto Iter : ResultAry)
-	{
-		if (Iter->IsA(AStaticMeshActor::StaticClass()))
-		{
-			
-		}
-		else if (!Iter->GetComponents().IsEmpty())
-		{
-			
-		}
-		else
-		{
-			continue;
-		}
-		
-		if (Iter->ActorHasTag(TEXT("All")))
-		{
-			SceneActorsRefMap.Add(Iter, {UGameplayTagsLibrary::Interaction_Area_ExternalWall});
-		}
-		else if (Iter->ActorHasTag(TEXT("F1")))
-		{
-			SceneActorsRefMap.Add(Iter, {UGameplayTagsLibrary::Interaction_Area_Floor_F1});
-		}
-	}
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_InitializeSceneActors>(
+		 [this](
+		 UGT_InitializeSceneActors* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->SceneInteractionWorldSystemPtr = this;
+			 }
+		 }
+		);
 }

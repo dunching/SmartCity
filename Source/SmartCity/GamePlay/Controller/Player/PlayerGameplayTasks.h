@@ -13,12 +13,15 @@
 #include "PlayerGameplayTasks.generated.h"
 
 class AViewerPawn;
+class USceneInteractionWorldSystem;
 
 /*
  * PlayerController处理异步的组件
  */
-UCLASS(BlueprintType,
-	Blueprintable)
+UCLASS(
+	BlueprintType,
+	Blueprintable
+)
 class SMARTCITY_API UPlayerControllerGameplayTasksComponent : public UGameplayTasksComponent
 {
 	GENERATED_BODY()
@@ -27,18 +30,26 @@ public:
 	static FName ComponentName;
 
 	template <typename GameplayTaskType>
-	void StartGameplayTask(const std::function<void(GameplayTaskType*)>& Func);
+	void StartGameplayTask(
+		const std::function<void(
+			GameplayTaskType*
+			)>& Func
+		);
 };
 
 template <typename GameplayTaskType>
-void UPlayerControllerGameplayTasksComponent::StartGameplayTask(const std::function<void(GameplayTaskType*)>& Func)
+void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
+	const std::function<void(
+		GameplayTaskType*
+		)>& Func
+	)
 {
 	auto GameplayTaskPtr = UGameplayTask::NewTask<GameplayTaskType>(
-		TScriptInterface<
-			IGameplayTaskOwnerInterface>(
-			this
-		)
-	);
+	                                                                TScriptInterface<
+		                                                                IGameplayTaskOwnerInterface>(
+		                                                                 this
+		                                                                )
+	                                                               );
 
 	if (Func)
 	{
@@ -60,17 +71,18 @@ class SMARTCITY_API UGT_CameraTransform : public UGameplayTask
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
-		bool)>;
+		bool
+		)>;
 
 	UGT_CameraTransform(
 		const FObjectInitializer& ObjectInitializer
-	);
+		);
 
 	virtual void Activate() override;
 
 	virtual void TickTask(
 		float DeltaTime
-	) override;
+		) override;
 
 	float Duration = 1.f;
 
@@ -101,17 +113,18 @@ class SMARTCITY_API UGT_ReplyCameraTransform : public UGT_CameraTransform
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
-		bool)>;
+		bool
+		)>;
 
 	UGT_ReplyCameraTransform(
 		const FObjectInitializer& ObjectInitializer
-	);
+		);
 
 	virtual void Activate() override;
 
 	virtual void OnDestroy(
 		bool bInOwnerFinished
-	) override;
+		) override;
 
 	FGameplayTag SeatTag;
 };
@@ -126,17 +139,93 @@ class SMARTCITY_API UGT_ModifyCameraTransform : public UGT_CameraTransform
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
-		bool)>;
-
-	UGT_ModifyCameraTransform(
-		const FObjectInitializer& ObjectInitializer
-	);
+		bool
+		)>;
 
 	virtual void Activate() override;
 
 	virtual void OnDestroy(
 		bool bInOwnerFinished
-	) override;
+		) override;
+};
+
+#pragma endregion
+
+#pragma region 数据处理
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_InitializeSceneActors : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	UGT_InitializeSceneActors(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void Activate() override;
+
+	virtual void TickTask(
+		float DeltaTime
+		) override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
+
+private:
+	TArray<AActor*> ResultAry;
+
+	int32 Index = 0;
+};
+
+#pragma endregion
+
+#pragma region 场景对象切换
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SceneObjSwitch : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	UGT_SceneObjSwitch(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void Activate() override;
+
+	virtual void TickTask(
+		float DeltaTime
+		) override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
+
+	FGameplayTag Interaction_Area;
+private:
+	TArray<AActor*> ResultAry;
+
+	int32 Index = 0;
 };
 
 #pragma endregion

@@ -21,15 +21,20 @@ public:
 };
 
 UCLASS()
-class SMARTCITY_API UMainHUDLayout : public UUserWidget
+class SMARTCITY_API UFeatureWheel : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
+	void NativeConstruct() override;
+
 	void InitalFeaturesItem(
 		const FString& FeatureName,
 		const TArray<FString>& Features
 		);
+
+private:
+	void UpdatePosition();
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -46,4 +51,34 @@ protected:
 		EditAnywhere
 	)
 	TSubclassOf<UFeatureItem> FeatureItemClass;
+
+	UPROPERTY(
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	float UpdateRate = 1.f / 60;
+
+	FTimerHandle TimerHandle;
+};
+
+UCLASS()
+class SMARTCITY_API UMainHUDLayout : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	void InitalFeaturesItem(
+		const FString& FeatureName,
+		const TArray<FString>& Features
+		);
+
+	void RemoveFeatures();
+	
+	UPROPERTY(
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	TSubclassOf<UFeatureWheel> FeatureWheelClass;
+
+	UFeatureWheel* FeatureWheelPtr = nullptr;
 };

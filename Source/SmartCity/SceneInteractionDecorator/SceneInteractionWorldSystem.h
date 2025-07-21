@@ -14,8 +14,10 @@
 #include "SceneInteractionWorldSystem.generated.h"
 
 class FDecoratorBase;
+class UGT_InitializeSceneActors;
 
 /*
+ * 
  */
 UCLASS()
 class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
@@ -23,6 +25,8 @@ class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
+	friend UGT_InitializeSceneActors;
+	
 	static USceneInteractionWorldSystem* GetInstance();
 
 	void SwitchInteractionMode(const FGameplayTag&Interaction_Mode);
@@ -37,6 +41,9 @@ public:
 	
 private:
 
+	/**
+	 * 
+	 */
 	TMap<EDecoratorType, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 	
 	/**
@@ -51,4 +58,6 @@ private:
 	 * Value 仅在这些过滤条件下显示
 	 */
 	TMap<TWeakObjectPtr<AActor>, TSet<FGameplayTag>> SceneActorsRefMap;
+
+	TMap<FGuid, TWeakObjectPtr<AActor>>ItemRefMap;
 };
