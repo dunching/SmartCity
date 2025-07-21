@@ -31,8 +31,24 @@ public:
 
 	void Operation(EOperatorType OperatorType) const;
 
+	TSet<AActor*> UpdateFilter(EDecoratorType OperatorType, const TSet<FGameplayTag>&FilterTags);
+
+	void InitializeSceneActors();
+	
 private:
 
 	TMap<EDecoratorType, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 	
+	/**
+	 * 每个装饰器下的过滤条件
+	 */
+	TMap<EDecoratorType, TSet<FGameplayTag>> Filters;
+
+	/**
+	 * 我们在这里存场景里面对象的引用，用于各种视图切换时显示隐藏
+	 * 为什么不用DataLayer？因为DataLayer在切换时太慢了
+	 * Key 对象引用
+	 * Value 仅在这些过滤条件下显示
+	 */
+	TMap<TWeakObjectPtr<AActor>, TSet<FGameplayTag>> SceneActorsRefMap;
 };

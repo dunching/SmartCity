@@ -28,6 +28,8 @@ public:
 
 	static FGameplayTag Interaction_Area_Floor;
 
+	static FGameplayTag Interaction_Area_Floor_F1;
+
 	static FGameplayTag Interaction_Area_Space;
 
 };

@@ -30,20 +30,11 @@ void UGT_ReplyCameraTransform::Activate()
 		{
 			if (ViewerPawnPtr->SeatTag == SeatTag)
 			{
-				auto PCPtr = GEngine->GetFirstLocalPlayerController(GetWorld());
-				auto PawnPtr = Cast<ATourPawn>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
-				if (PawnPtr)
-				{
-					OriginalLocation = ViewerPawnPtr->GetActorLocation();
-					OriginalRotation = PCPtr->GetControlRotation();
-					OriginalSpringArmLen = PawnPtr->SpringArmComponent->TargetArmLength;
+				TargetLocation = ViewerPawnPtr->GetActorLocation();
+				TargetRotation = ViewerPawnPtr->GetActorRotation();
+				TargetTargetArmLength = ViewerPawnPtr->SpringArmComponent->TargetArmLength;
 
-					TargetLocation = ViewerPawnPtr->GetActorLocation();
-					TargetRotation = ViewerPawnPtr->GetActorRotation();
-					TargetTargetArmLength = ViewerPawnPtr->SpringArmComponent->TargetArmLength;
-
-					return;
-				}
+				return;
 			}
 		}
 	}
@@ -51,7 +42,37 @@ void UGT_ReplyCameraTransform::Activate()
 	EndTask();
 }
 
-void UGT_ReplyCameraTransform::TickTask(float DeltaTime)
+void UGT_ReplyCameraTransform::OnDestroy(bool bInOwnerFinished)
+{
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+UGT_CameraTransform::UGT_CameraTransform(const FObjectInitializer& ObjectInitializer):
+	Super(ObjectInitializer)
+{
+	bTickingTask = true;
+	bIsPausable = true;
+}
+
+void UGT_CameraTransform::Activate()
+{
+	Super::Activate();
+
+	auto PCPtr = GEngine->GetFirstLocalPlayerController(GetWorld());
+	auto PawnPtr = Cast<ATourPawn>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
+	if (PawnPtr)
+	{
+		OriginalLocation = PawnPtr->GetActorLocation();
+		OriginalRotation = PCPtr->GetControlRotation();
+		OriginalSpringArmLen = PawnPtr->SpringArmComponent->TargetArmLength;
+
+		return;
+	}
+	
+	EndTask();
+}
+
+void UGT_CameraTransform::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 
@@ -65,13 +86,13 @@ void UGT_ReplyCameraTransform::TickTask(float DeltaTime)
 			const auto Percent = CurrentTime / Duration;
 
 			const auto CurrentLocation = UKismetMathLibrary::VLerp(OriginalLocation,
-			                                                       TargetLocation,
-			                                                       Percent);
+																   TargetLocation,
+																   Percent);
 
 			const auto CurrentRotation = UKismetMathLibrary::RLerp(OriginalRotation,
-			                                                       TargetRotation,
-			                                                       Percent,
-			                                                       true);
+																   TargetRotation,
+																   Percent,
+																   true);
 
 			const auto CurrentTargetArmLength = FMath::Lerp(
 				OriginalSpringArmLen,
@@ -79,19 +100,14 @@ void UGT_ReplyCameraTransform::TickTask(float DeltaTime)
 				Percent);
 
 			PawnPtr->LerpToSeat(FTransform(CurrentRotation,
-			                               CurrentLocation),
-			                    CurrentTargetArmLength);
+										   CurrentLocation),
+								CurrentTargetArmLength);
 		}
 	}
 	else
 	{
 		EndTask();
 	}
-}
-
-void UGT_ReplyCameraTransform::OnDestroy(bool bInOwnerFinished)
-{
-	Super::OnDestroy(bInOwnerFinished);
 }
 
 UGT_ModifyCameraTransform::UGT_ModifyCameraTransform(const FObjectInitializer& ObjectInitializer):
@@ -104,11 +120,13 @@ UGT_ModifyCameraTransform::UGT_ModifyCameraTransform(const FObjectInitializer& O
 void UGT_ModifyCameraTransform::Activate()
 {
 	Super::Activate();
-}
 
-void UGT_ModifyCameraTransform::TickTask(float DeltaTime)
-{
-	Super::TickTask(DeltaTime);
+	if (TargetTargetArmLength > 10.f)
+	{
+		return;
+	}
+
+	EndTask();
 }
 
 void UGT_ModifyCameraTransform::OnDestroy(bool bInOwnerFinished)

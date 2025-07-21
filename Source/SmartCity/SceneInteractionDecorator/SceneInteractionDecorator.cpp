@@ -10,6 +10,11 @@
 #include "GameOptions.h"
 #include "LogWriter.h"
 #include "MessageBody.h"
+#include "SceneInteractionWorldSystem.h"
+#include "Algorithm.h"
+#include "GameplayCommand.h"
+#include "PlanetPlayerController.h"
+#include "PlayerGameplayTasks.h"
 
 FDecoratorBase::FDecoratorBase(EDecoratorType InMainDecoratorType,
                                EDecoratorType InBranchDecoratorType): MainDecoratorType(InMainDecoratorType),
@@ -21,7 +26,7 @@ inline FDecoratorBase::~FDecoratorBase()
 {
 }
 
-void FDecoratorBase::Entry() const
+void FDecoratorBase::Entry()
 {
 }
 
@@ -37,6 +42,14 @@ EDecoratorType FDecoratorBase::GetMainDecoratorType() const
 EDecoratorType FDecoratorBase::GetBranchDecoratorType() const
 {
 	return BranchDecoratorType;
+}
+
+void FTourDecorator::Entry()
+{
+	Super::Entry();
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(GetMainDecoratorType(),
+	                                                          {});
 }
 
 FTourDecorator::FTourDecorator():
@@ -58,6 +71,14 @@ FSceneMode_Decorator::FSceneMode_Decorator():
 {
 }
 
+void FSceneMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(GetMainDecoratorType(),
+	                                                          {});
+}
+
 void FSceneMode_Decorator::Operation(EOperatorType OperatorType) const
 {
 	Super::Operation(OperatorType);
@@ -73,54 +94,14 @@ FArea_Decorator::FArea_Decorator(EDecoratorType InBranchDecoratorType,
 {
 }
 
-void FArea_Decorator::Entry() const
+void FArea_Decorator::Entry()
 {
 	Super::Entry();
 
 	TSet<TSoftObjectPtr<UDataLayerAsset>> DalaLayerAssetMap;
 
-	if (UAssetRefMap::GetInstance()->DataLayerAssetMap.Contains(CurrentInteraction_Area))
-	{
-		DalaLayerAssetMap.Add(
-			UAssetRefMap::GetInstance()->DataLayerAssetMap[CurrentInteraction_Area]);
-	}
-
-	SwitchViewArea(DalaLayerAssetMap);
-}
-
-void FArea_Decorator::SwitchViewArea(const TSet<TSoftObjectPtr<UDataLayerAsset>>& DalaLayerAssetSet) const
-{
-	auto DataLayerManagerPtr = UDataLayerManager::GetDataLayerManager(GetWorldImp());
-
-	const auto DataLayerAssetMap = UAssetRefMap::GetInstance()->DataLayerAssetMap;
-	for (auto Iter : DataLayerAssetMap)
-	{
-		// 要显示
-		if (DalaLayerAssetSet.Contains(Iter.Value))
-		{
-			if (
-				DataLayerManagerPtr->
-				SetDataLayerRuntimeState(
-					Iter.Value.LoadSynchronous(),
-					EDataLayerRuntimeState::Activated
-				))
-			{
-				PRINTINVOKEWITHSTR(FString(TEXT("Activated")));
-			}
-		}
-		else
-		{
-			if (
-				DataLayerManagerPtr->
-				SetDataLayerRuntimeState(
-					Iter.Value.LoadSynchronous(),
-					EDataLayerRuntimeState::Unloaded
-				))
-			{
-				PRINTINVOKEWITHSTR(FString(TEXT("Unload")));
-			}
-		}
-	}
+	Actors = USceneInteractionWorldSystem::GetInstance()->UpdateFilter(GetMainDecoratorType(),
+	                                                                   {CurrentInteraction_Area});
 }
 
 FExternalWall_Decorator::FExternalWall_Decorator(
@@ -128,6 +109,13 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 	Super(EDecoratorType::kArea_ExternalWall,
 	      Interaction_Area)
 {
+}
+
+void FExternalWall_Decorator::Entry()
+{
+	Super::Entry();
+
+	SmartCityCommand::ReplyCameraTransform();
 }
 
 void FExternalWall_Decorator::Operation(EOperatorType OperatorType) const
@@ -154,6 +142,26 @@ FFloor_Decorator::FFloor_Decorator(
 	Super(EDecoratorType::kArea_Floor,
 	      Interaction_Area)
 {
+}
+
+void FFloor_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto Result = UKismetAlgorithm::GetCameraSeat(Actors,
+	                                UGameOptions::GetInstance()->ViewFloorRot,
+	                                UGameOptions::GetInstance()->ViewFloorFOV);
+	
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>([Result](UGT_ModifyCameraTransform* GTPtr)
+	{
+		if (GTPtr)
+		{
+			GTPtr->TargetLocation = Result.Key.GetLocation();
+			GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
+			GTPtr->TargetTargetArmLength = Result.Value;
+		}
+	});
 }
 
 void FFloor_Decorator::Operation(EOperatorType OperatorType) const
@@ -197,9 +205,9 @@ void FFloor_Decorator::Operation(EOperatorType OperatorType) const
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
 
 						MessageBodySPtr->DeviceID = TEXT("");
-						
+
 						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-						
+
 						return;
 					}
 				}
@@ -222,7 +230,7 @@ void FFloor_Decorator::Operation(EOperatorType OperatorType) const
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 						MessageBodySPtr->SpaceName = TEXT("");
-						
+
 						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 						return;
 					}

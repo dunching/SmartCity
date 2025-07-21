@@ -24,7 +24,7 @@ enum class EDecoratorType
 enum class EOperatorType
 {
 	kLeftMouseButton,
-	
+
 	kRightMouseButton,
 
 	kNone,
@@ -38,7 +38,7 @@ public:
 
 	virtual ~FDecoratorBase();
 
-	virtual void Entry() const;
+	virtual void Entry();
 
 	virtual void Operation(EOperatorType OperatorType) const;
 
@@ -64,6 +64,8 @@ public:
 
 	FTourDecorator();
 
+	virtual void Entry() override;
+
 	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
@@ -78,6 +80,8 @@ public:
 
 	FSceneMode_Decorator();
 
+	virtual void Entry() override;
+
 	virtual void Operation(EOperatorType OperatorType) const override;
 };
 
@@ -86,7 +90,7 @@ public:
 #pragma region 区域
 
 /**
- * 选中“整楼”区域
+ * 
  */
 class SMARTCITY_API FArea_Decorator : public FDecoratorBase
 {
@@ -97,13 +101,14 @@ public:
 	FArea_Decorator(EDecoratorType InBranchDecoratorType,
 	                const FGameplayTag& Interaction_Area);
 
-	virtual void Entry() const override;
+	virtual void Entry() override;
 
 protected:
 	FGameplayTag CurrentInteraction_Area;
 
+	TSet<AActor*> Actors;
+
 private:
-	void SwitchViewArea(const TSet<TSoftObjectPtr<UDataLayerAsset>>& DalaLayerAssetMap) const;
 };
 
 /**
@@ -117,6 +122,8 @@ public:
 
 	FExternalWall_Decorator(
 		const FGameplayTag& Interaction_Area);
+
+	virtual void Entry() override;
 
 	virtual void Operation(EOperatorType OperatorType) const override;
 };
@@ -132,6 +139,8 @@ public:
 
 	FFloor_Decorator(
 		const FGameplayTag& Interaction_Area);
+
+	virtual void Entry() override;
 
 	virtual void Operation(EOperatorType OperatorType) const override;
 };

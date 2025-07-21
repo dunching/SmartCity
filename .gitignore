@@ -15,8 +15,9 @@ Intermediate/
 /Plugins/*/Binaries
 /Plugins/*/Intermediate
 
-/Planet.sln.DotSettings.user
-/Planet.uproject.DotSettings.user
+/SmartCity.sln.DotSettings.user
+/SmartCity.uproject.DotSettings.user
+/SmartCity.uproject.DotSettings.user
 
 /Content/BossyEnemy
 /Content/CloseCombatAnimSet

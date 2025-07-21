@@ -6,6 +6,7 @@
 #include "AssetRefMap.h"
 #include "DatasmithAssetUserData.h"
 #include "GameplayTagsLibrary.h"
+#include "LogWriter.h"
 #include "OpenWorldSystem.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
@@ -28,35 +29,36 @@ void SmartCityCommand::SwitchViewArea(const TArray<FString>& Args)
 {
 	for (auto Iter : Args)
 	{
-		if (UAssetRefMap::GetInstance()->DataLayerAssetMap.Contains(FGameplayTag::RequestGameplayTag(*Iter)))
-		{
-			USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(FGameplayTag::RequestGameplayTag(*Iter));
-			return;
-		}
+		USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(FGameplayTag::RequestGameplayTag(*Iter));
+		return;
 	}
 }
 
 void SmartCityCommand::SwitchMode(const TArray<FString>& Args)
 {
-	
 }
 
 void SmartCityCommand::TestAssetUserData()
 {
 	TArray<AActor*> ResultAry;
 	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(),
-										  AStaticMeshActor::StaticClass(),
-										  ResultAry);
+	                                      AStaticMeshActor::StaticClass(),
+	                                      ResultAry);
 
 	for (auto Iter : ResultAry)
 	{
 		auto STMPtr = Cast<AStaticMeshActor>(Iter);
 		if (STMPtr)
 		{
-			auto AUDPtr = STMPtr->GetStaticMeshComponent()->GetStaticMesh()->GetAssetUserDataOfClass(
-				UDatasmithAssetUserData::StaticClass());
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+				STMPtr->GetStaticMeshComponent()->GetAssetUserDataOfClass(
+					UDatasmithAssetUserData::StaticClass()));
 			if (AUDPtr)
 			{
+				for (const auto& SecondIter : AUDPtr->MetaData)
+				{
+					PRINTINVOKEWITHSTR(FString::Printf(TEXT("%s %s"), *SecondIter.Key.ToString(), *SecondIter.Value));
+				}
 			}
 		}
 	}

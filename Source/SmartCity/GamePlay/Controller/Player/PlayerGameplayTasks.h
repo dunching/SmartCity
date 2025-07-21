@@ -48,11 +48,54 @@ void UPlayerControllerGameplayTasksComponent::StartGameplayTask(const std::funct
 	GameplayTaskPtr->ReadyForActivation();
 }
 
+#pragma region 摄像机修改
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_CameraTransform : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool)>;
+
+	UGT_CameraTransform(
+		const FObjectInitializer& ObjectInitializer
+	);
+
+	virtual void Activate() override;
+
+	virtual void TickTask(
+		float DeltaTime
+	) override;
+
+	float Duration = 1.f;
+
+	FVector TargetLocation;
+
+	FRotator TargetRotation;
+
+	float TargetTargetArmLength = 0.f;
+
+protected:
+private:
+	float CurrentTime = 0.f;
+
+	FVector OriginalLocation;
+
+	FRotator OriginalRotation;
+
+	float OriginalSpringArmLen = 0.f;
+};
+
 /**
  * 恢复到原始视角
  */
 UCLASS()
-class SMARTCITY_API UGT_ReplyCameraTransform : public UGameplayTask
+class SMARTCITY_API UGT_ReplyCameraTransform : public UGT_CameraTransform
 {
 	GENERATED_BODY()
 
@@ -66,39 +109,18 @@ public:
 
 	virtual void Activate() override;
 
-	virtual void TickTask(
-		float DeltaTime
-	) override;
-
 	virtual void OnDestroy(
 		bool bInOwnerFinished
 	) override;
 
 	FGameplayTag SeatTag;
-
-	float Duration = 1.f;
-
-private:
-	float CurrentTime = 0.f;
-
-	FVector OriginalLocation;
-
-	FRotator OriginalRotation;
-
-	float OriginalSpringArmLen = 0.f;
-
-	FVector TargetLocation;
-
-	FRotator TargetRotation;
-
-	float TargetTargetArmLength = 0.f;
 };
 
 /**
  * 移动到指定Transform
  */
 UCLASS()
-class SMARTCITY_API UGT_ModifyCameraTransform : public UGameplayTask
+class SMARTCITY_API UGT_ModifyCameraTransform : public UGT_CameraTransform
 {
 	GENERATED_BODY()
 
@@ -112,28 +134,9 @@ public:
 
 	virtual void Activate() override;
 
-	virtual void TickTask(
-		float DeltaTime
-	) override;
-
 	virtual void OnDestroy(
 		bool bInOwnerFinished
 	) override;
-
-	float Duration = 1.f;
-
-	FVector TargetLocation;
-
-	FRotator TargetRotation;
-
-	float TargetTargetArmLength = 0.f;
-	
-private:
-	float CurrentTime = 0.f;
-
-	FVector OriginalLocation;
-
-	FRotator OriginalRotation;
-
-	float OriginalSpringArmLen = 0.f;
 };
+
+#pragma endregion

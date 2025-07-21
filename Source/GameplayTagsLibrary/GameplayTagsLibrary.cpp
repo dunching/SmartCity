@@ -20,5 +20,8 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_ExternalWall =
 FGameplayTag UGameplayTagsLibrary::Interaction_Area_Floor =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.Floor")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Area_Floor_F1 =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.Floor.F1")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Area_Space =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.Space")));

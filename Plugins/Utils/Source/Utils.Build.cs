@@ -19,6 +19,7 @@ public class Utils : ModuleRules
                    Path.Combine(PluginDirectory, "Source/Utils/BaseData"),
                    Path.Combine(PluginDirectory, "Source/Utils/ScopeEvent"),
                    Path.Combine(PluginDirectory, "Source/Utils/Language"),
+                   Path.Combine(PluginDirectory, "Source/Utils/Algorithm"),
             }
 			);
 				

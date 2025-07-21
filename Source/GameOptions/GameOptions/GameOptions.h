@@ -87,6 +87,12 @@ public:
 #pragma region 查看楼层
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	int32 LinetraceDistance = 10000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	FRotator ViewFloorRot = FRotator(-30, 30, 0);
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	float ViewFloorFOV = 90.f;
 #pragma endregion
 
 protected:

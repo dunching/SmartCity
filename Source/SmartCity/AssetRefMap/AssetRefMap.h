@@ -25,10 +25,4 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, TSoftObjectPtr<UDataLayerAsset>>DataLayerAssetMap;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<UDataLayerAsset>>AllDataLayerAssetMap;
-	
 };

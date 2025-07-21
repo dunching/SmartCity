@@ -36,6 +36,8 @@ void AGameMode_Main::BeginPlay()
 	// 视角
 	SmartCityCommand::ReplyCameraTransform();
 
+	USceneInteractionWorldSystem::GetInstance()->InitializeSceneActors();
+
 	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 
 #pragma region 场景
