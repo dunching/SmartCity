@@ -12,6 +12,8 @@
 #include "PlayerGameplayTasks.h"
 #include "Tools.h"
 #include "SceneInteractionWorldSystem.h"
+#include "UI/HUD/MainHUD.h"
+#include "UI/HUD/MainHUDLayout.h"
 
 void SmartCityCommand::ReplyCameraTransform()
 {
@@ -61,5 +63,14 @@ void SmartCityCommand::TestAssetUserData()
 				}
 			}
 		}
+	}
+}
+
+void SmartCityCommand::AddFeatureItem(const TArray< FString >& Args)
+{
+	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+	if (HUDPtr )
+	{
+		HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
 	}
 }

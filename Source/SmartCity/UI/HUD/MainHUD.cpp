@@ -1,5 +1,7 @@
 #include "MainHUD.h"
 
+#include "MainHUDLayout.h"
+
 struct FMainHUD : public TStructVariable<FMainHUD>
 {
 	FName GetItemInfos_Socket = TEXT("GetItemInfos_Socket");
@@ -29,4 +31,11 @@ void AMainHUD::ShowHUD()
 
 void AMainHUD::InitalHUD()
 {
+	MainHUDLayoutPtr = CreateWidget<UMainHUDLayout>(GetOwningPlayerController(), MainHUDLayoutClass);
+	MainHUDLayoutPtr->AddToViewport();
+}
+
+UMainHUDLayout* AMainHUD::GetMainHUDLayout() const
+{
+	return MainHUDLayoutPtr;
 }

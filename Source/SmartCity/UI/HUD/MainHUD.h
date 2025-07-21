@@ -12,11 +12,6 @@
 #include "MainHUD.generated.h"
 
 class UMainHUDLayout;
-class URegularActionLayout;
-class UEndangeredStateLayout;
-class UGetItemInfosList;
-class UUIManagerSubSystem;
-struct FOnAttributeChangeData;
 
 UCLASS()
 class SMARTCITY_API AMainHUD : public AHUD
@@ -24,8 +19,6 @@ class SMARTCITY_API AMainHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	friend UUIManagerSubSystem;
-
 	using FOnInitaliedGroupSharedInfo =
 	TCallbackHandleContainer<void()>::FCallbackHandleSPtr;
 
@@ -35,6 +28,13 @@ public:
 
 	void InitalHUD();
 
-protected:
+	UMainHUDLayout* GetMainHUDLayout() const;
 
+protected:
+	UPROPERTY()
+	UMainHUDLayout* MainHUDLayoutPtr = nullptr;
+
+	UPROPERTY(BlueprintReadWrite,
+		EditAnywhere)
+	TSubclassOf<UMainHUDLayout> MainHUDLayoutClass;
 };
