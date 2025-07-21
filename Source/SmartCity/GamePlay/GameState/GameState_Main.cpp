@@ -40,5 +40,5 @@ void AGameState_Main::SetOpenWorldWeather(
 {
 	OpenWorldWeather = NewOpenWorldWeather;
 
-	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather_Server(OpenWorldWeather);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(OpenWorldWeather);
 }

@@ -58,7 +58,7 @@ inline void ADynamic_WeatherBase::ForceNetUpdate()
 	Super::ForceNetUpdate();
 }
 
-void ADynamic_WeatherBase::UpdateWeather_Server_Implementation(
+void ADynamic_WeatherBase::UpdateWeather(
 	const FGameplayTag& WeatherType
 	)
 {
@@ -66,19 +66,7 @@ void ADynamic_WeatherBase::UpdateWeather_Server_Implementation(
 	if (Iter)
 	{
 		CurrentWeather = WeatherType;
-		UpdateWeatherCPP_Server(Iter->LoadSynchronous(), 3.f);
-	}
-}
-
-void ADynamic_WeatherBase::UpdateWeather_Client_Implementation(
-	const FGameplayTag& WeatherType
-	)
-{
-	const auto Iter = WeatherMap.Find(WeatherType);
-	if (Iter)
-	{
-		CurrentWeather = WeatherType;
-		UpdateWeatherCPP_Client(Iter->LoadSynchronous(), 3.f);
+		UpdateWeatherCPPImp(Iter->LoadSynchronous(), 3.f);
 	}
 }
 

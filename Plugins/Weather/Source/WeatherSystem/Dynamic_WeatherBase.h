@@ -38,13 +38,7 @@ public:
 
 	virtual void ForceNetUpdate() override;
 
-	UFUNCTION(Server, Reliable)
-	void UpdateWeather_Server(
-		const FGameplayTag& WeatherType
-		);
-
-	UFUNCTION(Client, Reliable)
-	void UpdateWeather_Client(
+	void UpdateWeather(
 		const FGameplayTag& WeatherType
 		);
 
@@ -59,18 +53,10 @@ public:
 
 	FGameplayTag GetCurrentWeather() const;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateSeasonCPP();
-
 protected:
+	
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateWeatherCPP_Server(
-		UPrimaryDataAsset* DS_Weather_SettingsPtr,
-		float TransitionDelta
-		);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateWeatherCPP_Client(
+	void UpdateWeatherCPPImp(
 		UPrimaryDataAsset* DS_Weather_SettingsPtr,
 		float TransitionDelta
 		);
