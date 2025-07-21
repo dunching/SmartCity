@@ -96,82 +96,29 @@ void USceneInteractionWorldSystem::Operation(
 	}
 }
 
-TSet<AActor*> USceneInteractionWorldSystem::UpdateFilter(
+void USceneInteractionWorldSystem::UpdateFilter(
 	EDecoratorType DecoratorType,
-	const TSet<FGameplayTag>& FilterTags
+	const TSet<FGameplayTag>& FilterTags,
+	const std::function<void(
+		bool,const TSet<AActor*>&
+		)>& OnEnd
 	)
 {
-	TSet<AActor*> Result;
-
-	// 更新过滤条件
-	Filters.Add(
-	            DecoratorType,
-	            FilterTags
-	           );
-
-	TArray<AActor*> ResultAry;
-	UGameplayStatics::GetAllActorsOfClass(
-	                                      this,
-	                                      AActor::StaticClass(),
-	                                      ResultAry
-	                                     );
-
-	auto Lambda = [this, &Result](
-		AActor* Actor
-		)
-	{
-		if (SceneActorsRefMap.Contains(Actor))
-		{
-		}
-		else
-		{
-			PRINTINVOKEWITHSTR(FString(TEXT("")));
-			return;
-		}
-
-		if (Actor->IsA(ALight::StaticClass()))
-		{
-			PRINTINVOKEWITHSTR(FString(TEXT("")));
-			Actor->SetActorHiddenInGame(true);
-			return;
-		}
-
-		auto Filter = SceneActorsRefMap[Actor];
-
-		TSet<FGameplayTag> FilterSet;
-		for (const auto& Iter : Filters)
-		{
-			FilterSet.Append(Iter.Value);
-		}
-
-		for (const auto& Iter : FilterSet)
-		{
-			if (Filter.Contains(Iter))
-			{
-			}
-			else
-			{
-				PRINTINVOKEWITHSTR(FString(TEXT("")));
-				Actor->SetActorHiddenInGame(true);
-				return;
-			}
-		}
-
-		PRINTINVOKEWITHSTR(FString(TEXT("")));
-		Actor->SetActorHiddenInGame(false);
-
-		Result.Add(Actor);
-	};
-
-	for (auto Iter : ResultAry)
-	{
-		if (Iter)
-		{
-			Lambda(Iter);
-		}
-	}
-
-	return Result;
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
+	                                                                        [this, OnEnd, DecoratorType, &FilterTags](
+	                                                                        UGT_SceneObjSwitch* GTPtr
+	                                                                        )
+	                                                                        {
+		                                                                        if (GTPtr)
+		                                                                        {
+			                                                                        GTPtr->SceneInteractionWorldSystemPtr = this;
+			                                                                        GTPtr->DecoratorType = DecoratorType;
+			                                                                        GTPtr->FilterTags = FilterTags;
+			                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
+		                                                                        }
+	                                                                        }
+	                                                                       );
 }
 
 void USceneInteractionWorldSystem::InitializeSceneActors()

@@ -72,28 +72,6 @@ namespace HumanProcessor
 				Cast<APlayerController>(OnwerActorPtr->GetController())->GetLocalPlayer()
 			);
 
-			EDashDirection DashDirection = EDashDirection::kForward;
-
-			if (EnhancedInputLocalPlayerSubsystemPtr->GetPlayerInput()->IsPressed(EKeys::W))
-			{
-				DashDirection = EDashDirection::kForward;
-			}
-			else if (EnhancedInputLocalPlayerSubsystemPtr->GetPlayerInput()->IsPressed(EKeys::S))
-			{
-				DashDirection = EDashDirection::kBackward;
-			}
-			else if (EnhancedInputLocalPlayerSubsystemPtr->GetPlayerInput()->IsPressed(EKeys::A))
-			{
-				DashDirection = EDashDirection::kLeft;
-			}
-			else if (EnhancedInputLocalPlayerSubsystemPtr->GetPlayerInput()->IsPressed(EKeys::D))
-			{
-				DashDirection = EDashDirection::kRight;
-			}
-			else
-			{
-				DashDirection = EDashDirection::kForward;
-			}
 
 		}
 	}

@@ -9,6 +9,7 @@
 #include "GameplayTagContainer.h"
 
 #include "GameplayTasksComponent.h"
+#include "GenerateTypes.h"
 
 #include "PlayerGameplayTasks.generated.h"
 
@@ -202,7 +203,7 @@ class SMARTCITY_API UGT_SceneObjSwitch : public UGameplayTask
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
-		bool
+		bool,const TSet<AActor*>&
 		)>;
 
 	UGT_SceneObjSwitch(
@@ -221,11 +222,28 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	FGameplayTag Interaction_Area;
+	EDecoratorType DecoratorType;
+	
+	TSet<FGameplayTag> FilterTags;
+
+	FOnEnd OnEnd;
 private:
+	void Check(AActor* Actor);
+	
+	/**
+	 * 每个装饰器下的过滤条件
+	 */
+	TMap<EDecoratorType, TSet<FGameplayTag>> Filters;
+
+	TSet<AActor*> Result;
+
 	TArray<AActor*> ResultAry;
 
 	int32 Index = 0;
+
+	int32 CurrentTickProcessNum = 0;
+
+	int32 PerTickProcessNum = 100;
 };
 
 #pragma endregion

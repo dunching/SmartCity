@@ -157,12 +157,23 @@ void FArea_Decorator::Entry()
 {
 	Super::Entry();
 
-	TSet<TSoftObjectPtr<UDataLayerAsset>> DalaLayerAssetMap;
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          GetMainDecoratorType(),
+	                                                          {CurrentInteraction_Area},
+	                                                          std::bind(
+	                                                                    &ThisClass::OnUpdateFilterComplete,
+	                                                                    this,
+	                                                                    std::placeholders::_1,
+	                                                                    std::placeholders::_2
+	                                                                   )
+	                                                         );
+}
 
-	Actors = USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                                   GetMainDecoratorType(),
-	                                                                   {CurrentInteraction_Area}
-	                                                                  );
+void FArea_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
 }
 
 FExternalWall_Decorator::FExternalWall_Decorator(
@@ -217,26 +228,6 @@ void FFloor_Decorator::Entry()
 {
 	Super::Entry();
 
-	auto Result = UKismetAlgorithm::GetCameraSeat(
-	                                              Actors,
-	                                              UGameOptions::GetInstance()->ViewFloorRot,
-	                                              UGameOptions::GetInstance()->ViewFloorFOV
-	                                             );
-
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
-		 [Result](
-		 UGT_ModifyCameraTransform* GTPtr
-		 )
-		 {
-			 if (GTPtr)
-			 {
-				 GTPtr->TargetLocation = Result.Key.GetLocation();
-				 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
-				 GTPtr->TargetTargetArmLength = Result.Value;
-			 }
-		 }
-		);
 }
 
 void FFloor_Decorator::Operation(
@@ -327,4 +318,34 @@ void FFloor_Decorator::Operation(
 		break;
 	default: ;
 	}
+}
+
+void FFloor_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors);
+
+	
+	auto Result = UKismetAlgorithm::GetCameraSeat(
+												  Actors,
+												  UGameOptions::GetInstance()->ViewFloorRot,
+												  UGameOptions::GetInstance()->ViewFloorFOV
+												 );
+
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
+		 [Result](
+		 UGT_ModifyCameraTransform* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->TargetLocation = Result.Key.GetLocation();
+				 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
+				 GTPtr->TargetTargetArmLength = Result.Value;
+			 }
+		 }
+		);
 }

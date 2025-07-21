@@ -14,6 +14,7 @@
 #include "GameplayTagsLibrary.h"
 #include "LogWriter.h"
 #include "TemplateHelper.h"
+#include "Engine/Light.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -281,6 +282,19 @@ UGT_SceneObjSwitch::UGT_SceneObjSwitch(
 void UGT_SceneObjSwitch::Activate()
 {
 	Super::Activate();
+	
+	// 更新过滤条件
+	Filters.Add(
+				DecoratorType,
+				FilterTags
+			   );
+
+	UGameplayStatics::GetAllActorsOfClass(
+										  this,
+										  AActor::StaticClass(),
+										  ResultAry
+										 );
+
 }
 
 void UGT_SceneObjSwitch::TickTask(
@@ -288,11 +302,82 @@ void UGT_SceneObjSwitch::TickTask(
 	)
 {
 	Super::TickTask(DeltaTime);
+	
+	for (; Index < ResultAry.Num();)
+	{
+		ON_SCOPE_EXIT
+		{
+			Index++;
+		};
+
+		Check(ResultAry[Index]);
+		
+		PRINTINVOKEWITHSTR(FString::Printf(TEXT("%d %d"), Index, ResultAry.Num()));
+
+		CurrentTickProcessNum++;
+		if (CurrentTickProcessNum < PerTickProcessNum)
+		{
+			
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	EndTask();
 }
 
 void UGT_SceneObjSwitch::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
+	OnEnd.Broadcast(true, Result);
+	
 	Super::OnDestroy(bInOwnerFinished);
+}
+
+void UGT_SceneObjSwitch::Check(AActor* Actor)
+{
+	if (SceneInteractionWorldSystemPtr->SceneActorsRefMap.Contains(Actor))
+	{
+	}
+	else
+	{
+		PRINTINVOKEWITHSTR(FString(TEXT("")));
+		return;
+	}
+
+	if (Actor->IsA(ALight::StaticClass()))
+	{
+		PRINTINVOKEWITHSTR(FString(TEXT("")));
+		Actor->SetActorHiddenInGame(true);
+		return;
+	}
+
+	auto Filter = SceneInteractionWorldSystemPtr->SceneActorsRefMap[Actor];
+
+	TSet<FGameplayTag> FilterSet;
+	for (const auto& Iter : Filters)
+	{
+		FilterSet.Append(Iter.Value);
+	}
+
+	for (const auto& Iter : FilterSet)
+	{
+		if (Filter.Contains(Iter))
+		{
+		}
+		else
+		{
+			PRINTINVOKEWITHSTR(FString(TEXT("")));
+			Actor->SetActorHiddenInGame(true);
+			return;
+		}
+	}
+
+	PRINTINVOKEWITHSTR(FString(TEXT("")));
+	Actor->SetActorHiddenInGame(false);
+
+	Result.Add(Actor);
 }

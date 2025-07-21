@@ -1,4 +1,4 @@
- // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -15,6 +15,7 @@
 
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
+class UGT_SceneObjSwitch;
 
 /*
  * 
@@ -26,26 +27,36 @@ class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
 
 public:
 	friend UGT_InitializeSceneActors;
-	
+	friend UGT_SceneObjSwitch;
+
 	static USceneInteractionWorldSystem* GetInstance();
 
-	void SwitchInteractionMode(const FGameplayTag&Interaction_Mode);
+	void SwitchInteractionMode(
+		const FGameplayTag& Interaction_Mode
+		);
 
-	void SwitchViewArea(const FGameplayTag&Interaction_Area);
+	void SwitchViewArea(
+		const FGameplayTag& Interaction_Area
+		);
 
-	void Operation(EOperatorType OperatorType) const;
+	void Operation(
+		EOperatorType OperatorType
+		) const;
 
-	TSet<AActor*> UpdateFilter(EDecoratorType OperatorType, const TSet<FGameplayTag>&FilterTags);
+	void UpdateFilter(
+		EDecoratorType OperatorType,
+		const TSet<FGameplayTag>& FilterTags,
+		const std::function<void(bool,const TSet<AActor*>&)>& OnEnd = nullptr
+		);
 
 	void InitializeSceneActors();
-	
-private:
 
+private:
 	/**
 	 * 
 	 */
 	TMap<EDecoratorType, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
-	
+
 	/**
 	 * 每个装饰器下的过滤条件
 	 */
@@ -59,5 +70,5 @@ private:
 	 */
 	TMap<TWeakObjectPtr<AActor>, TSet<FGameplayTag>> SceneActorsRefMap;
 
-	TMap<FGuid, TWeakObjectPtr<AActor>>ItemRefMap;
+	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
 };
