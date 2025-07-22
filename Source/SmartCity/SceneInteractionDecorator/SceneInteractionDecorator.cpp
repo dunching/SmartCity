@@ -227,7 +227,6 @@ FFloor_Decorator::FFloor_Decorator(
 void FFloor_Decorator::Entry()
 {
 	Super::Entry();
-
 }
 
 void FFloor_Decorator::Operation(
@@ -327,12 +326,12 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
 
-	
+
 	auto Result = UKismetAlgorithm::GetCameraSeat(
-												  Actors,
-												  UGameOptions::GetInstance()->ViewFloorRot,
-												  UGameOptions::GetInstance()->ViewFloorFOV
-												 );
+	                                              InActors,
+	                                              UGameOptions::GetInstance()->ViewFloorRot,
+	                                              UGameOptions::GetInstance()->ViewFloorFOV
+	                                             );
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(

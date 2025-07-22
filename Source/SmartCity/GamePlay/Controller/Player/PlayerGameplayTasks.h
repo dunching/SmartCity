@@ -94,6 +94,7 @@ public:
 	float TargetTargetArmLength = 0.f;
 
 protected:
+	void Adjust(float Percent)const;
 private:
 	float CurrentTime = 0.f;
 
@@ -150,6 +151,63 @@ public:
 		) override;
 };
 
+/**
+ * 定位某个设备
+ */
+UCLASS()
+class SMARTCITY_API UGT_CameraTransformLocaterByID : public UGT_CameraTransform
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	virtual void Activate() override;
+
+	FGuid ID;
+};
+
+#pragma endregion
+
+#pragma region 批量任务处理
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_BatchBase : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	UGT_BatchBase(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void TickTask(
+		float DeltaTime
+		) override;
+
+protected:
+
+	virtual bool ProcessTask(); 
+	
+	double ScopeTiempo = 1.f;
+
+	bool bUseScope = true;
+	
+private:
+	int32 CurrentTickProcessNum = 0;
+
+	int32 PerTickProcessNum = 100;
+};
+
 #pragma endregion
 
 #pragma region 数据处理
@@ -158,7 +216,7 @@ public:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_InitializeSceneActors : public UGameplayTask
+class SMARTCITY_API UGT_InitializeSceneActors : public UGT_BatchBase
 {
 	GENERATED_BODY()
 
@@ -183,10 +241,18 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
+	FOnEnd OnEnd;
+protected:
+	virtual bool ProcessTask() override; 
+	
 private:
 	TArray<AActor*> ResultAry;
 
 	int32 Index = 0;
+
+	int32 CurrentTickProcessNum = 0;
+
+	int32 PerTickProcessNum = 100;
 };
 
 #pragma endregion
@@ -197,7 +263,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SceneObjSwitch : public UGameplayTask
+class SMARTCITY_API UGT_SceneObjSwitch : public UGT_BatchBase
 {
 	GENERATED_BODY()
 
@@ -227,8 +293,10 @@ public:
 	TSet<FGameplayTag> FilterTags;
 
 	FOnEnd OnEnd;
+protected:
+	virtual bool ProcessTask() override; 
+	
 private:
-	void Check(AActor* Actor);
 	
 	/**
 	 * 每个装饰器下的过滤条件

@@ -38,8 +38,6 @@ void AGameMode_Main::BeginPlay()
 
 	USceneInteractionWorldSystem::GetInstance()->InitializeSceneActors();
 
-	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
-
 #pragma region 场景
 	// 整楼、外墙
 	ProcessExternalWall();

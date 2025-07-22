@@ -133,8 +133,6 @@ protected:
 
 	FGameplayTag CurrentInteraction_Area;
 
-	TSet<AActor*> Actors;
-
 private:
 };
 

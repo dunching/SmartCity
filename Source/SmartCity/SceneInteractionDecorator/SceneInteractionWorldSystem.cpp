@@ -3,6 +3,9 @@
 #include "Subsystems/SubsystemBlueprintLibrary.h"
 #include "WorldPartition/DataLayer/DataLayerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Light.h"
+#include "Engine/StaticMeshActor.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "Tools.h"
 #include "AssetRefMap.h"
@@ -13,9 +16,6 @@
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionDecorator.h"
 #include "TemplateHelper.h"
-#include "Engine/Light.h"
-#include "Engine/StaticMeshActor.h"
-#include "Kismet/KismetStringLibrary.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 {
@@ -100,7 +100,9 @@ void USceneInteractionWorldSystem::UpdateFilter(
 	EDecoratorType DecoratorType,
 	const TSet<FGameplayTag>& FilterTags,
 	const std::function<void(
-		bool,const TSet<AActor*>&
+		bool,
+		const TSet<AActor*>&
+		
 		)>& OnEnd
 	)
 {
@@ -112,8 +114,11 @@ void USceneInteractionWorldSystem::UpdateFilter(
 	                                                                        {
 		                                                                        if (GTPtr)
 		                                                                        {
-			                                                                        GTPtr->SceneInteractionWorldSystemPtr = this;
-			                                                                        GTPtr->DecoratorType = DecoratorType;
+			                                                                        GTPtr->
+				                                                                        SceneInteractionWorldSystemPtr =
+				                                                                        this;
+			                                                                        GTPtr->DecoratorType =
+				                                                                        DecoratorType;
 			                                                                        GTPtr->FilterTags = FilterTags;
 			                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
 		                                                                        }
@@ -134,7 +139,26 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 			 if (GTPtr)
 			 {
 				 GTPtr->SceneInteractionWorldSystemPtr = this;
+				 GTPtr->OnEnd.AddLambda(
+				                        [this](
+				                        bool
+				                        )
+				                        {
+					                        SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+				                        }
+				                       );
 			 }
 		 }
 		);
+}
+
+TWeakObjectPtr<AActor> USceneInteractionWorldSystem::FindSceneActor(
+	const FGuid& ID
+	) const
+{
+	if (ItemRefMap.Contains(ID))
+	{
+		return ItemRefMap[ID];
+	}
+	return nullptr;
 }
