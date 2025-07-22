@@ -110,6 +110,11 @@ public:
 	float ViewDeviceFOV = 90.f;
 #pragma endregion
 
+#pragma region 渲染
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	int32 FocusOutline = 1;
+#pragma endregion
+
 protected:
 	
 private:

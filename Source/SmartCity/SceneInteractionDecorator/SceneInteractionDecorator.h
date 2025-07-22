@@ -21,9 +21,14 @@ public:
 
 	virtual void Entry();
 
-	virtual void Operation(
+	/**
+	 * 
+	 * @param OperatorType 
+	 * @return 是否消耗事件
+	 */
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const;
+		);
 
 	EDecoratorType GetMainDecoratorType() const;
 
@@ -51,9 +56,9 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void Operation(
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const override;
+		) override;
 };
 
 /**
@@ -71,9 +76,9 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void Operation(
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const override;
+		) override;
 };
 
 /**
@@ -93,9 +98,9 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void Operation(
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const override;
+		) override;
 
 private:
 	void RadarQuery();
@@ -133,7 +138,6 @@ protected:
 
 	FGameplayTag CurrentInteraction_Area;
 
-private:
 };
 
 /**
@@ -153,9 +157,9 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void Operation(
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const override;
+		) override;
 };
 
 /**
@@ -175,15 +179,24 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void Operation(
+	virtual bool Operation(
 		EOperatorType OperatorType
-		) const override;
+		) override;
 
 protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
 		) override;
+private:
+
+	void AddFocusDevice(AActor*DevicePtr);
+
+	void RemoveFocusDevice(AActor*DevicePtr);
+
+	void ClearFocus();
+	
+	TSet<AActor*>FocusActors;
 };
 
 #pragma endregion

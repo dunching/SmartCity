@@ -33,10 +33,11 @@ void FDecoratorBase::Entry()
 {
 }
 
-void FDecoratorBase::Operation(
+bool FDecoratorBase::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
+	return false;
 }
 
 EDecoratorType FDecoratorBase::GetMainDecoratorType() const
@@ -67,13 +68,13 @@ FTour_Decorator::FTour_Decorator():
 {
 }
 
-void FTour_Decorator::Operation(
+bool FTour_Decorator::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
-	Super::Operation(OperatorType);
-
 	PRINTFUNCSTR();
+	
+	return  Super::Operation(OperatorType);
 }
 
 FSceneMode_Decorator::FSceneMode_Decorator():
@@ -94,13 +95,14 @@ void FSceneMode_Decorator::Entry()
 	                                                         );
 }
 
-void FSceneMode_Decorator::Operation(
+bool FSceneMode_Decorator::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
-	Super::Operation(OperatorType);
 
 	PRINTFUNCSTR();
+	
+	return  Super::Operation(OperatorType);
 }
 
 FRadarMode_Decorator::FRadarMode_Decorator():
@@ -130,11 +132,11 @@ void FRadarMode_Decorator::Entry()
 	                                         );
 }
 
-void FRadarMode_Decorator::Operation(
+bool FRadarMode_Decorator::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
-	Super::Operation(OperatorType);
+	return  Super::Operation(OperatorType);
 }
 
 void FRadarMode_Decorator::RadarQuery()
@@ -193,9 +195,9 @@ void FExternalWall_Decorator::Entry()
 	SmartCityCommand::ReplyCameraTransform();
 }
 
-void FExternalWall_Decorator::Operation(
+bool FExternalWall_Decorator::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
 	Super::Operation(OperatorType);
 
@@ -212,6 +214,8 @@ void FExternalWall_Decorator::Operation(
 		break;
 	default: ;
 	}
+
+	return false;
 }
 
 FFloor_Decorator::FFloor_Decorator(
@@ -229,9 +233,9 @@ void FFloor_Decorator::Entry()
 	Super::Entry();
 }
 
-void FFloor_Decorator::Operation(
+bool FFloor_Decorator::Operation(
 	EOperatorType OperatorType
-	) const
+	)
 {
 	Super::Operation(OperatorType);
 
@@ -275,13 +279,16 @@ void FFloor_Decorator::Operation(
 				{
 					if (Iter.GetActor())
 					{
+						ClearFocus();
+						AddFocusDevice(Iter.GetActor());
+						
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
 
 						MessageBodySPtr->DeviceID = TEXT("");
 
 						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
-						return;
+						return true;
 					}
 				}
 			}
@@ -307,7 +314,7 @@ void FFloor_Decorator::Operation(
 						MessageBodySPtr->SpaceName = TEXT("");
 
 						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-						return;
+						return true;
 					}
 				}
 			}
@@ -317,6 +324,10 @@ void FFloor_Decorator::Operation(
 		break;
 	default: ;
 	}
+
+	ClearFocus();
+
+	return false;
 }
 
 void FFloor_Decorator::OnUpdateFilterComplete(
@@ -347,4 +358,65 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			 }
 		 }
 		);
+}
+
+void FFloor_Decorator::AddFocusDevice(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (FocusActors.Contains(DevicePtr))
+	{
+		return;
+	}
+
+	FocusActors.Add(DevicePtr);
+
+	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(true);
+		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+}
+
+void FFloor_Decorator::RemoveFocusDevice(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (!FocusActors.Contains(DevicePtr))
+	{
+		return;
+	}
+
+	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	}
+
+	FocusActors.Remove(DevicePtr);
+}
+
+void FFloor_Decorator::ClearFocus()
+{
+	for (auto Iter : FocusActors)
+	{
+		if (Iter)
+		{
+			auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+		}
+	}
+	FocusActors.Empty();
 }

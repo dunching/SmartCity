@@ -8,8 +8,10 @@
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
-inline TourProcessor::FTourProcessor::FTourProcessor(FOwnerPawnType* CharacterPtr):
-	Super(CharacterPtr)
+inline TourProcessor::FTourProcessor::FTourProcessor(
+	FOwnerPawnType* CharacterPtr
+	):
+	 Super(CharacterPtr)
 {
 }
 
@@ -20,7 +22,9 @@ void TourProcessor::FTourProcessor::EnterAction()
 	SwitchShowCursor(true);
 }
 
-bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs)
+bool TourProcessor::FTourProcessor::InputKey(
+	const FInputKeyEventArgs& EventArgs
+	)
 {
 	switch (EventArgs.Event)
 	{
@@ -37,7 +41,7 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 			if (EventArgs.Key == GameOptionsPtr->RotBtn)
 			{
 				bHasRoted = false;
-						
+
 				bStartRot = true;
 				return true;
 			}
@@ -45,7 +49,7 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 			if (EventArgs.Key == GameOptionsPtr->MoveBtn)
 			{
 				bHasMoved = false;
-					
+
 				bStartMove = true;
 				return true;
 			}
@@ -58,18 +62,19 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 			if (EventArgs.Key == GameOptionsPtr->ClickItem)
 			{
 				if (bHasRoted || bHasMoved)
-				{}
+				{
+				}
 				else
 				{
+					// 如果未旋转或移动、则继续往下
 					USceneInteractionWorldSystem::GetInstance()->Operation(EOperatorType::kLeftMouseButton);
-					return true;
 				}
 			}
-			
+
 			if (EventArgs.Key == GameOptionsPtr->RotBtn)
 			{
 				bHasRoted = false;
-					
+
 				bStartRot = false;
 				return true;
 			}
@@ -77,7 +82,7 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 			if (EventArgs.Key == GameOptionsPtr->MoveBtn)
 			{
 				bHasMoved = false;
-					
+
 				bStartMove = false;
 				return true;
 			}
@@ -89,7 +94,9 @@ bool TourProcessor::FTourProcessor::InputKey(const FInputKeyEventArgs& EventArgs
 	return Super::InputKey(EventArgs);
 }
 
-bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArgs)
+bool TourProcessor::FTourProcessor::InputAxis(
+	const FInputKeyEventArgs& EventArgs
+	)
 {
 	switch (EventArgs.Event)
 	{
@@ -110,7 +117,7 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					if (bStartRot)
 					{
 						bHasRoted = true;
-						
+
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
@@ -119,17 +126,21 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					else if (bStartMove)
 					{
 						bHasMoved = true;
-						
+
 						const FRotator Rotation = OnwerActorPtr->Controller->GetControlRotation();
 
-						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(FVector::UpVector,
-							Rotation.Quaternion().GetRightVector()).Vector();
+						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(
+							 FVector::UpVector,
+							 Rotation.Quaternion().GetRightVector()
+							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-							MoveSpeed;
+						                   MoveSpeed;
 
-						OnwerActorPtr->AddMovementInput(Direction,
-						                                Value);
+						OnwerActorPtr->AddMovementInput(
+						                                Direction,
+						                                Value
+						                               );
 
 						return true;
 					}
@@ -143,9 +154,9 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					if (bStartRot)
 					{
 						bHasRoted = true;
-						
+
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-							RotPitchSpeed;
+						                 RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(Rot);
 
 						return true;
@@ -153,17 +164,21 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 					else if (bStartMove)
 					{
 						bHasMoved = true;
-						
+
 						const FRotator Rotation = OnwerActorPtr->Controller->GetControlRotation();
 
-						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(FVector::UpVector,
-							Rotation.Quaternion().GetForwardVector()).Vector();
+						const FVector Direction = UKismetMathLibrary::MakeRotFromZX(
+							 FVector::UpVector,
+							 Rotation.Quaternion().GetForwardVector()
+							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-							MoveSpeed;
+						                   MoveSpeed;
 
-						OnwerActorPtr->AddMovementInput(Direction,
-						                                Value);
+						OnwerActorPtr->AddMovementInput(
+						                                Direction,
+						                                Value
+						                               );
 
 						return true;
 					}
@@ -175,13 +190,15 @@ bool TourProcessor::FTourProcessor::InputAxis(const FInputKeyEventArgs& EventArg
 				if (OnwerActorPtr->Controller != nullptr)
 				{
 					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						CameraSpringArmSpeed;
+					                   CameraSpringArmSpeed;
 
-					const auto ClampValue = FMath::Clamp(OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
+					const auto ClampValue = FMath::Clamp(
+					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
 					                                     GameOptionsPtr->
 					                                     MinCameraSpringArm,
 					                                     GameOptionsPtr->
-					                                     MaxCameraSpringArm);
+					                                     MaxCameraSpringArm
+					                                    );
 
 					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
 
