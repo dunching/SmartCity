@@ -25,4 +25,25 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
 	
+	/**
+	 * 设备ID的前缀
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Datasmith_UniqueId;
+	
+	/**
+	 * 设备类型的Key
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<FString>CatogoryPrifix;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString FJPG;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString XFJZ;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Space;
+	
 };

@@ -102,6 +102,14 @@ public:
 	float ViewFloorFOV = 90.f;
 #pragma endregion
 
+#pragma region 查看单个设备
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	FRotator ViewDeviceRot = FRotator(-30, 30, 0);
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	float ViewDeviceFOV = 90.f;
+#pragma endregion
+
 protected:
 	
 private:

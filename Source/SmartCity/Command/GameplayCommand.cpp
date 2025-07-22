@@ -89,5 +89,12 @@ void SmartCityCommand::LocaterByID(
 		return;
 	}
 
-	
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>([&Args](UGT_CameraTransformLocaterByID* GTPtr)
+	{
+		if (GTPtr)
+		{
+			GTPtr->ID = FGuid(Args[0]);
+		}
+	});
 }

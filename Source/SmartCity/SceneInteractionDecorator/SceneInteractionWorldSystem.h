@@ -51,6 +51,8 @@ public:
 
 	void InitializeSceneActors();
 
+	TWeakObjectPtr<AActor>FindSceneActor(const FGuid& ID)const;
+	
 private:
 	/**
 	 * 
