@@ -61,10 +61,10 @@ public:
 
 #pragma region 查看全局
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotYawSpeed = 80;
+	int32 RotYawSpeed = 30;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotPitchSpeed = 80;
+	int32 RotPitchSpeed = 30;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	int32 MoveSpeed = 1000;
@@ -96,7 +96,7 @@ public:
 	int32 LinetraceDistance = 10000;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
-	FRotator ViewFloorRot = FRotator(-30, 30, 0);
+	FRotator ViewFloorRot = FRotator(-30, 10, 0);
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	float ViewFloorFOV = 90.f;

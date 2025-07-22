@@ -42,10 +42,10 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 {
 	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall))
 	{
-		if (DecoratorLayerAssetMap.Contains(EDecoratorType::kArea))
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
 		{
-			if (DecoratorLayerAssetMap[EDecoratorType::kArea]->GetBranchDecoratorType() ==
-			    EDecoratorType::kArea_ExternalWall)
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Area_ExternalWall)
 			{
 				return;
 			}
@@ -55,7 +55,7 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		DecoratorSPtr->Entry();
 
 		DecoratorLayerAssetMap.Add(
-		                           EDecoratorType::kArea,
+		                           UGameplayTagsLibrary::Interaction_Area,
 		                           DecoratorSPtr
 		                          );
 		return;
@@ -63,10 +63,10 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 
 	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
 	{
-		if (DecoratorLayerAssetMap.Contains(EDecoratorType::kArea))
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
 		{
-			if (DecoratorLayerAssetMap[EDecoratorType::kArea]->GetBranchDecoratorType() ==
-			    EDecoratorType::kArea_Floor)
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Area_Floor)
 			{
 				return;
 			}
@@ -76,7 +76,7 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		DecoratorSPtr->Entry();
 
 		DecoratorLayerAssetMap.Add(
-		                           EDecoratorType::kArea,
+		                           UGameplayTagsLibrary::Interaction_Area,
 		                           DecoratorSPtr
 		                          );
 		return;
@@ -97,7 +97,6 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	EDecoratorType DecoratorType,
 	const TSet<FGameplayTag>& FilterTags,
 	const std::function<void(
 		bool,
@@ -108,7 +107,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
-	                                                                        [this, OnEnd, DecoratorType, &FilterTags](
+	                                                                        [this, OnEnd, &FilterTags](
 	                                                                        UGT_SceneObjSwitch* GTPtr
 	                                                                        )
 	                                                                        {
@@ -117,9 +116,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 			                                                                        GTPtr->
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
-			                                                                        GTPtr->DecoratorType =
-				                                                                        DecoratorType;
-			                                                                        GTPtr->FilterTags = FilterTags;
+			                                                                        GTPtr->FilterTags = FilterTags.Array();
 			                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
 		                                                                        }
 	                                                                        }

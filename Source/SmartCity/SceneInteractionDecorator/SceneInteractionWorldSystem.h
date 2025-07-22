@@ -44,7 +44,6 @@ public:
 		) const;
 
 	void UpdateFilter(
-		EDecoratorType OperatorType,
 		const TSet<FGameplayTag>& FilterTags,
 		const std::function<void(bool,const TSet<AActor*>&)>& OnEnd = nullptr
 		);
@@ -57,20 +56,7 @@ private:
 	/**
 	 * 
 	 */
-	TMap<EDecoratorType, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
-
-	/**
-	 * 每个装饰器下的过滤条件
-	 */
-	TMap<EDecoratorType, TSet<FGameplayTag>> Filters;
-
-	/**
-	 * 我们在这里存场景里面对象的引用，用于各种视图切换时显示隐藏
-	 * 为什么不用DataLayer？因为DataLayer在切换时太慢了
-	 * Key 对象引用
-	 * Value 仅在这些过滤条件下显示
-	 */
-	TMap<TWeakObjectPtr<AActor>, TSet<FGameplayTag>> SceneActorsRefMap;
+	TMap<FGameplayTag, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
 };

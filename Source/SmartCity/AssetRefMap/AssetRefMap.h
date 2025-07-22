@@ -6,11 +6,13 @@
 #include "GameplayTagContainer.h"
 
 #include "AssetRefBase.h"
+#include "GenerateTypes.h"
 
 #include "AssetRefMap.generated.h"
 
 class AActor;
 class UDataLayerAsset;
+class ADatasmithSceneActor;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -24,6 +26,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, FSceneActorMap> SceneActorMap;
 	
 	/**
 	 * 设备ID的前缀

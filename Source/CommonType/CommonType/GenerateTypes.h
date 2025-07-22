@@ -8,21 +8,7 @@
 
 #include "GenerateTypes.generated.h"
 
-UENUM()
-enum class EDecoratorType : uint8
-{
-	kMode,
-	kMode_Tour,
-	kMode_Scene,
-	kMode_Radar,
-
-	kArea,
-	kArea_ExternalWall,
-	kArea_Floor,
-	kArea_Space,
-
-	kNone,
-};
+class ADatasmithSceneActor;
 
 UENUM()
 enum class EOperatorType: uint8
@@ -32,4 +18,14 @@ enum class EOperatorType: uint8
 	kRightMouseButton,
 
 	kNone,
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FSceneActorMap
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+	
 };

@@ -13,8 +13,8 @@ class SMARTCITY_API FDecoratorBase
 {
 public:
 	FDecoratorBase(
-		EDecoratorType InMainDecoratorType,
-		EDecoratorType InBranchDecoratorType
+		FGameplayTag InMainDecoratorType,
+		FGameplayTag InBranchDecoratorType
 		);
 
 	virtual ~FDecoratorBase();
@@ -30,14 +30,14 @@ public:
 		EOperatorType OperatorType
 		);
 
-	EDecoratorType GetMainDecoratorType() const;
+	FGameplayTag GetMainDecoratorType() const;
 
-	EDecoratorType GetBranchDecoratorType() const;
+	FGameplayTag GetBranchDecoratorType() const;
 
 protected:
-	EDecoratorType MainDecoratorType = EDecoratorType::kNone;
+	FGameplayTag MainDecoratorType;
 
-	EDecoratorType BranchDecoratorType = EDecoratorType::kNone;
+	FGameplayTag BranchDecoratorType;
 };
 
 #pragma region 模式
@@ -124,7 +124,6 @@ public:
 	                   );
 
 	FArea_Decorator(
-		EDecoratorType InBranchDecoratorType,
 		const FGameplayTag& Interaction_Area
 		);
 
@@ -137,7 +136,6 @@ protected:
 		);
 
 	FGameplayTag CurrentInteraction_Area;
-
 };
 
 /**
@@ -188,15 +186,19 @@ protected:
 		bool bIsOK,
 		const TSet<AActor*>& InActors
 		) override;
+
 private:
+	void AddFocusDevice(
+		AActor* DevicePtr
+		);
 
-	void AddFocusDevice(AActor*DevicePtr);
-
-	void RemoveFocusDevice(AActor*DevicePtr);
+	void RemoveFocusDevice(
+		AActor* DevicePtr
+		);
 
 	void ClearFocus();
-	
-	TSet<AActor*>FocusActors;
+
+	TSet<AActor*> FocusActors;
 };
 
 #pragma endregion

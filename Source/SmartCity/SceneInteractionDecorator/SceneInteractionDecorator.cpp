@@ -13,12 +13,13 @@
 #include "SceneInteractionWorldSystem.h"
 #include "Algorithm.h"
 #include "GameplayCommand.h"
+#include "GameplayTagsLibrary.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 
 FDecoratorBase::FDecoratorBase(
-	EDecoratorType InMainDecoratorType,
-	EDecoratorType InBranchDecoratorType
+	FGameplayTag InMainDecoratorType,
+	FGameplayTag InBranchDecoratorType
 	):
 	 MainDecoratorType(InMainDecoratorType)
 	 , BranchDecoratorType(InBranchDecoratorType)
@@ -40,12 +41,12 @@ bool FDecoratorBase::Operation(
 	return false;
 }
 
-EDecoratorType FDecoratorBase::GetMainDecoratorType() const
+FGameplayTag FDecoratorBase::GetMainDecoratorType() const
 {
 	return MainDecoratorType;
 }
 
-EDecoratorType FDecoratorBase::GetBranchDecoratorType() const
+FGameplayTag FDecoratorBase::GetBranchDecoratorType() const
 {
 	return BranchDecoratorType;
 }
@@ -55,15 +56,15 @@ void FTour_Decorator::Entry()
 	Super::Entry();
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          GetMainDecoratorType(),
-	                                                          {}
+
+	                                                          {GetMainDecoratorType(),}
 	                                                         );
 }
 
 FTour_Decorator::FTour_Decorator():
                                   Super(
-                                        EDecoratorType::kMode,
-                                        EDecoratorType::kMode_Tour
+                                        UGameplayTagsLibrary::Interaction_Mode,
+                                        UGameplayTagsLibrary::Interaction_Mode_Tour
                                        )
 {
 }
@@ -73,14 +74,14 @@ bool FTour_Decorator::Operation(
 	)
 {
 	PRINTFUNCSTR();
-	
-	return  Super::Operation(OperatorType);
+
+	return Super::Operation(OperatorType);
 }
 
 FSceneMode_Decorator::FSceneMode_Decorator():
                                             Super(
-                                                  EDecoratorType::kMode,
-                                                  EDecoratorType::kMode_Scene
+                                                  UGameplayTagsLibrary::Interaction_Mode,
+                                                  UGameplayTagsLibrary::Interaction_Mode_Scene
                                                  )
 {
 }
@@ -90,8 +91,8 @@ void FSceneMode_Decorator::Entry()
 	Super::Entry();
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          GetMainDecoratorType(),
-	                                                          {}
+
+	                                                          {GetMainDecoratorType(),}
 	                                                         );
 }
 
@@ -99,16 +100,15 @@ bool FSceneMode_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
-
 	PRINTFUNCSTR();
-	
-	return  Super::Operation(OperatorType);
+
+	return Super::Operation(OperatorType);
 }
 
 FRadarMode_Decorator::FRadarMode_Decorator():
                                             Super(
-                                                  EDecoratorType::kMode,
-                                                  EDecoratorType::kMode_Radar
+                                                  UGameplayTagsLibrary::Interaction_Mode,
+                                                  UGameplayTagsLibrary::Interaction_Mode_Radar
                                                  )
 {
 }
@@ -136,7 +136,7 @@ bool FRadarMode_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
-	return  Super::Operation(OperatorType);
+	return Super::Operation(OperatorType);
 }
 
 void FRadarMode_Decorator::RadarQuery()
@@ -144,12 +144,11 @@ void FRadarMode_Decorator::RadarQuery()
 }
 
 FArea_Decorator::FArea_Decorator(
-	EDecoratorType InBranchDecoratorType,
 	const FGameplayTag& Interaction_Area
 	):
 	 Super(
-	       EDecoratorType::kArea,
-	       InBranchDecoratorType
+	       UGameplayTagsLibrary::Interaction_Area,
+	       Interaction_Area
 	      )
 	 , CurrentInteraction_Area(Interaction_Area)
 {
@@ -160,7 +159,6 @@ void FArea_Decorator::Entry()
 	Super::Entry();
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          GetMainDecoratorType(),
 	                                                          {CurrentInteraction_Area},
 	                                                          std::bind(
 	                                                                    &ThisClass::OnUpdateFilterComplete,
@@ -182,7 +180,6 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 	const FGameplayTag& Interaction_Area
 	):
 	 Super(
-	       EDecoratorType::kArea_ExternalWall,
 	       Interaction_Area
 	      )
 {
@@ -222,7 +219,6 @@ FFloor_Decorator::FFloor_Decorator(
 	const FGameplayTag& Interaction_Area
 	):
 	 Super(
-	       EDecoratorType::kArea_Floor,
 	       Interaction_Area
 	      )
 {
@@ -281,7 +277,7 @@ bool FFloor_Decorator::Operation(
 					{
 						ClearFocus();
 						AddFocusDevice(Iter.GetActor());
-						
+
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
 
 						MessageBodySPtr->DeviceID = TEXT("");

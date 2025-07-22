@@ -29,6 +29,8 @@ public class CommonType : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
+            
+            "DatasmithContent",
         });
 
         PublicDependencyModuleNames.AddRange(new string[] {

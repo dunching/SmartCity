@@ -1,24 +1,27 @@
 #include "PlayerGameplayTasks.h"
 
-#include "Algorithm.h"
-#include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
 #include "DatasmithAssetUserData.h"
-#include "GameOptions.h"
-#include "SceneInteractionWorldSystem.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/StaticMeshActor.h"
 #include "Tasks/AITask.h"
+#include "Engine/Light.h"
 
+#include "GameOptions.h"
+#include "SceneInteractionWorldSystem.h"
+#include "Algorithm.h"
+#include "AssetRefMap.h"
 #include "TourPawn.h"
 #include "ViewerPawn.h"
 #include "Tools.h"
 #include "GameplayTagsLibrary.h"
+#include "AssetRefMap.h"
+#include "DatasmithSceneActor.h"
+#include "GenerateTypes.h"
 #include "LogWriter.h"
 #include "TemplateHelper.h"
-#include "Engine/Light.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -274,17 +277,36 @@ UGT_InitializeSceneActors::UGT_InitializeSceneActors(
 	bIsPausable = true;
 
 	Priority = FGameplayTasks::DefaultPriority / 2;
+
+	bUseScope = false;
+
+	PerTickProcessNum = 1000;
 }
 
 void UGT_InitializeSceneActors::Activate()
 {
 	Super::Activate();
 
-	UGameplayStatics::GetAllActorsOfClass(
-	                                      GetWorldImp(),
-	                                      AActor::StaticClass(),
-	                                      ResultAry
-	                                     );
+	for (const auto& Iter : UAssetRefMap::GetInstance()->SceneActorMap)
+	{
+		SceneActorMap.Add({Iter.Key, Iter.Value});
+	}
+
+	if (SceneActorMap.IsValidIndex(0))
+	{
+		for (const auto& Iter : SceneActorMap[0].Value.DataSmithSceneActorsSet)
+		{
+			DataSmithSceneActorsSet.Add(Iter);
+		}
+	}
+
+	if (DataSmithSceneActorsSet.IsValidIndex(0))
+	{
+		for (const auto& Iter : DataSmithSceneActorsSet[0]->RelatedActors)
+		{
+			RelatedActors.Add({Iter.Key, Iter.Value});
+		}
+	}
 }
 
 void UGT_InitializeSceneActors::TickTask(
@@ -305,43 +327,60 @@ void UGT_InitializeSceneActors::OnDestroy(
 
 bool UGT_InitializeSceneActors::ProcessTask()
 {
-	ON_SCOPE_EXIT
-	{
-		Index++;
-	};
-
-	if (Index >= ResultAry.Num())
-	{
-		return false;
-	}
-
-	auto Iter = ResultAry[Index];
-	if (Iter->IsA(AStaticMeshActor::StaticClass()))
-	{
-	}
-	else if (!Iter->GetComponents().IsEmpty())
+	if (SceneActorMapIndex < SceneActorMap.Num())
 	{
 	}
 	else
 	{
+		return false;
+	}
+
+	if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+	{
+	}
+	else
+	{
+		DataSmithSceneActorsSetIndex = 0;
+		SceneActorMapIndex++;
+
+		if (SceneActorMapIndex < SceneActorMap.Num())
+		{
+			DataSmithSceneActorsSet.Empty();
+			for (const auto& Iter : SceneActorMap[SceneActorMapIndex].Value.DataSmithSceneActorsSet)
+			{
+				DataSmithSceneActorsSet.Add(Iter);
+			}
+		}
+
 		return true;
 	}
 
-	if (Iter->ActorHasTag(TEXT("All")))
+	if (RelatedActorsIndex < RelatedActors.Num())
 	{
-		SceneInteractionWorldSystemPtr->SceneActorsRefMap.Add(
-		                                                      Iter,
-		                                                      {UGameplayTagsLibrary::Interaction_Area_ExternalWall}
-		                                                     );
 	}
-	else if (Iter->ActorHasTag(TEXT("F1")))
+	else
 	{
-		SceneInteractionWorldSystemPtr->SceneActorsRefMap.Add(
-		                                                      Iter,
-		                                                      {UGameplayTagsLibrary::Interaction_Area_Floor_F1}
-		                                                     );
+		RelatedActorsIndex = 0;
+		DataSmithSceneActorsSetIndex++;
+
+		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+		{
+			RelatedActors.Empty();
+			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
+			{
+				RelatedActors.Add({Iter.Key, Iter.Value});
+			}
+		}
+
+		return true;
 	}
 
+	ON_SCOPE_EXIT
+	{
+		RelatedActorsIndex++;
+	};
+
+	auto Iter = RelatedActors[RelatedActorsIndex].Value;
 	auto Components = Iter->GetComponents();
 	for (auto SecondIterr : Components)
 	{
@@ -359,14 +398,14 @@ bool UGT_InitializeSceneActors::ProcessTask()
 			}
 			for (const auto& ThirdIter : AUDPtr->MetaData)
 			{
-				PRINTINVOKEWITHSTR(FString::Printf(TEXT("%s %s"), *ThirdIter.Key.ToString(), *ThirdIter.Value));
 				if (ThirdIter.Key == UAssetRefMap::GetInstance()->Datasmith_UniqueId)
 				{
-					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter);
+					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter.LoadSynchronous());
 					continue;
 				}
 
-				auto CatogoryPrefixIter = UAssetRefMap::GetInstance()->CatogoryPrifix.Find(ThirdIter.Key.ToString());
+				auto CatogoryPrefixIter = UAssetRefMap::GetInstance()->CatogoryPrifix.
+				                                                       Find(ThirdIter.Key.ToString());
 				if (CatogoryPrefixIter)
 				{
 					if (ThirdIter.Value == UAssetRefMap::GetInstance()->FJPG)
@@ -406,8 +445,6 @@ bool UGT_InitializeSceneActors::ProcessTask()
 		}
 	}
 
-	PRINTINVOKEWITHSTR(FString::Printf(TEXT("%d %d"), Index, ResultAry.Num()));
-
 	return true;
 }
 
@@ -425,18 +462,6 @@ UGT_SceneObjSwitch::UGT_SceneObjSwitch(
 void UGT_SceneObjSwitch::Activate()
 {
 	Super::Activate();
-
-	// 更新过滤条件
-	Filters.Add(
-	            DecoratorType,
-	            FilterTags
-	           );
-
-	UGameplayStatics::GetAllActorsOfClass(
-	                                      this,
-	                                      AActor::StaticClass(),
-	                                      ResultAry
-	                                     );
 }
 
 void UGT_SceneObjSwitch::TickTask(
@@ -450,67 +475,86 @@ void UGT_SceneObjSwitch::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
-	OnEnd.Broadcast(true, Result);
+	TSet<AActor*>TempSet;
+	for (const auto  & Iter : Result)
+	{
+		TempSet.Add(Iter);
+	}
+	OnEnd.Broadcast(true, TempSet);
 
 	Super::OnDestroy(bInOwnerFinished);
 }
 
 bool UGT_SceneObjSwitch::ProcessTask()
 {
-	ON_SCOPE_EXIT
+	// 要显示的DataSmith
+	if (DataSmithSceneActorsSet.IsEmpty())
 	{
-		Index++;
-	};
-
-	if (Index >= ResultAry.Num())
-	{
-		return false;
+		for (const auto& Iter : FilterTags)
+		{
+			if (UAssetRefMap::GetInstance()->SceneActorMap.Contains(Iter))
+			{
+				for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap[Iter].DataSmithSceneActorsSet)
+				{
+					DataSmithSceneActorsSet.Add(SecondIter);
+				}
+			}
+		}
+		return true;
 	}
 
-	auto Actor = ResultAry[Index];
-	if (SceneInteractionWorldSystemPtr->SceneActorsRefMap.Contains(Actor))
+	// 确认过滤条件数量
+	if (DataSmithSceneActorsSet.IsEmpty())
 	{
 	}
 	else
 	{
-		PRINTINVOKEWITHSTR(FString(TEXT("")));
-		return true;
-	}
-
-	if (Actor->IsA(ALight::StaticClass()))
-	{
-		PRINTINVOKEWITHSTR(FString(TEXT("")));
-		Actor->SetActorHiddenInGame(true);
-		return true;
-	}
-
-	auto Filter = SceneInteractionWorldSystemPtr->SceneActorsRefMap[Actor];
-
-	TSet<FGameplayTag> FilterSet;
-	for (const auto& Iter : Filters)
-	{
-		FilterSet.Append(Iter.Value);
-	}
-
-	for (const auto& Iter : FilterSet)
-	{
-		if (Filter.Contains(Iter))
+		ON_SCOPE_EXIT
 		{
+			DataSmithSceneActorsSetIndex++;
+		};
+		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+		{
+			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
+			{
+				auto SecondIter = FilterCount.find(Iter.Value.LoadSynchronous());
+				if (SecondIter != FilterCount.end())
+				{
+					SecondIter++;
+				}
+				else
+				{
+					FilterCount.emplace(Iter.Value.LoadSynchronous(), 1);
+				}
+			}
+			return true;
 		}
 		else
 		{
-			PRINTINVOKEWITHSTR(FString(TEXT("")));
-			Actor->SetActorHiddenInGame(true);
-			return true;
 		}
 	}
 
-	PRINTINVOKEWITHSTR(FString(TEXT("")));
-	Actor->SetActorHiddenInGame(false);
-
-	Result.Add(Actor);
-
-	PRINTINVOKEWITHSTR(FString::Printf(TEXT("%d %d"), Index, ResultAry.Num()));
-
-	return true;
+	// 显示
+	ON_SCOPE_EXIT
+	{
+		FilterIndex++;
+	};
+	if (FilterIndex < FilterCount.size())
+	{
+		auto Iter = FilterCount.begin();
+		std::advance(Iter, FilterIndex);
+		if (Iter->second >= FilterTags.Num())
+		{
+			Iter->first->SetActorHiddenInGame(false);
+		}
+		else
+		{
+			Iter->first->SetActorHiddenInGame(true);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

@@ -8,8 +8,14 @@ FGameplayTag UGameplayTagsLibrary::Seat_Default =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Radar =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Radar")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Area =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area")));

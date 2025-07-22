@@ -3,6 +3,8 @@
 #pragma once
 
 #include <functional>
+#include <map>
+#include <set>
 
 #include "CoreMinimal.h"
 
@@ -15,6 +17,7 @@
 
 class AViewerPawn;
 class USceneInteractionWorldSystem;
+class ADatasmithSceneActor;
 
 /*
  * PlayerController处理异步的组件
@@ -34,6 +37,8 @@ public:
 	void StartGameplayTask(
 		const std::function<void(
 			GameplayTaskType*
+
+			
 			)>& Func
 		);
 };
@@ -42,6 +47,8 @@ template <typename GameplayTaskType>
 void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
+
+		
 		)>& Func
 	)
 {
@@ -94,7 +101,10 @@ public:
 	float TargetTargetArmLength = 0.f;
 
 protected:
-	void Adjust(float Percent)const;
+	void Adjust(
+		float Percent
+		) const;
+
 private:
 	float CurrentTime = 0.f;
 
@@ -195,17 +205,16 @@ public:
 		) override;
 
 protected:
+	virtual bool ProcessTask();
 
-	virtual bool ProcessTask(); 
-	
 	double ScopeTiempo = 1.f;
 
 	bool bUseScope = true;
-	
-private:
-	int32 CurrentTickProcessNum = 0;
 
 	int32 PerTickProcessNum = 100;
+
+private:
+	int32 CurrentTickProcessNum = 0;
 };
 
 #pragma endregion
@@ -242,17 +251,23 @@ public:
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
 	FOnEnd OnEnd;
+
 protected:
-	virtual bool ProcessTask() override; 
-	
+	virtual bool ProcessTask() override;
+
 private:
-	TArray<AActor*> ResultAry;
 
-	int32 Index = 0;
+	int32 SceneActorMapIndex = 0;
+	
+	TArray<TPair<FGameplayTag, FSceneActorMap>> SceneActorMap;
 
-	int32 CurrentTickProcessNum = 0;
+	int32 DataSmithSceneActorsSetIndex = 0;
+	
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
-	int32 PerTickProcessNum = 100;
+	int32 RelatedActorsIndex = 0;
+	
+	TArray<TPair<FName, TSoftObjectPtr<AActor>>> RelatedActors;
 };
 
 #pragma endregion
@@ -269,7 +284,10 @@ class SMARTCITY_API UGT_SceneObjSwitch : public UGT_BatchBase
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
-		bool,const TSet<AActor*>&
+		bool,
+		const TSet<AActor*>&
+
+		
 		)>;
 
 	UGT_SceneObjSwitch(
@@ -288,30 +306,26 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	EDecoratorType DecoratorType;
-	
-	TSet<FGameplayTag> FilterTags;
+	TArray<FGameplayTag> FilterTags;
 
 	FOnEnd OnEnd;
+
 protected:
-	virtual bool ProcessTask() override; 
-	
+	virtual bool ProcessTask() override;
+
 private:
+	std::set<AActor*> Result;
+
+	int32 FilterIndex = 0;
 	
-	/**
-	 * 每个装饰器下的过滤条件
-	 */
-	TMap<EDecoratorType, TSet<FGameplayTag>> Filters;
+	std::map<AActor*,int32> FilterCount;
 
-	TSet<AActor*> Result;
+	int32 DataSmithSceneActorsSetIndex = 0;
+	
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
-	TArray<AActor*> ResultAry;
-
-	int32 Index = 0;
-
-	int32 CurrentTickProcessNum = 0;
-
-	int32 PerTickProcessNum = 100;
+	int32 RelatedActorsIndex = 0;
+	
 };
 
 #pragma endregion
