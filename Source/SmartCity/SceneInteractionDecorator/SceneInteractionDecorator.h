@@ -94,7 +94,7 @@ public:
 
 	FRadarMode_Decorator();
 
-	virtual ~FRadarMode_Decorator();
+	virtual ~FRadarMode_Decorator() ;
 
 	virtual void Entry() override;
 

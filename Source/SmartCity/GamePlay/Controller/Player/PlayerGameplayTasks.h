@@ -306,7 +306,7 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TArray<FGameplayTag> FilterTags;
+	TSet<FGameplayTag> FilterTags;
 
 	FOnEnd OnEnd;
 
@@ -314,11 +314,15 @@ protected:
 	virtual bool ProcessTask() override;
 
 private:
-	std::set<AActor*> Result;
+	TSet<AActor*> Result;
 
 	int32 FilterIndex = 0;
 	
 	std::map<AActor*,int32> FilterCount;
+
+	int32 HideDataSmithSceneActorsSetIndex = 0;
+	
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 	

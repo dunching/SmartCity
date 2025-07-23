@@ -475,12 +475,7 @@ void UGT_SceneObjSwitch::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
-	TSet<AActor*>TempSet;
-	for (const auto  & Iter : Result)
-	{
-		TempSet.Add(Iter);
-	}
-	OnEnd.Broadcast(true, TempSet);
+	OnEnd.Broadcast(true, Result);
 
 	Super::OnDestroy(bInOwnerFinished);
 }
@@ -490,14 +485,15 @@ bool UGT_SceneObjSwitch::ProcessTask()
 	// 要显示的DataSmith
 	if (DataSmithSceneActorsSet.IsEmpty())
 	{
-		for (const auto& Iter : FilterTags)
+		for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap)
 		{
-			if (UAssetRefMap::GetInstance()->SceneActorMap.Contains(Iter))
+			if (FilterTags.Contains(SecondIter.Key))
 			{
-				for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap[Iter].DataSmithSceneActorsSet)
-				{
-					DataSmithSceneActorsSet.Add(SecondIter);
-				}
+				DataSmithSceneActorsSet.Append(SecondIter.Value.DataSmithSceneActorsSet.Array());
+			}
+			else
+			{
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.DataSmithSceneActorsSet.Array());
 			}
 		}
 		return true;
@@ -534,6 +530,25 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		}
 	}
 
+	if (HideDataSmithSceneActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			HideDataSmithSceneActorsSetIndex++;
+		};
+		if (HideDataSmithSceneActorsSetIndex < HideDataSmithSceneActorsSet.Num())
+		{
+			for (const auto& Iter : HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->RelatedActors)
+			{
+				FilterCount.emplace(Iter.Value.LoadSynchronous(), 0);
+			}
+			return true;
+		}
+	}
+
 	// 显示
 	ON_SCOPE_EXIT
 	{
@@ -546,6 +561,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		if (Iter->second >= FilterTags.Num())
 		{
 			Iter->first->SetActorHiddenInGame(false);
+			Result.Add(Iter->first);
 		}
 		else
 		{

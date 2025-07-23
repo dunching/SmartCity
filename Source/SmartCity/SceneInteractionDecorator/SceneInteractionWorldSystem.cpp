@@ -116,7 +116,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 			                                                                        GTPtr->
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
-			                                                                        GTPtr->FilterTags = FilterTags.Array();
+			                                                                        GTPtr->FilterTags = FilterTags;
 			                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
 		                                                                        }
 	                                                                        }
