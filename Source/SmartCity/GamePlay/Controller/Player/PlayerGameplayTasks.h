@@ -259,7 +259,7 @@ private:
 
 	int32 SceneActorMapIndex = 0;
 	
-	TArray<TPair<FGameplayTag, FSceneActorMap>> SceneActorMap;
+	TArray<FSceneActorMap> SceneActorMap;
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 	
@@ -306,28 +306,44 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TSet<FGameplayTag> FilterTags;
+	TSet<FSceneActorConditional,TSceneActorConditionalKeyFuncs> FilterTags;
 
+	/**
+	 * 是否清楚之前的
+	 */
+	bool bClearPrevious = false;
+	
 	FOnEnd OnEnd;
 
 protected:
 	virtual bool ProcessTask() override;
 
 private:
+	
+	/**
+	 * 建筑物
+	 * 用于计算保卫狂
+	 */
 	TSet<AActor*> Result;
 
+	/**
+	 * 等待显示
+	 */
 	int32 FilterIndex = 0;
 	
 	std::map<AActor*,int32> FilterCount;
+	
 
 	int32 HideDataSmithSceneActorsSetIndex = 0;
 	
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
+	
 	int32 DataSmithSceneActorsSetIndex = 0;
 	
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
+	
 	int32 RelatedActorsIndex = 0;
 	
 };

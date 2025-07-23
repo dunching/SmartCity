@@ -2,6 +2,8 @@
 
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -27,7 +29,7 @@ inline void UFeatureWheel::InitalFeaturesItem(
 	{
 		FeatureCanvas->ClearChildren();
 
-		const auto Offset = (SizeBox->GetWidthOverride() / 2)- 100;
+		const auto Offset = (SizeBox->GetWidthOverride() / 2) - 100;
 
 		const auto Num = Features.Num();
 		int32 Index = 0;
@@ -54,7 +56,16 @@ inline void UFeatureWheel::InitalFeaturesItem(
 
 void UFeatureWheel::UpdatePosition()
 {
-	
+}
+
+void UMainHUDLayout::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (OverlapPtr)
+	{
+		OverlapPtr->ClearChildren();
+	}
 }
 
 void UMainHUDLayout::InitalFeaturesItem(
@@ -65,7 +76,14 @@ void UMainHUDLayout::InitalFeaturesItem(
 	FeatureWheelPtr = CreateWidget<UFeatureWheel>(this, FeatureWheelClass);
 	if (FeatureWheelPtr)
 	{
-		FeatureWheelPtr->AddToViewport(1);
+		FeatureWheelPtr->InitalFeaturesItem(FeatureName, Features);
+
+		auto SlotPtr = OverlapPtr->AddChildToOverlay(FeatureWheelPtr);
+		if (SlotPtr )
+		{
+			SlotPtr ->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+			SlotPtr ->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+		}
 	}
 }
 

@@ -70,7 +70,7 @@ public:
 	int32 MoveSpeed = 1000;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 MaxMoveSpeed = 12000;
+	int32 MaxMoveSpeed = 8000;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	int32 Acceleration = 10000;
@@ -79,7 +79,7 @@ public:
 	int32 Deceleration = 20000;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 CameraSpringArmSpeed = 500;
+	int32 CameraSpringArmSpeed = 1000;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	int32 DefautlCameraSpringArm = 8000;

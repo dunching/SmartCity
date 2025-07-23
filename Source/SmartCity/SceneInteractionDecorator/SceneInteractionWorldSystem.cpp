@@ -31,8 +31,41 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)
 {
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_QD)
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Mode_QD)
+			{
+				return;
+			}
+		}
+
+		SwitchDecoratorImp<FQDMode_Decorator>(
+		                                      UGameplayTagsLibrary::Interaction_Mode,
+		                                      UGameplayTagsLibrary::Interaction_Mode_QD
+		                                     );
+
+		return;
+	}
 	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Scene)
 	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Mode_Scene)
+			{
+				return;
+			}
+		}
+
+		SwitchDecoratorImp<FSceneMode_Decorator>(
+		                                      UGameplayTagsLibrary::Interaction_Mode,
+		                                      UGameplayTagsLibrary::Interaction_Mode_Scene
+		                                     );
+
+		return;
 	}
 }
 
@@ -51,13 +84,12 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			}
 		}
 
-		auto DecoratorSPtr = MakeShared<FExternalWall_Decorator>(Interaction_Area);
-		DecoratorSPtr->Entry();
+		SwitchDecoratorImp<FExternalWall_Decorator>(
+		                                            UGameplayTagsLibrary::Interaction_Area,
+		                                            UGameplayTagsLibrary::Interaction_Area_ExternalWall,
+		                                            Interaction_Area
+		                                           );
 
-		DecoratorLayerAssetMap.Add(
-		                           UGameplayTagsLibrary::Interaction_Area,
-		                           DecoratorSPtr
-		                          );
 		return;
 	}
 
@@ -72,13 +104,12 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			}
 		}
 
-		auto DecoratorSPtr = MakeShared<FFloor_Decorator>(Interaction_Area);
-		DecoratorSPtr->Entry();
+		SwitchDecoratorImp<FFloor_Decorator>(
+		                                     UGameplayTagsLibrary::Interaction_Area,
+		                                     UGameplayTagsLibrary::Interaction_Area_Floor,
+		                                     Interaction_Area
+		                                    );
 
-		DecoratorLayerAssetMap.Add(
-		                           UGameplayTagsLibrary::Interaction_Area,
-		                           DecoratorSPtr
-		                          );
 		return;
 	}
 }
@@ -97,10 +128,12 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	const TSet<FGameplayTag>& FilterTags,
+	const TSet<FSceneActorConditional,TSceneActorConditionalKeyFuncs>& FilterTags,
 	const std::function<void(
 		bool,
 		const TSet<AActor*>&
+
+
 		
 		)>& OnEnd
 	)
@@ -158,4 +191,36 @@ TWeakObjectPtr<AActor> USceneInteractionWorldSystem::FindSceneActor(
 		return ItemRefMap[ID];
 	}
 	return nullptr;
+}
+
+FGameplayTagContainer USceneInteractionWorldSystem::GetAllFilterTags() const
+{
+	FGameplayTagContainer Result;
+
+	for (const auto& Iter : DecoratorLayerAssetMap)
+	{
+		if (Iter.Value)
+		{
+			Result.AddTag(Iter.Value->GetBranchDecoratorType());
+		}
+	}
+
+	return Result;
+}
+
+void USceneInteractionWorldSystem::NotifyOtherDecorators(
+	const FGameplayTag& MainTag, const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	) const
+{
+	for (const auto& Iter : DecoratorLayerAssetMap)
+	{
+		if (Iter.Key == MainTag)
+		{
+			continue;
+		}
+		if (Iter.Value)
+		{
+			Iter.Value->OnOtherDecoratorEntry(NewDecoratorSPtr);
+		}
+	}
 }

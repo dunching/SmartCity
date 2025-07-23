@@ -5,17 +5,6 @@
 FGameplayTag UGameplayTagsLibrary::Seat_Default =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Seat.Default")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Radar =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Radar")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Area =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area")));
@@ -31,3 +20,25 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_Floor_F1 =
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Area_Space =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.Space")));
+
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_SplitFloor =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.SplitFloor")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Radar =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Radar")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD")));

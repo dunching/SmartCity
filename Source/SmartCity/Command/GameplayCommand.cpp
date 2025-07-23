@@ -38,6 +38,11 @@ void SmartCityCommand::SwitchViewArea(const TArray<FString>& Args)
 
 void SmartCityCommand::SwitchMode(const TArray<FString>& Args)
 {
+	for (auto Iter : Args)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::RequestGameplayTag(*Iter));
+		return;
+	}
 }
 
 void SmartCityCommand::TestAssetUserData()

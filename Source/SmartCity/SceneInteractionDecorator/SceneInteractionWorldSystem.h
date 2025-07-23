@@ -44,16 +44,39 @@ public:
 		) const;
 
 	void UpdateFilter(
-		const TSet<FGameplayTag>& FilterTags,
-		const std::function<void(bool,const TSet<AActor*>&)>& OnEnd = nullptr
+		const TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs>& FilterTags,
+		const std::function<void(
+			bool,
+			const TSet<AActor*>&
+			
+			)>& OnEnd = nullptr
 		);
 
 	void InitializeSceneActors();
 
-	TWeakObjectPtr<AActor>FindSceneActor(const FGuid& ID)const;
-	
+	TWeakObjectPtr<AActor> FindSceneActor(
+		const FGuid& ID
+		) const;
+
+	/**
+	 * 根据选择的装饰器获取所有过滤条件
+	 * @return 
+	 */
+	FGameplayTagContainer GetAllFilterTags() const;
+
 private:
-	
+	void NotifyOtherDecorators(
+		const FGameplayTag& MainTag,
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) const;
+
+	template <typename Decorator, typename... Args>
+	void SwitchDecoratorImp(
+		const FGameplayTag& MainTag,
+		const FGameplayTag& BranchTag,
+		Args... Param
+		);
+
 	/**
 	 * 
 	 */
@@ -61,3 +84,22 @@ private:
 
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
 };
+
+template <typename Decorator, typename... Args>
+void USceneInteractionWorldSystem::SwitchDecoratorImp(
+	const FGameplayTag& MainTag,
+	const FGameplayTag& BranchTag,
+	Args... Param
+	)
+{
+	auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+
+	NotifyOtherDecorators(MainTag, DecoratorSPtr);
+
+	DecoratorLayerAssetMap.Add(
+	                           MainTag,
+	                           DecoratorSPtr
+	                          );
+
+	DecoratorSPtr->Entry();
+}

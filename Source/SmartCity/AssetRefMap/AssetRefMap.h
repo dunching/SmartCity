@@ -28,7 +28,7 @@ public:
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, FSceneActorMap> SceneActorMap;
+	TMap<FSceneActorConditional, FSceneActorMap> SceneActorMap;
 	
 	/**
 	 * 设备ID的前缀

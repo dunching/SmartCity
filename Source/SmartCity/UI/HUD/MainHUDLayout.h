@@ -11,6 +11,7 @@
 class UCanvasPanel;
 class UTextBlock;
 class USizeBox;
+class UOverlay;
 
 UCLASS()
 class SMARTCITY_API UFeatureItem : public UUserWidget
@@ -67,6 +68,8 @@ class SMARTCITY_API UMainHUDLayout : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	void NativeConstruct() override;
+
 	void InitalFeaturesItem(
 		const FString& FeatureName,
 		const TArray<FString>& Features
@@ -81,4 +84,8 @@ public:
 	TSubclassOf<UFeatureWheel> FeatureWheelClass;
 
 	UFeatureWheel* FeatureWheelPtr = nullptr;
+	
+	UPROPERTY(meta = (BindWidget))
+	UOverlay* OverlapPtr = nullptr;
+
 };

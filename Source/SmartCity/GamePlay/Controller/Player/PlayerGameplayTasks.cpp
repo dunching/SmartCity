@@ -289,12 +289,12 @@ void UGT_InitializeSceneActors::Activate()
 
 	for (const auto& Iter : UAssetRefMap::GetInstance()->SceneActorMap)
 	{
-		SceneActorMap.Add({Iter.Key, Iter.Value});
+		SceneActorMap.Add(Iter.Value);
 	}
 
 	if (SceneActorMap.IsValidIndex(0))
 	{
-		for (const auto& Iter : SceneActorMap[0].Value.DataSmithSceneActorsSet)
+		for (const auto& Iter : SceneActorMap[0].DataSmithSceneActorsSet)
 		{
 			DataSmithSceneActorsSet.Add(Iter);
 		}
@@ -346,9 +346,17 @@ bool UGT_InitializeSceneActors::ProcessTask()
 		if (SceneActorMapIndex < SceneActorMap.Num())
 		{
 			DataSmithSceneActorsSet.Empty();
-			for (const auto& Iter : SceneActorMap[SceneActorMapIndex].Value.DataSmithSceneActorsSet)
+			for (const auto& Iter : SceneActorMap[SceneActorMapIndex].DataSmithSceneActorsSet)
 			{
 				DataSmithSceneActorsSet.Add(Iter);
+			}
+
+			if (DataSmithSceneActorsSet.IsValidIndex(0))
+			{
+				for (const auto& Iter : DataSmithSceneActorsSet[0]->RelatedActors)
+				{
+					RelatedActors.Add({Iter.Key, Iter.Value});
+				}
 			}
 		}
 
@@ -402,6 +410,9 @@ bool UGT_InitializeSceneActors::ProcessTask()
 				{
 					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter.LoadSynchronous());
 					continue;
+				}
+				else
+				{
 				}
 
 				auto CatogoryPrefixIter = UAssetRefMap::GetInstance()->CatogoryPrifix.
@@ -482,6 +493,11 @@ void UGT_SceneObjSwitch::OnDestroy(
 
 bool UGT_SceneObjSwitch::ProcessTask()
 {
+	if (FilterTags.IsEmpty())
+	{
+		return false;
+	}
+
 	// 要显示的DataSmith
 	if (DataSmithSceneActorsSet.IsEmpty())
 	{
@@ -499,37 +515,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		return true;
 	}
 
-	// 确认过滤条件数量
-	if (DataSmithSceneActorsSet.IsEmpty())
-	{
-	}
-	else
-	{
-		ON_SCOPE_EXIT
-		{
-			DataSmithSceneActorsSetIndex++;
-		};
-		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
-		{
-			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
-			{
-				auto SecondIter = FilterCount.find(Iter.Value.LoadSynchronous());
-				if (SecondIter != FilterCount.end())
-				{
-					SecondIter++;
-				}
-				else
-				{
-					FilterCount.emplace(Iter.Value.LoadSynchronous(), 1);
-				}
-			}
-			return true;
-		}
-		else
-		{
-		}
-	}
-
+	// 不显示的
 	if (HideDataSmithSceneActorsSet.IsEmpty())
 	{
 	}
@@ -549,6 +535,29 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		}
 	}
 
+	// 确认过滤条件数量
+	if (DataSmithSceneActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			DataSmithSceneActorsSetIndex++;
+		};
+		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+		{
+			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
+			{
+				FilterCount[Iter.Value.LoadSynchronous()] = 1;
+			}
+			return true;
+		}
+		else
+		{
+		}
+	}
+
 	// 显示
 	ON_SCOPE_EXIT
 	{
@@ -558,7 +567,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 	{
 		auto Iter = FilterCount.begin();
 		std::advance(Iter, FilterIndex);
-		if (Iter->second >= FilterTags.Num())
+		if (Iter->second > 0)
 		{
 			Iter->first->SetActorHiddenInGame(false);
 			Result.Add(Iter->first);

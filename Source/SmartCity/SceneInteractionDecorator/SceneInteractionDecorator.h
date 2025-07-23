@@ -12,6 +12,8 @@
 class SMARTCITY_API FDecoratorBase
 {
 public:
+	GENERATIONCLASSINFOONLYTHIS(FDecoratorBase);
+	
 	FDecoratorBase(
 		FGameplayTag InMainDecoratorType,
 		FGameplayTag InBranchDecoratorType
@@ -20,6 +22,8 @@ public:
 	virtual ~FDecoratorBase();
 
 	virtual void Entry();
+
+	virtual void OnOtherDecoratorEntry(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr);
 
 	/**
 	 * 
@@ -35,6 +39,11 @@ public:
 	FGameplayTag GetBranchDecoratorType() const;
 
 protected:
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		);
+
 	FGameplayTag MainDecoratorType;
 
 	FGameplayTag BranchDecoratorType;
@@ -53,6 +62,26 @@ public:
 	                   );
 
 	FTour_Decorator();
+
+	virtual void Entry() override;
+
+	virtual bool Operation(
+		EOperatorType OperatorType
+		) override;
+};
+
+/**
+ * 楼层 展开
+ */
+class SMARTCITY_API FSplitFloorMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSplitFloorMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FSplitFloorMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -108,6 +137,22 @@ private:
 	FTimerHandle QueryTimerHadnle;
 };
 
+/**
+ * 选择“强电”模式
+ */
+class SMARTCITY_API FQDMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FQDMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FQDMode_Decorator();
+
+private:
+};
+
 #pragma endregion
 
 #pragma region 区域
@@ -129,11 +174,15 @@ public:
 
 	virtual void Entry() override;
 
+	virtual void OnOtherDecoratorEntry(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr) override;
+
 protected:
+	void UpdateDisplay();
+	
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
-		);
+		) override;
 
 	FGameplayTag CurrentInteraction_Area;
 };

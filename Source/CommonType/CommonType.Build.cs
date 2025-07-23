@@ -29,6 +29,7 @@ public class CommonType : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
+            "GameplayTags",
             
             "DatasmithContent",
         });

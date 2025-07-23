@@ -34,6 +34,12 @@ void FDecoratorBase::Entry()
 {
 }
 
+void FDecoratorBase::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+}
+
 bool FDecoratorBase::Operation(
 	EOperatorType OperatorType
 	)
@@ -51,14 +57,16 @@ FGameplayTag FDecoratorBase::GetBranchDecoratorType() const
 	return BranchDecoratorType;
 }
 
+void FDecoratorBase::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+}
+
 void FTour_Decorator::Entry()
 {
 	Super::Entry();
-
-	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-
-	                                                          {GetMainDecoratorType(),}
-	                                                         );
 }
 
 FTour_Decorator::FTour_Decorator():
@@ -78,6 +86,26 @@ bool FTour_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
+FSplitFloorMode_Decorator::FSplitFloorMode_Decorator():
+                                                      Super(
+                                                            UGameplayTagsLibrary::Interaction_Mode,
+                                                            UGameplayTagsLibrary::Interaction_Mode_Tour
+                                                           )
+{
+}
+
+void FSplitFloorMode_Decorator::Entry()
+{
+	Super::Entry();
+}
+
+bool FSplitFloorMode_Decorator::Operation(
+	EOperatorType OperatorType
+	)
+{
+	return Super::Operation(OperatorType);
+}
+
 FSceneMode_Decorator::FSceneMode_Decorator():
                                             Super(
                                                   UGameplayTagsLibrary::Interaction_Mode,
@@ -89,11 +117,6 @@ FSceneMode_Decorator::FSceneMode_Decorator():
 void FSceneMode_Decorator::Entry()
 {
 	Super::Entry();
-
-	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-
-	                                                          {GetMainDecoratorType(),}
-	                                                         );
 }
 
 bool FSceneMode_Decorator::Operation(
@@ -143,6 +166,14 @@ void FRadarMode_Decorator::RadarQuery()
 {
 }
 
+FQDMode_Decorator::FQDMode_Decorator():
+                                      Super(
+                                            UGameplayTagsLibrary::Interaction_Mode,
+                                            UGameplayTagsLibrary::Interaction_Mode_QD
+                                           )
+{
+}
+
 FArea_Decorator::FArea_Decorator(
 	const FGameplayTag& Interaction_Area
 	):
@@ -158,8 +189,26 @@ void FArea_Decorator::Entry()
 {
 	Super::Entry();
 
+	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
+
+	{
+		FSceneActorConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+		FilterTags.Add(SceneActorConditional);
+	}
+	{
+		FSceneActorConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+		SceneActorConditional.ConditionalSet.AppendTags(USceneInteractionWorldSystem::GetInstance()->GetAllFilterTags());
+
+		FilterTags.Add(SceneActorConditional);
+	}
+	
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          {CurrentInteraction_Area},
+	                                                          FilterTags,
 	                                                          std::bind(
 	                                                                    &ThisClass::OnUpdateFilterComplete,
 	                                                                    this,
@@ -167,6 +216,45 @@ void FArea_Decorator::Entry()
 	                                                                    std::placeholders::_2
 	                                                                   )
 	                                                         );
+}
+
+void FArea_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
+
+	{
+		FSceneActorConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+		FilterTags.Add(SceneActorConditional);
+	}
+	{
+		FSceneActorConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+		SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+		FilterTags.Add(SceneActorConditional);
+	}
+	
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          FilterTags,
+	                                                          std::bind(
+	                                                                    &ThisClass::OnUpdateFilterComplete,
+	                                                                    this,
+	                                                                    std::placeholders::_1,
+	                                                                    std::placeholders::_2
+	                                                                   )
+	                                                         );
+}
+
+void FArea_Decorator::UpdateDisplay()
+{
 }
 
 void FArea_Decorator::OnUpdateFilterComplete(
@@ -275,6 +363,11 @@ bool FFloor_Decorator::Operation(
 				{
 					if (Iter.GetActor())
 					{
+						if (Iter.GetActor()->IsHidden())
+						{
+							continue;
+						}
+						
 						ClearFocus();
 						AddFocusDevice(Iter.GetActor());
 

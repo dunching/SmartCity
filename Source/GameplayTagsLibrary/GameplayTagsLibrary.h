@@ -18,14 +18,7 @@ public:
 
 	static FGameplayTag Seat_Default;
 
-	static FGameplayTag Interaction_Mode;
-
-	static FGameplayTag Interaction_Mode_Tour;
-
-	static FGameplayTag Interaction_Mode_Scene;
-
-	static FGameplayTag Interaction_Mode_Radar;
-
+	
 	static FGameplayTag Interaction_Area;
 
 	static FGameplayTag Interaction_Area_ExternalWall;
@@ -35,5 +28,20 @@ public:
 	static FGameplayTag Interaction_Area_Floor_F1;
 
 	static FGameplayTag Interaction_Area_Space;
+
+	
+	static FGameplayTag Interaction_Mode;
+
+	static FGameplayTag Interaction_Mode_Tour;
+
+	static FGameplayTag Interaction_Mode_SplitFloor;
+
+	static FGameplayTag Interaction_Mode_Scene;
+
+	static FGameplayTag Interaction_Mode_Radar;
+
+	static FGameplayTag Interaction_Mode_QD;
+
+	static FGameplayTag Interaction_Mode_RD;
 
 };
