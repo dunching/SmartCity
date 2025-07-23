@@ -50,6 +50,8 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/Command");
 		PublicIncludePaths.Add("SmartCity/Common");
 		PublicIncludePaths.Add("SmartCity/AssetRefMap");
+		PublicIncludePaths.Add("SmartCity/UI");
+		PublicIncludePaths.Add("SmartCity/UI/HUD");
 
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputActions");

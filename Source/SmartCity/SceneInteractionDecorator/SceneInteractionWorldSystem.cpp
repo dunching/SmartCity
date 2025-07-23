@@ -11,11 +11,15 @@
 #include "AssetRefMap.h"
 #include "DatasmithAssetUserData.h"
 #include "GameplayTagsLibrary.h"
+#include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionDecorator.h"
 #include "TemplateHelper.h"
+#include "TourProcessor.h"
+#include "ViewFloorProcessor.h"
+#include "TourPawn.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 {
@@ -84,6 +88,14 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			}
 		}
 
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FTourProcessor>(
+			 [](
+			 auto NewProcessor
+			 )
+			 {
+			 }
+			);
+		
 		SwitchDecoratorImp<FExternalWall_Decorator>(
 		                                            UGameplayTagsLibrary::Interaction_Area,
 		                                            UGameplayTagsLibrary::Interaction_Area_ExternalWall,
@@ -104,6 +116,14 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			}
 		}
 
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewFloorProcessor>(
+			 [](
+			 auto NewProcessor
+			 )
+			 {
+			 }
+			);
+		
 		SwitchDecoratorImp<FFloor_Decorator>(
 		                                     UGameplayTagsLibrary::Interaction_Area,
 		                                     UGameplayTagsLibrary::Interaction_Area_Floor,

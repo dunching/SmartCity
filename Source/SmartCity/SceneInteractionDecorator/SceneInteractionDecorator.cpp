@@ -429,8 +429,8 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 	auto Result = UKismetAlgorithm::GetCameraSeat(
 	                                              InActors,
-	                                              UGameOptions::GetInstance()->ViewFloorRot,
-	                                              UGameOptions::GetInstance()->ViewFloorFOV
+	                                              UGameOptions::GetInstance()->ViewFloorControlParam.ViewRot,
+	                                              UGameOptions::GetInstance()->ViewFloorControlParam.FOV
 	                                             );
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));

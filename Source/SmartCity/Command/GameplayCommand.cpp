@@ -6,28 +6,26 @@
 #include "AssetRefMap.h"
 #include "DatasmithAssetUserData.h"
 #include "GameplayTagsLibrary.h"
+#include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
 #include "OpenWorldSystem.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "Tools.h"
 #include "SceneInteractionWorldSystem.h"
-#include "UI/HUD/MainHUD.h"
-#include "UI/HUD/MainHUDLayout.h"
+#include "TourProcessor.h"
+#include "TourPawn.h"
+#include "MainHUD.h"
+#include "MainHUDLayout.h"
 
 void SmartCityCommand::ReplyCameraTransform()
 {
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>([](UGT_ReplyCameraTransform* GTPtr)
-	{
-		if (GTPtr)
-		{
-			GTPtr->SeatTag = UGameplayTagsLibrary::Seat_Default;
-		}
-	});
+	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 }
 
-void SmartCityCommand::SwitchViewArea(const TArray<FString>& Args)
+void SmartCityCommand::SwitchViewArea(
+	const TArray<FString>& Args
+	)
 {
 	for (auto Iter : Args)
 	{
@@ -36,7 +34,9 @@ void SmartCityCommand::SwitchViewArea(const TArray<FString>& Args)
 	}
 }
 
-void SmartCityCommand::SwitchMode(const TArray<FString>& Args)
+void SmartCityCommand::SwitchMode(
+	const TArray<FString>& Args
+	)
 {
 	for (auto Iter : Args)
 	{
@@ -48,9 +48,11 @@ void SmartCityCommand::SwitchMode(const TArray<FString>& Args)
 void SmartCityCommand::TestAssetUserData()
 {
 	TArray<AActor*> ResultAry;
-	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(),
+	UGameplayStatics::GetAllActorsOfClass(
+	                                      GetWorldImp(),
 	                                      AStaticMeshActor::StaticClass(),
-	                                      ResultAry);
+	                                      ResultAry
+	                                     );
 
 	for (auto Iter : ResultAry)
 	{
@@ -58,8 +60,10 @@ void SmartCityCommand::TestAssetUserData()
 		if (STMPtr)
 		{
 			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-				STMPtr->GetStaticMeshComponent()->GetAssetUserDataOfClass(
-					UDatasmithAssetUserData::StaticClass()));
+			                                            STMPtr->GetStaticMeshComponent()->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
 			if (AUDPtr)
 			{
 				for (const auto& SecondIter : AUDPtr->MetaData)
@@ -71,15 +75,17 @@ void SmartCityCommand::TestAssetUserData()
 	}
 }
 
-void SmartCityCommand::AddFeatureItem(const TArray< FString >& Args)
+void SmartCityCommand::AddFeatureItem(
+	const TArray<FString>& Args
+	)
 {
 	if (!Args.IsValidIndex(0))
 	{
 		return;
 	}
-	
+
 	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-	if (HUDPtr )
+	if (HUDPtr)
 	{
 		HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
 	}
@@ -95,11 +101,15 @@ void SmartCityCommand::LocaterByID(
 	}
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>([&Args](UGT_CameraTransformLocaterByID* GTPtr)
-	{
-		if (GTPtr)
-		{
-			GTPtr->ID = FGuid(Args[0]);
-		}
-	});
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
+		 [&Args](
+		 UGT_CameraTransformLocaterByID* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->ID = FGuid(Args[0]);
+			 }
+		 }
+		);
 }

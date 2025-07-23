@@ -24,6 +24,52 @@ public:
 	FString Description;
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct GAMEOPTIONS_API FControlParam
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 RotYawSpeed = 30;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 RotPitchSpeed = 30;
+
+	/**
+	 * 移动输入的倍数
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MoveSpeed = 10000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MaxMoveSpeed = 10000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 Acceleration = 4*8000;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 Deceleration = 8*8000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 CameraSpringArmSpeed = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 DefautlCameraSpringArm = 8000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MinCameraSpringArm = 1000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 MaxCameraSpringArm = 20000;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	FRotator ViewRot = FRotator(-30, 10, 0);
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	float FOV = 90.f;
+};
+
 UCLASS(BlueprintType, Blueprintable)
 class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 {
@@ -33,81 +79,51 @@ public:
 	static UGameOptions* GetInstance();
 
 #pragma region 雷达控制
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Radar")
 	float RadarQueryFrequency = 1.f / 24;
-	
+
 #pragma endregion
-	
+
 #pragma region 按键映射
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey ClickItem = EKeys::LeftMouseButton;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey RotBtn = EKeys::LeftMouseButton;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey MoveBtn = EKeys::RightMouseButton;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey MouseX = EKeys::MouseX;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey MouseY = EKeys::MouseY;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FKey MouseWheelAxis = EKeys::MouseWheelAxis;
 #pragma endregion
 
 #pragma region 查看全局
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotYawSpeed = 30;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotPitchSpeed = 30;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 MoveSpeed = 1000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 MaxMoveSpeed = 8000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 Acceleration = 10000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 Deceleration = 20000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 CameraSpringArmSpeed = 1000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 DefautlCameraSpringArm = 8000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 MinCameraSpringArm = 1000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 MaxCameraSpringArm = 20000;
+	FControlParam ViewBuildingControlParam;
 #pragma endregion
 
 #pragma region 查看楼层
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	int32 LinetraceDistance = 10000;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
-	FRotator ViewFloorRot = FRotator(-30, 10, 0);
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
-	float ViewFloorFOV = 90.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewFloorControlParam;
 #pragma endregion
 
 #pragma region 查看单个设备
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	FRotator ViewDeviceRot = FRotator(-30, 30, 0);
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
-	float ViewDeviceFOV = 90.f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewDeviceControlParam;
 #pragma endregion
 
 #pragma region 渲染
@@ -116,7 +132,6 @@ public:
 #pragma endregion
 
 protected:
-	
-private:
 
+private:
 };

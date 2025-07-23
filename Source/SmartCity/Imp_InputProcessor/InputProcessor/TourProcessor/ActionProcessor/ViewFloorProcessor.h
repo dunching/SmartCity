@@ -14,19 +14,15 @@ class ABuildingBase;
 
 namespace TourProcessor
 {
-	/**
-	 * 查看整楼
-	 * 漫游的状态
-	 */
-	class SMARTCITY_API FTourProcessor : public FInputProcessor
+	class SMARTCITY_API FViewFloorProcessor : public FInputProcessor
 	{
 	private:
-		GENERATIONCLASSINFO(FTourProcessor, FInputProcessor);
+		GENERATIONCLASSINFO(FViewFloorProcessor, FInputProcessor);
 
 	public:
 		using FOwnerPawnType = ATourPawn;
 
-		FTourProcessor(FOwnerPawnType* CharacterPtr);
+		FViewFloorProcessor(FOwnerPawnType* CharacterPtr);
 
 		virtual void EnterAction() override;
 

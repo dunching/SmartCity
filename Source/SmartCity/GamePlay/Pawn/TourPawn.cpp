@@ -1,5 +1,6 @@
 #include "TourPawn.h"
 
+#include "GameOptions.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 
@@ -59,4 +60,13 @@ void ATourPawn::LerpToSeat(const FTransform& Transform, float SpringArmLen)
 	SpringArmComponent->TargetArmLength = SpringArmLen;
 
 	GetController()->SetControlRotation(Rot);
+}
+
+void ATourPawn::UpdateControlParam(
+	const FControlParam& ControlParam
+	)
+{
+	MovementComponent->MaxSpeed = ControlParam.MaxMoveSpeed;
+	MovementComponent->Acceleration = ControlParam.Acceleration;
+	MovementComponent->Deceleration = ControlParam.Deceleration;
 }

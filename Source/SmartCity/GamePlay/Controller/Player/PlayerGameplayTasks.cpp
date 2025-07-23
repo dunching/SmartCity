@@ -189,7 +189,7 @@ void UGT_CameraTransformLocaterByID::Activate()
 		auto Result = UKismetAlgorithm::GetCameraSeat(
 		                                              {TargetPtr.Get()},
 		                                              UGameOptions::GetInstance()->ViewDeviceRot,
-		                                              UGameOptions::GetInstance()->ViewDeviceFOV
+		                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
 		                                             );
 
 		TargetLocation = Result.Key.GetLocation();

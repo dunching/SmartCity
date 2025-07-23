@@ -6,6 +6,8 @@
 
 #include "GameFramework/Pawn.h"
 
+#include "GameOptions.h"
+
 #include "TourPawn.generated.h"
 
 class UPlayerComponent;
@@ -39,6 +41,8 @@ public:
 		) override;
 
 	void LerpToSeat(const FTransform& Transform, float SpringArmLen);
+	
+	void UpdateControlParam(const FControlParam&ControlParam);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPlayerComponent> PlayerComponentPtr = nullptr;
