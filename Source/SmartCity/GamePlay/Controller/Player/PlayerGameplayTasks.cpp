@@ -292,21 +292,7 @@ void UGT_InitializeSceneActors::Activate()
 		SceneActorMap.Add(Iter.Value);
 	}
 
-	if (SceneActorMap.IsValidIndex(0))
-	{
-		for (const auto& Iter : SceneActorMap[0].DataSmithSceneActorsSet)
-		{
-			DataSmithSceneActorsSet.Add(Iter);
-		}
-	}
-
-	if (DataSmithSceneActorsSet.IsValidIndex(0))
-	{
-		for (const auto& Iter : DataSmithSceneActorsSet[0]->RelatedActors)
-		{
-			RelatedActors.Add({Iter.Key, Iter.Value});
-		}
-	}
+	ApplyData(0);
 }
 
 void UGT_InitializeSceneActors::TickTask(
@@ -335,52 +321,107 @@ bool UGT_InitializeSceneActors::ProcessTask()
 		return false;
 	}
 
-	if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+	switch (SetIndex)
 	{
-	}
-	else
-	{
-		DataSmithSceneActorsSetIndex = 0;
-		SceneActorMapIndex++;
-
-		if (SceneActorMapIndex < SceneActorMap.Num())
+	case 0:
 		{
-			DataSmithSceneActorsSet.Empty();
-			for (const auto& Iter : SceneActorMap[SceneActorMapIndex].DataSmithSceneActorsSet)
+			if (ProcessTask_StructItemSet())
 			{
-				DataSmithSceneActorsSet.Add(Iter);
+				return true;
 			}
-
-			if (DataSmithSceneActorsSet.IsValidIndex(0))
+			else
 			{
-				for (const auto& Iter : DataSmithSceneActorsSet[0]->RelatedActors)
+				if (InnerStructItemSetIndex < InnerStructItemSet.Num())
 				{
-					RelatedActors.Add({Iter.Key, Iter.Value});
+					ApplyRelatedActors(InnerStructItemSet[InnerStructItemSetIndex]);
 				}
+				else
+				{
+					RelatedActorsIndex = 0;
+					RelatedActors.Empty();
+				}
+				
+				SetIndex++;
+				return true;
 			}
 		}
-
-		return true;
+	case 1:
+		{
+			if (ProcessTask_InnerStructItemSet())
+			{
+				return true;
+			}
+			else
+			{
+				if (SoftDecorationItemSetIndex < SoftDecorationItemSet.Num())
+				{
+					ApplyRelatedActors(SoftDecorationItemSet[SoftDecorationItemSetIndex]);
+				}
+				else
+				{
+					RelatedActorsIndex = 0;
+					RelatedActors.Empty();
+				}
+				
+				SetIndex++;
+				return true;
+			}
+		}
+	case 2:
+		{
+			if (ProcessTask_SoftDecorationItemSet())
+			{
+				return true;
+			}
+			else
+			{
+				if (SpaceItemSetIndex < SpaceItemSet.Num())
+				{
+					ApplyRelatedActors(SpaceItemSet[SpaceItemSetIndex]);
+				}
+				else
+				{
+					RelatedActorsIndex = 0;
+					RelatedActors.Empty();
+				}
+				
+				SetIndex++;
+				return true;
+			}
+		}
+	case 3:
+		{
+			if (ProcessTask_SpaceItemSet())
+			{
+				return true;
+			}
+		}
+	default: ;
 	}
+	
+	SceneActorMapIndex++;
 
-	if (RelatedActorsIndex < RelatedActors.Num())
+	ApplyData(SceneActorMapIndex);
+
+	return true;
+}
+
+bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
+{
+	if (StructItemSetIndex < StructItemSet.Num())
 	{
 	}
 	else
 	{
-		RelatedActorsIndex = 0;
-		DataSmithSceneActorsSetIndex++;
+		return false;
+	}
 
-		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
-		{
-			RelatedActors.Empty();
-			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
-			{
-				RelatedActors.Add({Iter.Key, Iter.Value});
-			}
-		}
-
-		return true;
+	if (NormalAdjust(StructItemSetIndex, StructItemSet))
+	{
+	}
+	else
+	{
+		return false;
 	}
 
 	ON_SCOPE_EXIT
@@ -390,9 +431,87 @@ bool UGT_InitializeSceneActors::ProcessTask()
 
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
 	auto Components = Iter->GetComponents();
-	for (auto SecondIterr : Components)
+	for (auto SecondIter : Components)
 	{
-		auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIterr);
+		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			PrimitiveComponentPtr->SetCollisionObjectType(ExternalWall_Object);
+			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			
+			break;
+		}
+	}
+
+	return true;
+}
+
+bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
+{
+	if (InnerStructItemSetIndex < InnerStructItemSet.Num())
+	{
+	}
+	else
+	{
+		return false;
+	}
+
+	if (NormalAdjust(InnerStructItemSetIndex, InnerStructItemSet))
+	{
+	}
+	else
+	{
+		return false;
+	}
+
+	ON_SCOPE_EXIT
+	{
+		RelatedActorsIndex++;
+	};
+
+	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Components = Iter->GetComponents();
+	for (auto SecondIter : Components)
+	{
+		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			PrimitiveComponentPtr->SetCollisionObjectType(Floor_Object);
+			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			
+			break;
+		}
+	}
+
+	return true;
+}
+
+bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
+{
+	if (NormalAdjust(SoftDecorationItemSetIndex, SoftDecorationItemSet))
+	{
+	}
+	else
+	{
+		return false;
+	}
+
+	ON_SCOPE_EXIT
+	{
+		RelatedActorsIndex++;
+	};
+
+	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Components = Iter->GetComponents();
+	for (auto SecondIter : Components)
+	{
+		auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
 		if (InterfacePtr)
 		{
 			auto AUDPtr = Cast<UDatasmithAssetUserData>(
@@ -421,33 +540,14 @@ bool UGT_InitializeSceneActors::ProcessTask()
 				{
 					if (ThirdIter.Value == UAssetRefMap::GetInstance()->FJPG)
 					{
-						auto STCPTr = Iter->FindComponentByClass<UStaticMeshComponent>();
-						if (STCPTr)
-						{
-							STCPTr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-							STCPTr->SetCollisionObjectType(Device_Object);
-							STCPTr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-						}
 						continue;
 					}
 					else if (ThirdIter.Value == UAssetRefMap::GetInstance()->XFJZ)
 					{
-						auto STCPTr = Iter->FindComponentByClass<UStaticMeshComponent>();
-						if (STCPTr)
-						{
-							STCPTr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-							STCPTr->SetCollisionObjectType(Device_Object);
-							STCPTr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-						}
 						continue;
 					}
 					else
 					{
-						auto STCPTr = Iter->FindComponentByClass<UStaticMeshComponent>();
-						if (STCPTr)
-						{
-							STCPTr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-						}
 						continue;
 					}
 				}
@@ -455,8 +555,151 @@ bool UGT_InitializeSceneActors::ProcessTask()
 			break;
 		}
 	}
+	for (auto SecondIter : Components)
+	{
+		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
+			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			
+			break;
+		}
+	}
 
 	return true;
+}
+
+bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
+{
+	if (NormalAdjust(SpaceItemSetIndex, SpaceItemSet))
+	{
+	}
+	else
+	{
+		return false;
+	}
+
+	ON_SCOPE_EXIT
+	{
+		RelatedActorsIndex++;
+	};
+
+	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
+	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Components = Iter->GetComponents();
+	for (auto SecondIter : Components)
+	{
+		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+		if (PrimitiveComponentPtr)
+		{
+			for (int32 Index = 0; Index < PrimitiveComponentPtr->GetNumMaterials(); Index++)
+			{
+				PrimitiveComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
+			}
+
+			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			PrimitiveComponentPtr->SetCollisionObjectType(Space_Object);
+			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			
+			PrimitiveComponentPtr->SetCastShadow(false);
+			PrimitiveComponentPtr->bVisibleInReflectionCaptures = false;
+			PrimitiveComponentPtr->bVisibleInRealTimeSkyCaptures = false;
+			PrimitiveComponentPtr->bVisibleInRayTracing = false;
+			PrimitiveComponentPtr->bReceivesDecals = false;
+			PrimitiveComponentPtr->bUseAsOccluder = false;
+			
+			break;
+		}
+	}
+
+	return true;
+}
+
+bool UGT_InitializeSceneActors::NormalAdjust(
+	int32& Index,
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
+	)
+{
+	if (RelatedActorsIndex < RelatedActors.Num())
+	{
+	}
+	else
+	{
+		RelatedActorsIndex = 0;
+		Index++;
+
+		if (Index < ItemSet.Num())
+		{
+			ApplyRelatedActors(ItemSet[Index]);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void UGT_InitializeSceneActors::ApplyData(
+	int32 Index
+	)
+{
+	if (Index < SceneActorMap.Num())
+	{
+		SetIndex = 0;
+		
+		StructItemSetIndex = 0;
+		StructItemSet.Empty();
+		for (const auto& Iter : SceneActorMap[Index].StructItemSet)
+		{
+			StructItemSet.Add(Iter);
+		}
+
+		if (StructItemSet.IsValidIndex(StructItemSetIndex))
+		{
+			ApplyRelatedActors(StructItemSet[StructItemSetIndex]);
+		}
+
+		InnerStructItemSetIndex = 0;
+		InnerStructItemSet.Empty();
+		for (const auto& Iter : SceneActorMap[Index].InnerStructItemSet)
+		{
+			InnerStructItemSet.Add(Iter);
+		}
+
+		SoftDecorationItemSetIndex = 0;
+		SoftDecorationItemSet.Empty();
+		for (const auto& Iter : SceneActorMap[Index].SoftDecorationItemSet)
+		{
+			SoftDecorationItemSet.Add(Iter);
+		}
+
+		SpaceItemSetIndex = 0;
+		SpaceItemSet.Empty();
+		for (const auto& Iter : SceneActorMap[Index].SpaceItemSet)
+		{
+			SpaceItemSet.Add(Iter);
+		}
+	}
+}
+
+void UGT_InitializeSceneActors::ApplyRelatedActors(
+	const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
+	)
+{
+	RelatedActorsIndex = 0;
+	RelatedActors.Empty();
+	for (const auto& Iter : ItemSet->RelatedActors)
+	{
+		RelatedActors.Add({Iter.Key, Iter.Value});
+	}
 }
 
 UGT_SceneObjSwitch::UGT_SceneObjSwitch(
@@ -505,11 +748,13 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			if (FilterTags.Contains(SecondIter.Key))
 			{
-				DataSmithSceneActorsSet.Append(SecondIter.Value.DataSmithSceneActorsSet.Array());
+				DataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				DataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
 			}
 			else
 			{
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.DataSmithSceneActorsSet.Array());
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
 			}
 		}
 		return true;

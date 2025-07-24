@@ -385,7 +385,7 @@ bool FFloor_Decorator::Operation(
 			// 检测区域
 			{
 				FCollisionObjectQueryParams ObjectQueryParams;
-				ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+				ObjectQueryParams.AddObjectTypesToQuery(Space_Object);
 				GetWorldImp()->LineTraceMultiByObjectType(
 				                                          OutHits,
 				                                          WorldLocation,
@@ -398,6 +398,9 @@ bool FFloor_Decorator::Operation(
 				{
 					if (Iter.GetActor())
 					{
+						ClearFocus();
+						AddFocusDevice(Iter.GetActor());
+
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 						MessageBodySPtr->SpaceName = TEXT("");

@@ -23,7 +23,7 @@ uint32 GetTypeHash(
 	{
 		HashCode = HashCombine(GetTypeHash(Iter), HashCode);
 	}
-	return HashCombine(HashCode, SceneActorConditional.bIsOnlyBulding);
+	return HashCode;
 }
 
 TSceneActorConditionalKeyFuncs::KeyInitType TSceneActorConditionalKeyFuncs::GetSetKey(
@@ -38,7 +38,7 @@ bool TSceneActorConditionalKeyFuncs::Matches(
 	KeyInitType B
 	)
 {
-	return (A.ConditionalSet == B.ConditionalSet) && (A.bIsOnlyBulding == B.bIsOnlyBulding);
+	return (A.ConditionalSet == B.ConditionalSet);
 }
 
 uint32 TSceneActorConditionalKeyFuncs::GetKeyHash(

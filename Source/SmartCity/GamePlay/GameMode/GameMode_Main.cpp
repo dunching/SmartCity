@@ -13,11 +13,13 @@
 #include "Kismet/GameplayStatics.h"
 
 AGameMode_Main::AGameMode_Main() :
-	Super()
+                                 Super()
 {
 }
 
-void AGameMode_Main::OnConstruction(const FTransform& Transform)
+void AGameMode_Main::OnConstruction(
+	const FTransform& Transform
+	)
 {
 	Super::OnConstruction(Transform);
 }
@@ -44,13 +46,15 @@ void AGameMode_Main::BeginPlay()
 
 	// 楼层
 	ProcessFloor();
-	
+
 	// 区域
 	ProcessSpace();
 #pragma endregion
 }
 
-void AGameMode_Main::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AGameMode_Main::EndPlay(
+	const EEndPlayReason::Type EndPlayReason
+	)
 {
 	Super::EndPlay(EndPlayReason);
 }
@@ -71,17 +75,27 @@ void AGameMode_Main::ProcessSpace()
 void AGameMode_Main::ProcessFloor()
 {
 	TArray<AActor*> ResultAry;
-	UGameplayStatics::GetAllActorsOfClass(this,
+	UGameplayStatics::GetAllActorsOfClass(
+	                                      this,
 	                                      AStaticMeshActor::StaticClass(),
-	                                      ResultAry);
+	                                      ResultAry
+	                                     );
 
 	for (auto Iter : ResultAry)
 	{
 		auto STMPtr = Cast<AStaticMeshActor>(Iter);
 		if (STMPtr)
 		{
-			auto AUDPtr = STMPtr->GetStaticMeshComponent()->GetStaticMesh()->GetAssetUserDataOfClass(
-				UDatasmithAssetUserData::StaticClass());
+			auto STPtr = STMPtr->GetStaticMeshComponent()->GetStaticMesh();
+			if (!STPtr)
+			{
+				continue;
+			}
+			auto AUDPtr = STPtr
+				->
+				GetAssetUserDataOfClass(
+				                        UDatasmithAssetUserData::StaticClass()
+				                       );
 			if (AUDPtr)
 			{
 			}

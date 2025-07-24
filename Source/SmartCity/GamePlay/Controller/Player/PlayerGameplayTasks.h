@@ -38,6 +38,7 @@ public:
 		const std::function<void(
 			GameplayTaskType*
 
+
 			
 			)>& Func
 		);
@@ -47,6 +48,7 @@ template <typename GameplayTaskType>
 void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
+
 
 		
 		)>& Func
@@ -255,18 +257,64 @@ public:
 protected:
 	virtual bool ProcessTask() override;
 
+	/**
+	 * 
+	 * @return true：未处理完成，false：处理完成
+	 */
+	bool ProcessTask_StructItemSet();
+
+	bool ProcessTask_InnerStructItemSet();
+
+	bool ProcessTask_SoftDecorationItemSet();
+
+	bool ProcessTask_SpaceItemSet();
+
 private:
+	/**
+	 * 
+	 * @param Index tu
+	 * @param ItemSet 
+	 * @return true：未处理完成，false：处理完成
+	 */
+	bool NormalAdjust(
+		int32& Index,
+		TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
+		);
+
+	void ApplyData(
+		int32 Index
+		);
+
+	void ApplyRelatedActors(
+		const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
+		);
 
 	int32 SceneActorMapIndex = 0;
-	
+
 	TArray<FSceneActorMap> SceneActorMap;
 
-	int32 DataSmithSceneActorsSetIndex = 0;
-	
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+
+	int32 SetIndex = 0;
+
+	int32 StructItemSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
+
+	int32 InnerStructItemSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> InnerStructItemSet;
+
+	int32 SoftDecorationItemSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
+
+	int32 SpaceItemSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
+
 
 	int32 RelatedActorsIndex = 0;
-	
+
 	TArray<TPair<FName, TSoftObjectPtr<AActor>>> RelatedActors;
 };
 
@@ -287,6 +335,7 @@ public:
 		bool,
 		const TSet<AActor*>&
 
+
 		
 		)>;
 
@@ -306,20 +355,19 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TSet<FSceneActorConditional,TSceneActorConditionalKeyFuncs> FilterTags;
+	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
 
 	/**
 	 * 是否清楚之前的
 	 */
 	bool bClearPrevious = false;
-	
+
 	FOnEnd OnEnd;
 
 protected:
 	virtual bool ProcessTask() override;
 
 private:
-	
 	/**
 	 * 建筑物
 	 * 用于计算保卫狂
@@ -330,22 +378,21 @@ private:
 	 * 等待显示
 	 */
 	int32 FilterIndex = 0;
-	
-	std::map<AActor*,int32> FilterCount;
-	
+
+	std::map<AActor*, int32> FilterCount;
+
 
 	int32 HideDataSmithSceneActorsSetIndex = 0;
-	
+
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
-	
+
 	int32 DataSmithSceneActorsSetIndex = 0;
-	
+
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
-	
+
 	int32 RelatedActorsIndex = 0;
-	
 };
 
 #pragma endregion

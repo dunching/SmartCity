@@ -51,4 +51,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Space;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance>SpaceMaterialInstance;
+	
 };

@@ -26,10 +26,35 @@ struct COMMONTYPE_API FSceneActorMap
 {
 	GENERATED_BODY()
 
+	/**
+	 * 硬装，结构
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
+	
+	/**
+	 * 硬装，内饰
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> InnerStructItemSet;
+	
+	/**
+	 * 软装，如电气
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
+	
+	/**
+	 * 空间区域
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
+	
 };
 
+/**
+ * 条件
+ */
 USTRUCT(Blueprintable, BlueprintType)
 struct COMMONTYPE_API FSceneActorConditional
 {
@@ -40,8 +65,6 @@ struct COMMONTYPE_API FSceneActorConditional
 	FSceneActorConditional(
 		const TSet<FGameplayTag>& InConditionalSet
 		);
-
-	bool bIsOnlyBulding = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FGameplayTagContainer ConditionalSet;
