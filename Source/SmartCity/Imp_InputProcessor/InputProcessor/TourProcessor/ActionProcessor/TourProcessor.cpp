@@ -11,7 +11,7 @@
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
-inline TourProcessor::FTourProcessor::FTourProcessor(
+TourProcessor::FTourProcessor::FTourProcessor(
 	FOwnerPawnType* CharacterPtr
 	):
 	 Super(CharacterPtr)

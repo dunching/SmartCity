@@ -29,7 +29,7 @@ void AGameState_Main::OnRep_OpenWorldWeather()
 	// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather_Client(OpenWorldWeather);
 }
 
-inline FGameplayTag AGameState_Main::GetOpenWorldWeather() const
+FGameplayTag AGameState_Main::GetOpenWorldWeather() const
 {
 	return OpenWorldWeather;
 }

@@ -44,4 +44,20 @@ public:
 
 	static FGameplayTag Interaction_Mode_RD;
 
+	static FGameplayTag Interaction_Mode_AccessControl;
+
+	static FGameplayTag Interaction_Mode_Lighting;
+
+	static FGameplayTag Interaction_Mode_HVAC;
+
+	static FGameplayTag Interaction_Mode_SunShade;
+
+	static FGameplayTag Interaction_Mode_Monitor;
+
+	static FGameplayTag Interaction_Mode_Elevator;
+
+	static FGameplayTag Interaction_Mode_Intelligence;
+
+	static FGameplayTag Interaction_Mode_Energy;
+
 };

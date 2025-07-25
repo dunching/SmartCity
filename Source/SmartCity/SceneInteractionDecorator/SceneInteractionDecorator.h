@@ -23,7 +23,11 @@ public:
 
 	virtual void Entry();
 
+	virtual void Quit();
+
 	virtual void OnOtherDecoratorEntry(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr);
+
+	virtual void OnOtherDecoratorQuit(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr);
 
 	/**
 	 * 
@@ -127,6 +131,8 @@ public:
 
 	virtual void Entry() override;
 
+	virtual void Quit() override;
+
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
@@ -149,6 +155,24 @@ public:
 	                   );
 
 	FQDMode_Decorator();
+
+private:
+};
+
+/**
+ * 选择“门禁”模式
+ */
+class SMARTCITY_API FAccessControlMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FQDMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FAccessControlMode_Decorator();
+
+	virtual void Entry() override;
 
 private:
 };
@@ -224,7 +248,11 @@ public:
 		const FGameplayTag& Interaction_Area
 		);
 
+	virtual ~FFloor_Decorator() ;
+	
 	virtual void Entry() override;
+
+	virtual void Quit() override;
 
 	virtual bool Operation(
 		EOperatorType OperatorType
@@ -237,17 +265,6 @@ protected:
 		) override;
 
 private:
-	void AddFocusDevice(
-		AActor* DevicePtr
-		);
-
-	void RemoveFocusDevice(
-		AActor* DevicePtr
-		);
-
-	void ClearFocus();
-
-	TSet<AActor*> FocusActors;
 };
 
 #pragma endregion

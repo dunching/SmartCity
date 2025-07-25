@@ -16,6 +16,7 @@
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
 class UGT_SceneObjSwitch;
+class URouteMarker;
 
 /*
  * 
@@ -58,15 +59,43 @@ public:
 		const FGuid& ID
 		) const;
 
+	FString GetName(
+		AActor* DevicePtr
+		)const;
+
 	/**
 	 * 根据选择的装饰器获取所有过滤条件
 	 * @return 
 	 */
 	FGameplayTagContainer GetAllFilterTags() const;
 
+	void AddFocus(
+		AActor* DevicePtr
+		);
+
+	void RemoveFocus(
+		AActor* DevicePtr
+		);
+
+	void ClearFocus();
+
+	void AddRouteMarker(
+		AActor* DevicePtr
+		);
+
+	void RemoveRouteMarker(
+		AActor* DevicePtr
+		);
+
+	void ClearRouteMarker();
+
 private:
-	void NotifyOtherDecorators(
+	void NotifyOtherDecoratorsWhenEntry(
 		const FGameplayTag& MainTag,
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) const;
+
+	void NotifyOtherDecoratorsWhenQuit(
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) const;
 
@@ -83,6 +112,12 @@ private:
 	TMap<FGameplayTag, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
+	
+	TSet<AActor*> FocusActors;
+
+	UPROPERTY(Transient)
+	TMap<AActor*, URouteMarker*> RouteMarkers;
+
 };
 
 template <typename Decorator, typename... Args>
@@ -94,12 +129,24 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 {
 	auto DecoratorSPtr = MakeShared<Decorator>(Param...);
 
-	NotifyOtherDecorators(MainTag, DecoratorSPtr);
+	NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
+
+	TSharedPtr<FDecoratorBase> OldDecoratorSPtr = nullptr;
+	if (DecoratorLayerAssetMap.Contains(MainTag))
+	{
+		OldDecoratorSPtr = DecoratorLayerAssetMap[MainTag];
+	}
 
 	DecoratorLayerAssetMap.Add(
 	                           MainTag,
 	                           DecoratorSPtr
 	                          );
 
+	if (OldDecoratorSPtr)
+	{
+		OldDecoratorSPtr->Quit();
+		NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+	}
+	
 	DecoratorSPtr->Entry();
 }

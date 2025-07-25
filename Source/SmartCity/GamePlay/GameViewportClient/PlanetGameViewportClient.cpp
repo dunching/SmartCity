@@ -67,7 +67,7 @@ ULocalPlayer* UPlanetGameViewportClient::SetupInitialLocalPlayer(
 	return Result;
 }
 
-inline bool UPlanetGameViewportClient::InputKey(
+bool UPlanetGameViewportClient::InputKey(
 	const FInputKeyEventArgs& EventArgs
 	)
 {
@@ -78,7 +78,7 @@ inline bool UPlanetGameViewportClient::InputKey(
 	return false;
 }
 
-inline bool UPlanetGameViewportClient::InputAxis(
+bool UPlanetGameViewportClient::InputAxis(
 	const FInputKeyEventArgs& EventArgs
 	)
 {

@@ -31,36 +31,36 @@ void UPlayerComponent::SetupPlayerInputComponent(
 {
 	return;
 	
-	// 根据设置绑定
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<
-		UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInputComponent->BindAction(
-										   InputActionsPtr->MoveForwardActionPtr,
-										   ETriggerEvent::Triggered,
-										   this,
-										   &ThisClass::MoveForward
-										  );
-		EnhancedInputComponent->BindAction(
-										   InputActionsPtr->MoveRightActionPtr,
-										   ETriggerEvent::Triggered,
-										   this,
-										   &ThisClass::MoveRight
-										  );
-
-		EnhancedInputComponent->BindAction(
-										   InputActionsPtr->AddPitchActionPtr,
-										   ETriggerEvent::Triggered,
-										   this,
-										   &ThisClass::AddPitchInput
-										  );
-		EnhancedInputComponent->BindAction(
-										   InputActionsPtr->AddYawActionPtr,
-										   ETriggerEvent::Triggered,
-										   this,
-										   &ThisClass::AddYawInput
-										  );
-	}
+	// // 根据设置绑定
+	// if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<
+	// 	UEnhancedInputComponent>(PlayerInputComponent))
+	// {
+	// 	EnhancedInputComponent->BindAction(
+	// 									   InputActionsPtr->MoveForwardActionPtr,
+	// 									   ETriggerEvent::Triggered,
+	// 									   this,
+	// 									   &ThisClass::MoveForward
+	// 									  );
+	// 	EnhancedInputComponent->BindAction(
+	// 									   InputActionsPtr->MoveRightActionPtr,
+	// 									   ETriggerEvent::Triggered,
+	// 									   this,
+	// 									   &ThisClass::MoveRight
+	// 									  );
+	//
+	// 	EnhancedInputComponent->BindAction(
+	// 									   InputActionsPtr->AddPitchActionPtr,
+	// 									   ETriggerEvent::Triggered,
+	// 									   this,
+	// 									   &ThisClass::AddPitchInput
+	// 									  );
+	// 	EnhancedInputComponent->BindAction(
+	// 									   InputActionsPtr->AddYawActionPtr,
+	// 									   ETriggerEvent::Triggered,
+	// 									   this,
+	// 									   &ThisClass::AddYawInput
+	// 									  );
+	// }
 }
 
 void UPlayerComponent::AddYawInput(

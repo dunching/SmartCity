@@ -13,6 +13,7 @@
 class AActor;
 class UDataLayerAsset;
 class ADatasmithSceneActor;
+class URouteMarker;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -37,6 +38,12 @@ public:
 	FString Datasmith_UniqueId;
 	
 	/**
+	 * 设备名称的Key
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<FString>NamePrifix;
+	
+	/**
 	 * 设备类型的Key
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
@@ -53,5 +60,8 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance>SpaceMaterialInstance;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<URouteMarker>RouteMarkerClass;
 	
 };

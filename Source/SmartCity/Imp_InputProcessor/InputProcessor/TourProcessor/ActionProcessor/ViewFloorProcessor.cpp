@@ -8,7 +8,7 @@
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
-inline TourProcessor::FViewFloorProcessor::FViewFloorProcessor(
+TourProcessor::FViewFloorProcessor::FViewFloorProcessor(
 	FOwnerPawnType* CharacterPtr
 	):
 	 Super(CharacterPtr)

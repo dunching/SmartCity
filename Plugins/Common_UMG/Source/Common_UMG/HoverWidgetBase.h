@@ -42,3 +42,27 @@ public:
 
 	bool bShouldCalcOutsideViewPosition = false;
 };
+
+/**
+ * 悬浮的Widget
+ */
+UCLASS()
+class COMMON_UMG_API UHoverWidgetReBase : public UUserWidget_Override
+{
+	GENERATED_BODY()
+
+public:
+	virtual void NativeConstruct() override;
+
+	virtual void NativeDestruct() override;
+
+private:
+	void UpdatePosition();
+
+	virtual FVector GetHoverPosition();
+
+	UPROPERTY(BlueprintReadWrite,EditAnywhere, meta = (AllowPrivateAccess = true))
+	float UpdateRate = 1.f / 60;
+
+	FTimerHandle TimerHandle;
+};

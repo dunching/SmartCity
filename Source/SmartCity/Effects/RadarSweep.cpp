@@ -1,7 +1,7 @@
 
 #include "RadarSweep.h"
 
-inline ARadarSweep::ARadarSweep(
+ARadarSweep::ARadarSweep(
 	const FObjectInitializer& ObjectInitializer
 	)
 {

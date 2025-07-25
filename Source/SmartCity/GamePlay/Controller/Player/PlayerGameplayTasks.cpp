@@ -21,6 +21,7 @@
 #include "DatasmithSceneActor.h"
 #include "GenerateTypes.h"
 #include "LogWriter.h"
+#include "ReplaceActor.h"
 #include "TemplateHelper.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
@@ -30,7 +31,7 @@ struct FPrefix : public TStructVariable<FPrefix>
 
 FName UPlayerControllerGameplayTasksComponent::ComponentName = TEXT("PlayerControllerGameplayTasksComponent");
 
-inline UGT_ReplyCameraTransform::UGT_ReplyCameraTransform(
+UGT_ReplyCameraTransform::UGT_ReplyCameraTransform(
 	const FObjectInitializer& ObjectInitializer
 	):
 	 Super(ObjectInitializer)
@@ -191,6 +192,25 @@ void UGT_CameraTransformLocaterByID::Activate()
 		                                              UGameOptions::GetInstance()->ViewDeviceRot,
 		                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
 		                                             );
+
+		TargetLocation = Result.Key.GetLocation();
+		TargetRotation = Result.Key.GetRotation().Rotator();
+		TargetTargetArmLength = Result.Value;
+	}
+}
+
+void UGT_CameraTransformLocaterBySpace::Activate()
+{
+	Super::Activate();
+
+	auto TargetPtr = SpaceActorPtr;
+	if (TargetPtr.IsValid())
+	{
+		auto Result = UKismetAlgorithm::GetCameraSeat(
+													  {TargetPtr.Get()},
+													  UGameOptions::GetInstance()->ViewDeviceRot,
+													  UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
+													 );
 
 		TargetLocation = Result.Key.GetLocation();
 		TargetRotation = Result.Key.GetRotation().Rotator();
@@ -375,6 +395,28 @@ bool UGT_InitializeSceneActors::ProcessTask()
 			}
 			else
 			{
+				if (ReplaceSoftDecorationItemSetIndex < ReplaceSoftDecorationItemSet.Num())
+				{
+					ApplyRelatedActors(ReplaceSoftDecorationItemSet[ReplaceSoftDecorationItemSetIndex]);
+				}
+				else
+				{
+					RelatedActorsIndex = 0;
+					RelatedActors.Empty();
+				}
+				
+				SetIndex++;
+				return true;
+			}
+		}
+	case 3:
+		{
+			if (ProcessTask_ReplaceSoftDecorationItemSet())
+			{
+				return true;
+			}
+			else
+			{
 				if (SpaceItemSetIndex < SpaceItemSet.Num())
 				{
 					ApplyRelatedActors(SpaceItemSet[SpaceItemSetIndex]);
@@ -389,7 +431,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 				return true;
 			}
 		}
-	case 3:
+	case 4:
 		{
 			if (ProcessTask_SpaceItemSet())
 			{
@@ -527,7 +569,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 			{
 				if (ThirdIter.Key == UAssetRefMap::GetInstance()->Datasmith_UniqueId)
 				{
-					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter.LoadSynchronous());
+					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter);
 					continue;
 				}
 				else
@@ -555,6 +597,42 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 			break;
 		}
 	}
+	for (auto SecondIter : Components)
+	{
+		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
+			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			
+			break;
+		}
+	}
+
+	return true;
+}
+
+bool UGT_InitializeSceneActors::ProcessTask_ReplaceSoftDecorationItemSet()
+{
+	if (NormalAdjust(ReplaceSoftDecorationItemSetIndex, ReplaceSoftDecorationItemSet))
+	{
+	}
+	else
+	{
+		return false;
+	}
+
+	ON_SCOPE_EXIT
+	{
+		RelatedActorsIndex++;
+	};
+
+	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Components = Iter->GetComponents();
+	
 	for (auto SecondIter : Components)
 	{
 		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
@@ -647,6 +725,32 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 	return true;
 }
 
+bool UGT_InitializeSceneActors::NormalAdjust(
+	int32& Index,
+	TArray<TSoftObjectPtr<AReplaceActor>>& ItemSet
+	)
+{
+	if (RelatedActorsIndex < RelatedActors.Num())
+	{
+	}
+	else
+	{
+		RelatedActorsIndex = 0;
+		Index++;
+
+		if (Index < ItemSet.Num())
+		{
+			ApplyRelatedActors(ItemSet[Index]);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void UGT_InitializeSceneActors::ApplyData(
 	int32 Index
 	)
@@ -681,6 +785,13 @@ void UGT_InitializeSceneActors::ApplyData(
 			SoftDecorationItemSet.Add(Iter);
 		}
 
+		ReplaceSoftDecorationItemSetIndex = 0;
+		ReplaceSoftDecorationItemSet.Empty();
+		for (const auto& Iter : SceneActorMap[Index].ReplaceSoftDecorationItemSet)
+		{
+			ReplaceSoftDecorationItemSet.Add(Iter);
+		}
+
 		SpaceItemSetIndex = 0;
 		SpaceItemSet.Empty();
 		for (const auto& Iter : SceneActorMap[Index].SpaceItemSet)
@@ -698,7 +809,23 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActors.Empty();
 	for (const auto& Iter : ItemSet->RelatedActors)
 	{
-		RelatedActors.Add({Iter.Key, Iter.Value});
+		RelatedActors.Add({Iter.Key, Iter.Value.LoadSynchronous()});
+	}
+}
+
+void UGT_InitializeSceneActors::ApplyRelatedActors(
+	const TSoftObjectPtr<AReplaceActor>& ItemSet
+	)
+{
+	RelatedActorsIndex = 0;
+	RelatedActors.Empty();
+
+	TArray<AActor*> OutActors;
+	ItemSet->GetAttachedActors(OutActors);
+	
+	for (const auto& Iter : OutActors)
+	{
+		RelatedActors.Add({*Iter->GetName(), Iter});
 	}
 }
 
@@ -748,13 +875,19 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			if (FilterTags.Contains(SecondIter.Key))
 			{
-				DataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
 				DataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
+				DataSmithSceneActorsSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+				DataSmithSceneActorsSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				ReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
+				DataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
 			}
 			else
 			{
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
 				HideDataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
 			}
 		}
 		return true;
@@ -779,6 +912,26 @@ bool UGT_SceneObjSwitch::ProcessTask()
 			return true;
 		}
 	}
+	if (HideReplaceActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			HideRePlaceActorsSetIndex++;
+		};
+		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
+		{
+			TArray<AActor*>RelatedActors;
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			for (const auto& Iter : RelatedActors)
+			{
+				FilterCount.emplace(Iter, 0);
+			}
+			return true;
+		}
+	}
 
 	// 确认过滤条件数量
 	if (DataSmithSceneActorsSet.IsEmpty())
@@ -795,6 +948,29 @@ bool UGT_SceneObjSwitch::ProcessTask()
 			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
 			{
 				FilterCount[Iter.Value.LoadSynchronous()] = 1;
+			}
+			return true;
+		}
+		else
+		{
+		}
+	}
+	if (ReplaceActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			ReplaceActorsSetIndex++;
+		};
+		if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
+		{
+			TArray<AActor*>RelatedActors;
+			ReplaceActorsSet[ReplaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			for (const auto& Iter : RelatedActors)
+			{
+				FilterCount[Iter] = 1;
 			}
 			return true;
 		}

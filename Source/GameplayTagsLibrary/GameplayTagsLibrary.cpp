@@ -42,3 +42,27 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD =
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_AccessControl =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.AccessControl")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Lighting =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Lighting")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_HVAC =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.HVAC")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_SunShade =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.SunShade")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Monitor =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Monitor")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Elevator =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Elevator")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Intelligence =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Intelligence")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Energy =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Energy")));

@@ -15,6 +15,7 @@
 #include "LogWriter.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
+#include "RouteMarker.h"
 #include "SceneInteractionDecorator.h"
 #include "TemplateHelper.h"
 #include "TourProcessor.h"
@@ -65,9 +66,27 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 		}
 
 		SwitchDecoratorImp<FSceneMode_Decorator>(
-		                                      UGameplayTagsLibrary::Interaction_Mode,
-		                                      UGameplayTagsLibrary::Interaction_Mode_Scene
-		                                     );
+		                                         UGameplayTagsLibrary::Interaction_Mode,
+		                                         UGameplayTagsLibrary::Interaction_Mode_Scene
+		                                        );
+
+		return;
+	}
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_AccessControl)
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Mode_AccessControl)
+			{
+				return;
+			}
+		}
+
+		SwitchDecoratorImp<FAccessControlMode_Decorator>(
+		                                         UGameplayTagsLibrary::Interaction_Mode,
+		                                         UGameplayTagsLibrary::Interaction_Mode_AccessControl
+		                                        );
 
 		return;
 	}
@@ -95,7 +114,7 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			 {
 			 }
 			);
-		
+
 		SwitchDecoratorImp<FExternalWall_Decorator>(
 		                                            UGameplayTagsLibrary::Interaction_Area,
 		                                            UGameplayTagsLibrary::Interaction_Area_ExternalWall,
@@ -123,7 +142,7 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 			 {
 			 }
 			);
-		
+
 		SwitchDecoratorImp<FFloor_Decorator>(
 		                                     UGameplayTagsLibrary::Interaction_Area,
 		                                     UGameplayTagsLibrary::Interaction_Area_Floor,
@@ -148,7 +167,7 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	const TSet<FSceneActorConditional,TSceneActorConditionalKeyFuncs>& FilterTags,
+	const TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs>& FilterTags,
 	const std::function<void(
 		bool,
 		const TSet<AActor*>&
@@ -213,6 +232,44 @@ TWeakObjectPtr<AActor> USceneInteractionWorldSystem::FindSceneActor(
 	return nullptr;
 }
 
+FString USceneInteractionWorldSystem::GetName(
+	AActor* DevicePtr
+	) const
+{
+	if (DevicePtr)
+	{
+		auto Components = DevicePtr->GetComponents();
+		for (auto SecondIter : Components)
+		{
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+			if (InterfacePtr)
+			{
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+															InterfacePtr->GetAssetUserDataOfClass(
+																 UDatasmithAssetUserData::StaticClass()
+																)
+														   );
+				if (!AUDPtr)
+				{
+					continue;
+				}
+				for (const auto& ThirdIter : AUDPtr->MetaData)
+				{
+					auto NamePrifixIter = UAssetRefMap::GetInstance()->NamePrifix.
+																		   Find(ThirdIter.Key.ToString());
+					if (NamePrifixIter)
+					{
+						return ThirdIter.Value;	
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	return TEXT("");
+}
+
 FGameplayTagContainer USceneInteractionWorldSystem::GetAllFilterTags() const
 {
 	FGameplayTagContainer Result;
@@ -228,8 +285,9 @@ FGameplayTagContainer USceneInteractionWorldSystem::GetAllFilterTags() const
 	return Result;
 }
 
-void USceneInteractionWorldSystem::NotifyOtherDecorators(
-	const FGameplayTag& MainTag, const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenEntry(
+	const FGameplayTag& MainTag,
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 	) const
 {
 	for (const auto& Iter : DecoratorLayerAssetMap)
@@ -243,4 +301,143 @@ void USceneInteractionWorldSystem::NotifyOtherDecorators(
 			Iter.Value->OnOtherDecoratorEntry(NewDecoratorSPtr);
 		}
 	}
+}
+
+void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenQuit(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	) const
+{
+	for (const auto& Iter : DecoratorLayerAssetMap)
+	{
+		if (Iter.Value)
+		{
+			Iter.Value->OnOtherDecoratorQuit(NewDecoratorSPtr);
+		}
+	}
+}
+
+void USceneInteractionWorldSystem::AddFocus(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (FocusActors.Contains(DevicePtr))
+	{
+		return;
+	}
+
+	FocusActors.Add(DevicePtr);
+
+	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(true);
+		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+}
+
+void USceneInteractionWorldSystem::RemoveFocus(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (!FocusActors.Contains(DevicePtr))
+	{
+		return;
+	}
+
+	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	}
+
+	FocusActors.Remove(DevicePtr);
+}
+
+void USceneInteractionWorldSystem::ClearFocus()
+{
+	for (auto Iter : FocusActors)
+	{
+		if (Iter)
+		{
+			auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+		}
+	}
+	FocusActors.Empty();
+}
+
+void USceneInteractionWorldSystem::AddRouteMarker(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (RouteMarkers.Contains(DevicePtr))
+	{
+		return;
+	}
+	
+	const auto Name = GetName(DevicePtr);
+	if (Name.IsEmpty())
+	{
+		return;
+	}
+	auto RouteMarkerPtr = CreateWidget<URouteMarker>(
+	                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
+	                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
+	                                                );
+	if (RouteMarkerPtr)
+	{
+		RouteMarkerPtr->TextStr = Name;
+		RouteMarkerPtr->TargetActor = DevicePtr;
+		RouteMarkerPtr->AddToViewport();
+	}
+
+	RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
+}
+
+void USceneInteractionWorldSystem::RemoveRouteMarker(
+	AActor* DevicePtr
+	)
+{
+	if (!DevicePtr)
+	{
+		return;
+	}
+	if (!RouteMarkers.Contains(DevicePtr))
+	{
+		return;
+	}
+
+	if (RouteMarkers[DevicePtr])
+	{
+		RouteMarkers[DevicePtr]->RemoveFromParent();
+	}
+
+	RouteMarkers.Remove(DevicePtr);
+}
+
+void USceneInteractionWorldSystem::ClearRouteMarker()
+{
+	for (auto Iter : RouteMarkers)
+	{
+		if (Iter.Value)
+		{
+			Iter.Value->RemoveFromParent();
+		}
+	}
+	RouteMarkers.Empty();
 }

@@ -6,9 +6,7 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "GameOptions.h"
-
-#include "RadarSweep.generated.h"
+#include "ReplaceActor.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -21,18 +19,15 @@ class AViewerPawn;
  * 雷达扫描效果
  */
 UCLASS()
-class SMARTCITY_API ARadarSweep :
+class COMMONTYPE_API AReplaceActor :
 	public AActor
 {
 	GENERATED_BODY()
 
 public:
 
-	ARadarSweep(
+	AReplaceActor(
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
 };

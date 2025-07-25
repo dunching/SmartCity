@@ -16,37 +16,9 @@ class ASSETREF_API UAssetRefBase : public UPrimaryDataAsset
 public:
 
 #pragma region GEs
-	/**
-	 * 一次性
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GE")
-	TSubclassOf<UGameplayEffect>OnceGEClass;
-
-	/**
-	 * 周期性
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GE")
-	TSubclassOf<UGameplayEffect>DurationGEClass;
-
-	/**
-	 * 永久
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GE")
-	TSubclassOf<UGameplayEffect>ForeverGEClass;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GE")
-	TSubclassOf<UGameplayEffect>DamageCallbackClass;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GE")
-	TSubclassOf<UGameplayEffect>SuppressClass;
 #pragma endregion 
 	
 #pragma region Audios
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Audios")
-	TSoftObjectPtr<USoundMix>SoundMixRef;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Audios")
-	TSoftObjectPtr<USoundClass>BGMSoundClassRef;
 #pragma endregion 
 	
 };

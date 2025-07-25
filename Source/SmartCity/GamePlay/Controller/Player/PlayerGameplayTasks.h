@@ -18,6 +18,7 @@
 class AViewerPawn;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
+class AReplaceActor;
 
 /*
  * PlayerController处理异步的组件
@@ -181,6 +182,24 @@ public:
 	FGuid ID;
 };
 
+/**
+ * 定位某个区域
+ */
+UCLASS()
+class SMARTCITY_API UGT_CameraTransformLocaterBySpace : public UGT_CameraTransform
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	virtual void Activate() override;
+
+	TWeakObjectPtr<AActor> SpaceActorPtr;
+};
+
 #pragma endregion
 
 #pragma region 批量任务处理
@@ -267,6 +286,8 @@ protected:
 
 	bool ProcessTask_SoftDecorationItemSet();
 
+	bool ProcessTask_ReplaceSoftDecorationItemSet();
+
 	bool ProcessTask_SpaceItemSet();
 
 private:
@@ -281,12 +302,21 @@ private:
 		TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
 		);
 
+	bool NormalAdjust(
+		int32& Index,
+		TArray<TSoftObjectPtr<AReplaceActor>>& ItemSet
+		);
+
 	void ApplyData(
 		int32 Index
 		);
 
 	void ApplyRelatedActors(
 		const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
+		);
+
+	void ApplyRelatedActors(
+		const TSoftObjectPtr<AReplaceActor>& ItemSet
 		);
 
 	int32 SceneActorMapIndex = 0;
@@ -308,6 +338,10 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
 
+	int32 ReplaceSoftDecorationItemSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActor>> ReplaceSoftDecorationItemSet;
+
 	int32 SpaceItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
@@ -315,7 +349,7 @@ private:
 
 	int32 RelatedActorsIndex = 0;
 
-	TArray<TPair<FName, TSoftObjectPtr<AActor>>> RelatedActors;
+	TArray<TPair<FName, TObjectPtr<AActor>>> RelatedActors;
 };
 
 #pragma endregion
@@ -386,10 +420,18 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
+	int32 HideRePlaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+
+	int32 ReplaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActor>> ReplaceActorsSet;
 
 
 	int32 RelatedActorsIndex = 0;

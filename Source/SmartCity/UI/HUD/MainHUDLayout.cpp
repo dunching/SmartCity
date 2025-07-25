@@ -15,7 +15,7 @@ void UFeatureWheel::NativeConstruct()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdatePosition, UpdateRate, true);
 }
 
-inline void UFeatureWheel::InitalFeaturesItem(
+void UFeatureWheel::InitalFeaturesItem(
 	const FString& FeatureName,
 	const TArray<FString>& Features
 	)

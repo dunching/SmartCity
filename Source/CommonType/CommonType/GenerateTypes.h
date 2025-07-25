@@ -10,6 +10,7 @@
 #include "GenerateTypes.generated.h"
 
 class ADatasmithSceneActor;
+class AReplaceActor;
 
 UENUM()
 enum class EOperatorType: uint8
@@ -43,6 +44,12 @@ struct COMMONTYPE_API FSceneActorMap
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
+	
+	/**
+	 * 软装，如电气
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AReplaceActor>> ReplaceSoftDecorationItemSet;
 	
 	/**
 	 * 空间区域

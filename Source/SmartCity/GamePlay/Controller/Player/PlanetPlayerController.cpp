@@ -19,7 +19,7 @@ APlanetPlayerController::APlanetPlayerController(const FObjectInitializer& Objec
 	);
 }
 
-inline void APlanetPlayerController::OnPossess(APawn* InPawn)
+void APlanetPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
