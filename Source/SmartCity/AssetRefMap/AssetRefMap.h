@@ -14,6 +14,8 @@ class AActor;
 class UDataLayerAsset;
 class ADatasmithSceneActor;
 class URouteMarker;
+class AFloorHelper;
+class AElevator;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -28,9 +30,25 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
 	
+#pragma region 场景Actor
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FSceneActorConditional, FSceneActorMap> SceneActorMap;
+#pragma endregion
+
+#pragma region 建筑信息
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+#pragma endregion
+
+#pragma region 电梯
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<AElevator> Elevator_01;
 	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<AElevator> Elevator_02;
+#pragma endregion
+
+#pragma region DataSmith
 	/**
 	 * 设备ID的前缀
 	 */
@@ -57,11 +75,14 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Space;
-	
+#pragma endregion
+
+#pragma region 引用
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance>SpaceMaterialInstance;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<URouteMarker>RouteMarkerClass;
+#pragma endregion
 	
 };
