@@ -33,6 +33,25 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual  void Tick(float DeltaSeconds) override;
+	void SwitchState(bool bIsActive);
 	
+	void ChangeTargetFloorIndex(int32 FloorIndex); 
+	
+protected:
+
+	UFUNCTION()
+	void MoveElevator();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 MoveSpeed = 100;
+	
+	int32 TargetFloorIndex = 0;
+
+	FVector TargetFloorLocation = FVector::ZeroVector;
+
+	bool bIsUp = false;
+	
+	FTimerHandle MoveTimerHandle;
+
+	float Frequence = 1.f / 30;
 };

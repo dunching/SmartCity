@@ -207,10 +207,10 @@ void UGT_CameraTransformLocaterBySpace::Activate()
 	if (TargetPtr.IsValid())
 	{
 		auto Result = UKismetAlgorithm::GetCameraSeat(
-													  {TargetPtr.Get()},
-													  UGameOptions::GetInstance()->ViewDeviceRot,
-													  UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
-													 );
+		                                              {TargetPtr.Get()},
+		                                              UGameOptions::GetInstance()->ViewDeviceRot,
+		                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
+		                                             );
 
 		TargetLocation = Result.Key.GetLocation();
 		TargetRotation = Result.Key.GetRotation().Rotator();
@@ -360,7 +360,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActorsIndex = 0;
 					RelatedActors.Empty();
 				}
-				
+
 				SetIndex++;
 				return true;
 			}
@@ -382,7 +382,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActorsIndex = 0;
 					RelatedActors.Empty();
 				}
-				
+
 				SetIndex++;
 				return true;
 			}
@@ -404,7 +404,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActorsIndex = 0;
 					RelatedActors.Empty();
 				}
-				
+
 				SetIndex++;
 				return true;
 			}
@@ -426,7 +426,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActorsIndex = 0;
 					RelatedActors.Empty();
 				}
-				
+
 				SetIndex++;
 				return true;
 			}
@@ -440,7 +440,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 		}
 	default: ;
 	}
-	
+
 	SceneActorMapIndex++;
 
 	ApplyData(SceneActorMapIndex);
@@ -472,19 +472,22 @@ bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
 	};
 
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
-	auto Components = Iter->GetComponents();
-	for (auto SecondIter : Components)
+	if (Iter)
 	{
-		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-		if (PrimitiveComponentPtr)
+		auto Components = Iter->GetComponents();
+		for (auto SecondIter : Components)
 		{
-			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			PrimitiveComponentPtr->SetCollisionObjectType(ExternalWall_Object);
-			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			
-			break;
+			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				PrimitiveComponentPtr->SetCollisionObjectType(ExternalWall_Object);
+				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+
+				break;
+			}
 		}
 	}
 
@@ -515,19 +518,22 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 	};
 
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
-	auto Components = Iter->GetComponents();
-	for (auto SecondIter : Components)
+	if (Iter)
 	{
-		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-		if (PrimitiveComponentPtr)
+		auto Components = Iter->GetComponents();
+		for (auto SecondIter : Components)
 		{
-			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			PrimitiveComponentPtr->SetCollisionObjectType(Floor_Object);
-			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			
-			break;
+			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				PrimitiveComponentPtr->SetCollisionObjectType(Floor_Object);
+				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+
+				break;
+			}
 		}
 	}
 
@@ -550,65 +556,68 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 	};
 
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
-	auto Components = Iter->GetComponents();
-	for (auto SecondIter : Components)
+	if (Iter)
 	{
-		auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-		if (InterfacePtr)
+		auto Components = Iter->GetComponents();
+		for (auto SecondIter : Components)
 		{
-			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-			                                            InterfacePtr->GetAssetUserDataOfClass(
-				                                             UDatasmithAssetUserData::StaticClass()
-				                                            )
-			                                           );
-			if (!AUDPtr)
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+			if (InterfacePtr)
 			{
-				continue;
-			}
-			for (const auto& ThirdIter : AUDPtr->MetaData)
-			{
-				if (ThirdIter.Key == UAssetRefMap::GetInstance()->Datasmith_UniqueId)
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+				                                            InterfacePtr->GetAssetUserDataOfClass(
+					                                             UDatasmithAssetUserData::StaticClass()
+					                                            )
+				                                           );
+				if (!AUDPtr)
 				{
-					SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter);
 					continue;
 				}
-				else
+				for (const auto& ThirdIter : AUDPtr->MetaData)
 				{
-				}
-
-				auto CatogoryPrefixIter = UAssetRefMap::GetInstance()->CatogoryPrifix.
-				                                                       Find(ThirdIter.Key.ToString());
-				if (CatogoryPrefixIter)
-				{
-					if (ThirdIter.Value == UAssetRefMap::GetInstance()->FJPG)
+					if (ThirdIter.Key == UAssetRefMap::GetInstance()->Datasmith_UniqueId)
 					{
-						continue;
-					}
-					else if (ThirdIter.Value == UAssetRefMap::GetInstance()->XFJZ)
-					{
+						SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter);
 						continue;
 					}
 					else
 					{
-						continue;
+					}
+
+					auto CatogoryPrefixIter = UAssetRefMap::GetInstance()->CatogoryPrifix.
+					                                                       Find(ThirdIter.Key.ToString());
+					if (CatogoryPrefixIter)
+					{
+						if (ThirdIter.Value == UAssetRefMap::GetInstance()->FJPG)
+						{
+							continue;
+						}
+						else if (ThirdIter.Value == UAssetRefMap::GetInstance()->XFJZ)
+						{
+							continue;
+						}
+						else
+						{
+							continue;
+						}
 					}
 				}
+				break;
 			}
-			break;
 		}
-	}
-	for (auto SecondIter : Components)
-	{
-		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-		if (PrimitiveComponentPtr)
+		for (auto SecondIter : Components)
 		{
-			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
-			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			
-			break;
+			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
+				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+
+				break;
+			}
 		}
 	}
 
@@ -631,20 +640,23 @@ bool UGT_InitializeSceneActors::ProcessTask_ReplaceSoftDecorationItemSet()
 	};
 
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
-	auto Components = Iter->GetComponents();
-	
-	for (auto SecondIter : Components)
+	if (Iter)
 	{
-		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-		if (PrimitiveComponentPtr)
+		auto Components = Iter->GetComponents();
+
+		for (auto SecondIter : Components)
 		{
-			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
-			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			
-			break;
+			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
+				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+
+				break;
+			}
 		}
 	}
 
@@ -668,31 +680,34 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 
 	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
-	auto Components = Iter->GetComponents();
-	for (auto SecondIter : Components)
+	if (Iter)
 	{
-		auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-		if (PrimitiveComponentPtr)
+		auto Components = Iter->GetComponents();
+		for (auto SecondIter : Components)
 		{
-			for (int32 Index = 0; Index < PrimitiveComponentPtr->GetNumMaterials(); Index++)
+			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
+			if (PrimitiveComponentPtr)
 			{
-				PrimitiveComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
-			}
+				for (int32 Index = 0; Index < PrimitiveComponentPtr->GetNumMaterials(); Index++)
+				{
+					PrimitiveComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
+				}
 
-			PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			PrimitiveComponentPtr->SetCollisionObjectType(Space_Object);
-			PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			
-			PrimitiveComponentPtr->SetCastShadow(false);
-			PrimitiveComponentPtr->bVisibleInReflectionCaptures = false;
-			PrimitiveComponentPtr->bVisibleInRealTimeSkyCaptures = false;
-			PrimitiveComponentPtr->bVisibleInRayTracing = false;
-			PrimitiveComponentPtr->bReceivesDecals = false;
-			PrimitiveComponentPtr->bUseAsOccluder = false;
-			
-			break;
+				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				PrimitiveComponentPtr->SetCollisionObjectType(Space_Object);
+				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+
+				PrimitiveComponentPtr->SetCastShadow(false);
+				PrimitiveComponentPtr->bVisibleInReflectionCaptures = false;
+				PrimitiveComponentPtr->bVisibleInRealTimeSkyCaptures = false;
+				PrimitiveComponentPtr->bVisibleInRayTracing = false;
+				PrimitiveComponentPtr->bReceivesDecals = false;
+				PrimitiveComponentPtr->bUseAsOccluder = false;
+
+				break;
+			}
 		}
 	}
 
@@ -758,7 +773,7 @@ void UGT_InitializeSceneActors::ApplyData(
 	if (Index < SceneActorMap.Num())
 	{
 		SetIndex = 0;
-		
+
 		StructItemSetIndex = 0;
 		StructItemSet.Empty();
 		for (const auto& Iter : SceneActorMap[Index].StructItemSet)
@@ -822,7 +837,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 	TArray<AActor*> OutActors;
 	ItemSet->GetAttachedActors(OutActors);
-	
+
 	for (const auto& Iter : OutActors)
 	{
 		RelatedActors.Add({*Iter->GetName(), Iter});
@@ -907,7 +922,15 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			for (const auto& Iter : HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->RelatedActors)
 			{
-				FilterCount.emplace(Iter.Value.LoadSynchronous(), 0);
+				auto ActorPtr = Iter.Value.LoadSynchronous();
+				if (ActorPtr)
+				{
+					FilterCount.emplace(ActorPtr, 0);
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
 			}
 			return true;
 		}
@@ -923,11 +946,18 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		};
 		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
 		{
-			TArray<AActor*>RelatedActors;
+			TArray<AActor*> RelatedActors;
 			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors);
 			for (const auto& Iter : RelatedActors)
 			{
-				FilterCount.emplace(Iter, 0);
+				if (Iter)
+				{
+					FilterCount.emplace(Iter, 0);
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
 			}
 			return true;
 		}
@@ -947,7 +977,15 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
 			{
-				FilterCount[Iter.Value.LoadSynchronous()] = 1;
+				auto ActorPtr = Iter.Value.LoadSynchronous();
+				if (ActorPtr)
+				{
+					FilterCount[Iter.Value.LoadSynchronous()] = 1;
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
 			}
 			return true;
 		}
@@ -966,11 +1004,18 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		};
 		if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
 		{
-			TArray<AActor*>RelatedActors;
+			TArray<AActor*> RelatedActors;
 			ReplaceActorsSet[ReplaceActorsSetIndex]->GetAttachedActors(RelatedActors);
 			for (const auto& Iter : RelatedActors)
 			{
-				FilterCount[Iter] = 1;
+				if (Iter)
+				{
+					FilterCount[Iter] = 1;
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
 			}
 			return true;
 		}

@@ -177,6 +177,26 @@ public:
 private:
 };
 
+/**
+ * 选择“电梯”模式
+ */
+class SMARTCITY_API FElevatorMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FElevatorMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FElevatorMode_Decorator();
+
+	virtual void Entry() override;
+
+	virtual void Quit() override;
+
+private:
+};
+
 #pragma endregion
 
 #pragma region 区域

@@ -13,6 +13,7 @@
 #include "MessageBody.h"
 #include "SceneInteractionWorldSystem.h"
 #include "Algorithm.h"
+#include "Elevator.h"
 #include "GameplayCommand.h"
 #include "GameplayTagsLibrary.h"
 #include "PlanetPlayerController.h"
@@ -215,6 +216,40 @@ void FAccessControlMode_Decorator::Entry()
 
 		USceneInteractionWorldSystem::GetInstance()->AddRouteMarker(Iter);
 	}
+}
+
+FElevatorMode_Decorator::FElevatorMode_Decorator():
+                                                  Super(
+                                                        UGameplayTagsLibrary::Interaction_Mode,
+                                                        UGameplayTagsLibrary::Interaction_Mode_Elevator
+                                                       )
+{
+}
+
+void FElevatorMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	for (auto Iter : UAssetRefMap::GetInstance()->ElevatorMap)
+	{
+		if (Iter.Value.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->SwitchState(true);
+		}
+	}
+}
+
+void FElevatorMode_Decorator::Quit()
+{
+	for (auto Iter : UAssetRefMap::GetInstance()->ElevatorMap)
+	{
+		if (Iter.Value.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->SwitchState(false);
+		}
+	}
+
+	Super::Quit();
 }
 
 FArea_Decorator::FArea_Decorator(

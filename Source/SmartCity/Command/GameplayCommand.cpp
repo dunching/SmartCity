@@ -5,6 +5,7 @@
 
 #include "AssetRefMap.h"
 #include "DatasmithAssetUserData.h"
+#include "ElevatorSubSystem.h"
 #include "GameplayTagsLibrary.h"
 #include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
@@ -17,6 +18,7 @@
 #include "TourPawn.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
+#include "Kismet/KismetStringLibrary.h"
 
 void SmartCityCommand::ReplyCameraTransform()
 {
@@ -112,4 +114,19 @@ void SmartCityCommand::LocaterByID(
 			 }
 		 }
 		);
+}
+
+void SmartCityCommand::ElevatorMoveToFloor(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(1))
+	{
+		return;
+	}
+
+	UElevatorSubSystem::GetInstance()->ElevatorMoveToFloor(
+	                                                       FGameplayTag::RequestGameplayTag(*Args[0]),
+	                                                       UKismetStringLibrary::Conv_StringToInt(Args[1])
+	                                                      );
 }

@@ -90,6 +90,24 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		return;
 	}
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Elevator)
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Mode_Elevator)
+			{
+				return;
+			}
+		}
+
+		SwitchDecoratorImp<FElevatorMode_Decorator>(
+		                                         UGameplayTagsLibrary::Interaction_Mode,
+		                                         UGameplayTagsLibrary::Interaction_Mode_Elevator
+		                                        );
+
+		return;
+	}
 }
 
 void USceneInteractionWorldSystem::SwitchViewArea(

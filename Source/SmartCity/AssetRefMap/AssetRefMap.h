@@ -37,15 +37,12 @@ public:
 
 #pragma region 建筑信息
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+	TMap<int32, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
 #pragma endregion
 
 #pragma region 电梯
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSoftObjectPtr<AElevator> Elevator_01;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSoftObjectPtr<AElevator> Elevator_02;
+	TMap<FGameplayTag, TSoftObjectPtr<AElevator>> ElevatorMap;
 #pragma endregion
 
 #pragma region DataSmith
