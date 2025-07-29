@@ -45,7 +45,7 @@ public:
 		) const;
 
 	void UpdateFilter(
-		const TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs>& FilterTags,
+		const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
 		const std::function<void(
 			bool,
 			const TSet<AActor*>&

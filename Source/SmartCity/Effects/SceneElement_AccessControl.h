@@ -7,8 +7,9 @@
 #include "GameFramework/Pawn.h"
 
 #include "GameOptions.h"
+#include "SceneElementBase.h"
 
-#include "AccessControl.generated.h"
+#include "SceneElement_AccessControl.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -22,14 +23,14 @@ class UActorSequenceComponent;
  * 门禁
  */
 UCLASS()
-class SMARTCITY_API AAccessControl :
-	public AActor
+class SMARTCITY_API ASceneElement_AccessControl :
+	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
 
-	AAccessControl(
+	ASceneElement_AccessControl(
 		const FObjectInitializer& ObjectInitializer
 		);
 

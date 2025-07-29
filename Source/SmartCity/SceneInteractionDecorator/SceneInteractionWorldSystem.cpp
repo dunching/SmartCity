@@ -36,6 +36,20 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)
 {
+	if (Interaction_Mode == FGameplayTag::EmptyTag)
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		{
+			auto OldDecoratorSPtr = DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
+			if (OldDecoratorSPtr)
+			{
+				OldDecoratorSPtr->Quit();
+				NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+			}
+		}
+
+		return;
+	}
 	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_QD)
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
@@ -185,7 +199,7 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	const TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs>& FilterTags,
+	const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
 	const std::function<void(
 		bool,
 		const TSet<AActor*>&

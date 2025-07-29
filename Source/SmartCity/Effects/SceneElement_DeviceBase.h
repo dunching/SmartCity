@@ -7,8 +7,9 @@
 #include "GameFramework/Pawn.h"
 
 #include "GameOptions.h"
+#include "SceneElementBase.h"
 
-#include "RadarSweep.generated.h"
+#include "SceneElement_DeviceBase.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -16,23 +17,19 @@ class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
+class UActorSequenceComponent;
 
 /**
- * 雷达扫描效果
+ * 门禁
  */
 UCLASS()
-class SMARTCITY_API ARadarSweep :
-	public AActor
+class SMARTCITY_API ASceneElement_DeviceBase :
+	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
 
-	ARadarSweep(
-		const FObjectInitializer& ObjectInitializer
-		);
+	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
 };

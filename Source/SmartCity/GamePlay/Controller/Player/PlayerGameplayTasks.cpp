@@ -22,6 +22,7 @@
 #include "GenerateTypes.h"
 #include "LogWriter.h"
 #include "ReplaceActor.h"
+#include "SceneElementBase.h"
 #include "TemplateHelper.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
@@ -520,6 +521,11 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
 	if (Iter)
 	{
+		if (ReplacedActor(Iter))
+		{
+			return true;
+		}
+
 		auto Components = Iter->GetComponents();
 		for (auto SecondIter : Components)
 		{
@@ -558,6 +564,11 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 	auto Iter = RelatedActors[RelatedActorsIndex].Value;
 	if (Iter)
 	{
+		if (ReplacedActor(Iter))
+		{
+			return true;
+		}
+
 		auto Components = Iter->GetComponents();
 		for (auto SecondIter : Components)
 		{
@@ -714,6 +725,18 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 	return true;
 }
 
+bool UGT_InitializeSceneActors::ReplacedActor(
+	AActor* ActorPtr
+	)
+{
+	if (ActorPtr->IsA(ASceneElementBase::StaticClass()))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool UGT_InitializeSceneActors::NormalAdjust(
 	int32& Index,
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
@@ -822,9 +845,70 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 {
 	RelatedActorsIndex = 0;
 	RelatedActors.Empty();
-	for (const auto& Iter : ItemSet->RelatedActors)
+	for (auto& Iter : ItemSet->RelatedActors)
 	{
-		RelatedActors.Add({Iter.Key, Iter.Value.LoadSynchronous()});
+		auto ActorPtr = Iter.Value.LoadSynchronous();
+		if (ActorPtr)
+		{
+			auto Components = ActorPtr->GetComponents();
+			for (auto SecondIter : Components)
+			{
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+				if (InterfacePtr)
+				{
+					auto AUDPtr = Cast<UDatasmithAssetUserData>(
+																InterfacePtr->GetAssetUserDataOfClass(
+																	 UDatasmithAssetUserData::StaticClass()
+																	)
+															   );
+					if (!AUDPtr)
+					{
+						continue;
+					}
+
+					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceMap)
+					{
+						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
+						if (MetaDataIter && (*MetaDataIter == ThirdIter.Key.Value))
+						{
+							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+								 ThirdIter.Value,
+								 ActorPtr->GetActorTransform()
+								);
+
+							AActor* TopActor = nullptr;
+							AActor* ParentPtr = ActorPtr;
+							do
+							{
+								ParentPtr = ParentPtr->GetAttachParentActor();
+								if (ParentPtr)
+								{
+									TopActor = ParentPtr;
+								}
+							}
+							while (ParentPtr);
+							if (TopActor)
+							{
+								NewActorPtr->AttachToActor(TopActor, FAttachmentTransformRules::KeepRelativeTransform);
+							}
+
+							ActorPtr->Destroy();
+
+							Iter.Value = NewActorPtr;
+							RelatedActors.Add({Iter.Key, NewActorPtr});
+							
+							return;
+						}
+					}
+				}
+			}
+			
+			RelatedActors.Add({Iter.Key, ActorPtr});
+		}
+		else
+		{
+			PRINTINVOKEINFO();
+		}
 	}
 }
 
@@ -932,6 +1016,20 @@ bool UGT_SceneObjSwitch::ProcessTask()
 					PRINTINVOKEINFO();
 				}
 			}
+
+			// TArray<AActor*> OutActors;
+			// HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors);
+			// for (const auto& Iter : OutActors)
+			// {
+			// 	if (Iter)
+			// 	{
+			// 		FilterCount.emplace(Iter, 0);
+			// 	}
+			// 	else
+			// 	{
+			// 		PRINTINVOKEINFO();
+			// 	}
+			// }
 			return true;
 		}
 	}
@@ -987,6 +1085,20 @@ bool UGT_SceneObjSwitch::ProcessTask()
 					PRINTINVOKEINFO();
 				}
 			}
+			
+			// TArray<AActor*> OutActors;
+			// DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors);
+			// for (const auto& Iter : OutActors)
+			// {
+			// 	if (Iter)
+			// 	{
+			// 		FilterCount[Iter] = 1;
+			// 	}
+			// 	else
+			// 	{
+			// 		PRINTINVOKEINFO();
+			// 	}
+			// }
 			return true;
 		}
 		else

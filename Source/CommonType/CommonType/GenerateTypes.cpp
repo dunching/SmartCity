@@ -1,10 +1,39 @@
 #include "GenerateTypes.h"
 
-FSceneActorConditional::FSceneActorConditional()
+TFSceneElementTypeHelperKeyFuncs::KeyInitType TFSceneElementTypeHelperKeyFuncs::GetSetKey(
+	ElementInitType Element
+	)
+{
+	return Element;
+}
+
+bool TFSceneElementTypeHelperKeyFuncs::Matches(
+	KeyInitType A,
+	KeyInitType B
+	)
+{
+	return (A.Key == B.Key) && (A.Value == B.Value);
+}
+
+uint32 TFSceneElementTypeHelperKeyFuncs::GetKeyHash(
+	KeyInitType Key
+	)
+{
+	return GetTypeHash(Key);
+}
+
+uint32 GetTypeHash(
+	const FSceneElementTypeHelper& SceneElementTypeHelper
+	)
+{
+	return HashCombine(GetTypeHash(SceneElementTypeHelper.Key), GetTypeHash(SceneElementTypeHelper.Value));
+}
+
+FSceneElementConditional::FSceneElementConditional()
 {
 }
 
-FSceneActorConditional::FSceneActorConditional(
+FSceneElementConditional::FSceneElementConditional(
 	const TSet<FGameplayTag>& InConditionalSet
 	)
 {
@@ -15,7 +44,7 @@ FSceneActorConditional::FSceneActorConditional(
 }
 
 uint32 GetTypeHash(
-	const FSceneActorConditional& SceneActorConditional
+	const FSceneElementConditional& SceneActorConditional
 	)
 {
 	uint32 HashCode = 0;
@@ -26,14 +55,14 @@ uint32 GetTypeHash(
 	return HashCode;
 }
 
-TSceneActorConditionalKeyFuncs::KeyInitType TSceneActorConditionalKeyFuncs::GetSetKey(
+TSceneElementConditionalKeyFuncs::KeyInitType TSceneElementConditionalKeyFuncs::GetSetKey(
 	ElementInitType Element
 	)
 {
 	return Element;
 }
 
-bool TSceneActorConditionalKeyFuncs::Matches(
+bool TSceneElementConditionalKeyFuncs::Matches(
 	KeyInitType A,
 	KeyInitType B
 	)
@@ -41,7 +70,7 @@ bool TSceneActorConditionalKeyFuncs::Matches(
 	return (A.ConditionalSet == B.ConditionalSet);
 }
 
-uint32 TSceneActorConditionalKeyFuncs::GetKeyHash(
+uint32 TSceneElementConditionalKeyFuncs::GetKeyHash(
 	KeyInitType Key
 	)
 {

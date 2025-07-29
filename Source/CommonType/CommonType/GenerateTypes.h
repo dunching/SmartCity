@@ -11,6 +11,7 @@
 
 class ADatasmithSceneActor;
 class AReplaceActor;
+class ASceneElementBase;
 
 UENUM()
 enum class EOperatorType: uint8
@@ -23,7 +24,53 @@ enum class EOperatorType: uint8
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct COMMONTYPE_API FSceneActorMap
+struct COMMONTYPE_API FSceneElementTypeHelper
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Key;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Value;
+};
+
+struct COMMONTYPE_API TFSceneElementTypeHelperKeyFuncs :
+	BaseKeyFuncs<
+		FSceneElementTypeHelper, FSceneElementTypeHelper,
+		false
+	>
+{
+private:
+	typedef BaseKeyFuncs<
+		FSceneElementTypeHelper, FSceneElementTypeHelper,
+		false
+	> Super;
+
+public:
+	typedef typename Super::ElementInitType ElementInitType;
+	typedef typename Super::KeyInitType KeyInitType;
+
+	static KeyInitType GetSetKey(
+		ElementInitType Element
+		);
+
+	static bool Matches(
+		KeyInitType A,
+		KeyInitType B
+		);
+
+	static uint32 GetKeyHash(
+		KeyInitType Key
+		);
+};
+
+COMMONTYPE_API uint32 GetTypeHash(
+	const FSceneElementTypeHelper& SceneElementTypeHelper
+	);
+
+USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FSceneElementMap
 {
 	GENERATED_BODY()
 
@@ -32,6 +79,8 @@ struct COMMONTYPE_API FSceneActorMap
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
+	
+	TSet<ASceneElementBase*> StructItem_ReplacedElementSet;
 	
 	/**
 	 * 硬装，内饰
@@ -63,13 +112,13 @@ struct COMMONTYPE_API FSceneActorMap
  * 条件
  */
 USTRUCT(Blueprintable, BlueprintType)
-struct COMMONTYPE_API FSceneActorConditional
+struct COMMONTYPE_API FSceneElementConditional
 {
 	GENERATED_BODY()
 
-	FSceneActorConditional();;
+	FSceneElementConditional();;
 
-	FSceneActorConditional(
+	FSceneElementConditional(
 		const TSet<FGameplayTag>& InConditionalSet
 		);
 
@@ -77,15 +126,15 @@ struct COMMONTYPE_API FSceneActorConditional
 	FGameplayTagContainer ConditionalSet;
 };
 
-struct COMMONTYPE_API TSceneActorConditionalKeyFuncs :
+struct COMMONTYPE_API TSceneElementConditionalKeyFuncs :
 	BaseKeyFuncs<
-		FSceneActorConditional, FSceneActorConditional,
+		FSceneElementConditional, FSceneElementConditional,
 		false
 	>
 {
 private:
 	typedef BaseKeyFuncs<
-		FSceneActorConditional, FSceneActorConditional,
+		FSceneElementConditional, FSceneElementConditional,
 		false
 	> Super;
 
@@ -108,5 +157,5 @@ public:
 };
 
 COMMONTYPE_API uint32 GetTypeHash(
-	const FSceneActorConditional& SceneActorConditional
+	const FSceneElementConditional& SceneActorConditional
 	);

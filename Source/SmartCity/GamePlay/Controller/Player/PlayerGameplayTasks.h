@@ -291,6 +291,8 @@ protected:
 	bool ProcessTask_SpaceItemSet();
 
 private:
+	bool ReplacedActor(AActor*ActorPtr);
+	
 	/**
 	 * 
 	 * @param Index tu
@@ -321,7 +323,7 @@ private:
 
 	int32 SceneActorMapIndex = 0;
 
-	TArray<FSceneActorMap> SceneActorMap;
+	TArray<FSceneElementMap> SceneActorMap;
 
 
 	int32 SetIndex = 0;
@@ -389,7 +391,7 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
+	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
 	/**
 	 * 是否清楚之前的

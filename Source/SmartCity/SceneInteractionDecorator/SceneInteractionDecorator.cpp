@@ -1,6 +1,6 @@
 #include "SceneInteractionDecorator.h"
 
-#include "AccessControl.h"
+#include "SceneElement_AccessControl.h"
 #include "WorldPartition/DataLayer/DataLayerInstance.h"
 #include "WorldPartition/DataLayer/DataLayerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -205,7 +205,7 @@ void FAccessControlMode_Decorator::Entry()
 	Super::Entry();
 
 	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(), AAccessControl::StaticClass(), OutActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorldImp(), ASceneElement_AccessControl::StaticClass(), OutActors);
 
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 	USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
@@ -267,17 +267,17 @@ void FArea_Decorator::Entry()
 {
 	Super::Entry();
 
-	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
+	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
 	{
-		FSceneActorConditional SceneActorConditional;
+		FSceneElementConditional SceneActorConditional;
 
 		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 		FilterTags.Add(SceneActorConditional);
 	}
 	{
-		FSceneActorConditional SceneActorConditional;
+		FSceneElementConditional SceneActorConditional;
 
 		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 		SceneActorConditional.ConditionalSet.AppendTags(
@@ -304,17 +304,17 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
 
-	TSet<FSceneActorConditional, TSceneActorConditionalKeyFuncs> FilterTags;
+	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
 	{
-		FSceneActorConditional SceneActorConditional;
+		FSceneElementConditional SceneActorConditional;
 
 		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 		FilterTags.Add(SceneActorConditional);
 	}
 	{
-		FSceneActorConditional SceneActorConditional;
+		FSceneElementConditional SceneActorConditional;
 
 		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 		SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());

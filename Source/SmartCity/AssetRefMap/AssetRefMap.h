@@ -16,23 +16,31 @@ class ADatasmithSceneActor;
 class URouteMarker;
 class AFloorHelper;
 class AElevator;
+class APostProcessVolume;
+class ASceneElementBase;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
 {
 	GENERATED_BODY()
-public:
 
+public:
 	UAssetRefMap();
 
 	static UAssetRefMap* GetInstance();
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, TSubclassOf<AActor>>NeedReplaceMap;
-	
+	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceMap;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, FSceneElementTypeHelper> SceneElementMap;
+
 #pragma region 场景Actor
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FSceneActorConditional, FSceneActorMap> SceneActorMap;
+	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
 #pragma endregion
 
 #pragma region 建筑信息
@@ -51,35 +59,34 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Datasmith_UniqueId;
-	
+
 	/**
 	 * 设备名称的Key
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<FString>NamePrifix;
-	
+	TSet<FString> NamePrifix;
+
 	/**
 	 * 设备类型的Key
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<FString>CatogoryPrifix;
-	
+	TSet<FString> CatogoryPrifix;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString FJPG;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString XFJZ;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Space;
 #pragma endregion
 
 #pragma region 引用
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSoftObjectPtr<UMaterialInstance>SpaceMaterialInstance;
-	
+	TSoftObjectPtr<UMaterialInstance> SpaceMaterialInstance;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSubclassOf<URouteMarker>RouteMarkerClass;
+	TSubclassOf<URouteMarker> RouteMarkerClass;
 #pragma endregion
-	
 };

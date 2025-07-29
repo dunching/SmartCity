@@ -1,5 +1,4 @@
-﻿
-#include "WeatherSystemCommand.h"
+﻿#include "WeatherSystemCommand.h"
 
 #include <Kismet/KismetStringLibrary.h>
 #include <GameplayTagContainer.h>
@@ -7,7 +6,9 @@
 #include "WeatherSystem.h"
 #include "Dynamic_WeatherBase.h"
 
-void WeatherSystemCommand::AdjustHour(const TArray< FString >& Args)
+void WeatherSystemCommand::AdjustHour(
+	const TArray<FString>& Args
+	)
 {
 	if (!Args.IsValidIndex(0))
 	{
@@ -19,7 +20,9 @@ void WeatherSystemCommand::AdjustHour(const TArray< FString >& Args)
 	UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, 1, UKismetStringLibrary::Conv_StringToInt(Args[0])));
 }
 
-void WeatherSystemCommand::AdjustWeather(const TArray< FString >& Args)
+void WeatherSystemCommand::AdjustWeather(
+	const TArray<FString>& Args
+	)
 {
 	if (!Args.IsValidIndex(0))
 	{
@@ -30,4 +33,3 @@ void WeatherSystemCommand::AdjustWeather(const TArray< FString >& Args)
 
 	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(FGameplayTag::RequestGameplayTag(*Args[0]));
 }
-
