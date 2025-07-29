@@ -36,4 +36,6 @@ public:
 		AActor* ActorPtr
 		) override;
 
+	virtual void SwitchFocusState(bool bIsFocus) override;
+
 };

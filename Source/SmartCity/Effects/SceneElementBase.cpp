@@ -35,3 +35,9 @@ void ASceneElementBase::ReplaceImp(
 	)
 {
 }
+
+void ASceneElementBase::SwitchFocusState(
+	bool bIsFocus
+	)
+{
+}

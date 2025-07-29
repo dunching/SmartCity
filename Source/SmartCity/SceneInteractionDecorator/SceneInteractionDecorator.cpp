@@ -76,6 +76,14 @@ void FDecoratorBase::OnUpdateFilterComplete(
 {
 }
 
+FEmpty_Decorator::FEmpty_Decorator():
+                                    Super(
+                                          UGameplayTagsLibrary::Interaction_Mode,
+                                          UGameplayTagsLibrary::Interaction_Mode_Empty
+                                         )
+{
+}
+
 void FTour_Decorator::Entry()
 {
 	Super::Entry();
@@ -331,6 +339,13 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 	                                                                    std::placeholders::_2
 	                                                                   )
 	                                                         );
+}
+
+void FArea_Decorator::OnOtherDecoratorQuit(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
 }
 
 void FArea_Decorator::UpdateDisplay()

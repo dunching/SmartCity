@@ -904,6 +904,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	{
 		if (Iter)
 		{
+			bool bIsSceneElement = false;
 			auto Components = Iter->GetComponents();
 			for (auto SecondIter : Components)
 			{
@@ -932,14 +933,26 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 							NewActorPtr->Replace(Iter);
 
 							RelatedActors.Add( NewActorPtr);
-							
-							return;
+
+							bIsSceneElement = true;
+							break;
 						}
 					}
 				}
+				
+				if (bIsSceneElement)
+				{
+					break;
+				}
 			}
 			
-			RelatedActors.Add(Iter);
+			if (bIsSceneElement)
+			{
+			}
+			else
+			{
+				RelatedActors.Add(Iter);
+			}
 		}
 		else
 		{

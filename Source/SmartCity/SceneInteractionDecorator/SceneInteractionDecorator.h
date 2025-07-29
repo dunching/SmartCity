@@ -13,7 +13,7 @@ class SMARTCITY_API FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFOONLYTHIS(FDecoratorBase);
-	
+
 	FDecoratorBase(
 		FGameplayTag InMainDecoratorType,
 		FGameplayTag InBranchDecoratorType
@@ -25,9 +25,13 @@ public:
 
 	virtual void Quit();
 
-	virtual void OnOtherDecoratorEntry(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr);
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		);
 
-	virtual void OnOtherDecoratorQuit(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr);
+	virtual void OnOtherDecoratorQuit(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		);
 
 	/**
 	 * 
@@ -54,6 +58,20 @@ protected:
 };
 
 #pragma region 模式
+/**
+ * “空”模式
+ */
+class SMARTCITY_API FEmpty_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FEmpty_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FEmpty_Decorator();
+};
+
 /**
  * 漫游时
  */
@@ -127,7 +145,7 @@ public:
 
 	FRadarMode_Decorator();
 
-	virtual ~FRadarMode_Decorator() ;
+	virtual ~FRadarMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -218,11 +236,17 @@ public:
 
 	virtual void Entry() override;
 
-	virtual void OnOtherDecoratorEntry(const TSharedPtr<FDecoratorBase>&NewDecoratorSPtr) override;
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnOtherDecoratorQuit(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
 
 protected:
 	void UpdateDisplay();
-	
+
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
@@ -268,8 +292,8 @@ public:
 		const FGameplayTag& Interaction_Area
 		);
 
-	virtual ~FFloor_Decorator() ;
-	
+	virtual ~FFloor_Decorator();
+
 	virtual void Entry() override;
 
 	virtual void Quit() override;

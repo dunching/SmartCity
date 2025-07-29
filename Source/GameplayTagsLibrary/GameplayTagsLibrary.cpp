@@ -25,6 +25,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_Space =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Empty =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Empty")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
 

@@ -16,6 +16,7 @@
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "RouteMarker.h"
+#include "SceneElementBase.h"
 #include "SceneInteractionDecorator.h"
 #include "TemplateHelper.h"
 #include "TourProcessor.h"
@@ -32,6 +33,20 @@ USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 	                                         );
 }
 
+TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetInteractionModeDecorator() const
+{
+	if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+	{
+		if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+			UGameplayTagsLibrary::Interaction_Mode_Empty)
+		{
+			return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode_Empty];
+		}
+	}
+
+	return nullptr;
+}
+
 void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)
@@ -40,13 +55,17 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 		{
-			auto OldDecoratorSPtr = DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
-			if (OldDecoratorSPtr)
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				UGameplayTagsLibrary::Interaction_Mode_Empty)
 			{
-				OldDecoratorSPtr->Quit();
-				NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+				return;
 			}
 		}
+
+		SwitchDecoratorImp<FEmpty_Decorator>(
+											  UGameplayTagsLibrary::Interaction_Mode,
+											  UGameplayTagsLibrary::Interaction_Mode_Empty
+											 );
 
 		return;
 	}
@@ -363,11 +382,22 @@ void USceneInteractionWorldSystem::AddFocus(
 
 	FocusActors.Add(DevicePtr);
 
-	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-	if (PrimitiveComponentPtr)
+	if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
 	{
-		PrimitiveComponentPtr->SetRenderCustomDepth(true);
-		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+		auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
+		if (SceneElementBasePtr)
+		{
+			SceneElementBasePtr->SwitchFocusState(true);
+		}
+	}
+	else
+	{
+		auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetRenderCustomDepth(true);
+			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+		}
 	}
 }
 
@@ -384,10 +414,22 @@ void USceneInteractionWorldSystem::RemoveFocus(
 		return;
 	}
 
-	auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-	if (PrimitiveComponentPtr)
+	if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
 	{
-		PrimitiveComponentPtr->SetRenderCustomDepth(false);
+		auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
+		if (SceneElementBasePtr)
+		{
+			SceneElementBasePtr->SwitchFocusState(false);
+		}
+	}
+	else
+	{
+	
+		auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+		}
 	}
 
 	FocusActors.Remove(DevicePtr);

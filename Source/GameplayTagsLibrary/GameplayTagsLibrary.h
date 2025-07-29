@@ -32,6 +32,8 @@ public:
 	
 	static FGameplayTag Interaction_Mode;
 
+	static FGameplayTag Interaction_Mode_Empty;
+
 	static FGameplayTag Interaction_Mode_Tour;
 
 	static FGameplayTag Interaction_Mode_SplitFloor;

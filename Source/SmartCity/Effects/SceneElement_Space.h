@@ -38,6 +38,10 @@ public:
 		AActor* ActorPtr
 		) override;
 
+	virtual void SwitchFocusState(bool bIsFocus) override;
+
+protected:
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 };

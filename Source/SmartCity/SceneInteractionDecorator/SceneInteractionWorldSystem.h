@@ -32,6 +32,8 @@ public:
 
 	static USceneInteractionWorldSystem* GetInstance();
 
+	TSharedPtr<FDecoratorBase> GetInteractionModeDecorator()const;
+	
 	void SwitchInteractionMode(
 		const FGameplayTag& Interaction_Mode
 		);

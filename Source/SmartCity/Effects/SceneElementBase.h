@@ -39,4 +39,7 @@ public:
 	virtual void ReplaceImp(
 		AActor* ActorPtr
 		);
+	
+	virtual void SwitchFocusState(bool bIsFocus);
+	
 };
