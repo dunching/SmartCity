@@ -32,5 +32,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void Replace(const TSoftObjectPtr<AActor>& ActorRef) override;
+	virtual void ReplaceImp(
+		AActor* ActorPtr
+		) override;
+
 };

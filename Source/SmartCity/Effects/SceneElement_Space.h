@@ -34,8 +34,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void Replace(
-		const TSoftObjectPtr<AActor>& ActorRef
+	virtual void ReplaceImp(
+		AActor* ActorPtr
 		) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

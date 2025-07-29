@@ -36,7 +36,7 @@ namespace TourProcessor
 
 		virtual bool InputAxis(
 			const FInputKeyEventArgs& EventArgs 
-			) ;
+			) override;
 
 	private:
 

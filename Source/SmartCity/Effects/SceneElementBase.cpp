@@ -24,6 +24,14 @@ void ASceneElementBase::Replace(
 			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepRelativeTransform);
 		}
 
+		ReplaceImp(ActorRef.LoadSynchronous());
+		
 		ActorRef->Destroy();
 	}
+}
+
+void ASceneElementBase::ReplaceImp(
+	AActor* ActorPtr
+	)
+{
 }

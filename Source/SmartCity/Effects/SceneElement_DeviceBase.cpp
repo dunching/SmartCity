@@ -7,6 +7,13 @@
 void ASceneElement_DeviceBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ASceneElement_DeviceBase::ReplaceImp(
+	AActor* ActorPtr
+	)
+{
+	Super::ReplaceImp(ActorPtr);
 
 	TArray<UStaticMeshComponent*> Components; 
 	GetComponents<UStaticMeshComponent>(Components);
@@ -23,11 +30,4 @@ void ASceneElement_DeviceBase::BeginPlay()
 			break;
 		}
 	}
-}
-
-void ASceneElement_DeviceBase::Replace(
-	const TSoftObjectPtr<AActor>& ActorRef
-	)
-{
-	Super::Replace(ActorRef);
 }

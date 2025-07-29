@@ -1010,19 +1010,27 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			if (FilterTags.Contains(SecondIter.Key))
 			{
-				DataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
-				DataSmithSceneActorsSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-				DataSmithSceneActorsSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+				
+				TempSet.Append(SecondIter.Value.StructItemSet.Array());
+				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				
 				ReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
-				DataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				DataSmithSceneActorsSet.Append(TempSet.Array());
 			}
 			else
 			{
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.StructItemSet.Array());
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+				
+				TempSet.Append(SecondIter.Value.StructItemSet.Array());
+				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				
 				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
-				HideDataSmithSceneActorsSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(TempSet.Array());
 			}
 		}
 		return true;
@@ -1040,9 +1048,12 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		};
 		if (HideDataSmithSceneActorsSetIndex < HideDataSmithSceneActorsSet.Num())
 		{
-			for (const auto& Iter : HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->RelatedActors)
+			TArray<AActor*> OutActors;
+			HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+		
+			for (const auto& Iter : OutActors)
 			{
-				auto ActorPtr = Iter.Value.LoadSynchronous();
+				auto ActorPtr = Iter;
 				if (ActorPtr)
 				{
 					FilterCount.emplace(ActorPtr, 0);
@@ -1109,12 +1120,15 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		};
 		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
 		{
-			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->RelatedActors)
+			TArray<AActor*> OutActors;
+			DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+		
+			for (const auto& Iter : OutActors)
 			{
-				auto ActorPtr = Iter.Value.LoadSynchronous();
+				auto ActorPtr = Iter;
 				if (ActorPtr)
 				{
-					FilterCount[Iter.Value.LoadSynchronous()] = 1;
+					FilterCount[Iter] = 1;
 				}
 				else
 				{

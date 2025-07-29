@@ -16,53 +16,48 @@ ASceneElement_Space::ASceneElement_Space(
 void ASceneElement_Space::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
-	
-	TArray<UStaticMeshComponent*> Components; 
-	GetComponents<UStaticMeshComponent>(Components);
-	for (auto Iter : Components)
-	{
-		if (Iter)
-		{
-			Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			Iter->SetCollisionObjectType(Space_Object);
-			Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-			Iter->SetRenderCustomDepth(false);
-
-			for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-			{
-				Iter->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
-			}
-
-			Iter->SetCastShadow(false);
-			Iter->bVisibleInReflectionCaptures = false;
-			Iter->bVisibleInRealTimeSkyCaptures = false;
-			Iter->bVisibleInRayTracing = false;
-			Iter->bReceivesDecals = false;
-			Iter->bUseAsOccluder = false;
-
-			break;
-		}
-	}
 }
 
-void ASceneElement_Space::Replace(
-	const TSoftObjectPtr<AActor>& ActorRef
+void ASceneElement_Space::ReplaceImp(
+		AActor* ActorPtr
 	)
 {
-	if (ActorRef.ToSoftObjectPath().IsValid())
+	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
-		if (ActorRef->IsA(AStaticMeshActor::StaticClass()))
+		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+		if (STPtr)
 		{
-			auto STPtr = Cast<AStaticMeshActor>(ActorRef.LoadSynchronous());
-			if (STPtr)
+			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+		}
+
+		auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
+	
+		TArray<UStaticMeshComponent*> Components; 
+		GetComponents<UStaticMeshComponent>(Components);
+		for (auto Iter : Components)
+		{
+			if (Iter)
 			{
-				StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+				Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				Iter->SetCollisionObjectType(Space_Object);
+				Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				Iter->SetRenderCustomDepth(false);
+
+				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+				{
+					Iter->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
+				}
+
+				Iter->SetCastShadow(false);
+				Iter->bVisibleInReflectionCaptures = false;
+				Iter->bVisibleInRealTimeSkyCaptures = false;
+				Iter->bVisibleInRayTracing = false;
+				Iter->bReceivesDecals = false;
+				Iter->bUseAsOccluder = false;
+
+				break;
 			}
 		}
 	}
-	
-	Super::Replace(ActorRef);
 }

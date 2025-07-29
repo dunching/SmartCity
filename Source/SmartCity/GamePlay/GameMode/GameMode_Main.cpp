@@ -36,8 +36,9 @@ void AGameMode_Main::BeginPlay()
 	TArray<AActor*> ResultAry;
 
 	// 视角
-	SmartCityCommand::ReplyCameraTransform();
+	// SmartCityCommand::ReplyCameraTransform();
 
+	// 
 	USceneInteractionWorldSystem::GetInstance()->InitializeSceneActors();
 
 #pragma region 场景

@@ -28,10 +28,15 @@ class SMARTCITY_API ASceneElementBase :
 	GENERATED_BODY()
 
 public:
-
 	ASceneElementBase(
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void Replace(const TSoftObjectPtr<AActor>& ActorRef);
+	void Replace(
+		const TSoftObjectPtr<AActor>& ActorRef
+		);
+
+	virtual void ReplaceImp(
+		AActor* ActorPtr
+		);
 };
