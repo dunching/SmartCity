@@ -280,6 +280,12 @@ protected:
 	 * 
 	 * @return true：未处理完成，false：处理完成
 	 */
+	bool ProcessTask_NeedReplaceByRef();
+
+	/**
+	 * 
+	 * @return true：未处理完成，false：处理完成
+	 */
 	bool ProcessTask_StructItemSet();
 
 	bool ProcessTask_InnerStructItemSet();
@@ -326,7 +332,7 @@ private:
 	TArray<FSceneElementMap> SceneActorMap;
 
 
-	int32 SetIndex = 0;
+	int32 SetIndex = -1;
 
 	int32 StructItemSetIndex = 0;
 
@@ -351,7 +357,7 @@ private:
 
 	int32 RelatedActorsIndex = 0;
 
-	TArray<TPair<FName, TObjectPtr<AActor>>> RelatedActors;
+	TArray<TObjectPtr<AActor>> RelatedActors;
 };
 
 #pragma endregion

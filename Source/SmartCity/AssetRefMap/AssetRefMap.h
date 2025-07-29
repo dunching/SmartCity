@@ -29,14 +29,20 @@ public:
 
 	static UAssetRefMap* GetInstance();
 
+	/**
+	 * 将指定的ADatasmithSceneActor引用的Actor替换成指定类型的ASceneElementBase
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceMap;
+	TMap<TSoftObjectPtr<ADatasmithSceneActor>, TSubclassOf<ASceneElementBase>> NeedReplaceByRef;
+
+	/**
+	 * 将指定的ADatasmithSceneActor的用户数据的引用的Actor替换成指定类型的ASceneElementBase
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, FSceneElementTypeHelper> SceneElementMap;
 
 #pragma region 场景Actor
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

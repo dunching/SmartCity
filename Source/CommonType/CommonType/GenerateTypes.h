@@ -80,8 +80,6 @@ struct COMMONTYPE_API FSceneElementMap
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
 	
-	TSet<ASceneElementBase*> StructItem_ReplacedElementSet;
-	
 	/**
 	 * 硬装，内饰
 	 */

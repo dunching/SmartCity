@@ -33,4 +33,5 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	virtual void Replace(const TSoftObjectPtr<AActor>& ActorRef);
 };

@@ -9,7 +9,7 @@
 #include "GameOptions.h"
 #include "SceneElementBase.h"
 
-#include "SceneElement_DeviceBase.generated.h"
+#include "SceneElement_Space.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -17,20 +17,27 @@ class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
-class UActorSequenceComponent;
 
 /**
- * 门禁
+ * 雷达扫描效果
  */
 UCLASS()
-class SMARTCITY_API ASceneElement_DeviceBase :
+class SMARTCITY_API ASceneElement_Space :
 	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
+	ASceneElement_Space(
+		const FObjectInitializer& ObjectInitializer
+		);
 
 	virtual void BeginPlay() override;
 
-	virtual void Replace(const TSoftObjectPtr<AActor>& ActorRef) override;
+	virtual void Replace(
+		const TSoftObjectPtr<AActor>& ActorRef
+		) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 };

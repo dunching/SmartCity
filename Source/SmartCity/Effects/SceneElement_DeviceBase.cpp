@@ -24,3 +24,10 @@ void ASceneElement_DeviceBase::BeginPlay()
 		}
 	}
 }
+
+void ASceneElement_DeviceBase::Replace(
+	const TSoftObjectPtr<AActor>& ActorRef
+	)
+{
+	Super::Replace(ActorRef);
+}

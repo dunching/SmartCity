@@ -314,6 +314,7 @@ void UGT_InitializeSceneActors::Activate()
 	}
 
 	ApplyData(0);
+	SetIndex = -1;
 }
 
 void UGT_InitializeSceneActors::TickTask(
@@ -344,6 +345,18 @@ bool UGT_InitializeSceneActors::ProcessTask()
 
 	switch (SetIndex)
 	{
+	case -1:
+		{
+			if (ProcessTask_NeedReplaceByRef())
+			{
+				return true;
+			}
+			else
+			{
+				SetIndex++;
+				return true;
+			}
+		}
 	case 0:
 		{
 			if (ProcessTask_StructItemSet())
@@ -449,6 +462,28 @@ bool UGT_InitializeSceneActors::ProcessTask()
 	return true;
 }
 
+bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
+{
+	auto NeedReplaceByRef = UAssetRefMap::GetInstance()->NeedReplaceByRef;
+
+	for (auto Iter : NeedReplaceByRef)
+	{
+		TArray<AActor*> OutActors;
+		Iter.Key->GetAttachedActors(OutActors, true, true);
+		
+		for (auto & SecondIter : OutActors)
+		{
+			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+				 Iter.Value,
+				 SecondIter->GetActorTransform()
+				);
+			NewActorPtr->Replace(SecondIter);
+		}
+	}
+	
+	return false;
+}
+
 bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
 {
 	if (StructItemSetIndex < StructItemSet.Num())
@@ -472,9 +507,14 @@ bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
 		RelatedActorsIndex++;
 	};
 
-	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
+		if (ReplacedActor(Iter))
+		{
+			return true;
+		}
+
 		auto Components = Iter->GetComponents();
 		for (auto SecondIter : Components)
 		{
@@ -518,7 +558,7 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 		RelatedActorsIndex++;
 	};
 
-	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
 		if (ReplacedActor(Iter))
@@ -561,7 +601,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 		RelatedActorsIndex++;
 	};
 
-	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
 		if (ReplacedActor(Iter))
@@ -650,9 +690,14 @@ bool UGT_InitializeSceneActors::ProcessTask_ReplaceSoftDecorationItemSet()
 		RelatedActorsIndex++;
 	};
 
-	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
+		if (ReplacedActor(Iter))
+		{
+			return true;
+		}
+
 		auto Components = Iter->GetComponents();
 
 		for (auto SecondIter : Components)
@@ -690,9 +735,14 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 	};
 
 	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
-	auto Iter = RelatedActors[RelatedActorsIndex].Value;
+	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
+		if (ReplacedActor(Iter))
+		{
+			return true;
+		}
+
 		auto Components = Iter->GetComponents();
 		for (auto SecondIter : Components)
 		{
@@ -845,12 +895,16 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 {
 	RelatedActorsIndex = 0;
 	RelatedActors.Empty();
-	for (auto& Iter : ItemSet->RelatedActors)
+
+	
+	TArray<AActor*> OutActors;
+	ItemSet->GetAttachedActors(OutActors, true, true);
+		
+	for (auto& Iter : OutActors)
 	{
-		auto ActorPtr = Iter.Value.LoadSynchronous();
-		if (ActorPtr)
+		if (Iter)
 		{
-			auto Components = ActorPtr->GetComponents();
+			auto Components = Iter->GetComponents();
 			for (auto SecondIter : Components)
 			{
 				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
@@ -866,36 +920,18 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						continue;
 					}
 
-					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceMap)
+					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
 					{
 						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
 						if (MetaDataIter && (*MetaDataIter == ThirdIter.Key.Value))
 						{
 							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 								 ThirdIter.Value,
-								 ActorPtr->GetActorTransform()
+								 Iter->GetActorTransform()
 								);
+							NewActorPtr->Replace(Iter);
 
-							AActor* TopActor = nullptr;
-							AActor* ParentPtr = ActorPtr;
-							do
-							{
-								ParentPtr = ParentPtr->GetAttachParentActor();
-								if (ParentPtr)
-								{
-									TopActor = ParentPtr;
-								}
-							}
-							while (ParentPtr);
-							if (TopActor)
-							{
-								NewActorPtr->AttachToActor(TopActor, FAttachmentTransformRules::KeepRelativeTransform);
-							}
-
-							ActorPtr->Destroy();
-
-							Iter.Value = NewActorPtr;
-							RelatedActors.Add({Iter.Key, NewActorPtr});
+							RelatedActors.Add( NewActorPtr);
 							
 							return;
 						}
@@ -903,7 +939,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				}
 			}
 			
-			RelatedActors.Add({Iter.Key, ActorPtr});
+			RelatedActors.Add(Iter);
 		}
 		else
 		{
@@ -924,7 +960,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 	for (const auto& Iter : OutActors)
 	{
-		RelatedActors.Add({*Iter->GetName(), Iter});
+		RelatedActors.Add(Iter);
 	}
 }
 
