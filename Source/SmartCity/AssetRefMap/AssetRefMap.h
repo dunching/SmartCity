@@ -42,6 +42,9 @@ public:
 	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, FModeDecription> ModeDescription;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
 
 #pragma region 场景Actor

@@ -7,4 +7,7 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	
+	SweepEffectStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SweepEffectStaticMeshComponent"));
+	SweepEffectStaticMeshComponent->SetupAttachment(RootComponent);
 }

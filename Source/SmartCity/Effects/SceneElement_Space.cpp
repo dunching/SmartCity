@@ -122,7 +122,7 @@ void ASceneElement_Space::SwitchFocusState(
 							{
 								if (SceneElementPtr->DeviceType.MatchesTag(UGameplayTagsLibrary::SceneElement_FanCoil))
 								{
-									
+									Features.Add(SceneElementPtr->GetName());
 								}
 							}
 						}
@@ -132,7 +132,7 @@ void ASceneElement_Space::SwitchFocusState(
 				auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 				if (HUDPtr)
 				{
-					// HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
+					HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(FeatureName, Features);
 				}
 			}
 			else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==

@@ -330,15 +330,24 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 		FilterTags.Add(SceneActorConditional);
 	}
 
-	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          FilterTags,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
-	                                                         );
+	if (NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode))
+	{
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+																  FilterTags
+																 );
+	}
+	else
+	{
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+																  FilterTags,
+																  std::bind(
+																			&ThisClass::OnUpdateFilterComplete,
+																			this,
+																			std::placeholders::_1,
+																			std::placeholders::_2
+																		   )
+																 );
+	}
 }
 
 void FArea_Decorator::OnOtherDecoratorQuit(
@@ -551,7 +560,6 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
-
 
 	auto Result = UKismetAlgorithm::GetCameraSeat(
 	                                              InActors,

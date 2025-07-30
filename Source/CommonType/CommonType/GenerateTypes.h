@@ -24,6 +24,15 @@ enum class EOperatorType: uint8
 };
 
 USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FModeDecription
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Title;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
 struct COMMONTYPE_API FSceneElementTypeHelper
 {
 	GENERATED_BODY()

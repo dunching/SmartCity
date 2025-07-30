@@ -470,17 +470,17 @@ bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
 	{
 		TArray<AActor*> OutActors;
 		Iter.Key->GetAttachedActors(OutActors, true, true);
-		
-		for (auto & SecondIter : OutActors)
+
+		for (auto& SecondIter : OutActors)
 		{
 			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-				 Iter.Value,
-				 SecondIter->GetActorTransform()
-				);
+			                                                             Iter.Value,
+			                                                             SecondIter->GetActorTransform()
+			                                                            );
 			NewActorPtr->Replace(SecondIter);
 		}
 	}
-	
+
 	return false;
 }
 
@@ -896,10 +896,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActorsIndex = 0;
 	RelatedActors.Empty();
 
-	
+
 	TArray<AActor*> OutActors;
 	ItemSet->GetAttachedActors(OutActors, true, true);
-		
+
 	for (auto& Iter : OutActors)
 	{
 		if (Iter)
@@ -912,10 +912,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				if (InterfacePtr)
 				{
 					auto AUDPtr = Cast<UDatasmithAssetUserData>(
-																InterfacePtr->GetAssetUserDataOfClass(
-																	 UDatasmithAssetUserData::StaticClass()
-																	)
-															   );
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
 					if (!AUDPtr)
 					{
 						continue;
@@ -932,20 +932,20 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 								);
 							NewActorPtr->Replace(Iter);
 
-							RelatedActors.Add( NewActorPtr);
+							RelatedActors.Add(NewActorPtr);
 
 							bIsSceneElement = true;
 							break;
 						}
 					}
 				}
-				
+
 				if (bIsSceneElement)
 				{
 					break;
 				}
 			}
-			
+
 			if (bIsSceneElement)
 			{
 			}
@@ -1004,7 +1004,10 @@ void UGT_SceneObjSwitch::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
-	OnEnd.Broadcast(true, Result);
+	if (OnEnd.IsBound())
+	{
+		OnEnd.Broadcast(true, Result);
+	}
 
 	Super::OnDestroy(bInOwnerFinished);
 }
@@ -1024,24 +1027,24 @@ bool UGT_SceneObjSwitch::ProcessTask()
 			if (FilterTags.Contains(SecondIter.Key))
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
-				
+
 				TempSet.Append(SecondIter.Value.StructItemSet.Array());
 				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
 				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
 				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
-				
+
 				ReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 				DataSmithSceneActorsSet.Append(TempSet.Array());
 			}
 			else
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
-				
+
 				TempSet.Append(SecondIter.Value.StructItemSet.Array());
 				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
 				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
 				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
-				
+
 				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 				HideDataSmithSceneActorsSet.Append(TempSet.Array());
 			}
@@ -1063,7 +1066,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			TArray<AActor*> OutActors;
 			HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-		
+
 			for (const auto& Iter : OutActors)
 			{
 				auto ActorPtr = Iter;
@@ -1135,7 +1138,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			TArray<AActor*> OutActors;
 			DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-		
+
 			for (const auto& Iter : OutActors)
 			{
 				auto ActorPtr = Iter;
@@ -1148,7 +1151,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 					PRINTINVOKEINFO();
 				}
 			}
-			
+
 			// TArray<AActor*> OutActors;
 			// DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors);
 			// for (const auto& Iter : OutActors)
