@@ -5,6 +5,10 @@
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "GameplayTagsLibrary.h"
+#include "MainHUD.h"
+#include "MainHUDLayout.h"
+#include "SceneElement_DeviceBase.h"
 #include "SceneInteractionWorldSystem.h"
 
 ASceneElement_Space::ASceneElement_Space(
@@ -44,7 +48,7 @@ void ASceneElement_Space::ReplaceImp(
 				Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 				Iter->SetCollisionObjectType(Space_Object);
 				Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-				
+
 				Iter->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
 				Iter->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
 				Iter->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
@@ -86,30 +90,55 @@ void ASceneElement_Space::SwitchFocusState(
 
 		TArray<FOverlapResult> OutOverlap;
 
-		FCollisionQueryParams ObjectQueryParams;
+		FComponentQueryParams Params;
 
-		// ObjectQueryParams.bTraceComplex = true;
+		FCollisionObjectQueryParams ObjectQueryParams;
+		ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
 
-		StaticMeshComponent->ComponentOverlapComponentWithResult(
+		GetWorld()->ComponentOverlapMulti(
+		                                  OutOverlap,
 		                                  StaticMeshComponent,
-		                                  StaticMeshComponent->GetRelativeLocation(),
-		                                  StaticMeshComponent->GetRelativeRotation(),
-		                                  ObjectQueryParams,
-		                                  OutOverlap
-		                                 );
-
-		StaticMeshComponent->ComponentOverlapComponentWithResult(
-		StaticMeshComponent,
-		StaticMeshComponent->GetComponentLocation(),
-		StaticMeshComponent->GetComponentRotation(),
-		                                  ObjectQueryParams,
-		                                  OutOverlap
+		                                  StaticMeshComponent->GetComponentLocation(),
+		                                  StaticMeshComponent->GetComponentRotation(),
+		                                  Params,
+		                                  ObjectQueryParams
 		                                 );
 
 		auto InteractionModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetInteractionModeDecorator();
-		for (const auto& Iter : OutOverlap)
+		if (InteractionModeDecoratorSPtr)
 		{
-			
+			if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() == UGameplayTagsLibrary::Interaction_Mode_QD)
+			{
+				 FString FeatureName;
+				 TArray<FString> Features;
+				for (const auto& Iter : OutOverlap)
+				{
+					if (Iter.GetActor())
+					{
+						if (Iter.GetActor()->IsA(ASceneElement_DeviceBase::StaticClass()))
+						{
+							auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter.GetActor());
+							if (SceneElementPtr)
+							{
+								if (SceneElementPtr->DeviceType.MatchesTag(UGameplayTagsLibrary::SceneElement_FanCoil))
+								{
+									
+								}
+							}
+						}
+					}
+				}
+				
+				auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+				if (HUDPtr)
+				{
+					// HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
+				}
+			}
+			else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
+			         UGameplayTagsLibrary::Interaction_Mode_Lighting)
+			{
+			}
 		}
 	}
 	else

@@ -69,3 +69,7 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Intelligence =
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Energy =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Energy")));
+
+
+FGameplayTag UGameplayTagsLibrary::SceneElement_FanCoil =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("SceneElement.FanCoil")));
