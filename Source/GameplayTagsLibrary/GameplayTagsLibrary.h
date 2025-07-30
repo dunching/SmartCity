@@ -61,5 +61,8 @@ public:
 	static FGameplayTag Interaction_Mode_Intelligence;
 
 	static FGameplayTag Interaction_Mode_Energy;
+	
+
+	static FGameplayTag SceneElement_FanCoil;
 
 };

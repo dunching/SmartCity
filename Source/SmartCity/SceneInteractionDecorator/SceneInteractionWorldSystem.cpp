@@ -37,11 +37,7 @@ TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetInteractionModeDecor
 {
 	if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 	{
-		if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			UGameplayTagsLibrary::Interaction_Mode_Empty)
-		{
-			return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode_Empty];
-		}
+			return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
 	}
 
 	return nullptr;

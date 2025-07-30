@@ -9,7 +9,7 @@
 #include "GameOptions.h"
 #include "SceneElementBase.h"
 
-#include "SceneElement_DeviceBase.generated.h"
+#include "SceneElement_Lighting.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -17,27 +17,15 @@ class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
-class UActorSequenceComponent;
 
 /**
- * 门禁
+ * 雷达扫描效果
  */
 UCLASS()
-class SMARTCITY_API ASceneElement_DeviceBase :
+class SMARTCITY_API ASceneElement_Lighting :
 	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
-
-	virtual void BeginPlay() override;
-
-	virtual void ReplaceImp(
-		AActor* ActorPtr
-		) override;
-
-	virtual void SwitchFocusState(bool bIsFocus) override;
-
-	UPROPERTY(BlueprintReadWrite,EditAnywhere )
-	FGameplayTag DeviceType ;
 };
