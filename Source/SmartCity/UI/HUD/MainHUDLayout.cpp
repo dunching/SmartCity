@@ -1,62 +1,18 @@
 #include "MainHUDLayout.h"
 
+#include "Algorithm.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Overlay.h"
 #include "Components/OverlaySlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+#include "Components/Button.h"
 #include "Kismet/KismetMathLibrary.h"
 
-void UFeatureWheel::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdatePosition, UpdateRate, true);
-}
-
-void UFeatureWheel::InitalFeaturesItem(
-	const FString& FeatureName,
-	const TArray<FString>& Features
-	)
-{
-	if (NameText)
-	{
-		NameText->SetText(FText::FromString(FeatureName));
-	}
-
-	if (FeatureCanvas)
-	{
-		FeatureCanvas->ClearChildren();
-
-		const auto Offset = (SizeBox->GetWidthOverride() / 2) - 100;
-
-		const auto Num = Features.Num();
-		int32 Index = 0;
-		for (const auto& Iter : Features)
-		{
-			auto UIPtr = CreateWidget<UFeatureItem>(this, FeatureItemClass);
-			if (UIPtr)
-			{
-				FVector Vec(0, 0, -Offset);
-				const auto Angle = Index / static_cast<float>(Num) * 360;
-				Vec = Vec.RotateAngleAxis(Angle, FVector::ForwardVector);
-
-				Index++;
-
-				auto SlotPtr = FeatureCanvas->AddChildToCanvas(UIPtr);
-				SlotPtr->SetAutoSize(true);
-				SlotPtr->SetAnchors(.5f);
-				SlotPtr->SetAlignment(FVector2D(.5f));
-				SlotPtr->SetPosition(FVector2D(Vec.Y, Vec.Z));
-			}
-		}
-	}
-}
-
-void UFeatureWheel::UpdatePosition()
-{
-}
+#include "SceneElementBase.h"
+#include "FeatureWheel.h"
+#include "SceneElement_Space.h"
 
 void UMainHUDLayout::NativeConstruct()
 {
@@ -69,21 +25,48 @@ void UMainHUDLayout::NativeConstruct()
 }
 
 void UMainHUDLayout::InitalFeaturesItem(
+	ASceneElement_Space* InSceneElement_SpacePtr,
 	const FString& FeatureName,
-	const TArray<FString>& Features
+	const TArray<FFeaturesItem>& Features
 	)
 {
+	if (!InSceneElement_SpacePtr)
+	{
+		return;
+	}
+	
+	if (SceneElement_SpacePtr == InSceneElement_SpacePtr)
+	{
+		return;
+	}
+	else
+	{
+		SceneElement_SpacePtr = InSceneElement_SpacePtr;
+	}
+
+	if (FeatureWheelPtr)
+	{
+		FeatureWheelPtr->RemoveFromParent();
+	}
+	
 	FeatureWheelPtr = CreateWidget<UFeatureWheel>(this, FeatureWheelClass);
 	if (FeatureWheelPtr)
 	{
+		auto TargetPt = UKismetAlgorithm::GetActorBox(
+		                                              {SceneElement_SpacePtr}
+		                                             );
+
+		FeatureWheelPtr->TargetPt = TargetPt.GetCenter();
 		FeatureWheelPtr->InitalFeaturesItem(FeatureName, Features);
 
-		auto SlotPtr = OverlapPtr->AddChildToOverlay(FeatureWheelPtr);
-		if (SlotPtr )
-		{
-			SlotPtr ->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-			SlotPtr ->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-		}
+		FeatureWheelPtr->AddToViewport();
+
+		// auto SlotPtr = OverlapPtr->AddChildToOverlay(FeatureWheelPtr);
+		// if (SlotPtr)
+		// {
+		// 	SlotPtr->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+		// 	SlotPtr->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+		// }
 	}
 }
 
@@ -93,5 +76,6 @@ void UMainHUDLayout::RemoveFeatures()
 	{
 		FeatureWheelPtr->RemoveFromParent();
 	}
+	SceneElement_SpacePtr = nullptr;
 	FeatureWheelPtr = nullptr;
 }

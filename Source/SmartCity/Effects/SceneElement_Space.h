@@ -40,6 +40,11 @@ public:
 
 	virtual void SwitchFocusState(bool bIsFocus) override;
 
+	FString Category;
+
+	UPROPERTY(BlueprintReadWrite,EditAnywhere)
+	FString DataSmith_Key = TEXT("Element*空间划分");
+	
 protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

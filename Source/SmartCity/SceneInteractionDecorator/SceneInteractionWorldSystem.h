@@ -32,8 +32,8 @@ public:
 
 	static USceneInteractionWorldSystem* GetInstance();
 
-	TSharedPtr<FDecoratorBase> GetInteractionModeDecorator()const;
-	
+	TSharedPtr<FDecoratorBase> GetInteractionModeDecorator() const;
+
 	void SwitchInteractionMode(
 		const FGameplayTag& Interaction_Mode
 		);
@@ -51,6 +51,8 @@ public:
 		const std::function<void(
 			bool,
 			const TSet<AActor*>&
+
+
 			
 			)>& OnEnd = nullptr
 		);
@@ -63,7 +65,7 @@ public:
 
 	FString GetName(
 		AActor* DevicePtr
-		)const;
+		) const;
 
 	/**
 	 * 根据选择的装饰器获取所有过滤条件
@@ -108,18 +110,19 @@ private:
 		Args... Param
 		);
 
+
 	/**
-	 * 
+	 * Key:装饰的类型
+	 * Value：当前装饰
 	 */
 	TMap<FGameplayTag, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
-	
+
 	TSet<AActor*> FocusActors;
 
 	UPROPERTY(Transient)
 	TMap<AActor*, URouteMarker*> RouteMarkers;
-
 };
 
 template <typename Decorator, typename... Args>
@@ -129,26 +132,59 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	Args... Param
 	)
 {
-	auto DecoratorSPtr = MakeShared<Decorator>(Param...);
-
-	NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
-
-	TSharedPtr<FDecoratorBase> OldDecoratorSPtr = nullptr;
 	if (DecoratorLayerAssetMap.Contains(MainTag))
 	{
-		OldDecoratorSPtr = DecoratorLayerAssetMap[MainTag];
+		auto OldDecoratorSPtr = DecoratorLayerAssetMap[MainTag];
+		if (OldDecoratorSPtr->NeedAsync())
+		{
+			OldDecoratorSPtr->Quit();
+			NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+			
+			OldDecoratorSPtr->OnAsyncQuitComplete.BindLambda(
+			                                                 [this, MainTag, Param...]()
+			                                                 {
+				                                                 auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+
+				                                                 NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
+
+				                                                 DecoratorLayerAssetMap.Add(
+					                                                  MainTag,
+					                                                  {DecoratorSPtr, nullptr}
+					                                                 );
+			                                                 }
+			                                                );
+		}
+		else
+		{
+			auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+
+			NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
+
+			DecoratorLayerAssetMap.Add(
+			                           MainTag,
+			                           {DecoratorSPtr, nullptr}
+			                          );
+
+			if (OldDecoratorSPtr)
+			{
+				OldDecoratorSPtr->Quit();
+				NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+			}
+
+			DecoratorSPtr->Entry();
+		}
 	}
-
-	DecoratorLayerAssetMap.Add(
-	                           MainTag,
-	                           DecoratorSPtr
-	                          );
-
-	if (OldDecoratorSPtr)
+	else
 	{
-		OldDecoratorSPtr->Quit();
-		NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
+		auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+
+		NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
+
+		DecoratorLayerAssetMap.Add(
+		                           MainTag,
+		                           {DecoratorSPtr, nullptr}
+		                          );
+
+		DecoratorSPtr->Entry();
 	}
-	
-	DecoratorSPtr->Entry();
 }

@@ -21,6 +21,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_Floor_F1 =
 FGameplayTag UGameplayTagsLibrary::Interaction_Area_Space =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.Space")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Area_SplitFloor =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area.SplitFloor")));
+
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
@@ -30,9 +33,6 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Empty =
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_SplitFloor =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.SplitFloor")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));

@@ -13,8 +13,13 @@ class UTILS_API UKismetAlgorithm : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static TPair<FTransform, float> GetCameraSeat(const TSet<AActor*>& Actors,
-	                                              const FRotator& Rot,
-	                                              float FOV
-	);
+	static TPair<FTransform, float> GetCameraSeat(
+		const TSet<AActor*>& Actors,
+		const FRotator& Rot,
+		float FOV
+		);
+
+	static FBox GetActorBox(
+		const TSet<AActor*>& Actors
+		);
 };

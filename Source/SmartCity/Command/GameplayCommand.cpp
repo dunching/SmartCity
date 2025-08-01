@@ -89,7 +89,7 @@ void SmartCityCommand::AddFeatureItem(
 	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 	if (HUDPtr)
 	{
-		HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
+		// HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(Args[0], Args);
 	}
 }
 

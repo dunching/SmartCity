@@ -36,8 +36,16 @@ public:
 		AActor* ActorPtr
 		) override;
 
+	virtual void BeginInteraction() override;
+
+	virtual void EndInteraction() override;
+
+	virtual TMap<FString,FString> GetStateDescription()const override;
+	
 	virtual void SwitchFocusState(bool bIsFocus) override;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;
+
+	bool bIsOpened = false;
 };

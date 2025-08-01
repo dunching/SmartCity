@@ -15,7 +15,7 @@ void ASceneElement_DeviceBase::ReplaceImp(
 {
 	Super::ReplaceImp(ActorPtr);
 
-	TArray<UStaticMeshComponent*> Components; 
+	TArray<UStaticMeshComponent*> Components;
 	GetComponents<UStaticMeshComponent>(Components);
 	for (auto Iter : Components)
 	{
@@ -34,6 +34,36 @@ void ASceneElement_DeviceBase::ReplaceImp(
 			break;
 		}
 	}
+}
+
+void ASceneElement_DeviceBase::BeginInteraction()
+{
+	Super::BeginInteraction();
+
+	bIsOpened = true;
+}
+
+void ASceneElement_DeviceBase::EndInteraction()
+{
+	Super::EndInteraction();
+
+	bIsOpened = false;
+}
+
+TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const
+{
+	TMap<FString, FString> Result;
+
+	if (bIsOpened)
+	{
+		Result.Add(TEXT(""), TEXT("开启"));
+	}
+	else
+	{
+		Result.Add(TEXT(""), TEXT("关闭"));
+	}
+
+	return Result;
 }
 
 void ASceneElement_DeviceBase::SwitchFocusState(

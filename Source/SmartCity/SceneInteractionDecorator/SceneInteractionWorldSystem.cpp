@@ -171,6 +171,34 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		return;
 	}
 
+	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Area_SplitFloor)
+			{
+				return;
+			}
+		}
+
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FTourProcessor>(
+			 [](
+			 auto NewProcessor
+			 )
+			 {
+			 }
+			);
+
+		SwitchDecoratorImp<FSplitFloor_Decorator>(
+		                                     UGameplayTagsLibrary::Interaction_Area,
+		                                     UGameplayTagsLibrary::Interaction_Area_Floor,
+		                                     Interaction_Area
+		                                    );
+
+		return;
+	}
+	
 	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
@@ -439,10 +467,21 @@ void USceneInteractionWorldSystem::ClearFocus()
 	{
 		if (Iter)
 		{
-			auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
+			if (Iter->IsA(ASceneElementBase::StaticClass()))
 			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(Iter);
+				if (SceneElementBasePtr)
+				{
+					SceneElementBasePtr->SwitchFocusState(false);
+				}
+			}
+			else
+			{
+				auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
+				if (PrimitiveComponentPtr)
+				{
+					PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				}
 			}
 		}
 	}
