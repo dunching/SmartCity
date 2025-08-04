@@ -40,6 +40,11 @@ void FDecoratorBase::Quit()
 {
 }
 
+bool FDecoratorBase::NeedAsync() const
+{
+	return false;
+}
+
 void FDecoratorBase::OnOtherDecoratorQuit(
 	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 	)
@@ -103,26 +108,6 @@ bool FTour_Decorator::Operation(
 {
 	PRINTFUNCSTR();
 
-	return Super::Operation(OperatorType);
-}
-
-FSplitFloorMode_Decorator::FSplitFloorMode_Decorator():
-                                                      Super(
-                                                            UGameplayTagsLibrary::Interaction_Mode,
-                                                            UGameplayTagsLibrary::Interaction_Mode_Tour
-                                                           )
-{
-}
-
-void FSplitFloorMode_Decorator::Entry()
-{
-	Super::Entry();
-}
-
-bool FSplitFloorMode_Decorator::Operation(
-	EOperatorType OperatorType
-	)
-{
 	return Super::Operation(OperatorType);
 }
 
@@ -330,15 +315,24 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 		FilterTags.Add(SceneActorConditional);
 	}
 
-	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          FilterTags,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
-	                                                         );
+	if (NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode))
+	{
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+		                                                          FilterTags
+		                                                         );
+	}
+	else
+	{
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+		                                                          FilterTags,
+		                                                          std::bind(
+		                                                                    &ThisClass::OnUpdateFilterComplete,
+		                                                                    this,
+		                                                                    std::placeholders::_1,
+		                                                                    std::placeholders::_2
+		                                                                   )
+		                                                         );
+	}
 }
 
 void FArea_Decorator::OnOtherDecoratorQuit(
@@ -396,6 +390,56 @@ bool FExternalWall_Decorator::Operation(
 	}
 
 	return false;
+}
+
+FSplitFloor_Decorator::FSplitFloor_Decorator(
+	const FGameplayTag& Interaction_Area
+	):
+	 Super(
+	       UGameplayTagsLibrary::Interaction_Area,
+	       Interaction_Area
+	      )
+{
+}
+
+void FSplitFloor_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_FloorSplit>(
+	                                                                    [this](
+	                                                                    UGT_FloorSplit* GTPtr
+	                                                                    )
+	                                                                    {
+	                                                                    }
+	                                                                   );
+}
+
+void FSplitFloor_Decorator::Quit()
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_QuitFloorSplit>([this](auto GTPtr)
+	{
+		GTPtr->OnEnd.AddLambda([this](auto)
+		{
+			OnAsyncQuitComplete.ExecuteIfBound();
+		});
+	} );
+	
+	Super::Quit();
+}
+
+bool FSplitFloor_Decorator::NeedAsync() const
+{
+	return true;
+}
+
+bool FSplitFloor_Decorator::Operation(
+	EOperatorType OperatorType
+	)
+{
+	return Super::Operation(OperatorType);
 }
 
 FFloor_Decorator::FFloor_Decorator(
@@ -551,7 +595,6 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
-
 
 	auto Result = UKismetAlgorithm::GetCameraSeat(
 	                                              InActors,

@@ -25,6 +25,9 @@ void ASceneElementBase::Replace(
 		}
 
 		ReplaceImp(ActorRef.LoadSynchronous());
+
+		SceneElementName = ActorRef->GetActorLabel();
+		// SceneElementName = ActorRef->GetName();
 		
 		ActorRef->Destroy();
 	}
@@ -34,6 +37,19 @@ void ASceneElementBase::ReplaceImp(
 	AActor* ActorPtr
 	)
 {
+}
+
+void ASceneElementBase::BeginInteraction()
+{
+}
+
+void ASceneElementBase::EndInteraction()
+{
+}
+
+TMap<FString, FString> ASceneElementBase::GetStateDescription() const
+{
+	return {};
 }
 
 void ASceneElementBase::SwitchFocusState(

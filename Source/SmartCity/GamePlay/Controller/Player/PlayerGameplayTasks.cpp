@@ -1,6 +1,5 @@
 #include "PlayerGameplayTasks.h"
 
-#include "CollisionDataStruct.h"
 #include "DatasmithAssetUserData.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,11 +18,13 @@
 #include "GameplayTagsLibrary.h"
 #include "AssetRefMap.h"
 #include "DatasmithSceneActor.h"
+#include "FloorHelper.h"
 #include "GenerateTypes.h"
 #include "LogWriter.h"
 #include "ReplaceActor.h"
 #include "SceneElementBase.h"
 #include "TemplateHelper.h"
+#include "CollisionDataStruct.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -233,58 +234,73 @@ void UGT_BatchBase::TickTask(
 {
 	Super::TickTask(DeltaTime);
 
-	if (bUseScope)
+	switch (UseScopeType)
 	{
-		double InScopeSeconds = 0.;
-		for (;;)
+	case EUseScopeType::kTime:
 		{
-			FSimpleScopeSecondsCounter SimpleScopeSecondsCounter(InScopeSeconds);
-			if (InScopeSeconds > 0.1)
+			double InScopeSeconds = 0.;
+			for (;;)
 			{
-				InScopeSeconds = 0;
-				return;
-			}
+				FSimpleScopeSecondsCounter SimpleScopeSecondsCounter(InScopeSeconds);
+				if (InScopeSeconds > 0.1)
+				{
+					InScopeSeconds = 0;
+					return;
+				}
 
-			if (ProcessTask())
-			{
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
-	if (bUseScope)
-	{
-	}
-	else
-	{
-		for (;;)
-		{
-			if (ProcessTask())
-			{
-				CurrentTickProcessNum++;
-				if (CurrentTickProcessNum < PerTickProcessNum)
+				if (ProcessTask(DeltaTime))
 				{
 				}
 				else
 				{
-					CurrentTickProcessNum = 0;
-					return;
+					break;
 				}
+			}
+		}
+		break;
+	case EUseScopeType::kCount:
+		{
+			for (;;)
+			{
+				if (ProcessTask(DeltaTime))
+				{
+					CurrentTickProcessNum++;
+					if (CurrentTickProcessNum < PerTickProcessNum)
+					{
+					}
+					else
+					{
+						CurrentTickProcessNum = 0;
+						return;
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		break;
+	case EUseScopeType::kNone:
+		{
+			if (ProcessTask(DeltaTime))
+			{
+				return;
 			}
 			else
 			{
 				break;
 			}
 		}
+		break;
 	}
 
 	EndTask();
 }
 
-bool UGT_BatchBase::ProcessTask()
+bool UGT_BatchBase::ProcessTask(
+	float DeltaTime
+	)
 {
 	return false;
 }
@@ -299,7 +315,7 @@ UGT_InitializeSceneActors::UGT_InitializeSceneActors(
 
 	Priority = FGameplayTasks::DefaultPriority / 2;
 
-	bUseScope = false;
+	UseScopeType = EUseScopeType::kCount;
 
 	PerTickProcessNum = 1000;
 }
@@ -314,7 +330,7 @@ void UGT_InitializeSceneActors::Activate()
 	}
 
 	ApplyData(0);
-	SetIndex = -1;
+	StepIndex = -1;
 }
 
 void UGT_InitializeSceneActors::TickTask(
@@ -333,7 +349,9 @@ void UGT_InitializeSceneActors::OnDestroy(
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-bool UGT_InitializeSceneActors::ProcessTask()
+bool UGT_InitializeSceneActors::ProcessTask(
+	float DeltaTime
+	)
 {
 	if (SceneActorMapIndex < SceneActorMap.Num())
 	{
@@ -343,8 +361,20 @@ bool UGT_InitializeSceneActors::ProcessTask()
 		return false;
 	}
 
-	switch (SetIndex)
+	switch (StepIndex)
 	{
+	case -2:
+		{
+			if (ProcessTask_RecordFloor())
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+				return true;
+			}
+		}
 	case -1:
 		{
 			if (ProcessTask_NeedReplaceByRef())
@@ -353,7 +383,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 			}
 			else
 			{
-				SetIndex++;
+				StepIndex++;
 				return true;
 			}
 		}
@@ -375,7 +405,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActors.Empty();
 				}
 
-				SetIndex++;
+				StepIndex++;
 				return true;
 			}
 		}
@@ -397,7 +427,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActors.Empty();
 				}
 
-				SetIndex++;
+				StepIndex++;
 				return true;
 			}
 		}
@@ -419,7 +449,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActors.Empty();
 				}
 
-				SetIndex++;
+				StepIndex++;
 				return true;
 			}
 		}
@@ -441,7 +471,7 @@ bool UGT_InitializeSceneActors::ProcessTask()
 					RelatedActors.Empty();
 				}
 
-				SetIndex++;
+				StepIndex++;
 				return true;
 			}
 		}
@@ -462,6 +492,11 @@ bool UGT_InitializeSceneActors::ProcessTask()
 	return true;
 }
 
+bool UGT_InitializeSceneActors::ProcessTask_RecordFloor()
+{
+	return false;
+}
+
 bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
 {
 	auto NeedReplaceByRef = UAssetRefMap::GetInstance()->NeedReplaceByRef;
@@ -470,17 +505,17 @@ bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
 	{
 		TArray<AActor*> OutActors;
 		Iter.Key->GetAttachedActors(OutActors, true, true);
-		
-		for (auto & SecondIter : OutActors)
+
+		for (auto& SecondIter : OutActors)
 		{
 			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-				 Iter.Value,
-				 SecondIter->GetActorTransform()
-				);
+			                                                             Iter.Value,
+			                                                             SecondIter->GetActorTransform()
+			                                                            );
 			NewActorPtr->Replace(SecondIter);
 		}
 	}
-	
+
 	return false;
 }
 
@@ -845,7 +880,7 @@ void UGT_InitializeSceneActors::ApplyData(
 {
 	if (Index < SceneActorMap.Num())
 	{
-		SetIndex = 0;
+		StepIndex = 0;
 
 		StructItemSetIndex = 0;
 		StructItemSet.Empty();
@@ -896,10 +931,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActorsIndex = 0;
 	RelatedActors.Empty();
 
-	
+
 	TArray<AActor*> OutActors;
 	ItemSet->GetAttachedActors(OutActors, true, true);
-		
+
 	for (auto& Iter : OutActors)
 	{
 		if (Iter)
@@ -912,10 +947,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				if (InterfacePtr)
 				{
 					auto AUDPtr = Cast<UDatasmithAssetUserData>(
-																InterfacePtr->GetAssetUserDataOfClass(
-																	 UDatasmithAssetUserData::StaticClass()
-																	)
-															   );
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
 					if (!AUDPtr)
 					{
 						continue;
@@ -932,20 +967,20 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 								);
 							NewActorPtr->Replace(Iter);
 
-							RelatedActors.Add( NewActorPtr);
+							RelatedActors.Add(NewActorPtr);
 
 							bIsSceneElement = true;
 							break;
 						}
 					}
 				}
-				
+
 				if (bIsSceneElement)
 				{
 					break;
 				}
 			}
-			
+
 			if (bIsSceneElement)
 			{
 			}
@@ -1004,12 +1039,17 @@ void UGT_SceneObjSwitch::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
-	OnEnd.Broadcast(true, Result);
+	if (OnEnd.IsBound())
+	{
+		OnEnd.Broadcast(true, Result);
+	}
 
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-bool UGT_SceneObjSwitch::ProcessTask()
+bool UGT_SceneObjSwitch::ProcessTask(
+	float DeltaTime
+	)
 {
 	if (FilterTags.IsEmpty())
 	{
@@ -1024,24 +1064,24 @@ bool UGT_SceneObjSwitch::ProcessTask()
 			if (FilterTags.Contains(SecondIter.Key))
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
-				
+
 				TempSet.Append(SecondIter.Value.StructItemSet.Array());
 				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
 				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
 				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
-				
+
 				ReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 				DataSmithSceneActorsSet.Append(TempSet.Array());
 			}
 			else
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
-				
+
 				TempSet.Append(SecondIter.Value.StructItemSet.Array());
 				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
 				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
 				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
-				
+
 				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 				HideDataSmithSceneActorsSet.Append(TempSet.Array());
 			}
@@ -1063,7 +1103,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			TArray<AActor*> OutActors;
 			HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-		
+
 			for (const auto& Iter : OutActors)
 			{
 				auto ActorPtr = Iter;
@@ -1077,19 +1117,6 @@ bool UGT_SceneObjSwitch::ProcessTask()
 				}
 			}
 
-			// TArray<AActor*> OutActors;
-			// HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors);
-			// for (const auto& Iter : OutActors)
-			// {
-			// 	if (Iter)
-			// 	{
-			// 		FilterCount.emplace(Iter, 0);
-			// 	}
-			// 	else
-			// 	{
-			// 		PRINTINVOKEINFO();
-			// 	}
-			// }
 			return true;
 		}
 	}
@@ -1135,7 +1162,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 		{
 			TArray<AActor*> OutActors;
 			DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-		
+
 			for (const auto& Iter : OutActors)
 			{
 				auto ActorPtr = Iter;
@@ -1148,20 +1175,7 @@ bool UGT_SceneObjSwitch::ProcessTask()
 					PRINTINVOKEINFO();
 				}
 			}
-			
-			// TArray<AActor*> OutActors;
-			// DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors);
-			// for (const auto& Iter : OutActors)
-			// {
-			// 	if (Iter)
-			// 	{
-			// 		FilterCount[Iter] = 1;
-			// 	}
-			// 	else
-			// 	{
-			// 		PRINTINVOKEINFO();
-			// 	}
-			// }
+
 			return true;
 		}
 		else
@@ -1223,4 +1237,465 @@ bool UGT_SceneObjSwitch::ProcessTask()
 	{
 		return false;
 	}
+}
+
+UGT_FloorSplit::UGT_FloorSplit(
+	const FObjectInitializer& ObjectInitializer
+	):
+	 Super(ObjectInitializer)
+{
+	bTickingTask = true;
+	bIsPausable = true;
+
+	Priority = 1.5 * FGameplayTasks::DefaultPriority ;
+}
+
+void UGT_FloorSplit::Activate()
+{
+	Super::Activate();
+}
+
+void UGT_FloorSplit::TickTask(
+	float DeltaTime
+	)
+{
+	Super::TickTask(DeltaTime);
+}
+
+void UGT_FloorSplit::OnDestroy(
+	bool bInOwnerFinished
+	)
+{
+	if (OnEnd.IsBound())
+	{
+		OnEnd.Broadcast(true);
+	}
+
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+bool UGT_FloorSplit::ProcessTask(
+	float DeltaTime
+	)
+{
+	switch (StepIndex)
+	{
+	case 0:
+		{
+			if (ProcessTask_Sort())
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+				return true;
+			}
+		}
+	case 1:
+		{
+			if (ProcessTask_Display())
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+
+				UseScopeType = EUseScopeType::kNone;
+
+				return true;
+			}
+		}
+	case 2:
+		{
+			if (ProcessTask_Move(DeltaTime))
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool UGT_FloorSplit::ProcessTask_Sort()
+{
+	// 要显示的DataSmith
+	if (DataSmithSceneActorsSet.IsEmpty())
+	{
+		for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap)
+		{
+			//
+			bool bIsFloorData = false;
+			
+			FGameplayTagContainer GameplayTagContainer;
+			
+			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor);
+			
+			if (SecondIter.Key.ConditionalSet.HasAll(GameplayTagContainer))
+			{
+				for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+				{
+					if (SecondIter.Key.ConditionalSet.HasTag( FloorIter.Value->FloorTag))
+					{
+						bIsFloorData = true;
+						
+						TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+
+						TempSet.Append(SecondIter.Value.StructItemSet.Array());
+						TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+						TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+						TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
+						DataSmithSceneActorsSet.Add(FloorIter.Key, TempSet.Array());
+
+						break;
+					}
+				}
+			}
+
+			if (bIsFloorData)
+			{}
+			else
+			{
+				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+
+				TempSet.Append(SecondIter.Value.StructItemSet.Array());
+				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+
+				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
+				HideDataSmithSceneActorsSet.Append(TempSet.Array());
+			}
+		}
+	}
+
+	return false;
+}
+
+bool UGT_FloorSplit::ProcessTask_Display()
+{
+	// 不显示的
+	if (HideDataSmithSceneActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			HideDataSmithSceneActorsSetIndex++;
+		};
+		if (HideDataSmithSceneActorsSetIndex < HideDataSmithSceneActorsSet.Num())
+		{
+			TArray<AActor*> OutActors;
+			HideDataSmithSceneActorsSet[HideDataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+
+			for (const auto& Iter : OutActors)
+			{
+				auto ActorPtr = Iter;
+				if (ActorPtr)
+				{
+					FilterCount.emplace(ActorPtr, 0);
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
+			}
+
+			return true;
+		}
+	}
+	if (HideReplaceActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			HideRePlaceActorsSetIndex++;
+		};
+		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
+		{
+			TArray<AActor*> RelatedActors;
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			for (const auto& Iter : RelatedActors)
+			{
+				if (Iter)
+				{
+					FilterCount.emplace(Iter, 0);
+				}
+				else
+				{
+					PRINTINVOKEINFO();
+				}
+			}
+			return true;
+		}
+	}
+
+	// 确认过滤条件数量
+	if (DataSmithSceneActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			DataSmithSceneActorsSetIndex++;
+		};
+		if (DataSmithSceneActorsSet.Contains(DataSmithSceneActorsSetIndex))
+		{
+			for (const auto& Iter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex])
+			{
+				TArray<AActor*> OutActors;
+				Iter->GetAttachedActors(OutActors, true, true);
+
+				for (const auto& SecondIter : OutActors)
+				{
+					auto ActorPtr = SecondIter;
+					if (ActorPtr)
+					{
+						FilterCount[ActorPtr] = 1;
+					}
+					else
+					{
+						PRINTINVOKEINFO();
+					}
+				}
+			}
+
+			return true;
+		}
+		else
+		{
+		}
+	}
+	if (ReplaceActorsSet.IsEmpty())
+	{
+	}
+	else
+	{
+		ON_SCOPE_EXIT
+		{
+			ReplaceActorsSetIndex++;
+		};
+		if (ReplaceActorsSet.Contains(ReplaceActorsSetIndex))
+		{
+			for (const auto& Iter : ReplaceActorsSet[ReplaceActorsSetIndex])
+			{
+				TArray<AActor*> RelatedActors;
+				Iter->GetAttachedActors(RelatedActors);
+				for (const auto& SecondIter : RelatedActors)
+				{
+					if (SecondIter)
+					{
+						FilterCount[SecondIter] = 1;
+					}
+					else
+					{
+						PRINTINVOKEINFO();
+					}
+				}
+			}
+			return true;
+		}
+		else
+		{
+		}
+	}
+
+	// 显示
+	ON_SCOPE_EXIT
+	{
+		FilterIndex++;
+	};
+	if (FilterIndex < FilterCount.size())
+	{
+		auto Iter = FilterCount.begin();
+		std::advance(Iter, FilterIndex);
+		if (Iter->second > 0)
+		{
+			Iter->first->SetActorHiddenInGame(false);
+		}
+		else
+		{
+			Iter->first->SetActorHiddenInGame(true);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool UGT_FloorSplit::ProcessTask_Move(
+	float DeltaTime
+	)
+{
+	bool bIsEnd = false;
+	
+	ConsumeTime += DeltaTime;
+	if (ConsumeTime > MoveDuration)
+	{
+		bIsEnd  = true;
+		ConsumeTime = MoveDuration;
+	}
+
+	const auto Percent = ConsumeTime / MoveDuration;
+	
+	FVector Offset = FVector::ZeroVector;
+	
+	for (const auto &Iter : DataSmithSceneActorsSet)
+	{
+		Offset = FVector(0,0,Iter.Key * HeightInterval);
+
+		for (const auto & SecondIter : Iter.Value)
+		{
+			SecondIter->SetActorLocation((Percent * Offset));
+		}
+	}
+
+	return !bIsEnd;
+}
+
+UGT_QuitFloorSplit::UGT_QuitFloorSplit(
+	const FObjectInitializer& ObjectInitializer
+	):
+	 Super(ObjectInitializer)
+{
+	bTickingTask = true;
+	bIsPausable = true;
+
+	Priority = 1.5 * FGameplayTasks::DefaultPriority ;
+}
+
+void UGT_QuitFloorSplit::OnDestroy(
+	bool bInOwnerFinished
+	)
+{
+	if (OnEnd.IsBound())
+	{
+		OnEnd.Broadcast(true);
+	}
+
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+bool UGT_QuitFloorSplit::ProcessTask(
+	float DeltaTime
+	)
+{
+	switch (StepIndex)
+	{
+	case 0:
+		{
+			if (ProcessTask_Sort())
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+				return true;
+			}
+		}
+	case 2:
+		{
+			if (ProcessTask_Move(DeltaTime))
+			{
+				return true;
+			}
+			else
+			{
+				StepIndex++;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool UGT_QuitFloorSplit::ProcessTask_Sort()
+{
+	// 要显示的DataSmith
+	if (DataSmithSceneActorsSet.IsEmpty())
+	{
+		for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap)
+		{
+			//
+			bool bIsFloorData = false;
+			
+			FGameplayTagContainer GameplayTagContainer;
+			
+			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor);
+			
+			if (SecondIter.Key.ConditionalSet.HasAll(GameplayTagContainer))
+			{
+				for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+				{
+					if (SecondIter.Key.ConditionalSet.HasTag( FloorIter.Value->FloorTag))
+					{
+						bIsFloorData = true;
+						
+						TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+
+						TempSet.Append(SecondIter.Value.StructItemSet.Array());
+						TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
+						TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
+						TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
+						DataSmithSceneActorsSet.Add(FloorIter.Key, TempSet.Array());
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool UGT_QuitFloorSplit::ProcessTask_Move(
+	float DeltaTime
+	)
+{
+	bool bIsEnd = false;
+	
+	ConsumeTime += DeltaTime;
+	if (ConsumeTime > MoveDuration)
+	{
+		bIsEnd  = true;
+		ConsumeTime = MoveDuration;
+	}
+
+	const auto Percent = 1 - (ConsumeTime / MoveDuration);
+	
+	FVector Offset = FVector::ZeroVector;
+	
+	for (const auto &Iter : DataSmithSceneActorsSet)
+	{
+		Offset = FVector(0,0,Iter.Key * HeightInterval);
+
+		for (const auto & SecondIter : Iter.Value)
+		{
+			SecondIter->SetActorLocation((Percent * Offset));
+		}
+	}
+
+	return !bIsEnd;
 }

@@ -37,7 +37,7 @@ TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetInteractionModeDecor
 {
 	if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 	{
-			return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
+		return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
 	}
 
 	return nullptr;
@@ -52,16 +52,16 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 		{
 			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-				UGameplayTagsLibrary::Interaction_Mode_Empty)
+			    UGameplayTagsLibrary::Interaction_Mode_Empty)
 			{
 				return;
 			}
 		}
 
 		SwitchDecoratorImp<FEmpty_Decorator>(
-											  UGameplayTagsLibrary::Interaction_Mode,
-											  UGameplayTagsLibrary::Interaction_Mode_Empty
-											 );
+		                                     UGameplayTagsLibrary::Interaction_Mode,
+		                                     UGameplayTagsLibrary::Interaction_Mode_Empty
+		                                    );
 
 		return;
 	}
@@ -113,9 +113,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 		}
 
 		SwitchDecoratorImp<FAccessControlMode_Decorator>(
-		                                         UGameplayTagsLibrary::Interaction_Mode,
-		                                         UGameplayTagsLibrary::Interaction_Mode_AccessControl
-		                                        );
+		                                                 UGameplayTagsLibrary::Interaction_Mode,
+		                                                 UGameplayTagsLibrary::Interaction_Mode_AccessControl
+		                                                );
 
 		return;
 	}
@@ -131,9 +131,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 		}
 
 		SwitchDecoratorImp<FElevatorMode_Decorator>(
-		                                         UGameplayTagsLibrary::Interaction_Mode,
-		                                         UGameplayTagsLibrary::Interaction_Mode_Elevator
-		                                        );
+		                                            UGameplayTagsLibrary::Interaction_Mode,
+		                                            UGameplayTagsLibrary::Interaction_Mode_Elevator
+		                                           );
 
 		return;
 	}
@@ -171,6 +171,34 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		return;
 	}
 
+	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
+	{
+		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
+			    UGameplayTagsLibrary::Interaction_Area_SplitFloor)
+			{
+				return;
+			}
+		}
+
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FTourProcessor>(
+			 [](
+			 auto NewProcessor
+			 )
+			 {
+			 }
+			);
+
+		SwitchDecoratorImp<FSplitFloor_Decorator>(
+		                                     UGameplayTagsLibrary::Interaction_Area,
+		                                     UGameplayTagsLibrary::Interaction_Area_Floor,
+		                                     Interaction_Area
+		                                    );
+
+		return;
+	}
+	
 	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
@@ -236,7 +264,10 @@ void USceneInteractionWorldSystem::UpdateFilter(
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
 			                                                                        GTPtr->FilterTags = FilterTags;
-			                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
+			                                                                        if (OnEnd)
+			                                                                        {
+				                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
+			                                                                        }
 		                                                                        }
 	                                                                        }
 	                                                                       );
@@ -292,10 +323,10 @@ FString USceneInteractionWorldSystem::GetName(
 			if (InterfacePtr)
 			{
 				auto AUDPtr = Cast<UDatasmithAssetUserData>(
-															InterfacePtr->GetAssetUserDataOfClass(
-																 UDatasmithAssetUserData::StaticClass()
-																)
-														   );
+				                                            InterfacePtr->GetAssetUserDataOfClass(
+					                                             UDatasmithAssetUserData::StaticClass()
+					                                            )
+				                                           );
 				if (!AUDPtr)
 				{
 					continue;
@@ -303,10 +334,10 @@ FString USceneInteractionWorldSystem::GetName(
 				for (const auto& ThirdIter : AUDPtr->MetaData)
 				{
 					auto NamePrifixIter = UAssetRefMap::GetInstance()->NamePrifix.
-																		   Find(ThirdIter.Key.ToString());
+					                                                   Find(ThirdIter.Key.ToString());
 					if (NamePrifixIter)
 					{
-						return ThirdIter.Value;	
+						return ThirdIter.Value;
 					}
 				}
 				break;
@@ -420,7 +451,6 @@ void USceneInteractionWorldSystem::RemoveFocus(
 	}
 	else
 	{
-	
 		auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
 		if (PrimitiveComponentPtr)
 		{
@@ -437,10 +467,21 @@ void USceneInteractionWorldSystem::ClearFocus()
 	{
 		if (Iter)
 		{
-			auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
+			if (Iter->IsA(ASceneElementBase::StaticClass()))
 			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(Iter);
+				if (SceneElementBasePtr)
+				{
+					SceneElementBasePtr->SwitchFocusState(false);
+				}
+			}
+			else
+			{
+				auto PrimitiveComponentPtr = Iter->GetComponentByClass<UPrimitiveComponent>();
+				if (PrimitiveComponentPtr)
+				{
+					PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				}
 			}
 		}
 	}
@@ -459,7 +500,7 @@ void USceneInteractionWorldSystem::AddRouteMarker(
 	{
 		return;
 	}
-	
+
 	const auto Name = GetName(DevicePtr);
 	if (Name.IsEmpty())
 	{

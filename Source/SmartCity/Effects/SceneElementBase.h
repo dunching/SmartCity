@@ -40,6 +40,13 @@ public:
 		AActor* ActorPtr
 		);
 	
-	virtual void SwitchFocusState(bool bIsFocus);
+	virtual void BeginInteraction();
+
+	virtual void EndInteraction();
+
+	virtual TMap<FString,FString> GetStateDescription()const;
 	
+	virtual void SwitchFocusState(bool bIsFocus);
+
+	FString SceneElementName;
 };

@@ -226,11 +226,20 @@ public:
 		) override;
 
 protected:
-	virtual bool ProcessTask();
+	virtual bool ProcessTask(
+		float DeltaTime
+		);
 
 	double ScopeTiempo = 1.f;
 
-	bool bUseScope = true;
+	enum class EUseScopeType
+	{
+		kTime,
+		kCount,
+		kNone,
+	};
+
+	EUseScopeType UseScopeType = EUseScopeType::kTime;
 
 	int32 PerTickProcessNum = 100;
 
@@ -274,7 +283,15 @@ public:
 	FOnEnd OnEnd;
 
 protected:
-	virtual bool ProcessTask() override;
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+
+	/**
+	 * 
+	 * @return true：未处理完成，false：处理完成
+	 */
+	bool ProcessTask_RecordFloor();
 
 	/**
 	 * 
@@ -297,8 +314,10 @@ protected:
 	bool ProcessTask_SpaceItemSet();
 
 private:
-	bool ReplacedActor(AActor*ActorPtr);
-	
+	bool ReplacedActor(
+		AActor* ActorPtr
+		);
+
 	/**
 	 * 
 	 * @param Index tu
@@ -332,7 +351,7 @@ private:
 	TArray<FSceneElementMap> SceneActorMap;
 
 
-	int32 SetIndex = -1;
+	int32 StepIndex = -2;
 
 	int32 StructItemSetIndex = 0;
 
@@ -400,19 +419,21 @@ public:
 	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
 	/**
-	 * 是否清楚之前的
+	 * 是否清除之前的
 	 */
 	bool bClearPrevious = false;
 
 	FOnEnd OnEnd;
 
 protected:
-	virtual bool ProcessTask() override;
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
 
 private:
 	/**
 	 * 建筑物
-	 * 用于计算保卫狂
+	 * 用于计算包围框
 	 */
 	TSet<AActor*> Result;
 
@@ -443,6 +464,160 @@ private:
 
 
 	int32 RelatedActorsIndex = 0;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_FloorSplit : public UGT_BatchBase
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	UGT_FloorSplit(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void Activate() override;
+
+	virtual void TickTask(
+		float DeltaTime
+		) override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
+
+	/**
+	 * 是否清除之前的
+	 */
+	bool bClearPrevious = false;
+
+	int32 HeightInterval = 500;
+
+	float MoveDuration = 1.f;
+
+	FOnEnd OnEnd;
+
+protected:
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+
+private:
+	bool ProcessTask_Sort();
+
+	bool ProcessTask_Display();
+
+	bool ProcessTask_Move(
+		float DeltaTime
+		);
+
+	int32 StepIndex = 0;
+
+	/**
+	 * 等待显示
+	 */
+	int32 FilterIndex = 0;
+
+	std::map<AActor*, int32> FilterCount;
+
+
+	int32 DataSmithSceneActorsSetIndex = 0;
+
+	TMap<int32, TArray<TSoftObjectPtr<ADatasmithSceneActor>>> DataSmithSceneActorsSet;
+
+	int32 ReplaceActorsSetIndex = 0;
+
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+
+	
+	int32 HideDataSmithSceneActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
+
+	int32 HideRePlaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+
+	
+	float ConsumeTime = 0.f;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_QuitFloorSplit : public UGT_BatchBase
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	UGT_QuitFloorSplit(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
+
+	/**
+	 * 是否清除之前的
+	 */
+	bool bClearPrevious = false;
+
+	int32 HeightInterval = 500;
+
+	float MoveDuration = 1.f;
+
+	FOnEnd OnEnd;
+
+protected:
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+
+private:
+	bool ProcessTask_Sort();
+
+	bool ProcessTask_Move(
+		float DeltaTime
+		);
+
+	int32 StepIndex = 0;
+
+	/**
+	 * 等待显示
+	 */
+	int32 FilterIndex = 0;
+
+	std::map<AActor*, int32> FilterCount;
+
+
+	int32 DataSmithSceneActorsSetIndex = 0;
+
+	TMap<int32, TArray<TSoftObjectPtr<ADatasmithSceneActor>>> DataSmithSceneActorsSet;
+
+	int32 ReplaceActorsSetIndex = 0;
+
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+
+	
+	
+	float ConsumeTime = 0.f;
 };
 
 #pragma endregion

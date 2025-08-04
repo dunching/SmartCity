@@ -9,9 +9,13 @@
 
 #include "Tools.h"
 
+class USceneInteractionWorldSystem;
+
 class SMARTCITY_API FDecoratorBase
 {
 public:
+	friend USceneInteractionWorldSystem;
+
 	GENERATIONCLASSINFOONLYTHIS(FDecoratorBase);
 
 	FDecoratorBase(
@@ -24,6 +28,8 @@ public:
 	virtual void Entry();
 
 	virtual void Quit();
+
+	virtual bool NeedAsync() const;
 
 	virtual void OnOtherDecoratorEntry(
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
@@ -47,6 +53,8 @@ public:
 	FGameplayTag GetBranchDecoratorType() const;
 
 protected:
+	TDelegate<void()> OnAsyncQuitComplete;
+
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
@@ -84,26 +92,6 @@ public:
 	                   );
 
 	FTour_Decorator();
-
-	virtual void Entry() override;
-
-	virtual bool Operation(
-		EOperatorType OperatorType
-		) override;
-};
-
-/**
- * 楼层 展开
- */
-class SMARTCITY_API FSplitFloorMode_Decorator : public FDecoratorBase
-{
-public:
-	GENERATIONCLASSINFO(
-	                    FSplitFloorMode_Decorator,
-	                    FDecoratorBase
-	                   );
-
-	FSplitFloorMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -271,6 +259,32 @@ public:
 		);
 
 	virtual void Entry() override;
+
+	virtual bool Operation(
+		EOperatorType OperatorType
+		) override;
+};
+
+/**
+ * 楼层 展开
+ */
+class SMARTCITY_API FSplitFloor_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSplitFloor_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FSplitFloor_Decorator(
+		const FGameplayTag& Interaction_Area
+		);
+
+	virtual void Entry() override;
+
+	virtual void Quit() override;
+
+	virtual bool NeedAsync() const override;
 
 	virtual bool Operation(
 		EOperatorType OperatorType

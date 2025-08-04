@@ -29,14 +29,14 @@ public:
 
 	static FGameplayTag Interaction_Area_Space;
 
+	static FGameplayTag Interaction_Area_SplitFloor;
+
 	
 	static FGameplayTag Interaction_Mode;
 
 	static FGameplayTag Interaction_Mode_Empty;
 
 	static FGameplayTag Interaction_Mode_Tour;
-
-	static FGameplayTag Interaction_Mode_SplitFloor;
 
 	static FGameplayTag Interaction_Mode_Scene;
 

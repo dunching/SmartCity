@@ -12,55 +12,10 @@ class UCanvasPanel;
 class UTextBlock;
 class USizeBox;
 class UOverlay;
-
-UCLASS()
-class SMARTCITY_API UFeatureItem : public UUserWidget
-{
-	GENERATED_BODY()
-
-public:
-};
-
-UCLASS()
-class SMARTCITY_API UFeatureWheel : public UUserWidget
-{
-	GENERATED_BODY()
-
-public:
-	void NativeConstruct() override;
-
-	void InitalFeaturesItem(
-		const FString& FeatureName,
-		const TArray<FString>& Features
-		);
-
-private:
-	void UpdatePosition();
-
-protected:
-	UPROPERTY(meta = (BindWidget))
-	UCanvasPanel* FeatureCanvas = nullptr;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* NameText = nullptr;
-
-	UPROPERTY(meta = (BindWidget))
-	USizeBox* SizeBox = nullptr;
-
-	UPROPERTY(
-		BlueprintReadWrite,
-		EditAnywhere
-	)
-	TSubclassOf<UFeatureItem> FeatureItemClass;
-
-	UPROPERTY(
-		BlueprintReadWrite,
-		EditAnywhere
-	)
-	float UpdateRate = 1.f / 60;
-
-	FTimerHandle TimerHandle;
-};
+class UButton;
+class ASceneElementBase;
+class UFeatureWheel;
+class ASceneElement_Space;
 
 UCLASS()
 class SMARTCITY_API UMainHUDLayout : public UUserWidget
@@ -71,8 +26,9 @@ public:
 	void NativeConstruct() override;
 
 	void InitalFeaturesItem(
+		ASceneElement_Space * SceneElement_SpacePtr,
 		const FString& FeatureName,
-		const TArray<FString>& Features
+		const TArray<FFeaturesItem>& Features
 		);
 
 	void RemoveFeatures();
@@ -83,6 +39,8 @@ public:
 	)
 	TSubclassOf<UFeatureWheel> FeatureWheelClass;
 
+	ASceneElement_Space * SceneElement_SpacePtr = nullptr;
+	
 	UFeatureWheel* FeatureWheelPtr = nullptr;
 	
 	UPROPERTY(meta = (BindWidget))
