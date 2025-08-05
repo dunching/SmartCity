@@ -17,6 +17,8 @@ class ASceneElementBase;
 class UFeatureWheel;
 class ASceneElement_Space;
 
+struct FFeaturesItem;
+
 UCLASS()
 class SMARTCITY_API UMainHUDLayout : public UUserWidget
 {

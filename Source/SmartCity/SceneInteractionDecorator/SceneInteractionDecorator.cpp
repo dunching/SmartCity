@@ -133,19 +133,19 @@ bool FSceneMode_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
-FRadarMode_Decorator::FRadarMode_Decorator():
-                                            Super(
-                                                  UGameplayTagsLibrary::Interaction_Mode,
-                                                  UGameplayTagsLibrary::Interaction_Mode_Radar
-                                                 )
+FRDRadarMode_Decorator::FRDRadarMode_Decorator():
+                                                Super(
+                                                      UGameplayTagsLibrary::Interaction_Mode,
+                                                      UGameplayTagsLibrary::Interaction_Mode_RD_Radar
+                                                     )
 {
 }
 
-FRadarMode_Decorator::~FRadarMode_Decorator()
+FRDRadarMode_Decorator::~FRDRadarMode_Decorator()
 {
 }
 
-void FRadarMode_Decorator::Entry()
+void FRDRadarMode_Decorator::Entry()
 {
 	Super::Entry();
 
@@ -157,7 +157,7 @@ void FRadarMode_Decorator::Entry()
 	                                         );
 }
 
-void FRadarMode_Decorator::Quit()
+void FRDRadarMode_Decorator::Quit()
 {
 	GetWorldImp()->GetTimerManager().ClearTimer(
 	                                            QueryTimerHadnle
@@ -166,14 +166,14 @@ void FRadarMode_Decorator::Quit()
 	Super::Quit();
 }
 
-bool FRadarMode_Decorator::Operation(
+bool FRDRadarMode_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
 	return Super::Operation(OperatorType);
 }
 
-void FRadarMode_Decorator::RadarQuery()
+void FRDRadarMode_Decorator::RadarQuery()
 {
 }
 
@@ -188,7 +188,7 @@ FQDMode_Decorator::FQDMode_Decorator():
 FAccessControlMode_Decorator::FAccessControlMode_Decorator():
                                                             Super(
                                                                   UGameplayTagsLibrary::Interaction_Mode,
-                                                                  UGameplayTagsLibrary::Interaction_Mode_AccessControl
+                                                                  UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl
                                                                  )
 {
 }
@@ -205,9 +205,7 @@ void FAccessControlMode_Decorator::Entry()
 
 	for (auto Iter : OutActors)
 	{
-		USceneInteractionWorldSystem::GetInstance()->AddFocus(Iter);
-
-		USceneInteractionWorldSystem::GetInstance()->AddRouteMarker(Iter);
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, EInteractionType::kFocus);
 	}
 }
 
@@ -260,35 +258,57 @@ void FArea_Decorator::Entry()
 {
 	Super::Entry();
 
-	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
+	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+		 UGameplayTagsLibrary::Interaction_Mode
+		);
+	if (
+		DecoratorSPtr &&
+		!DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty)
+		)
 	{
-		FSceneElementConditional SceneActorConditional;
+		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+		{
+			FSceneElementConditional SceneActorConditional;
 
-		FilterTags.Add(SceneActorConditional);
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+			FilterTags.Add(SceneActorConditional);
+		}
+
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+		                                                          FilterTags,
+		                                                          std::bind(
+		                                                                    &ThisClass::OnUpdateFilterComplete,
+		                                                                    this,
+		                                                                    std::placeholders::_1,
+		                                                                    std::placeholders::_2
+		                                                                   )
+		                                                         );
 	}
+	else
 	{
-		FSceneElementConditional SceneActorConditional;
+		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-		SceneActorConditional.ConditionalSet.AppendTags(
-		                                                USceneInteractionWorldSystem::GetInstance()->GetAllFilterTags()
-		                                               );
+		{
+			FSceneElementConditional SceneActorConditional;
 
-		FilterTags.Add(SceneActorConditional);
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			FilterTags.Add(SceneActorConditional);
+		}
+
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+		                                                          FilterTags,
+		                                                          std::bind(
+		                                                                    &ThisClass::OnUpdateFilterComplete,
+		                                                                    this,
+		                                                                    std::placeholders::_1,
+		                                                                    std::placeholders::_2
+		                                                                   )
+		                                                         );
 	}
-
-	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-	                                                          FilterTags,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
-	                                                         );
 }
 
 void FArea_Decorator::OnOtherDecoratorEntry(
@@ -297,32 +317,38 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
 
-	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode) &&
+		!NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty)
+		)
 	{
-		FSceneElementConditional SceneActorConditional;
+		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
 
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+		{
+			FSceneElementConditional SceneActorConditional;
 
-		FilterTags.Add(SceneActorConditional);
-	}
-	{
-		FSceneElementConditional SceneActorConditional;
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-		SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+			FilterTags.Add(SceneActorConditional);
+		}
 
-		FilterTags.Add(SceneActorConditional);
-	}
-
-	if (NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode))
-	{
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 		                                                          FilterTags
 		                                                         );
 	}
 	else
 	{
+		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
+
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			FilterTags.Add(SceneActorConditional);
+		}
+
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 		                                                          FilterTags,
 		                                                          std::bind(
@@ -365,8 +391,6 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 void FExternalWall_Decorator::Entry()
 {
 	Super::Entry();
-
-	SmartCityCommand::ReplyCameraTransform();
 }
 
 bool FExternalWall_Decorator::Operation(
@@ -419,14 +443,23 @@ void FSplitFloor_Decorator::Entry()
 void FSplitFloor_Decorator::Quit()
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_QuitFloorSplit>([this](auto GTPtr)
-	{
-		GTPtr->OnEnd.AddLambda([this](auto)
-		{
-			OnAsyncQuitComplete.ExecuteIfBound();
-		});
-	} );
-	
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_QuitFloorSplit>(
+	                                                                        [this](
+	                                                                        auto GTPtr
+	                                                                        )
+	                                                                        {
+		                                                                        GTPtr->OnEnd.AddLambda(
+			                                                                         [this](
+			                                                                         auto
+			                                                                         )
+			                                                                         {
+				                                                                         OnAsyncQuitComplete.
+					                                                                         ExecuteIfBound();
+			                                                                         }
+			                                                                        );
+	                                                                        }
+	                                                                       );
+
 	Super::Quit();
 }
 
@@ -520,10 +553,7 @@ bool FFloor_Decorator::Operation(
 						}
 
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-						USceneInteractionWorldSystem::GetInstance()->AddFocus(Iter.GetActor());
-
-						USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
-						USceneInteractionWorldSystem::GetInstance()->AddRouteMarker(Iter.GetActor());
+						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter.GetActor(), EInteractionType::kView);
 
 
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
@@ -554,7 +584,7 @@ bool FFloor_Decorator::Operation(
 					if (Iter.GetActor())
 					{
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-						USceneInteractionWorldSystem::GetInstance()->AddFocus(Iter.GetActor());
+						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter.GetActor(), EInteractionType::kView);
 
 						PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterBySpace>(
 							 [&Iter](

@@ -2,15 +2,18 @@
 
 #include "GameMode_Main.h"
 
+#include "Engine/StaticMeshActor.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "DrawDebugHelpers.h"
 #include "GameplayCommand.h"
 #include "GameplayTagsLibrary.h"
 #include "SceneInteractionWorldSystem.h"
 #include "WeatherSystem.h"
 #include "DatasmithAssetUserData.h"
-
-#include "Engine/StaticMeshActor.h"
-#include "Kismet/GameplayStatics.h"
+#include "InputProcessorSubSystem_Imp.h"
+#include "ViewBuildingProcessor.h"
+#include "TourPawn.h"
 
 AGameMode_Main::AGameMode_Main() :
                                  Super()

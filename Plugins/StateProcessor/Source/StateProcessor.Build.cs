@@ -19,6 +19,7 @@ public class StateProcessor : ModuleRules
 			new string[] {
 				// ... add public include paths required here ...
 				Path.Combine(PluginDirectory, "Source/StateProcessor"),
+				Path.Combine(PluginDirectory, "Source/InputActions"),
 			}
 			);
 				
@@ -47,6 +48,8 @@ public class StateProcessor : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UMG",
+				"InputCore",
+				"EnhancedInput",
 				// ... add private dependencies that you statically link with here ...	
 				"Utils",
 			}

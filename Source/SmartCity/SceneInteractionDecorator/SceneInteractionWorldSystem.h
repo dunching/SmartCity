@@ -34,6 +34,8 @@ public:
 
 	TSharedPtr<FDecoratorBase> GetInteractionModeDecorator() const;
 
+	TSharedPtr<FDecoratorBase> GetDecorator(const FGameplayTag& Interaction)const;
+	
 	void SwitchInteractionMode(
 		const FGameplayTag& Interaction_Mode
 		);
@@ -73,25 +75,21 @@ public:
 	 */
 	FGameplayTagContainer GetAllFilterTags() const;
 
-	void AddFocus(
-		AActor* DevicePtr
-		);
-
-	void RemoveFocus(
-		AActor* DevicePtr
+	void SwitchInteractionType(
+		AActor* DevicePtr,
+		EInteractionType InInteractionType
 		);
 
 	void ClearFocus();
 
-	void AddRouteMarker(
-		AActor* DevicePtr
-		);
-
-	void RemoveRouteMarker(
-		AActor* DevicePtr
-		);
-
 	void ClearRouteMarker();
+
+	template <typename Decorator, typename... Args>
+	void SwitchDecoratorImp(
+		const FGameplayTag& MainTag,
+		const FGameplayTag& BranchTag,
+		Args... Param
+		);
 
 private:
 	void NotifyOtherDecoratorsWhenEntry(
@@ -102,14 +100,6 @@ private:
 	void NotifyOtherDecoratorsWhenQuit(
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) const;
-
-	template <typename Decorator, typename... Args>
-	void SwitchDecoratorImp(
-		const FGameplayTag& MainTag,
-		const FGameplayTag& BranchTag,
-		Args... Param
-		);
-
 
 	/**
 	 * Key:装饰的类型
@@ -139,7 +129,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 		{
 			OldDecoratorSPtr->Quit();
 			NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
-			
+
 			OldDecoratorSPtr->OnAsyncQuitComplete.BindLambda(
 			                                                 [this, MainTag, Param...]()
 			                                                 {
@@ -149,7 +139,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 				                                                 DecoratorLayerAssetMap.Add(
 					                                                  MainTag,
-					                                                  {DecoratorSPtr, nullptr}
+					                                                  DecoratorSPtr
 					                                                 );
 			                                                 }
 			                                                );
@@ -162,7 +152,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 			DecoratorLayerAssetMap.Add(
 			                           MainTag,
-			                           {DecoratorSPtr, nullptr}
+			                           DecoratorSPtr
 			                          );
 
 			if (OldDecoratorSPtr)
@@ -182,7 +172,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 		DecoratorLayerAssetMap.Add(
 		                           MainTag,
-		                           {DecoratorSPtr, nullptr}
+		                           DecoratorSPtr
 		                          );
 
 		DecoratorSPtr->Entry();

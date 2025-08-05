@@ -25,6 +25,7 @@
 #include "SceneElementBase.h"
 #include "TemplateHelper.h"
 #include "CollisionDataStruct.h"
+#include "SceneElement_RadarSweep.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -75,6 +76,28 @@ void UGT_ReplyCameraTransform::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+void UPlayerControllerGameplayTasksComponent::OnGameplayTaskDeactivated(
+	UGameplayTask& Task
+	)
+{
+	Super::OnGameplayTaskDeactivated(Task);
+
+	auto GTPtr = Cast<UGameplayTaskBase>(&Task);
+	if (GTPtr && GTPtr->NextTaskPtr)
+	{
+		GTPtr->NextTaskPtr->ReadyForActivation();
+	}
+}
+
+void UGameplayTaskBase::OnDestroy(
+	bool bInOwnerFinished
+	)
+{
+	OnTaskComplete.Broadcast(true);
+
 	Super::OnDestroy(bInOwnerFinished);
 }
 
@@ -324,9 +347,9 @@ void UGT_InitializeSceneActors::Activate()
 {
 	Super::Activate();
 
-	for (const auto& Iter : UAssetRefMap::GetInstance()->SceneActorMap)
+	for (const auto& Iter : UAssetRefMap::GetInstance()->AllSceneActorMap)
 	{
-		SceneActorMap.Add(Iter.Value);
+		SceneActorMap.Add(Iter);
 	}
 
 	ApplyData(0);
@@ -439,41 +462,14 @@ bool UGT_InitializeSceneActors::ProcessTask(
 			}
 			else
 			{
-				if (ReplaceSoftDecorationItemSetIndex < ReplaceSoftDecorationItemSet.Num())
-				{
-					ApplyRelatedActors(ReplaceSoftDecorationItemSet[ReplaceSoftDecorationItemSetIndex]);
-				}
-				else
-				{
-					RelatedActorsIndex = 0;
-					RelatedActors.Empty();
-				}
-
 				StepIndex++;
 				return true;
 			}
 		}
 	case 3:
 		{
-			if (ProcessTask_ReplaceSoftDecorationItemSet())
-			{
-				return true;
-			}
-			else
-			{
-				if (SpaceItemSetIndex < SpaceItemSet.Num())
-				{
-					ApplyRelatedActors(SpaceItemSet[SpaceItemSetIndex]);
-				}
-				else
-				{
-					RelatedActorsIndex = 0;
-					RelatedActors.Empty();
-				}
-
-				StepIndex++;
-				return true;
-			}
+			StepIndex++;
+			return true;
 		}
 	case 4:
 		{
@@ -712,46 +708,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 
 bool UGT_InitializeSceneActors::ProcessTask_ReplaceSoftDecorationItemSet()
 {
-	if (NormalAdjust(ReplaceSoftDecorationItemSetIndex, ReplaceSoftDecorationItemSet))
-	{
-	}
-	else
-	{
-		return false;
-	}
-
-	ON_SCOPE_EXIT
-	{
-		RelatedActorsIndex++;
-	};
-
-	auto Iter = RelatedActors[RelatedActorsIndex];
-	if (Iter)
-	{
-		if (ReplacedActor(Iter))
-		{
-			return true;
-		}
-
-		auto Components = Iter->GetComponents();
-
-		for (auto SecondIter : Components)
-		{
-			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
-				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-
-				break;
-			}
-		}
-	}
-
-	return true;
+	return false;
 }
 
 bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
@@ -884,7 +841,7 @@ void UGT_InitializeSceneActors::ApplyData(
 
 		StructItemSetIndex = 0;
 		StructItemSet.Empty();
-		for (const auto& Iter : SceneActorMap[Index].StructItemSet)
+		for (const auto& Iter : SceneActorMap[Index].StructItemSet.DatasmithSceneActorSet)
 		{
 			StructItemSet.Add(Iter);
 		}
@@ -896,28 +853,21 @@ void UGT_InitializeSceneActors::ApplyData(
 
 		InnerStructItemSetIndex = 0;
 		InnerStructItemSet.Empty();
-		for (const auto& Iter : SceneActorMap[Index].InnerStructItemSet)
+		for (const auto& Iter : SceneActorMap[Index].InnerStructItemSet.DatasmithSceneActorSet)
 		{
 			InnerStructItemSet.Add(Iter);
 		}
 
 		SoftDecorationItemSetIndex = 0;
 		SoftDecorationItemSet.Empty();
-		for (const auto& Iter : SceneActorMap[Index].SoftDecorationItemSet)
+		for (const auto& Iter : SceneActorMap[Index].SoftDecorationItem.DatasmithSceneActorSet)
 		{
 			SoftDecorationItemSet.Add(Iter);
 		}
 
-		ReplaceSoftDecorationItemSetIndex = 0;
-		ReplaceSoftDecorationItemSet.Empty();
-		for (const auto& Iter : SceneActorMap[Index].ReplaceSoftDecorationItemSet)
-		{
-			ReplaceSoftDecorationItemSet.Add(Iter);
-		}
-
 		SpaceItemSetIndex = 0;
 		SpaceItemSet.Empty();
-		for (const auto& Iter : SceneActorMap[Index].SpaceItemSet)
+		for (const auto& Iter : SceneActorMap[Index].SpaceItemSet.DatasmithSceneActorSet)
 		{
 			SpaceItemSet.Add(Iter);
 		}
@@ -1063,28 +1013,71 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		{
 			if (FilterTags.Contains(SecondIter.Key))
 			{
-				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+				for (const auto& ThirdIter : SecondIter.Value.StructItemSet.DatasmithSceneActorSet)
+				{
+					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.StructItemSet});
+				}
+				for (const auto& ThirdIter : SecondIter.Value.StructItemSet.ReplaceActorSet)
+				{
+					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.StructItemSet});
+				}
 
-				TempSet.Append(SecondIter.Value.StructItemSet.Array());
-				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
-				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				for (const auto& ThirdIter : SecondIter.Value.InnerStructItemSet.DatasmithSceneActorSet)
+				{
+					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.InnerStructItemSet});
+				}
+				for (const auto& ThirdIter : SecondIter.Value.InnerStructItemSet.ReplaceActorSet)
+				{
+					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.InnerStructItemSet});
+				}
 
-				ReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
-				DataSmithSceneActorsSet.Append(TempSet.Array());
+				for (const auto& ThirdIter : SecondIter.Value.SoftDecorationItem.DatasmithSceneActorSet)
+				{
+					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.SoftDecorationItem});
+				}
+				for (const auto& ThirdIter : SecondIter.Value.SoftDecorationItem.ReplaceActorSet)
+				{
+					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.SoftDecorationItem});
+				}
+
+				for (const auto& ThirdIter : SecondIter.Value.SpaceItemSet.DatasmithSceneActorSet)
+				{
+					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.SpaceItemSet});
+				}
+				for (const auto& ThirdIter : SecondIter.Value.SpaceItemSet.ReplaceActorSet)
+				{
+					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.SpaceItemSet});
+				}
 			}
-			else
-			{
-				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
+		}
+		if (DataSmithSceneActorsSet.IsEmpty())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 
-				TempSet.Append(SecondIter.Value.StructItemSet.Array());
-				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
-				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+	// 不显示的DataSmith
+	if (HideDataSmithSceneActorsSet.IsEmpty())
+	{
+		for (const auto& SecondIter : UAssetRefMap::GetInstance()->AllSceneActorMap)
+		{
+			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
 
-				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
-				HideDataSmithSceneActorsSet.Append(TempSet.Array());
-			}
+			TempSet.Append(SecondIter.StructItemSet.DatasmithSceneActorSet.Array());
+			TempSet.Append(SecondIter.InnerStructItemSet.DatasmithSceneActorSet.Array());
+			TempSet.Append(SecondIter.SoftDecorationItem.DatasmithSceneActorSet.Array());
+			TempSet.Append(SecondIter.SpaceItemSet.DatasmithSceneActorSet.Array());
+
+			HideDataSmithSceneActorsSet.Append(TempSet.Array());
+
+			HideReplaceActorsSet.Append(SecondIter.StructItemSet.ReplaceActorSet.Array());
+			HideReplaceActorsSet.Append(SecondIter.InnerStructItemSet.ReplaceActorSet.Array());
+			HideReplaceActorsSet.Append(SecondIter.SoftDecorationItem.ReplaceActorSet.Array());
+			HideReplaceActorsSet.Append(SecondIter.SpaceItemSet.ReplaceActorSet.Array());
 		}
 		return true;
 	}
@@ -1120,6 +1113,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 			return true;
 		}
 	}
+
 	if (HideReplaceActorsSet.IsEmpty())
 	{
 	}
@@ -1161,14 +1155,36 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
 		{
 			TArray<AActor*> OutActors;
-			DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+			DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex].Key->GetAttachedActors(OutActors, true, true);
 
 			for (const auto& Iter : OutActors)
 			{
 				auto ActorPtr = Iter;
 				if (ActorPtr)
 				{
-					FilterCount[Iter] = 1;
+					bool bIsOK = true;
+
+					if (DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex].Value.TypeSet.IsEmpty())
+					{
+					}
+					else
+					{
+						bIsOK = false;
+						for (const auto& FilterIter : DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex].Value.
+						     TypeSet)
+						{
+							if (ActorPtr->IsA(FilterIter))
+							{
+								bIsOK = true;
+								break;
+							}
+						}
+					}
+
+					if (bIsOK)
+					{
+						FilterCount[Iter] = 1;
+					}
 				}
 				else
 				{
@@ -1182,6 +1198,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		{
 		}
 	}
+
 	if (ReplaceActorsSet.IsEmpty())
 	{
 	}
@@ -1194,7 +1211,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			ReplaceActorsSet[ReplaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			ReplaceActorsSet[ReplaceActorsSetIndex].Key->GetAttachedActors(RelatedActors);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1221,6 +1238,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 	if (FilterIndex < FilterCount.size())
 	{
 		auto Iter = FilterCount.begin();
+
 		std::advance(Iter, FilterIndex);
 		if (Iter->second > 0)
 		{
@@ -1247,7 +1265,7 @@ UGT_FloorSplit::UGT_FloorSplit(
 	bTickingTask = true;
 	bIsPausable = true;
 
-	Priority = 1.5 * FGameplayTasks::DefaultPriority ;
+	Priority = 1.5 * FGameplayTasks::DefaultPriority;
 }
 
 void UGT_FloorSplit::Activate()
@@ -1333,29 +1351,39 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 		{
 			//
 			bool bIsFloorData = false;
-			
+
 			FGameplayTagContainer GameplayTagContainer;
-			
+
 			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor);
-			
+
 			if (SecondIter.Key.ConditionalSet.HasAll(GameplayTagContainer))
 			{
 				for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 				{
-					if (SecondIter.Key.ConditionalSet.HasTag( FloorIter.Value->FloorTag))
+					if (SecondIter.Key.ConditionalSet.HasTag(FloorIter.Value->FloorTag))
 					{
 						bIsFloorData = true;
-						
+
 						TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
 
-						TempSet.Append(SecondIter.Value.StructItemSet.Array());
-						TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-						TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
-						TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+						TempSet.Append(SecondIter.Value.StructItemSet.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.InnerStructItemSet.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.SoftDecorationItem.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.SpaceItemSet.DatasmithSceneActorSet.Array());
 
-						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 						DataSmithSceneActorsSet.Add(FloorIter.Key, TempSet.Array());
+
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.StructItemSet.ReplaceActorSet.Array());
+						ReplaceActorsSet.Add(
+						                     FloorIter.Key,
+						                     SecondIter.Value.InnerStructItemSet.ReplaceActorSet.Array()
+						                    );
+						ReplaceActorsSet.Add(
+						                     FloorIter.Key,
+						                     SecondIter.Value.SoftDecorationItem.ReplaceActorSet.Array()
+						                    );
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.SpaceItemSet.ReplaceActorSet.Array());
 
 						break;
 					}
@@ -1363,18 +1391,23 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 			}
 
 			if (bIsFloorData)
-			{}
+			{
+			}
 			else
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
 
-				TempSet.Append(SecondIter.Value.StructItemSet.Array());
-				TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-				TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
-				TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+				TempSet.Append(SecondIter.Value.StructItemSet.DatasmithSceneActorSet.Array());
+				TempSet.Append(SecondIter.Value.InnerStructItemSet.DatasmithSceneActorSet.Array());
+				TempSet.Append(SecondIter.Value.SoftDecorationItem.DatasmithSceneActorSet.Array());
+				TempSet.Append(SecondIter.Value.SpaceItemSet.DatasmithSceneActorSet.Array());
 
-				HideReplaceActorsSet.Append(SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 				HideDataSmithSceneActorsSet.Append(TempSet.Array());
+
+				HideReplaceActorsSet.Append(SecondIter.Value.StructItemSet.ReplaceActorSet.Array());
+				HideReplaceActorsSet.Append(SecondIter.Value.InnerStructItemSet.ReplaceActorSet.Array());
+				HideReplaceActorsSet.Append(SecondIter.Value.SoftDecorationItem.ReplaceActorSet.Array());
+				HideReplaceActorsSet.Append(SecondIter.Value.SpaceItemSet.ReplaceActorSet.Array());
 			}
 		}
 	}
@@ -1544,23 +1577,23 @@ bool UGT_FloorSplit::ProcessTask_Move(
 	)
 {
 	bool bIsEnd = false;
-	
+
 	ConsumeTime += DeltaTime;
 	if (ConsumeTime > MoveDuration)
 	{
-		bIsEnd  = true;
+		bIsEnd = true;
 		ConsumeTime = MoveDuration;
 	}
 
 	const auto Percent = ConsumeTime / MoveDuration;
-	
-	FVector Offset = FVector::ZeroVector;
-	
-	for (const auto &Iter : DataSmithSceneActorsSet)
-	{
-		Offset = FVector(0,0,Iter.Key * HeightInterval);
 
-		for (const auto & SecondIter : Iter.Value)
+	FVector Offset = FVector::ZeroVector;
+
+	for (const auto& Iter : DataSmithSceneActorsSet)
+	{
+		Offset = FVector(0, 0, Iter.Key * HeightInterval);
+
+		for (const auto& SecondIter : Iter.Value)
 		{
 			SecondIter->SetActorLocation((Percent * Offset));
 		}
@@ -1577,7 +1610,7 @@ UGT_QuitFloorSplit::UGT_QuitFloorSplit(
 	bTickingTask = true;
 	bIsPausable = true;
 
-	Priority = 1.5 * FGameplayTasks::DefaultPriority ;
+	Priority = 1.5 * FGameplayTasks::DefaultPriority;
 }
 
 void UGT_QuitFloorSplit::OnDestroy(
@@ -1610,7 +1643,7 @@ bool UGT_QuitFloorSplit::ProcessTask(
 				return true;
 			}
 		}
-	case 2:
+	case 1:
 		{
 			if (ProcessTask_Move(DeltaTime))
 			{
@@ -1636,29 +1669,39 @@ bool UGT_QuitFloorSplit::ProcessTask_Sort()
 		{
 			//
 			bool bIsFloorData = false;
-			
+
 			FGameplayTagContainer GameplayTagContainer;
-			
+
 			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 			GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor);
-			
+
 			if (SecondIter.Key.ConditionalSet.HasAll(GameplayTagContainer))
 			{
 				for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 				{
-					if (SecondIter.Key.ConditionalSet.HasTag( FloorIter.Value->FloorTag))
+					if (SecondIter.Key.ConditionalSet.HasTag(FloorIter.Value->FloorTag))
 					{
 						bIsFloorData = true;
-						
+
 						TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempSet;
 
-						TempSet.Append(SecondIter.Value.StructItemSet.Array());
-						TempSet.Append(SecondIter.Value.InnerStructItemSet.Array());
-						TempSet.Append(SecondIter.Value.SoftDecorationItemSet.Array());
-						TempSet.Append(SecondIter.Value.SpaceItemSet.Array());
+						TempSet.Append(SecondIter.Value.StructItemSet.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.InnerStructItemSet.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.SoftDecorationItem.DatasmithSceneActorSet.Array());
+						TempSet.Append(SecondIter.Value.SpaceItemSet.DatasmithSceneActorSet.Array());
 
-						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.ReplaceSoftDecorationItemSet.Array());
 						DataSmithSceneActorsSet.Add(FloorIter.Key, TempSet.Array());
+
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.StructItemSet.ReplaceActorSet.Array());
+						ReplaceActorsSet.Add(
+						                     FloorIter.Key,
+						                     SecondIter.Value.InnerStructItemSet.ReplaceActorSet.Array()
+						                    );
+						ReplaceActorsSet.Add(
+						                     FloorIter.Key,
+						                     SecondIter.Value.SoftDecorationItem.ReplaceActorSet.Array()
+						                    );
+						ReplaceActorsSet.Add(FloorIter.Key, SecondIter.Value.SpaceItemSet.ReplaceActorSet.Array());
 
 						break;
 					}
@@ -1675,23 +1718,23 @@ bool UGT_QuitFloorSplit::ProcessTask_Move(
 	)
 {
 	bool bIsEnd = false;
-	
+
 	ConsumeTime += DeltaTime;
 	if (ConsumeTime > MoveDuration)
 	{
-		bIsEnd  = true;
+		bIsEnd = true;
 		ConsumeTime = MoveDuration;
 	}
 
 	const auto Percent = 1 - (ConsumeTime / MoveDuration);
-	
-	FVector Offset = FVector::ZeroVector;
-	
-	for (const auto &Iter : DataSmithSceneActorsSet)
-	{
-		Offset = FVector(0,0,Iter.Key * HeightInterval);
 
-		for (const auto & SecondIter : Iter.Value)
+	FVector Offset = FVector::ZeroVector;
+
+	for (const auto& Iter : DataSmithSceneActorsSet)
+	{
+		Offset = FVector(0, 0, Iter.Key * HeightInterval);
+
+		for (const auto& SecondIter : Iter.Value)
 		{
 			SecondIter->SetActorLocation((Percent * Offset));
 		}

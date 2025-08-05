@@ -66,27 +66,41 @@ TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const
 	return Result;
 }
 
-void ASceneElement_DeviceBase::SwitchFocusState(
-	bool bIsFocus
+void ASceneElement_DeviceBase::SwitchInteractionType(
+	EInteractionType InInteractionType
 	)
 {
-	Super::SwitchFocusState(bIsFocus);
+	Super::SwitchInteractionType(InteractionType);
 
-	if (bIsFocus)
+	switch (InteractionType)
 	{
-		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-		if (PrimitiveComponentPtr)
+	case EInteractionType::kView:
 		{
-			PrimitiveComponentPtr->SetRenderCustomDepth(true);
-			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
 		}
-	}
-	else
-	{
-		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-		if (PrimitiveComponentPtr)
+		break;
+	case EInteractionType::kFocus:
 		{
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
 		}
+		break;
+	case EInteractionType::kNone:
+		{
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+		}
+		break;
 	}
 }

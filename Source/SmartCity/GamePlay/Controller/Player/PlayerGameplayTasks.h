@@ -20,6 +20,8 @@ class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
 class AReplaceActor;
 
+class UGameplayTaskBase;
+
 /*
  * PlayerController处理异步的组件
  */
@@ -33,6 +35,10 @@ class SMARTCITY_API UPlayerControllerGameplayTasksComponent : public UGameplayTa
 
 public:
 	static FName ComponentName;
+
+	virtual void OnGameplayTaskDeactivated(
+		UGameplayTask& Task
+		) override;
 
 	template <typename GameplayTaskType>
 	void StartGameplayTask(
@@ -49,8 +55,6 @@ template <typename GameplayTaskType>
 void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
-
-
 		
 		)>& Func
 	)
@@ -70,13 +74,38 @@ void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	GameplayTaskPtr->ReadyForActivation();
 }
 
+
 #pragma region 摄像机修改
+
+UCLASS()
+class SMARTCITY_API UGameplayTaskBase : public UGameplayTask
+{
+	GENERATED_BODY()
+
+public:
+	class UPlayerControllerGameplayTasksComponent;
+
+	using FOnTaskComplete = TMulticastDelegate<void(
+		bool
+		)>;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	UPROPERTY()
+	TObjectPtr<UGameplayTaskBase> NextTaskPtr;
+
+protected:
+	FOnTaskComplete OnTaskComplete;
+};
+
 
 /**
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_CameraTransform : public UGameplayTask
+class SMARTCITY_API UGT_CameraTransform : public UGameplayTaskBase
 {
 	GENERATED_BODY()
 
@@ -208,7 +237,7 @@ public:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_BatchBase : public UGameplayTask
+class SMARTCITY_API UGT_BatchBase : public UGameplayTaskBase
 {
 	GENERATED_BODY()
 
@@ -365,10 +394,6 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
 
-	int32 ReplaceSoftDecorationItemSetIndex = 0;
-
-	TArray<TSoftObjectPtr<AReplaceActor>> ReplaceSoftDecorationItemSet;
-
 	int32 SpaceItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
@@ -456,11 +481,11 @@ private:
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+	TArray<TPair<TSoftObjectPtr<ADatasmithSceneActor>, FSceneElementFilter>> DataSmithSceneActorsSet;
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActor>> ReplaceActorsSet;
+	TArray<TPair<TSoftObjectPtr<AReplaceActor>, FSceneElementFilter>> ReplaceActorsSet;
 
 
 	int32 RelatedActorsIndex = 0;
@@ -538,7 +563,7 @@ private:
 
 	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
 
-	
+
 	int32 HideDataSmithSceneActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
@@ -547,7 +572,7 @@ private:
 
 	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
 
-	
+
 	float ConsumeTime = 0.f;
 };
 
@@ -615,8 +640,7 @@ private:
 
 	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
 
-	
-	
+
 	float ConsumeTime = 0.f;
 };
 

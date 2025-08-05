@@ -123,17 +123,17 @@ public:
 /**
  * 选择“雷达控制”模式
  */
-class SMARTCITY_API FRadarMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FRDRadarMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FRadarMode_Decorator,
+	                    FRDRadarMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
-	FRadarMode_Decorator();
+	FRDRadarMode_Decorator();
 
-	virtual ~FRadarMode_Decorator();
+	virtual ~FRDRadarMode_Decorator();
 
 	virtual void Entry() override;
 

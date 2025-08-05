@@ -52,8 +52,9 @@ TMap<FString, FString> ASceneElementBase::GetStateDescription() const
 	return {};
 }
 
-void ASceneElementBase::SwitchFocusState(
-	bool bIsFocus
+void ASceneElementBase::SwitchInteractionType(
+	EInteractionType InInteractionType
 	)
 {
+	InteractionType = InInteractionType;
 }

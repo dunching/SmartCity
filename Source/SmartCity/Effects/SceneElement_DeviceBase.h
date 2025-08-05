@@ -42,7 +42,9 @@ public:
 
 	virtual TMap<FString,FString> GetStateDescription()const override;
 	
-	virtual void SwitchFocusState(bool bIsFocus) override;
+	virtual void SwitchInteractionType(
+		EInteractionType InteractionType
+		) override;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;

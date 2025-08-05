@@ -40,17 +40,17 @@ public:
 
 	static FGameplayTag Interaction_Mode_Scene;
 
-	static FGameplayTag Interaction_Mode_Radar;
-
 	static FGameplayTag Interaction_Mode_QD;
+
+	static FGameplayTag Interaction_Mode_QD_Lighting;
+
+	static FGameplayTag Interaction_Mode_QD_HVAC;
 
 	static FGameplayTag Interaction_Mode_RD;
 
-	static FGameplayTag Interaction_Mode_AccessControl;
+	static FGameplayTag Interaction_Mode_RD_Radar;
 
-	static FGameplayTag Interaction_Mode_Lighting;
-
-	static FGameplayTag Interaction_Mode_HVAC;
+	static FGameplayTag Interaction_Mode_RD_AccessControl;
 
 	static FGameplayTag Interaction_Mode_SunShade;
 
