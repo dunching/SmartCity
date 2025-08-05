@@ -829,6 +829,14 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 		if (Index < ItemSet.Num())
 		{
 			ApplyRelatedActors(ItemSet[Index]);
+			
+			if (RelatedActorsIndex < RelatedActors.Num())
+			{
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -962,7 +970,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActors.Empty();
 
 	TArray<AActor*> OutActors;
-	ItemSet->GetAttachedActors(OutActors);
+	ItemSet->GetAttachedActors(OutActors,true, true);
 
 	for (const auto& Iter : OutActors)
 	{
@@ -1248,13 +1256,14 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		auto Iter = FilterCount.begin();
 
 		std::advance(Iter, FilterIndex);
+		
+		if (Iter->first->GetActorLabel() == TEXT("机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"))
+		{
+			PRINTINVOKEINFO();
+		}
+		
 		if (Iter->second > 0)
 		{
-			if (Iter->first->GetActorLabel() == TEXT("机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"))
-			{
-					PRINTINVOKEINFO();
-			}
-		
 			Iter->first->SetActorHiddenInGame(false);
 			Result.Add(Iter->first);
 		}

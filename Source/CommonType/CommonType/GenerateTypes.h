@@ -42,6 +42,10 @@ struct COMMONTYPE_API FSceneElementTypeHelper
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Value;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Value;
+
 };
 
 struct COMMONTYPE_API TFSceneElementTypeHelperKeyFuncs :
