@@ -161,7 +161,7 @@ void ASceneElement_Space::SwitchInteractionType(
 		auto InteractionModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetInteractionModeDecorator();
 		if (InteractionModeDecoratorSPtr)
 		{
-			if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() == UGameplayTagsLibrary::Interaction_Mode_QD)
+			if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() == UGameplayTagsLibrary::Interaction_Mode_PWR)
 			{
 				FString FeatureName = Category;
 
@@ -216,7 +216,7 @@ void ASceneElement_Space::SwitchInteractionType(
 				}
 			}
 			else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-			         UGameplayTagsLibrary::Interaction_Mode_QD_Lighting)
+			         UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting)
 			{
 			}
 		}

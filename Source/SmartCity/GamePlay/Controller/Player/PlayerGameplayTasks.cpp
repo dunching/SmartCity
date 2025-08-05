@@ -795,6 +795,14 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 		if (Index < ItemSet.Num())
 		{
 			ApplyRelatedActors(ItemSet[Index]);
+			
+			if (RelatedActorsIndex < RelatedActors.Num())
+			{
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -1126,7 +1134,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors,true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1211,7 +1219,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			ReplaceActorsSet[ReplaceActorsSetIndex].Key->GetAttachedActors(RelatedActors);
+			ReplaceActorsSet[ReplaceActorsSetIndex].Key->GetAttachedActors(RelatedActors,true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1242,6 +1250,11 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		std::advance(Iter, FilterIndex);
 		if (Iter->second > 0)
 		{
+			if (Iter->first->GetActorLabel() == TEXT("机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"))
+			{
+					PRINTINVOKEINFO();
+			}
+		
 			Iter->first->SetActorHiddenInGame(false);
 			Result.Add(Iter->first);
 		}
@@ -1460,7 +1473,7 @@ bool UGT_FloorSplit::ProcessTask_Display()
 		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors);
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors,true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1527,7 +1540,7 @@ bool UGT_FloorSplit::ProcessTask_Display()
 			for (const auto& Iter : ReplaceActorsSet[ReplaceActorsSetIndex])
 			{
 				TArray<AActor*> RelatedActors;
-				Iter->GetAttachedActors(RelatedActors);
+				Iter->GetAttachedActors(RelatedActors,true, true);
 				for (const auto& SecondIter : RelatedActors)
 				{
 					if (SecondIter)

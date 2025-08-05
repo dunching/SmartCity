@@ -21,13 +21,14 @@ void ASceneElementBase::Replace(
 		AActor* ParentPtr = ActorRef->GetAttachParentActor();
 		if (ParentPtr)
 		{
-			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepRelativeTransform);
+			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
 		}
 
 		ReplaceImp(ActorRef.LoadSynchronous());
 
 		SceneElementName = ActorRef->GetActorLabel();
-		// SceneElementName = ActorRef->GetName();
+		
+		SetActorLabel(SceneElementName);
 		
 		ActorRef->Destroy();
 	}

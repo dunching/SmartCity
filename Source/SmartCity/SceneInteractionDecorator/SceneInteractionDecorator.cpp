@@ -136,7 +136,7 @@ bool FSceneMode_Decorator::Operation(
 FRDRadarMode_Decorator::FRDRadarMode_Decorator():
                                                 Super(
                                                       UGameplayTagsLibrary::Interaction_Mode,
-                                                      UGameplayTagsLibrary::Interaction_Mode_RD_Radar
+                                                      UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
                                                      )
 {
 }
@@ -180,7 +180,7 @@ void FRDRadarMode_Decorator::RadarQuery()
 FQDMode_Decorator::FQDMode_Decorator():
                                       Super(
                                             UGameplayTagsLibrary::Interaction_Mode,
-                                            UGameplayTagsLibrary::Interaction_Mode_QD
+                                            UGameplayTagsLibrary::Interaction_Mode_PWR
                                            )
 {
 }
@@ -188,7 +188,7 @@ FQDMode_Decorator::FQDMode_Decorator():
 FAccessControlMode_Decorator::FAccessControlMode_Decorator():
                                                             Super(
                                                                   UGameplayTagsLibrary::Interaction_Mode,
-                                                                  UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl
+                                                                  UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
                                                                  )
 {
 }

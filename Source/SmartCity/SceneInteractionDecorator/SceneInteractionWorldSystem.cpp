@@ -79,12 +79,12 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		return;
 	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_QD)
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_PWR)
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 		{
 			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_QD)
+			    UGameplayTagsLibrary::Interaction_Mode_PWR)
 			{
 				return;
 			}
@@ -92,7 +92,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		SwitchDecoratorImp<FQDMode_Decorator>(
 		                                      UGameplayTagsLibrary::Interaction_Mode,
-		                                      UGameplayTagsLibrary::Interaction_Mode_QD
+		                                      UGameplayTagsLibrary::Interaction_Mode_PWR
 		                                     );
 
 		return;
@@ -115,12 +115,12 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		return;
 	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_RD_Radar)
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 		{
 			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_RD_Radar)
+			    UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
 			{
 				return;
 			}
@@ -128,17 +128,17 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		SwitchDecoratorImp<FRDRadarMode_Decorator>(
 		                                           UGameplayTagsLibrary::Interaction_Mode,
-		                                           UGameplayTagsLibrary::Interaction_Mode_RD_Radar
+		                                           UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
 		                                          );
 
 		return;
 	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl)
+	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
 	{
 		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 		{
 			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl)
+			    UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
 			{
 				return;
 			}
@@ -146,7 +146,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		SwitchDecoratorImp<FAccessControlMode_Decorator>(
 		                                                 UGameplayTagsLibrary::Interaction_Mode,
-		                                                 UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl
+		                                                 UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
 		                                                );
 
 		return;

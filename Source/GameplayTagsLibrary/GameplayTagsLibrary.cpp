@@ -37,23 +37,23 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.PWR")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD_Lighting =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD.Lighting")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.PWR.Lighting")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD_HVAC =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD.HVAC")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.PWR.HVAC")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_ELV =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.ELV")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD_Radar =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD.Radar")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_ELV_Radar =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.ELV.Radar")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD.AccessControl")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.ELV.AccessControl")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_SunShade =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.SunShade")));
