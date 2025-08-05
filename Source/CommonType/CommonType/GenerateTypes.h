@@ -44,7 +44,7 @@ struct COMMONTYPE_API FSceneElementTypeHelper
 	FString Value;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString Value;
+	bool bNeedMerge = false;
 
 };
 

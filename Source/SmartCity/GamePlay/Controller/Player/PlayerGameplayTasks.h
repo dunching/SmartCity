@@ -402,6 +402,9 @@ private:
 	int32 RelatedActorsIndex = 0;
 
 	TArray<TObjectPtr<AActor>> RelatedActors;
+
+	
+	TMap<int32, ASceneElementBase*>MergeActorsMap;
 };
 
 #pragma endregion

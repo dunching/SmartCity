@@ -927,14 +927,36 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
 						if (MetaDataIter && (*MetaDataIter == ThirdIter.Key.Value))
 						{
-							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-								 ThirdIter.Value,
-								 Iter->GetActorTransform()
-								);
-							NewActorPtr->Replace(Iter);
+							if (ThirdIter.Key.bNeedMerge)
+							{
+								auto HashCode = HashCombine(GetTypeHash(ThirdIter.Key.Key), GetTypeHash(ThirdIter.Key.Value));
+								if (MergeActorsMap.Contains(HashCode))
+								{
+									MergeActorsMap[HashCode]->Merge(Iter);
+								}
+								else
+								{
+									auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+										 ThirdIter.Value,
+										 Iter->GetActorTransform()
+										);
+									NewActorPtr->Replace(Iter);
 
-							RelatedActors.Add(NewActorPtr);
+									RelatedActors.Add(NewActorPtr);
+									MergeActorsMap.Add(HashCode, NewActorPtr);
+								}
+							}
+							else
+							{
+								auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+									 ThirdIter.Value,
+									 Iter->GetActorTransform()
+									);
+								NewActorPtr->Replace(Iter);
 
+								RelatedActors.Add(NewActorPtr);
+
+							}
 							bIsSceneElement = true;
 							break;
 						}

@@ -40,6 +40,12 @@ void ASceneElementBase::ReplaceImp(
 {
 }
 
+void ASceneElementBase::Merge(
+	const TSoftObjectPtr<AActor>& ActorRef
+	)
+{
+}
+
 void ASceneElementBase::BeginInteraction()
 {
 }

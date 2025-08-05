@@ -47,6 +47,10 @@ public:
 		AActor* ActorPtr
 		);
 	
+	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef
+		);
+
 	virtual void BeginInteraction();
 
 	virtual void EndInteraction();
