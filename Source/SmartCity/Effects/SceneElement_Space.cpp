@@ -103,14 +103,30 @@ void ASceneElement_Space::ReplaceImp(
 	}
 }
 
-void ASceneElement_Space::SwitchFocusState(
-	bool bIsFocus
+void ASceneElement_Space::SwitchInteractionType(
+	EInteractionType InInteractionType
 	)
 {
-	Super::SwitchFocusState(bIsFocus);
+	Super::SwitchInteractionType(InteractionType);
 
-	if (bIsFocus)
-	{
+	switch (InteractionType) {
+	case EInteractionType::kView:
+		{
+			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+			if (HUDPtr)
+			{
+				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+			}
+		
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+		}
+		break;
+	case EInteractionType::kFocus:
+		{
 		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 		if (PrimitiveComponentPtr)
 		{
@@ -200,23 +216,26 @@ void ASceneElement_Space::SwitchFocusState(
 				}
 			}
 			else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-			         UGameplayTagsLibrary::Interaction_Mode_Lighting)
+			         UGameplayTagsLibrary::Interaction_Mode_QD_Lighting)
 			{
 			}
 		}
-	}
-	else
-	{
-		auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-		if (HUDPtr)
-		{
-			HUDPtr->GetMainHUDLayout()->RemoveFeatures();
 		}
+		break;
+	case EInteractionType::kNone:
+		{
+			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+			if (HUDPtr)
+			{
+				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+			}
 		
-		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-		if (PrimitiveComponentPtr)
-		{
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
 		}
+		break;
 	}
 }

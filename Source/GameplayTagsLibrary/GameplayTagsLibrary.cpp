@@ -37,23 +37,23 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Radar =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Radar")));
-
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD_Lighting =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD.Lighting")));
+
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_QD_HVAC =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.QD.HVAC")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_AccessControl =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.AccessControl")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD_Radar =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD.Radar")));
 
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Lighting =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Lighting")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_HVAC =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.HVAC")));
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_RD_AccessControl =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.RD.AccessControl")));
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_SunShade =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.SunShade")));

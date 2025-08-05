@@ -38,7 +38,9 @@ public:
 		AActor* ActorPtr
 		) override;
 
-	virtual void SwitchFocusState(bool bIsFocus) override;
+	virtual void SwitchInteractionType(
+		EInteractionType InteractionType
+		) override;
 
 	FString Category;
 

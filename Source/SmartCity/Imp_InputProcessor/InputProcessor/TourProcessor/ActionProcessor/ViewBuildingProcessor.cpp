@@ -1,34 +1,52 @@
-#include "ViewFloorProcessor.h"
+#include "ViewBuildingProcessor.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "GameOptions.h"
+#include "GameplayTagsLibrary.h"
+#include "PlanetPlayerController.h"
+#include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
-TourProcessor::FViewFloorProcessor::FViewFloorProcessor(
+TourProcessor::FViewBuildingProcessor::FViewBuildingProcessor(
 	FOwnerPawnType* CharacterPtr
 	):
 	 Super(CharacterPtr)
 {
 }
 
-void TourProcessor::FViewFloorProcessor::EnterAction()
+void TourProcessor::FViewBuildingProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
+	
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>([](UGT_ReplyCameraTransform* GTPtr)
+	{
+		if (GTPtr)
+		{
+			GTPtr->SeatTag = UGameplayTagsLibrary::Seat_Default;
+		}
+	});
+	
+	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
+												UGameplayTagsLibrary::Interaction_Area,
+												UGameplayTagsLibrary::Interaction_Area_ExternalWall,
+												UGameplayTagsLibrary::Interaction_Area_ExternalWall
+											   );
 
 	SwitchShowCursor(true);
 	
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorControlParam);
+		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewBuildingControlParam);
 	}
 }
 
-bool TourProcessor::FViewFloorProcessor::InputKey(
+bool TourProcessor::FViewBuildingProcessor::InputKey(
 	const FInputKeyEventArgs& EventArgs
 	)
 {
@@ -100,7 +118,7 @@ bool TourProcessor::FViewFloorProcessor::InputKey(
 	return Super::InputKey(EventArgs);
 }
 
-bool TourProcessor::FViewFloorProcessor::InputAxis(
+bool TourProcessor::FViewBuildingProcessor::InputAxis(
 	const FInputKeyEventArgs& EventArgs
 	)
 {
@@ -124,8 +142,7 @@ bool TourProcessor::FViewFloorProcessor::InputAxis(
 					{
 						bHasRoted = true;
 
-						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewFloorControlParam.RotYawSpeed;
+						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->ViewBuildingControlParam.RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
 						return true;
@@ -142,7 +159,7 @@ bool TourProcessor::FViewFloorProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewFloorControlParam.MoveSpeed;
+						                   ViewBuildingControlParam.MoveSpeed;
 
 						OnwerActorPtr->AddMovementInput(
 						                                Direction,
@@ -163,7 +180,7 @@ bool TourProcessor::FViewFloorProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewFloorControlParam.RotPitchSpeed;
+						                ViewBuildingControlParam. RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(Rot);
 
 						return true;
@@ -180,7 +197,7 @@ bool TourProcessor::FViewFloorProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewFloorControlParam.MoveSpeed;
+						                  ViewBuildingControlParam. MoveSpeed;
 
 						OnwerActorPtr->AddMovementInput(
 						                                Direction,
@@ -197,14 +214,14 @@ bool TourProcessor::FViewFloorProcessor::InputAxis(
 				if (OnwerActorPtr->Controller != nullptr)
 				{
 					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-					                   ViewFloorControlParam.CameraSpringArmSpeed;
+					                  ViewBuildingControlParam. CameraSpringArmSpeed;
 
 					const auto ClampValue = FMath::Clamp(
 					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
 					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MinCameraSpringArm,
+					                                    ViewBuildingControlParam. MinCameraSpringArm,
 					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MaxCameraSpringArm
+					                                   ViewBuildingControlParam.  MaxCameraSpringArm
 					                                    );
 
 					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;

@@ -14,7 +14,7 @@
 #include "PlayerGameplayTasks.h"
 #include "Tools.h"
 #include "SceneInteractionWorldSystem.h"
-#include "TourProcessor.h"
+#include "ViewBuildingProcessor.h"
 #include "TourPawn.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"

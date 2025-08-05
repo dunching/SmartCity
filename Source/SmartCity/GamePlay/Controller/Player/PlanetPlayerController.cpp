@@ -2,7 +2,7 @@
 
 #include "InputProcessorSubSystem_Imp.h"
 #include "PlayerGameplayTasks.h"
-#include "TourProcessor.h"
+#include "ViewBuildingProcessor.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 #include "PixelStreamingInputComponent.h"
@@ -28,12 +28,4 @@ void APlanetPlayerController::OnPossess(APawn* InPawn)
 	if (bIsNewPawn)
 	{
 	}
-
-	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FTourProcessor>(
-		[this, InPawn](
-		auto NewProcessor
-	)
-		{
-		}
-	);
 }

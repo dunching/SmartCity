@@ -18,6 +18,13 @@ class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
 
+enum class EInteractionType : uint8
+{
+	kView,
+	kFocus,
+	kNone,
+};
+
 /**
  * 门禁
  */
@@ -46,7 +53,11 @@ public:
 
 	virtual TMap<FString,FString> GetStateDescription()const;
 	
-	virtual void SwitchFocusState(bool bIsFocus);
+	virtual void SwitchInteractionType(
+		EInteractionType InInteractionType
+		);
 
 	FString SceneElementName;
+
+	EInteractionType InteractionType = EInteractionType::kNone;
 };

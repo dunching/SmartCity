@@ -14,15 +14,18 @@ class ABuildingBase;
 
 namespace TourProcessor
 {
-	class SMARTCITY_API FViewFloorProcessor : public FInputProcessor
+	/**
+	 * 查看单楼层
+	 */
+	class SMARTCITY_API FViewSingleFloorProcessor : public FInputProcessor
 	{
 	private:
-		GENERATIONCLASSINFO(FViewFloorProcessor, FInputProcessor);
+		GENERATIONCLASSINFO(FViewSingleFloorProcessor, FInputProcessor);
 
 	public:
 		using FOwnerPawnType = ATourPawn;
 
-		FViewFloorProcessor(FOwnerPawnType* CharacterPtr);
+		FViewSingleFloorProcessor(FOwnerPawnType* CharacterPtr);
 
 		virtual void EnterAction() override;
 
@@ -33,7 +36,8 @@ namespace TourProcessor
 		virtual bool InputAxis(
 			const FInputKeyEventArgs& EventArgs 
 			) override;
-
+		
+		FGameplayTag Interaction_Area;
 	private:
 
 		bool bHasRoted = false;

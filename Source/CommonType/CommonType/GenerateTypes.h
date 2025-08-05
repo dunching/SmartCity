@@ -79,6 +79,33 @@ COMMONTYPE_API uint32 GetTypeHash(
 	);
 
 USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FSceneElementFilter
+{
+	GENERATED_BODY()
+
+	/**
+	 * 要显示的
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> DatasmithSceneActorSet;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AReplaceActor>> ReplaceActorSet;
+	
+	/**
+	 * 通过用户数据过滤
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FString, FString> DataSmithUserAssetDataMap;
+
+	/**
+	 * 通过类型过滤
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSubclassOf<AActor>>TypeSet;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
 struct COMMONTYPE_API FSceneElementMap
 {
 	GENERATED_BODY()
@@ -87,31 +114,25 @@ struct COMMONTYPE_API FSceneElementMap
 	 * 硬装，结构
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
+	FSceneElementFilter StructItemSet;
 	
 	/**
 	 * 硬装，内饰
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<ADatasmithSceneActor>> InnerStructItemSet;
-	
+	FSceneElementFilter InnerStructItemSet;
+
 	/**
 	 * 软装，如电气
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
-	
-	/**
-	 * 软装，如电气
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<AReplaceActor>> ReplaceSoftDecorationItemSet;
+	FSceneElementFilter SoftDecorationItem;
 	
 	/**
 	 * 空间区域
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
+	FSceneElementFilter SpaceItemSet;
 	
 };
 

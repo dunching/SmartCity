@@ -12,6 +12,11 @@ void AHall_LevelScriptActor::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AMain_LevelScriptActor::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+}
+
 void AMain_LevelScriptActor::BeginPlay()
 {
 	Super::BeginPlay();
