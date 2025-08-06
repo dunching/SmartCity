@@ -17,6 +17,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
+class UBoxComponent;
 
 /**
  * 门禁
@@ -33,6 +34,9 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<UBoxComponent> BoxComponentPtr;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTag FloorTag;
 };

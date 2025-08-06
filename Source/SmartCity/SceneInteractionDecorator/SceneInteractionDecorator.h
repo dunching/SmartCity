@@ -10,6 +10,8 @@
 #include "Tools.h"
 
 class USceneInteractionWorldSystem;
+class ASceneElement_PWR_Pipe;
+class APersonMark;
 
 class SMARTCITY_API FDecoratorBase
 {
@@ -52,13 +54,13 @@ public:
 
 	FGameplayTag GetBranchDecoratorType() const;
 
-protected:
-	TDelegate<void()> OnAsyncQuitComplete;
-
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
 		);
+
+protected:
+	TDelegate<void()> OnAsyncQuitComplete;
 
 	FGameplayTag MainDecoratorType;
 
@@ -123,17 +125,17 @@ public:
 /**
  * 选择“雷达控制”模式
  */
-class SMARTCITY_API FRDRadarMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FELVRadarMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FRDRadarMode_Decorator,
+	                    FELVRadarMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
-	FRDRadarMode_Decorator();
+	FELVRadarMode_Decorator();
 
-	virtual ~FRDRadarMode_Decorator();
+	virtual ~FELVRadarMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -146,23 +148,49 @@ public:
 private:
 	void RadarQuery();
 
+	void QueryComplete();
+	
 	FTimerHandle QueryTimerHadnle;
+
+	TArray<APersonMark*>GeneratedMarkers;
 };
 
 /**
  * 选择“强电”模式
  */
-class SMARTCITY_API FQDMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FPWRMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FQDMode_Decorator,
+	                    FPWRMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
-	FQDMode_Decorator();
+	FPWRMode_Decorator();
 
 private:
+};
+
+/**
+ * 选择能耗
+ */
+class SMARTCITY_API FPWREnergyMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FPWREnergyMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FPWREnergyMode_Decorator();
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
+private:
+	TSet<ASceneElement_PWR_Pipe*> PipeActors;
 };
 
 /**
@@ -172,7 +200,7 @@ class SMARTCITY_API FAccessControlMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FQDMode_Decorator,
+	                    FPWRMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
@@ -232,6 +260,7 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
+	FGameplayTag GetCurrentInteraction_Area()const;
 protected:
 	void UpdateDisplay();
 

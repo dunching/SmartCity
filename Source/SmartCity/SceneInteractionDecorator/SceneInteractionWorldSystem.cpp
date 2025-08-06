@@ -79,95 +79,122 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		return;
 	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_PWR)
+
+	if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode))
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_PWR))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_PWR)
+			if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_PWR_Energy))
 			{
+				if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+					    UGameplayTagsLibrary::Interaction_Mode_PWR_Energy)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FPWREnergyMode_Decorator>(
+				                                             UGameplayTagsLibrary::Interaction_Mode,
+				                                             UGameplayTagsLibrary::Interaction_Mode_PWR_Energy
+				                                            );
+
 				return;
 			}
-		}
 
-		SwitchDecoratorImp<FQDMode_Decorator>(
-		                                      UGameplayTagsLibrary::Interaction_Mode,
-		                                      UGameplayTagsLibrary::Interaction_Mode_PWR
-		                                     );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Scene)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_Scene)
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_PWR)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FPWRMode_Decorator>(
+			                                       UGameplayTagsLibrary::Interaction_Mode,
+			                                       UGameplayTagsLibrary::Interaction_Mode_PWR
+			                                      );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Scene))
+		{
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_Scene)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FSceneMode_Decorator>(
+			                                         UGameplayTagsLibrary::Interaction_Mode,
+			                                         UGameplayTagsLibrary::Interaction_Mode_Scene
+			                                        );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_ELV))
+		{
+			if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
+			{
+				if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+					    UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FELVRadarMode_Decorator>(
+				                                            UGameplayTagsLibrary::Interaction_Mode,
+				                                            UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
+				                                           );
+
 				return;
 			}
-		}
-
-		SwitchDecoratorImp<FSceneMode_Decorator>(
-		                                         UGameplayTagsLibrary::Interaction_Mode,
-		                                         UGameplayTagsLibrary::Interaction_Mode_Scene
-		                                        );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
+			if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
 			{
+				if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+					    UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FAccessControlMode_Decorator>(
+				                                                 UGameplayTagsLibrary::Interaction_Mode,
+				                                                 UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
+				                                                );
+
 				return;
 			}
+			return;
 		}
-
-		SwitchDecoratorImp<FRDRadarMode_Decorator>(
-		                                           UGameplayTagsLibrary::Interaction_Mode,
-		                                           UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
-		                                          );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Elevator)
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 			{
-				return;
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_Elevator)
+				{
+					return;
+				}
 			}
+
+			SwitchDecoratorImp<FElevatorMode_Decorator>(
+			                                            UGameplayTagsLibrary::Interaction_Mode,
+			                                            UGameplayTagsLibrary::Interaction_Mode_Elevator
+			                                           );
+
+			return;
 		}
-
-		SwitchDecoratorImp<FAccessControlMode_Decorator>(
-		                                                 UGameplayTagsLibrary::Interaction_Mode,
-		                                                 UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
-		                                                );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Elevator)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_Elevator)
-			{
-				return;
-			}
-		}
-
-		SwitchDecoratorImp<FElevatorMode_Decorator>(
-		                                            UGameplayTagsLibrary::Interaction_Mode,
-		                                            UGameplayTagsLibrary::Interaction_Mode_Elevator
-		                                           );
-
-		return;
 	}
 }
 
@@ -258,18 +285,16 @@ void USceneInteractionWorldSystem::Operation(
 
 void USceneInteractionWorldSystem::UpdateFilter(
 	const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
+		EInteractionType InteractionType ,
 	const std::function<void(
 		bool,
 		const TSet<AActor*>&
-
-
-		
 		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
-	                                                                        [this, OnEnd, &FilterTags](
+	                                                                        [this, OnEnd, &FilterTags, InteractionType](
 	                                                                        UGT_SceneObjSwitch* GTPtr
 	                                                                        )
 	                                                                        {
@@ -279,6 +304,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
 			                                                                        GTPtr->FilterTags = FilterTags;
+			                                                                        GTPtr->InteractionType = InteractionType;
 			                                                                        if (OnEnd)
 			                                                                        {
 				                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
@@ -427,7 +453,7 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 	{
 		return;
 	}
-	
+
 	switch (InInteractionType)
 	{
 	case EInteractionType::kView:
@@ -436,9 +462,9 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 			{
 				return;
 			}
-	
+
 			FocusActors.Add(DevicePtr);
-			
+
 			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
 			{
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
@@ -458,7 +484,7 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 			{
 				return;
 			}
-	
+
 			FocusActors.Add(DevicePtr);
 
 			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
@@ -478,7 +504,7 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 					PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 				}
 			}
-			
+
 			if (RouteMarkers.Contains(DevicePtr))
 			{
 				return;
@@ -490,9 +516,9 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 				return;
 			}
 			auto RouteMarkerPtr = CreateWidget<URouteMarker>(
-															 GEngine->GetFirstLocalPlayerController(GetWorld()),
-															 UAssetRefMap::GetInstance()->RouteMarkerClass
-															);
+			                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
+			                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
+			                                                );
 			if (RouteMarkerPtr)
 			{
 				RouteMarkerPtr->TextStr = Name;
@@ -528,7 +554,7 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 			}
 
 			FocusActors.Remove(DevicePtr);
-			
+
 			if (!RouteMarkers.Contains(DevicePtr))
 			{
 				return;
@@ -569,7 +595,7 @@ void USceneInteractionWorldSystem::ClearFocus()
 			}
 		}
 	}
-	
+
 	FocusActors.Empty();
 }
 

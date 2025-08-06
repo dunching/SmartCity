@@ -18,6 +18,7 @@ class AFloorHelper;
 class AElevator;
 class APostProcessVolume;
 class ASceneElementBase;
+class APersonMark;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -100,5 +101,11 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<URouteMarker> RouteMarkerClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<APersonMark> PersonMarkClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance> EnergyMaterialInst;
 #pragma endregion
 };

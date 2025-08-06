@@ -107,9 +107,9 @@ void ASceneElement_Space::SwitchInteractionType(
 	EInteractionType InInteractionType
 	)
 {
-	Super::SwitchInteractionType(InteractionType);
+	Super::SwitchInteractionType(CurrentInteractionType);
 
-	switch (InteractionType) {
+	switch (CurrentInteractionType) {
 	case EInteractionType::kView:
 		{
 			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());

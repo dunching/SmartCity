@@ -34,6 +34,10 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	virtual void SwitchInteractionType(
+		EInteractionType InteractionType
+		) override;
+
 	/**
 	 * 固定的网格体
 	 */

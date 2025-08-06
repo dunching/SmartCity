@@ -897,6 +897,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActorsIndex = 0;
 	RelatedActors.Empty();
 
+	ItemSet->GetRootComponent()->SetMobility(EComponentMobility::Movable);
 
 	TArray<AActor*> OutActors;
 	ItemSet->GetAttachedActors(OutActors, true, true);
@@ -937,10 +938,9 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 								else
 								{
 									auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-										 ThirdIter.Value,
-										 Iter->GetActorTransform()
+										 ThirdIter.Value
 										);
-									NewActorPtr->Replace(Iter);
+									NewActorPtr->Merge(Iter);
 
 									RelatedActors.Add(NewActorPtr);
 									MergeActorsMap.Add(HashCode, NewActorPtr);
@@ -1278,21 +1278,40 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		auto Iter = FilterCount.begin();
 
 		std::advance(Iter, FilterIndex);
-		
+
+#if WITH_EDITOR
 		if (Iter->first->GetActorLabel() == TEXT("机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"))
 		{
 			PRINTINVOKEINFO();
 		}
-		
-		if (Iter->second > 0)
+#endif
+
+		auto SceneElementPtr=  Cast<ASceneElementBase>(Iter->first);
+		if (SceneElementPtr)
 		{
-			Iter->first->SetActorHiddenInGame(false);
-			Result.Add(Iter->first);
+			if (Iter->second > 0)
+			{
+				SceneElementPtr->SwitchInteractionType(InteractionType);
+				Result.Add(Iter->first);
+			}
+			else
+			{
+				SceneElementPtr->SwitchInteractionType(EInteractionType::kHide);
+			}
 		}
 		else
 		{
-			Iter->first->SetActorHiddenInGame(true);
+			if (Iter->second > 0)
+			{
+				Iter->first->SetActorHiddenInGame(false);
+				Result.Add(Iter->first);
+			}
+			else
+			{
+				Iter->first->SetActorHiddenInGame(true);
+			}
 		}
+		
 		return true;
 	}
 	else

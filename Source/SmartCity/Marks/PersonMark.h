@@ -22,6 +22,8 @@ class SMARTCITY_API APersonMark : public AActor
 public:
 	APersonMark(const FObjectInitializer& ObjectInitializer);
 
+	void Update(const FVector& NewLocation);
+	
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 

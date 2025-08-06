@@ -19,8 +19,6 @@ public class EditTool : ModuleRules
 		CppStandard = CppStandardVersion.Cpp20;
 		bUseRTTI = true;
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
-
 		PublicIncludePaths.Add("EditTool");
 		PublicIncludePaths.Add("EditTool/Command");
 
@@ -50,6 +48,7 @@ public class EditTool : ModuleRules
 			"StateProcessor",
 			"Utils",
 			"Weather",
+			"DatasmithContent",
 			
 			// 其他模块
 			"AssetRef",

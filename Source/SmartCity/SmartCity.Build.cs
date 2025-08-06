@@ -23,10 +23,7 @@ public class SmartCity : ModuleRules
 		{
 		}
 
-		PublicDefinitions.Add("TESTPLAYERCHARACTERHOLDDATA = 0");
-		PublicDefinitions.Add("TESTAICHARACTERHOLDDATA = 1");
-		PublicDefinitions.Add("TESTRESOURCEBOXHOLDDATA = 1");
-		PublicDefinitions.Add("TESTRAFFLE = 1");
+		PublicDefinitions.Add("TEST_RADAR = 1");
 
 		PublicIncludePaths.Add("SmartCity");
 		PublicIncludePaths.Add("SmartCity/Net");

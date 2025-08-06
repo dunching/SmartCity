@@ -25,3 +25,10 @@ APersonMark::APersonMark(
 	}
 
 }
+
+void APersonMark::Update(
+	const FVector& NewLocation
+	)
+{
+	SetActorLocation(NewLocation);
+}

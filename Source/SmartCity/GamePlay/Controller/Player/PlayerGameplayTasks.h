@@ -12,6 +12,7 @@
 
 #include "GameplayTasksComponent.h"
 #include "GenerateTypes.h"
+#include "SceneInteractionWorldSystem.h"
 
 #include "PlayerGameplayTasks.generated.h"
 
@@ -451,6 +452,8 @@ public:
 	 */
 	bool bClearPrevious = false;
 
+	EInteractionType InteractionType = EInteractionType::kNone;
+	
 	FOnEnd OnEnd;
 
 protected:

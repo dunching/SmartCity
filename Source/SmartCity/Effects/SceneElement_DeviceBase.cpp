@@ -70,12 +70,19 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	EInteractionType InInteractionType
 	)
 {
-	Super::SwitchInteractionType(InteractionType);
+	Super::SwitchInteractionType(CurrentInteractionType);
 
-	switch (InteractionType)
+	switch (CurrentInteractionType)
 	{
+	case EInteractionType::kRegular:
+		{
+			SetActorHiddenInGame(false);
+		}
+		break;
 	case EInteractionType::kView:
 		{
+			SetActorHiddenInGame(false);
+			
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
@@ -85,6 +92,8 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 		break;
 	case EInteractionType::kFocus:
 		{
+			SetActorHiddenInGame(false);
+			
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
@@ -93,8 +102,14 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 			}
 		}
 		break;
+	case EInteractionType::kHide:
+		{
+			SetActorHiddenInGame(true);
+		}
+		break;
 	case EInteractionType::kNone:
 		{
+			SetActorHiddenInGame(true);
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{

@@ -13,6 +13,15 @@ class ADatasmithSceneActor;
 class AReplaceActor;
 class ASceneElementBase;
 
+USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FMaterialsCache
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TArray<UMaterialInterface*> MaterialsCacheAry;
+};
+
 UENUM()
 enum class EOperatorType: uint8
 {
@@ -106,7 +115,7 @@ struct COMMONTYPE_API FSceneElementFilter
 	 * 通过类型过滤
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSubclassOf<AActor>>TypeSet;
+	TSet<TSubclassOf<ASceneElementBase>>TypeSet;
 };
 
 USTRUCT(BlueprintType, Blueprintable)

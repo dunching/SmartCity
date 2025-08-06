@@ -33,6 +33,10 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	virtual void SwitchInteractionType(
+		EInteractionType InteractionType
+		) override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 	

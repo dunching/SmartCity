@@ -51,6 +51,7 @@ public:
 
 	void UpdateFilter(
 		const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
+		EInteractionType InteractionType ,
 		const std::function<void(
 			bool,
 			const TSet<AActor*>&

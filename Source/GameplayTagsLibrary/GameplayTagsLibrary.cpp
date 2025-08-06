@@ -46,6 +46,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.PWR.HVAC")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_PWR_Energy =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.PWR.Energy")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_ELV =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.ELV")));
 
@@ -66,9 +69,6 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Elevator =
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Intelligence =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Intelligence")));
-
-FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Energy =
-	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Energy")));
 
 
 FGameplayTag UGameplayTagsLibrary::SceneElement_FanCoil =

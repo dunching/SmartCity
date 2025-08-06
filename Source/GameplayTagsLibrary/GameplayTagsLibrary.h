@@ -46,6 +46,8 @@ public:
 
 	static FGameplayTag Interaction_Mode_PWR_HVAC;
 
+	static FGameplayTag Interaction_Mode_PWR_Energy;
+	
 	static FGameplayTag Interaction_Mode_ELV;
 
 	static FGameplayTag Interaction_Mode_ELV_Radar;
@@ -60,8 +62,6 @@ public:
 
 	static FGameplayTag Interaction_Mode_Intelligence;
 
-	static FGameplayTag Interaction_Mode_Energy;
-	
 
 	static FGameplayTag SceneElement_FanCoil;
 

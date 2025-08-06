@@ -26,3 +26,39 @@ ASceneElement_AccessControl::ASceneElement_AccessControl(
 	FanMeshComponent->SetCollisionObjectType(Device_Object);
 	FanMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
+
+void ASceneElement_AccessControl::SwitchInteractionType(
+	EInteractionType InteractionType
+	)
+{
+	Super::SwitchInteractionType(InteractionType);
+
+	switch (CurrentInteractionType)
+	{
+	case EInteractionType::kRegular:
+		{
+			SetActorHiddenInGame(false);
+		}
+		break;
+	case EInteractionType::kView:
+		{
+			SetActorHiddenInGame(false);
+		}
+		break;
+	case EInteractionType::kFocus:
+		{
+			SetActorHiddenInGame(false);
+		}
+		break;
+	case EInteractionType::kHide:
+		{
+			SetActorHiddenInGame(true);
+		}
+		break;
+	case EInteractionType::kNone:
+		{
+			SetActorHiddenInGame(true);
+		}
+		break;
+	}
+}

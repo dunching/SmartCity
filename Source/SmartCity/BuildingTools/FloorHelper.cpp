@@ -1,8 +1,9 @@
 
 #include "FloorHelper.h"
 
-#include "ActorSequenceComponent.h"
+#include "Components/BoxComponent.h"
 
+#include "ActorSequenceComponent.h"
 #include "CollisionDataStruct.h"
 
 AFloorHelper::AFloorHelper(
@@ -11,5 +12,7 @@ AFloorHelper::AFloorHelper(
 {
 	
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
+	
+	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+	BoxComponentPtr->SetupAttachment(RootComponent);
 }
