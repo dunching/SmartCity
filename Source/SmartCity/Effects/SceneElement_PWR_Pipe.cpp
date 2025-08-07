@@ -80,14 +80,25 @@ void ASceneElement_PWR_Pipe::Merge(
 }
 
 void ASceneElement_PWR_Pipe::SwitchInteractionType(
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	switch (InInteractionType)
 	{
-	case EInteractionType::kRegular:
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
-			SetActorHiddenInGame(false);
+			SetActorHiddenInGame(true);
+		
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		{
+			SetActorHiddenInGame(true);
 			
 			for (auto Iter : StaticMeshComponentsAry)
 			{
@@ -103,9 +114,17 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 					}
 				}
 			}
+			
+			return;
 		}
-		break;
-	case EInteractionType::kView:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_PWR_Energy);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
 			SetActorHiddenInGame(false);
 			
@@ -135,19 +154,33 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 					Iter->SetMaterial(Index, MaterialInstanceDynamic);
 				}
 			}
+			return;
 		}
-		break;
-	case EInteractionType::kFocus:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
 			SetActorHiddenInGame(false);
+			
+			for (auto Iter : StaticMeshComponentsAry)
+			{
+				if (OriginalMaterials.Contains(Iter))
+				{
+					auto& Ref = OriginalMaterials[Iter];
+					if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
+					{
+						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						{
+							Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
+						}
+					}
+				}
+			}
+			return;
 		}
-		break;
-	case EInteractionType::kHide:
-		{
-			SetActorHiddenInGame(true);
-		}
-		break;
-	case EInteractionType::kNone:
-		break;
 	}
 }

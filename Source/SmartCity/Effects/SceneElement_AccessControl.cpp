@@ -3,6 +3,7 @@
 #include "ActorSequenceComponent.h"
 
 #include "CollisionDataStruct.h"
+#include "GameplayTagsLibrary.h"
 
 ASceneElement_AccessControl::ASceneElement_AccessControl(
 	const FObjectInitializer& ObjectInitializer
@@ -28,37 +29,41 @@ ASceneElement_AccessControl::ASceneElement_AccessControl(
 }
 
 void ASceneElement_AccessControl::SwitchInteractionType(
-	EInteractionType InteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(InteractionType);
-
-	switch (CurrentInteractionType)
+	Super::SwitchInteractionType(ConditionalSet);
+	
 	{
-	case EInteractionType::kRegular:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kView:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kFocus:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kHide:
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 			SetActorHiddenInGame(true);
+		
+			return;
 		}
-		break;
-	case EInteractionType::kNone:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
 			SetActorHiddenInGame(true);
+		
+			return;
 		}
-		break;
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		{
+			SetActorHiddenInGame(false);
+
+			return;
+		}
 	}
 }

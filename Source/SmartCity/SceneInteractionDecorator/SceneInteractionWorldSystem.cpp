@@ -103,6 +103,25 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 				return;
 			}
 
+			if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC))
+			{
+				if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+					    UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FPWRHVACMode_Decorator>(
+				                                           UGameplayTagsLibrary::Interaction_Mode,
+				                                           UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC
+				                                          );
+
+				return;
+			}
+
 			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 			{
 				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
@@ -284,17 +303,17 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
-		EInteractionType InteractionType ,
+	const FSceneElementConditional& FilterTags,
 	const std::function<void(
 		bool,
 		const TSet<AActor*>&
+		
 		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
-	                                                                        [this, OnEnd, &FilterTags, InteractionType](
+	                                                                        [this, OnEnd, &FilterTags](
 	                                                                        UGT_SceneObjSwitch* GTPtr
 	                                                                        )
 	                                                                        {
@@ -304,7 +323,6 @@ void USceneInteractionWorldSystem::UpdateFilter(
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
 			                                                                        GTPtr->FilterTags = FilterTags;
-			                                                                        GTPtr->InteractionType = InteractionType;
 			                                                                        if (OnEnd)
 			                                                                        {
 				                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
@@ -446,7 +464,7 @@ void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenQuit(
 
 void USceneInteractionWorldSystem::SwitchInteractionType(
 	AActor* DevicePtr,
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
 	if (!DevicePtr)
@@ -454,120 +472,127 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 		return;
 	}
 
-	switch (InInteractionType)
+
+	if (FocusActors.Contains(DevicePtr))
 	{
-	case EInteractionType::kView:
+		return;
+	}
+
+	if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
+	{
+		auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
+		if (SceneElementBasePtr)
 		{
-			if (FocusActors.Contains(DevicePtr))
+			SceneElementBasePtr->SwitchInteractionType(ConditionalSet);
+		}
+	}
+	else
+	{
+		{
+			if (ConditionalSet.ConditionalSet.IsEmpty())
 			{
-				return;
-			}
-
-			FocusActors.Add(DevicePtr);
-
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
-			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
+				if (!FocusActors.Contains(DevicePtr))
 				{
-					SceneElementBasePtr->SwitchInteractionType(InInteractionType);
+					return;
 				}
-			}
-			else
-			{
+
+				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+				if (PrimitiveComponentPtr)
+				{
+					PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				}
+
+				FocusActors.Remove(DevicePtr);
+
+				if (!RouteMarkers.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				if (RouteMarkers[DevicePtr])
+				{
+					RouteMarkers[DevicePtr]->RemoveFromParent();
+				}
+
+				RouteMarkers.Remove(DevicePtr);
+
+				return;
 			}
 		}
-		break;
-	case EInteractionType::kFocus:
 		{
-			if (FocusActors.Contains(DevicePtr))
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 			{
+				if (FocusActors.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				FocusActors.Add(DevicePtr);
+
 				return;
 			}
+		}
+		{
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-			FocusActors.Add(DevicePtr);
+			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
 
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
+				if (FocusActors.Contains(DevicePtr))
 				{
-					SceneElementBasePtr->SwitchInteractionType(InInteractionType);
+					return;
 				}
-			}
-			else
-			{
+
+				FocusActors.Add(DevicePtr);
+
 				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
 				if (PrimitiveComponentPtr)
 				{
 					PrimitiveComponentPtr->SetRenderCustomDepth(true);
 					PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 				}
-			}
 
-			if (RouteMarkers.Contains(DevicePtr))
-			{
+				if (RouteMarkers.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				const auto Name = GetName(DevicePtr);
+				if (Name.IsEmpty())
+				{
+					return;
+				}
+				auto RouteMarkerPtr = CreateWidget<URouteMarker>(
+				                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
+				                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
+				                                                );
+				if (RouteMarkerPtr)
+				{
+					RouteMarkerPtr->TextStr = Name;
+					RouteMarkerPtr->TargetActor = DevicePtr;
+					RouteMarkerPtr->AddToViewport();
+				}
+
+				RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
 				return;
 			}
-
-			const auto Name = GetName(DevicePtr);
-			if (Name.IsEmpty())
-			{
-				return;
-			}
-			auto RouteMarkerPtr = CreateWidget<URouteMarker>(
-			                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
-			                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
-			                                                );
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->TextStr = Name;
-				RouteMarkerPtr->TargetActor = DevicePtr;
-				RouteMarkerPtr->AddToViewport();
-			}
-
-			RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
 		}
-		break;
-	case EInteractionType::kNone:
 		{
-			if (!FocusActors.Contains(DevicePtr))
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 			{
 				return;
 			}
-
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
-			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
-				{
-					SceneElementBasePtr->SwitchInteractionType(EInteractionType::kNone);
-				}
-			}
-			else
-			{
-				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-				if (PrimitiveComponentPtr)
-				{
-					PrimitiveComponentPtr->SetRenderCustomDepth(false);
-				}
-			}
-
-			FocusActors.Remove(DevicePtr);
-
-			if (!RouteMarkers.Contains(DevicePtr))
-			{
-				return;
-			}
-
-			if (RouteMarkers[DevicePtr])
-			{
-				RouteMarkers[DevicePtr]->RemoveFromParent();
-			}
-
-			RouteMarkers.Remove(DevicePtr);
 		}
-		break;
 	}
 }
 
@@ -582,7 +607,7 @@ void USceneInteractionWorldSystem::ClearFocus()
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(Iter);
 				if (SceneElementBasePtr)
 				{
-					SceneElementBasePtr->SwitchInteractionType(EInteractionType::kNone);
+					SceneElementBasePtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
 				}
 			}
 			else

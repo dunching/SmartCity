@@ -46,7 +46,7 @@ public:
 		) override;
 
 	virtual void SwitchInteractionType(
-		EInteractionType InteractionType
+		const FSceneElementConditional& ConditionalSet
 		) override;
 
 protected:

@@ -51,7 +51,7 @@ public:
 #pragma region 场景Actor
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TArray<FSceneElementMap> AllSceneActorMap;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
 #pragma endregion

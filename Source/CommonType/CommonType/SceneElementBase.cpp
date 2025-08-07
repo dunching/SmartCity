@@ -56,8 +56,8 @@ TMap<FString, FString> ASceneElementBase::GetStateDescription() const
 }
 
 void ASceneElementBase::SwitchInteractionType(
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	CurrentInteractionType = InInteractionType;
+	CurrentConditionalSet = ConditionalSet;
 }

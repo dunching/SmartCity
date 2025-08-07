@@ -194,6 +194,20 @@ private:
 };
 
 /**
+ * 选择能耗
+ */
+class SMARTCITY_API FPWRHVACMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FPWRHVACMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FPWRHVACMode_Decorator();
+};
+
+/**
  * 选择“门禁”模式
  */
 class SMARTCITY_API FAccessControlMode_Decorator : public FDecoratorBase
@@ -289,6 +303,10 @@ public:
 
 	virtual void Entry() override;
 
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
@@ -312,6 +330,10 @@ public:
 	virtual void Entry() override;
 
 	virtual void Quit() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
 
 	virtual bool NeedAsync() const override;
 
@@ -340,6 +362,10 @@ public:
 	virtual void Entry() override;
 
 	virtual void Quit() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
 
 	virtual bool Operation(
 		EOperatorType OperatorType

@@ -43,7 +43,7 @@ public:
 	virtual TMap<FString,FString> GetStateDescription()const override;
 	
 	virtual void SwitchInteractionType(
-		EInteractionType InteractionType
+		const FSceneElementConditional& ConditionalSet
 		) override;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )

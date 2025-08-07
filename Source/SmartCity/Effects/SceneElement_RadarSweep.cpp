@@ -1,5 +1,7 @@
 #include "SceneElement_RadarSweep.h"
 
+#include "GameplayTagsLibrary.h"
+
 ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 	const FObjectInitializer& ObjectInitializer
 	):
@@ -13,37 +15,58 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 }
 
 void ASceneElement_RadarSweep::SwitchInteractionType(
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(InInteractionType);
-
-	switch (CurrentInteractionType)
+	Super::SwitchInteractionType(ConditionalSet);
+	
 	{
-	case EInteractionType::kRegular:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kView:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kFocus:
-		{
-			SetActorHiddenInGame(false);
-		}
-		break;
-	case EInteractionType::kHide:
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 			SetActorHiddenInGame(true);
+		
+			return;
 		}
-		break;
-	case EInteractionType::kNone:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
 			SetActorHiddenInGame(true);
+		
+			return;
 		}
-		break;
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_ELV_Radar);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		{
+			SetActorHiddenInGame(false);
+
+			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+		
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		{
+			SetActorHiddenInGame(false);
+
+			SweepEffectStaticMeshComponent->SetHiddenInGame(true);
+		
+			return;
+		}
 	}
 }

@@ -104,138 +104,176 @@ void ASceneElement_Space::ReplaceImp(
 }
 
 void ASceneElement_Space::SwitchInteractionType(
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(CurrentInteractionType);
+	Super::SwitchInteractionType(ConditionalSet);
 
-	switch (CurrentInteractionType) {
-	case EInteractionType::kView:
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
+			SetActorHiddenInGame(true);
+
 			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 			if (HUDPtr)
 			{
 				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
 			}
-		
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+
+			return;
 		}
-		break;
-	case EInteractionType::kFocus:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
-		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-		if (PrimitiveComponentPtr)
-		{
-			PrimitiveComponentPtr->SetRenderCustomDepth(true);
-			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			SetActorHiddenInGame(true);
+
+			return;
 		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		TArray<FOverlapResult> OutOverlap;
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
 
-		FComponentQueryParams Params;
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		{
+			SetActorHiddenInGame(false);
 
-		// Params.bTraceComplex = true;
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			TArray<FOverlapResult> OutOverlap;
+
+			FComponentQueryParams Params;
+
+			// Params.bTraceComplex = true;
 
 #if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
-		Params.bDebugQuery = true;
+			Params.bDebugQuery = true;
 #endif
 
-		FCollisionObjectQueryParams ObjectQueryParams;
-		ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+			FCollisionObjectQueryParams ObjectQueryParams;
+			ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
 
-		GetWorld()->ComponentOverlapMulti(
-		                                  OutOverlap,
-		                                  StaticMeshComponent,
-		                                  FVector::ZeroVector,
-		                                  FRotator::ZeroRotator,
-		                                  // StaticMeshComponent->GetComponentLocation(),
-		                                  // StaticMeshComponent->GetComponentRotation(),
-		                                  Params,
-		                                  ObjectQueryParams
-		                                 );
+			GetWorld()->ComponentOverlapMulti(
+			                                  OutOverlap,
+			                                  StaticMeshComponent,
+			                                  FVector::ZeroVector,
+			                                  FRotator::ZeroRotator,
+			                                  // StaticMeshComponent->GetComponentLocation(),
+			                                  // StaticMeshComponent->GetComponentRotation(),
+			                                  Params,
+			                                  ObjectQueryParams
+			                                 );
 
-		auto InteractionModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetInteractionModeDecorator();
-		if (InteractionModeDecoratorSPtr)
-		{
-			if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() == UGameplayTagsLibrary::Interaction_Mode_PWR)
+			auto InteractionModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->
+				GetInteractionModeDecorator();
+			if (InteractionModeDecoratorSPtr)
 			{
-				FString FeatureName = Category;
-
-				if (UAssetRefMap::GetInstance()->ModeDescription.Contains(
-				                                                          InteractionModeDecoratorSPtr->
-				                                                          GetBranchDecoratorType()
-				                                                         ))
+				if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_PWR)
 				{
-					const auto Description = UAssetRefMap::GetInstance()->ModeDescription[InteractionModeDecoratorSPtr->
-						GetBranchDecoratorType()];
-					FeatureName.Append(TEXT(":"));
-					FeatureName.Append(Description.Title);
-				}
+					FString FeatureName = Category;
 
-				TSet<AActor*> ActorsAry;
-				for (const auto& Iter : OutOverlap)
-				{
-					if (Iter.GetActor())
+					if (UAssetRefMap::GetInstance()->ModeDescription.Contains(
+					                                                          InteractionModeDecoratorSPtr->
+					                                                          GetBranchDecoratorType()
+					                                                         ))
 					{
-						ActorsAry.Add(Iter.GetActor());
+						const auto Description = UAssetRefMap::GetInstance()->ModeDescription[
+							InteractionModeDecoratorSPtr->
+							GetBranchDecoratorType()];
+						FeatureName.Append(TEXT(":"));
+						FeatureName.Append(Description.Title);
 					}
-				}
 
-				TArray<FFeaturesItem> Features;
-				for (const auto& Iter : ActorsAry)
-				{
-					if (Iter)
+					TSet<AActor*> ActorsAry;
+					for (const auto& Iter : OutOverlap)
 					{
-						if (Iter->IsA(ASceneElement_DeviceBase::StaticClass()))
+						if (Iter.GetActor())
 						{
-							auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
-							if (SceneElementPtr)
+							ActorsAry.Add(Iter.GetActor());
+						}
+					}
+
+					TArray<FFeaturesItem> Features;
+					for (const auto& Iter : ActorsAry)
+					{
+						if (Iter)
+						{
+							if (Iter->IsA(ASceneElement_DeviceBase::StaticClass()))
 							{
-								if (SceneElementPtr->DeviceType.MatchesTag(UGameplayTagsLibrary::SceneElement_FanCoil))
+								auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
+								if (SceneElementPtr)
 								{
-									FFeaturesItem FeaturesItem;
+									if (SceneElementPtr->DeviceType.MatchesTag(
+									                                           UGameplayTagsLibrary::SceneElement_FanCoil
+									                                          ))
+									{
+										FFeaturesItem FeaturesItem;
 
-									FeaturesItem.Text = SceneElementPtr->SceneElementName;
-									FeaturesItem.SceneElementPtr = SceneElementPtr;
+										FeaturesItem.Text = SceneElementPtr->SceneElementName;
+										FeaturesItem.SceneElementPtr = SceneElementPtr;
 
-									Features.Add(FeaturesItem);
+										Features.Add(FeaturesItem);
+									}
 								}
 							}
 						}
 					}
-				}
 
-				auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-				if (HUDPtr)
+					auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+					if (HUDPtr)
+					{
+						HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(this, FeatureName, Features);
+					}
+				}
+				else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
+				         UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting)
 				{
-					HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(this, FeatureName, Features);
 				}
 			}
-			else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-			         UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting)
-			{
-			}
+
+			return;
 		}
-		}
-		break;
-	case EInteractionType::kNone:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
+			SetActorHiddenInGame(false);
+
 			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 			if (HUDPtr)
 			{
 				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
 			}
-		
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+			return;
 		}
-		break;
 	}
 }

@@ -6,16 +6,9 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "SceneElementBase.generated.h"
+#include "GenerateTypes.h"
 
-enum class EInteractionType : uint8
-{
-	kRegular,		
-	kView,
-	kFocus,
-	kHide,
-	kNone,
-};
+#include "SceneElementBase.generated.h"
 
 /**
  * 门禁
@@ -50,10 +43,10 @@ public:
 	virtual TMap<FString,FString> GetStateDescription()const;
 	
 	virtual void SwitchInteractionType(
-		EInteractionType InInteractionType
+		const FSceneElementConditional& ConditionalSet
 		);
 
 	FString SceneElementName;
 
-	EInteractionType CurrentInteractionType = EInteractionType::kNone;
+	FSceneElementConditional CurrentConditionalSet;
 };

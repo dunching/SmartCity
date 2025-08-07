@@ -795,7 +795,7 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 		if (Index < ItemSet.Num())
 		{
 			ApplyRelatedActors(ItemSet[Index]);
-			
+
 			if (RelatedActorsIndex < RelatedActors.Num())
 			{
 			}
@@ -829,7 +829,7 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 		if (Index < ItemSet.Num())
 		{
 			ApplyRelatedActors(ItemSet[Index]);
-			
+
 			if (RelatedActorsIndex < RelatedActors.Num())
 			{
 			}
@@ -930,7 +930,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						{
 							if (ThirdIter.Key.bNeedMerge)
 							{
-								auto HashCode = HashCombine(GetTypeHash(ThirdIter.Key.Key), GetTypeHash(ThirdIter.Key.Value));
+								auto HashCode = HashCombine(
+								                            GetTypeHash(ThirdIter.Key.Key),
+								                            GetTypeHash(ThirdIter.Key.Value)
+								                           );
 								if (MergeActorsMap.Contains(HashCode))
 								{
 									MergeActorsMap[HashCode]->Merge(Iter);
@@ -955,7 +958,6 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 								NewActorPtr->Replace(Iter);
 
 								RelatedActors.Add(NewActorPtr);
-
 							}
 							bIsSceneElement = true;
 							break;
@@ -992,7 +994,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	RelatedActors.Empty();
 
 	TArray<AActor*> OutActors;
-	ItemSet->GetAttachedActors(OutActors,true, true);
+	ItemSet->GetAttachedActors(OutActors, true, true);
 
 	for (const auto& Iter : OutActors)
 	{
@@ -1039,7 +1041,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 	float DeltaTime
 	)
 {
-	if (FilterTags.IsEmpty())
+	if (FilterTags.ConditionalSet.IsEmpty())
 	{
 		return false;
 	}
@@ -1047,45 +1049,43 @@ bool UGT_SceneObjSwitch::ProcessTask(
 	// 要显示的DataSmith
 	if (DataSmithSceneActorsSet.IsEmpty())
 	{
-		for (const auto& SecondIter : UAssetRefMap::GetInstance()->SceneActorMap)
+		if (UAssetRefMap::GetInstance()->SceneActorMap.Contains(FilterTags))
 		{
-			if (FilterTags.Contains(SecondIter.Key))
+			const auto& Ref = UAssetRefMap::GetInstance()->SceneActorMap[FilterTags];
+			for (const auto& ThirdIter : Ref.StructItemSet.DatasmithSceneActorSet)
 			{
-				for (const auto& ThirdIter : SecondIter.Value.StructItemSet.DatasmithSceneActorSet)
-				{
-					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.StructItemSet});
-				}
-				for (const auto& ThirdIter : SecondIter.Value.StructItemSet.ReplaceActorSet)
-				{
-					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.StructItemSet});
-				}
+				DataSmithSceneActorsSet.Add({ThirdIter, Ref.StructItemSet});
+			}
+			for (const auto& ThirdIter : Ref.StructItemSet.ReplaceActorSet)
+			{
+				ReplaceActorsSet.Add({ThirdIter, Ref.StructItemSet});
+			}
 
-				for (const auto& ThirdIter : SecondIter.Value.InnerStructItemSet.DatasmithSceneActorSet)
-				{
-					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.InnerStructItemSet});
-				}
-				for (const auto& ThirdIter : SecondIter.Value.InnerStructItemSet.ReplaceActorSet)
-				{
-					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.InnerStructItemSet});
-				}
+			for (const auto& ThirdIter : Ref.InnerStructItemSet.DatasmithSceneActorSet)
+			{
+				DataSmithSceneActorsSet.Add({ThirdIter, Ref.InnerStructItemSet});
+			}
+			for (const auto& ThirdIter : Ref.InnerStructItemSet.ReplaceActorSet)
+			{
+				ReplaceActorsSet.Add({ThirdIter, Ref.InnerStructItemSet});
+			}
 
-				for (const auto& ThirdIter : SecondIter.Value.SoftDecorationItem.DatasmithSceneActorSet)
-				{
-					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.SoftDecorationItem});
-				}
-				for (const auto& ThirdIter : SecondIter.Value.SoftDecorationItem.ReplaceActorSet)
-				{
-					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.SoftDecorationItem});
-				}
+			for (const auto& ThirdIter : Ref.SoftDecorationItem.DatasmithSceneActorSet)
+			{
+				DataSmithSceneActorsSet.Add({ThirdIter, Ref.SoftDecorationItem});
+			}
+			for (const auto& ThirdIter : Ref.SoftDecorationItem.ReplaceActorSet)
+			{
+				ReplaceActorsSet.Add({ThirdIter, Ref.SoftDecorationItem});
+			}
 
-				for (const auto& ThirdIter : SecondIter.Value.SpaceItemSet.DatasmithSceneActorSet)
-				{
-					DataSmithSceneActorsSet.Add({ThirdIter, SecondIter.Value.SpaceItemSet});
-				}
-				for (const auto& ThirdIter : SecondIter.Value.SpaceItemSet.ReplaceActorSet)
-				{
-					ReplaceActorsSet.Add({ThirdIter, SecondIter.Value.SpaceItemSet});
-				}
+			for (const auto& ThirdIter : Ref.SpaceItemSet.DatasmithSceneActorSet)
+			{
+				DataSmithSceneActorsSet.Add({ThirdIter, Ref.SpaceItemSet});
+			}
+			for (const auto& ThirdIter : Ref.SpaceItemSet.ReplaceActorSet)
+			{
+				ReplaceActorsSet.Add({ThirdIter, Ref.SpaceItemSet});
 			}
 		}
 		if (DataSmithSceneActorsSet.IsEmpty())
@@ -1164,7 +1164,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors,true, true);
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors, true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1249,7 +1249,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			ReplaceActorsSet[ReplaceActorsSetIndex].Key->GetAttachedActors(RelatedActors,true, true);
+			ReplaceActorsSet[ReplaceActorsSetIndex].Key->GetAttachedActors(RelatedActors, true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1280,23 +1280,26 @@ bool UGT_SceneObjSwitch::ProcessTask(
 		std::advance(Iter, FilterIndex);
 
 #if WITH_EDITOR
-		if (Iter->first->GetActorLabel() == TEXT("机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"))
+		if (Iter->first->GetActorLabel() == TEXT(
+		                                         "机械设备_风机盘管-卧式暗装风机盘管_带下回风箱50Pa_-FP-34_238WA-Y3-G50／BXH_FP-102WA-Y3-G50_BXH_62"
+		                                        ))
 		{
 			PRINTINVOKEINFO();
 		}
 #endif
 
-		auto SceneElementPtr=  Cast<ASceneElementBase>(Iter->first);
+		auto SceneElementPtr = Cast<ASceneElementBase>(Iter->first);
 		if (SceneElementPtr)
 		{
 			if (Iter->second > 0)
 			{
-				SceneElementPtr->SwitchInteractionType(InteractionType);
+				SceneElementPtr->SwitchInteractionType(FilterTags);
+				
 				Result.Add(Iter->first);
 			}
 			else
 			{
-				SceneElementPtr->SwitchInteractionType(EInteractionType::kHide);
+				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
 			}
 		}
 		else
@@ -1304,6 +1307,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 			if (Iter->second > 0)
 			{
 				Iter->first->SetActorHiddenInGame(false);
+				
 				Result.Add(Iter->first);
 			}
 			else
@@ -1311,7 +1315,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 				Iter->first->SetActorHiddenInGame(true);
 			}
 		}
-		
+
 		return true;
 	}
 	else
@@ -1523,7 +1527,7 @@ bool UGT_FloorSplit::ProcessTask_Display()
 		if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
 		{
 			TArray<AActor*> RelatedActors;
-			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors,true, true);
+			HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(RelatedActors, true, true);
 			for (const auto& Iter : RelatedActors)
 			{
 				if (Iter)
@@ -1590,7 +1594,7 @@ bool UGT_FloorSplit::ProcessTask_Display()
 			for (const auto& Iter : ReplaceActorsSet[ReplaceActorsSetIndex])
 			{
 				TArray<AActor*> RelatedActors;
-				Iter->GetAttachedActors(RelatedActors,true, true);
+				Iter->GetAttachedActors(RelatedActors, true, true);
 				for (const auto& SecondIter : RelatedActors)
 				{
 					if (SecondIter)

@@ -34,7 +34,7 @@ public:
 		);
 
 	virtual void SwitchInteractionType(
-		EInteractionType InteractionType
+		const FSceneElementConditional& ConditionalSet
 		) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

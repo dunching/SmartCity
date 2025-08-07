@@ -56,6 +56,7 @@ template <typename GameplayTaskType>
 void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
+
 		
 		)>& Func
 	)
@@ -404,8 +405,8 @@ private:
 
 	TArray<TObjectPtr<AActor>> RelatedActors;
 
-	
-	TMap<int32, ASceneElementBase*>MergeActorsMap;
+
+	TMap<int32, ASceneElementBase*> MergeActorsMap;
 };
 
 #pragma endregion
@@ -445,15 +446,13 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
+	FSceneElementConditional FilterTags;
 
 	/**
 	 * 是否清除之前的
 	 */
 	bool bClearPrevious = false;
 
-	EInteractionType InteractionType = EInteractionType::kNone;
-	
 	FOnEnd OnEnd;
 
 protected:

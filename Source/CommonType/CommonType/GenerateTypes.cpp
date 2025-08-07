@@ -31,7 +31,10 @@ uint32 GetTypeHash(
 
 FSceneElementConditional::FSceneElementConditional()
 {
+	
 }
+
+FSceneElementConditional FSceneElementConditional::EmptyConditional;
 
 FSceneElementConditional::FSceneElementConditional(
 	const TSet<FGameplayTag>& InConditionalSet
@@ -41,38 +44,4 @@ FSceneElementConditional::FSceneElementConditional(
 	{
 		ConditionalSet.AddTag(Iter);
 	}
-}
-
-uint32 GetTypeHash(
-	const FSceneElementConditional& SceneActorConditional
-	)
-{
-	uint32 HashCode = 0;
-	for (const auto& Iter : SceneActorConditional.ConditionalSet)
-	{
-		HashCode = HashCombine(GetTypeHash(Iter), HashCode);
-	}
-	return HashCode;
-}
-
-TSceneElementConditionalKeyFuncs::KeyInitType TSceneElementConditionalKeyFuncs::GetSetKey(
-	ElementInitType Element
-	)
-{
-	return Element;
-}
-
-bool TSceneElementConditionalKeyFuncs::Matches(
-	KeyInitType A,
-	KeyInitType B
-	)
-{
-	return (A.ConditionalSet == B.ConditionalSet);
-}
-
-uint32 TSceneElementConditionalKeyFuncs::GetKeyHash(
-	KeyInitType Key
-	)
-{
-	return GetTypeHash(Key);
 }

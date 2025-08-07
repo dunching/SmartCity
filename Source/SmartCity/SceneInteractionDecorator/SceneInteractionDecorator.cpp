@@ -285,13 +285,33 @@ void FPWREnergyMode_Decorator::OnUpdateFilterComplete(
 		}
 	}
 
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       UGameplayTagsLibrary::Interaction_Area
+			                                      )
+		                                     );
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(AreaDecoratorSPtr->GetBranchDecoratorType());
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
 	for (auto Iter : PipeActors)
 	{
 		if (Iter)
 		{
-			Iter->SwitchInteractionType(EInteractionType::kView);
+			Iter->SwitchInteractionType(SceneActorConditional);
 		}
 	}
+}
+
+FPWRHVACMode_Decorator::FPWRHVACMode_Decorator():
+                                                Super(
+                                                      UGameplayTagsLibrary::Interaction_Mode,
+                                                      UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC
+                                                     )
+{
 }
 
 FAccessControlMode_Decorator::FAccessControlMode_Decorator():
@@ -312,9 +332,13 @@ void FAccessControlMode_Decorator::Entry()
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 	USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
 
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(UGameplayTagsLibrary::Interaction_Mode);
+
 	for (auto Iter : OutActors)
 	{
-		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, EInteractionType::kFocus);
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, SceneActorConditional);
 	}
 }
 
@@ -366,60 +390,6 @@ FArea_Decorator::FArea_Decorator(
 void FArea_Decorator::Entry()
 {
 	Super::Entry();
-
-	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-		 UGameplayTagsLibrary::Interaction_Mode
-		);
-	if (
-		DecoratorSPtr &&
-		!DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty)
-	)
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-			SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          EInteractionType::kRegular,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
-	else
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          EInteractionType::kRegular,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
 }
 
 void FArea_Decorator::OnOtherDecoratorEntry(
@@ -429,67 +399,47 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
 
 	if (
-		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode) 
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode)
 	)
 	{
 		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty))
 		{
-			TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
+			FSceneElementConditional SceneActorConditional;
 
-			{
-				FSceneElementConditional SceneActorConditional;
-
-				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-				SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
-
-				FilterTags.Add(SceneActorConditional);
-			}
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  FilterTags,
-																	  EInteractionType::kRegular
-																	 );
+			                                                          SceneActorConditional
+			                                                         );
 		}
 		else
-		{
-			TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-			{
-				FSceneElementConditional SceneActorConditional;
-
-				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-				SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
-
-				FilterTags.Add(SceneActorConditional);
-			}
-
-			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  FilterTags,
-																	  EInteractionType::kRegular,
-																	  std::bind(
-																				&FDecoratorBase::OnUpdateFilterComplete,
-																				NewDecoratorSPtr,
-																				std::placeholders::_1,
-																				std::placeholders::_2
-																			   )
-																	 );
-		}
-	}
-	else
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
 		{
 			FSceneElementConditional SceneActorConditional;
 
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
-			FilterTags.Add(SceneActorConditional);
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          std::bind(
+			                                                                    &FDecoratorBase::OnUpdateFilterComplete,
+			                                                                    NewDecoratorSPtr,
+			                                                                    std::placeholders::_1,
+			                                                                    std::placeholders::_2
+			                                                                   )
+			                                                         );
 		}
+	}
+	else
+	{
+		FSceneElementConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
 
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          EInteractionType::kRegular,
+		                                                          SceneActorConditional,
 		                                                          std::bind(
 		                                                                    &ThisClass::OnUpdateFilterComplete,
 		                                                                    this,
@@ -535,6 +485,42 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 void FExternalWall_Decorator::Entry()
 {
 	Super::Entry();
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          std::bind(
+	                                                                    &ThisClass::OnUpdateFilterComplete,
+	                                                                    this,
+	                                                                    std::placeholders::_1,
+	                                                                    std::placeholders::_2
+	                                                                   )
+	                                                         );
+}
+
+void FExternalWall_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+															  SceneActorConditional,
+															  std::bind(
+																		&ThisClass::OnUpdateFilterComplete,
+																		this,
+																		std::placeholders::_1,
+																		std::placeholders::_2
+																	   )
+															 );
 }
 
 bool FExternalWall_Decorator::Operation(
@@ -574,6 +560,20 @@ void FSplitFloor_Decorator::Entry()
 {
 	Super::Entry();
 
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          std::bind(
+	                                                                    &ThisClass::OnUpdateFilterComplete,
+	                                                                    this,
+	                                                                    std::placeholders::_1,
+	                                                                    std::placeholders::_2
+	                                                                   )
+	                                                         );
+	
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_FloorSplit>(
 	                                                                    [this](
@@ -607,6 +607,28 @@ void FSplitFloor_Decorator::Quit()
 	Super::Quit();
 }
 
+void FSplitFloor_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+															  SceneActorConditional,
+															  std::bind(
+																		&ThisClass::OnUpdateFilterComplete,
+																		this,
+																		std::placeholders::_1,
+																		std::placeholders::_2
+																	   )
+															 );
+}
+
 bool FSplitFloor_Decorator::NeedAsync() const
 {
 	return true;
@@ -635,6 +657,74 @@ FFloor_Decorator::~FFloor_Decorator()
 void FFloor_Decorator::Entry()
 {
 	Super::Entry();
+
+	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+		 UGameplayTagsLibrary::Interaction_Mode
+		);
+	if (
+		DecoratorSPtr
+	)
+	{
+		if (
+			DecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode)
+		)
+		{
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+																		  SceneActorConditional,
+																		  std::bind(
+																					&ThisClass::OnUpdateFilterComplete,
+																					this,
+																					std::placeholders::_1,
+																					std::placeholders::_2
+																				   )
+																		 );
+
+				return;
+			}
+			else
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          std::bind(
+					                                                           &ThisClass::OnUpdateFilterComplete,
+					                                                           this,
+					                                                           std::placeholders::_1,
+					                                                           std::placeholders::_2
+					                                                          )
+				                                                         );
+
+				return;
+			}
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          std::bind(
+	                                                                    &ThisClass::OnUpdateFilterComplete,
+	                                                                    this,
+	                                                                    std::placeholders::_1,
+	                                                                    std::placeholders::_2
+	                                                                   )
+	                                                         );
 }
 
 void FFloor_Decorator::Quit()
@@ -643,6 +733,63 @@ void FFloor_Decorator::Quit()
 	USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
 
 	Super::Quit();
+}
+
+void FFloor_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode)
+	)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional
+			                                                         );
+		}
+		else
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          std::bind(
+			                                                                    &FDecoratorBase::OnUpdateFilterComplete,
+			                                                                    NewDecoratorSPtr,
+			                                                                    std::placeholders::_1,
+			                                                                    std::placeholders::_2
+			                                                                   )
+			                                                         );
+		}
+	}
+	else
+	{
+		FSceneElementConditional SceneActorConditional;
+
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+		                                                          SceneActorConditional,
+		                                                          std::bind(
+		                                                                    &ThisClass::OnUpdateFilterComplete,
+		                                                                    this,
+		                                                                    std::placeholders::_1,
+		                                                                    std::placeholders::_2
+		                                                                   )
+		                                                         );
+	}
 }
 
 bool FFloor_Decorator::Operation(
@@ -697,9 +844,14 @@ bool FFloor_Decorator::Operation(
 						}
 
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+
+						FSceneElementConditional SceneActorConditional;
+
+						SceneActorConditional.ConditionalSet.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
+
 						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
 							 Iter.GetActor(),
-							 EInteractionType::kView
+							 SceneActorConditional
 							);
 
 
@@ -730,10 +882,20 @@ bool FFloor_Decorator::Operation(
 				{
 					if (Iter.GetActor())
 					{
+						if (Iter.GetActor()->IsHidden())
+						{
+							continue;
+						}
+
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+
+						FSceneElementConditional SceneActorConditional;
+
+						SceneActorConditional.ConditionalSet.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
+
 						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
 							 Iter.GetActor(),
-							 EInteractionType::kView
+							 SceneActorConditional
 							);
 
 						PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterBySpace>(

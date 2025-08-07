@@ -3,6 +3,7 @@
 #include "ActorSequenceComponent.h"
 
 #include "CollisionDataStruct.h"
+#include "GameplayTagsLibrary.h"
 
 void ASceneElement_DeviceBase::BeginPlay()
 {
@@ -67,55 +68,73 @@ TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const
 }
 
 void ASceneElement_DeviceBase::SwitchInteractionType(
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(CurrentInteractionType);
+	Super::SwitchInteractionType(ConditionalSet);
 
-	switch (CurrentInteractionType)
 	{
-	case EInteractionType::kRegular:
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
-			SetActorHiddenInGame(false);
+			SetActorHiddenInGame(true);
+		
+			return;
 		}
-		break;
-	case EInteractionType::kView:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
-			SetActorHiddenInGame(false);
-			
+			SetActorHiddenInGame(true);
+		
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+			
+			return;
 		}
-		break;
-	case EInteractionType::kFocus:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_ELV_Radar);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
 			SetActorHiddenInGame(false);
-			
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(true);
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
+			
+			return;
 		}
-		break;
-	case EInteractionType::kHide:
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
-			SetActorHiddenInGame(true);
-		}
-		break;
-	case EInteractionType::kNone:
-		{
-			SetActorHiddenInGame(true);
+			SetActorHiddenInGame(false);
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+			
+			return;
 		}
-		break;
 	}
 }

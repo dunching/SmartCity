@@ -54,7 +54,6 @@ struct COMMONTYPE_API FSceneElementTypeHelper
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bNeedMerge = false;
-
 };
 
 struct COMMONTYPE_API TFSceneElementTypeHelperKeyFuncs :
@@ -101,10 +100,10 @@ struct COMMONTYPE_API FSceneElementFilter
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<TSoftObjectPtr<ADatasmithSceneActor>> DatasmithSceneActorSet;
-	
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<TSoftObjectPtr<AReplaceActor>> ReplaceActorSet;
-	
+
 	/**
 	 * 通过用户数据过滤
 	 */
@@ -115,7 +114,7 @@ struct COMMONTYPE_API FSceneElementFilter
 	 * 通过类型过滤
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<TSubclassOf<ASceneElementBase>>TypeSet;
+	TSet<TSubclassOf<ASceneElementBase>> TypeSet;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -128,7 +127,7 @@ struct COMMONTYPE_API FSceneElementMap
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FSceneElementFilter StructItemSet;
-	
+
 	/**
 	 * 硬装，内饰
 	 */
@@ -140,13 +139,12 @@ struct COMMONTYPE_API FSceneElementMap
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FSceneElementFilter SoftDecorationItem;
-	
+
 	/**
 	 * 空间区域
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FSceneElementFilter SpaceItemSet;
-	
 };
 
 /**
@@ -163,40 +161,25 @@ struct COMMONTYPE_API FSceneElementConditional
 		const TSet<FGameplayTag>& InConditionalSet
 		);
 
+
+	// 重载 == 操作符
+	bool operator==(const FSceneElementConditional& Other) const
+	{
+		return ConditionalSet == Other.ConditionalSet;
+	}
+	// 声明 GetTypeHash 为 friend 函数
+	friend uint32 GetTypeHash(const FSceneElementConditional& CustomStruct)
+	{
+		uint32 HashCode = 0;
+		for (const auto& Iter : CustomStruct.ConditionalSet)
+		{
+			HashCode = HashCombine(GetTypeHash(Iter), HashCode);
+		}
+		return HashCode;
+	}
+	
+	static FSceneElementConditional EmptyConditional;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FGameplayTagContainer ConditionalSet;
 };
-
-struct COMMONTYPE_API TSceneElementConditionalKeyFuncs :
-	BaseKeyFuncs<
-		FSceneElementConditional, FSceneElementConditional,
-		false
-	>
-{
-private:
-	typedef BaseKeyFuncs<
-		FSceneElementConditional, FSceneElementConditional,
-		false
-	> Super;
-
-public:
-	typedef typename Super::ElementInitType ElementInitType;
-	typedef typename Super::KeyInitType KeyInitType;
-
-	static KeyInitType GetSetKey(
-		ElementInitType Element
-		);
-
-	static bool Matches(
-		KeyInitType A,
-		KeyInitType B
-		);
-
-	static uint32 GetKeyHash(
-		KeyInitType Key
-		);
-};
-
-COMMONTYPE_API uint32 GetTypeHash(
-	const FSceneElementConditional& SceneActorConditional
-	);

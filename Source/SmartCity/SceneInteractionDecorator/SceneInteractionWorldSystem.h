@@ -50,8 +50,7 @@ public:
 		) const;
 
 	void UpdateFilter(
-		const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
-		EInteractionType InteractionType ,
+		const FSceneElementConditional& FilterTags,
 		const std::function<void(
 			bool,
 			const TSet<AActor*>&
@@ -79,7 +78,7 @@ public:
 
 	void SwitchInteractionType(
 		AActor* DevicePtr,
-		EInteractionType InInteractionType
+		const FSceneElementConditional& FilterTags
 		);
 
 	void ClearFocus();
@@ -143,6 +142,8 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 					                                                  MainTag,
 					                                                  DecoratorSPtr
 					                                                 );
+
+			DecoratorSPtr->Entry();
 			                                                 }
 			                                                );
 		}

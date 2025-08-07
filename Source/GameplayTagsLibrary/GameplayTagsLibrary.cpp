@@ -28,6 +28,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_SplitFloor =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Focus =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Focus")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Empty =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Empty")));
 
