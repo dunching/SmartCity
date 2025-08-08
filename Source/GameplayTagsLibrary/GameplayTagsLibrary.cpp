@@ -37,6 +37,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Empty =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Tour =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Tour")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Emergency =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Emergency")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Scene =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Scene")));
 

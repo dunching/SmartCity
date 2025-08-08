@@ -35,8 +35,10 @@ public:
 
 	TSharedPtr<FDecoratorBase> GetInteractionModeDecorator() const;
 
-	TSharedPtr<FDecoratorBase> GetDecorator(const FGameplayTag& Interaction)const;
-	
+	TSharedPtr<FDecoratorBase> GetDecorator(
+		const FGameplayTag& Interaction
+		) const;
+
 	void SwitchInteractionMode(
 		const FGameplayTag& Interaction_Mode
 		);
@@ -51,13 +53,11 @@ public:
 
 	void UpdateFilter(
 		const FSceneElementConditional& FilterTags,
-		const std::function<void(
+		const TMulticastDelegate<void(
 			bool,
 			const TSet<AActor*>&
-
-
 			
-			)>& OnEnd = nullptr
+			)>& OnEnd
 		);
 
 	void InitializeSceneActors();
@@ -143,7 +143,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 					                                                  DecoratorSPtr
 					                                                 );
 
-			DecoratorSPtr->Entry();
+				                                                 DecoratorSPtr->Entry();
 			                                                 }
 			                                                );
 		}

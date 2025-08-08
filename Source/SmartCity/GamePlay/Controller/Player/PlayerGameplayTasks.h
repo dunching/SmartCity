@@ -425,9 +425,6 @@ public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
-
-
-		
 		)>;
 
 	UGT_SceneObjSwitch(

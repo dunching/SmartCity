@@ -40,6 +40,8 @@ public:
 
 	static FGameplayTag Interaction_Mode_Tour;
 
+	static FGameplayTag Interaction_Mode_Emergency;
+
 	static FGameplayTag Interaction_Mode_Scene;
 
 	static FGameplayTag Interaction_Mode_PWR;

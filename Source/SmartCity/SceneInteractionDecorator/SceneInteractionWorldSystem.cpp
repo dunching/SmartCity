@@ -156,6 +156,24 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			return;
 		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+		{
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_Emergency)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEmergencyMode_Decorator>(
+			                                         UGameplayTagsLibrary::Interaction_Mode,
+			                                         UGameplayTagsLibrary::Interaction_Mode_Emergency
+			                                        );
+
+			return;
+		}
 		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_ELV))
 		{
 			if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
@@ -304,7 +322,7 @@ void USceneInteractionWorldSystem::Operation(
 
 void USceneInteractionWorldSystem::UpdateFilter(
 	const FSceneElementConditional& FilterTags,
-	const std::function<void(
+	const TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
 		
@@ -323,10 +341,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
 			                                                                        GTPtr->FilterTags = FilterTags;
-			                                                                        if (OnEnd)
-			                                                                        {
-				                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
-			                                                                        }
+		                                                                        	GTPtr->OnEnd = OnEnd;
 		                                                                        }
 	                                                                        }
 	                                                                       );

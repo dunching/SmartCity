@@ -123,6 +123,38 @@ public:
 };
 
 /**
+ * 选择“火灾-逃生路线”模式
+ */
+class SMARTCITY_API FEmergencyMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FEmergencyMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FEmergencyMode_Decorator();
+	
+	virtual void Entry() override;
+
+	virtual void Quit() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnOtherDecoratorQuit(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
+};
+
+/**
  * 选择“雷达控制”模式
  */
 class SMARTCITY_API FELVRadarMode_Decorator : public FDecoratorBase

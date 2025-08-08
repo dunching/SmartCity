@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.6",
+	"EngineAssociation": "{EE19F77B-48ED-5BFE-1483-039B61EB44C8}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -68,6 +68,14 @@
 			"Enabled": true
 		},
 		{
+			"Name": "DatasmithImporter",
+			"Enabled": true
+		},
+		{
+			"Name": "PixelStreaming",
+			"Enabled": true
+		},
+		{
 			"Name": "Common_UMG",
 			"Enabled": true
 		},
@@ -80,15 +88,15 @@
 			"Enabled": true
 		},
 		{
+			"Name": "Effects",
+			"Enabled": true
+		},
+		{
+			"Name": "BuildingTools",
+			"Enabled": true
+		},
+		{
 			"Name": "Weather",
-			"Enabled": true
-		},
-		{
-			"Name": "DatasmithImporter",
-			"Enabled": true
-		},
-		{
-			"Name": "PixelStreaming",
 			"Enabled": true
 		}
 	]

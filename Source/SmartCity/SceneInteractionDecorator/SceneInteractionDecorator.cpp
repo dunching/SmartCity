@@ -23,6 +23,8 @@
 #include "PlayerGameplayTasks.h"
 #include "SceneElement_PWR_Pipe.h"
 #include "TemplateHelper.h"
+#include "FloorHelperBase.h"
+#include "NavagationPaths.h"
 
 FDecoratorBase::FDecoratorBase(
 	FGameplayTag InMainDecoratorType,
@@ -136,6 +138,114 @@ bool FSceneMode_Decorator::Operation(
 	PRINTFUNCSTR();
 
 	return Super::Operation(OperatorType);
+}
+
+FEmergencyMode_Decorator::FEmergencyMode_Decorator():
+                                                    Super(
+                                                          UGameplayTagsLibrary::Interaction_Mode,
+                                                          UGameplayTagsLibrary::Interaction_Mode_Emergency
+                                                         )
+{
+}
+
+void FEmergencyMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       UGameplayTagsLibrary::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(
+			                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
+				                                            Iter.Value->FloorTag
+				                                           )
+			                                          );
+		}
+	}
+}
+
+void FEmergencyMode_Decorator::Quit()
+{
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(false);
+		}
+	}
+
+	Super::Quit();
+}
+
+void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (NewDecoratorSPtr)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
+		{
+			auto AreaDecoratorSPtr =
+				DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
+
+			if (!AreaDecoratorSPtr)
+			{
+				return;
+			}
+
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+				{
+					Iter.Value->NavagationPaths->SwitchDisplay(
+															   AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
+																	Iter.Value->FloorTag
+																   )
+															  );
+				}
+			}
+		}
+		else
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+				{
+					Iter.Value->NavagationPaths->SwitchDisplay(false);
+				}
+			}
+		}
+	}
+}
+
+void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
+}
+
+void FEmergencyMode_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors);
 }
 
 FELVRadarMode_Decorator::FELVRadarMode_Decorator():
@@ -397,57 +507,6 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 	)
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
-
-	if (
-		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode)
-	)
-	{
-		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty))
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
-
-			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-			                                                          SceneActorConditional
-			                                                         );
-		}
-		else
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
-
-			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-			                                                          SceneActorConditional,
-			                                                          std::bind(
-			                                                                    &FDecoratorBase::OnUpdateFilterComplete,
-			                                                                    NewDecoratorSPtr,
-			                                                                    std::placeholders::_1,
-			                                                                    std::placeholders::_2
-			                                                                   )
-			                                                         );
-		}
-	}
-	else
-	{
-		FSceneElementConditional SceneActorConditional;
-
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          SceneActorConditional,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
 }
 
 void FArea_Decorator::OnOtherDecoratorQuit(
@@ -490,14 +549,19 @@ void FExternalWall_Decorator::Entry()
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
+	                                                          MulticastDelegate
 	                                                         );
 }
 
@@ -511,16 +575,19 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-															  SceneActorConditional,
-															  std::bind(
-																		&ThisClass::OnUpdateFilterComplete,
-																		this,
-																		std::placeholders::_1,
-																		std::placeholders::_2
-																	   )
-															 );
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FExternalWall_Decorator::Operation(
@@ -564,16 +631,21 @@ void FSplitFloor_Decorator::Entry()
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
+	                                                          MulticastDelegate
 	                                                         );
-	
+
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_FloorSplit>(
 	                                                                    [this](
@@ -618,15 +690,19 @@ void FSplitFloor_Decorator::OnOtherDecoratorEntry(
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-															  SceneActorConditional,
-															  std::bind(
-																		&ThisClass::OnUpdateFilterComplete,
-																		this,
-																		std::placeholders::_1,
-																		std::placeholders::_2
-																	   )
-															 );
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FSplitFloor_Decorator::NeedAsync() const
@@ -675,15 +751,19 @@ void FFloor_Decorator::Entry()
 
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+				
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																		  SceneActorConditional,
-																		  std::bind(
-																					&ThisClass::OnUpdateFilterComplete,
-																					this,
-																					std::placeholders::_1,
-																					std::placeholders::_2
-																				   )
-																		 );
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
 
 				return;
 			}
@@ -694,14 +774,19 @@ void FFloor_Decorator::Entry()
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
 
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
-				                                                          std::bind(
-					                                                           &ThisClass::OnUpdateFilterComplete,
-					                                                           this,
-					                                                           std::placeholders::_1,
-					                                                           std::placeholders::_2
-					                                                          )
+				                                                          MulticastDelegate
 				                                                         );
 
 				return;
@@ -716,14 +801,18 @@ void FFloor_Decorator::Entry()
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
-	                                                          std::bind(
-	                                                                    &ThisClass::OnUpdateFilterComplete,
-	                                                                    this,
-	                                                                    std::placeholders::_1,
-	                                                                    std::placeholders::_2
-	                                                                   )
+	                                                          MulticastDelegate
 	                                                         );
 }
 
@@ -751,9 +840,18 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+				
+				)> MulticastDelegate;
+
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-			                                                          SceneActorConditional
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
 			                                                         );
+			return;
 		}
 		else
 		{
@@ -762,34 +860,44 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+				
+				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
-			                                                          std::bind(
-			                                                                    &FDecoratorBase::OnUpdateFilterComplete,
-			                                                                    NewDecoratorSPtr,
-			                                                                    std::placeholders::_1,
-			                                                                    std::placeholders::_2
-			                                                                   )
+			                                                          MulticastDelegate
 			                                                         );
+			return;
 		}
 	}
 	else
 	{
-		FSceneElementConditional SceneActorConditional;
-
-		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          SceneActorConditional,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
 	}
+	
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+			
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+															  SceneActorConditional,
+															  MulticastDelegate
+															 );
 }
 
 bool FFloor_Decorator::Operation(

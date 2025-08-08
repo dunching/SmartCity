@@ -57,6 +57,10 @@ public:
 #pragma endregion
 
 #pragma region 建筑信息
+	/**
+	 * 层数
+	 * 对应的Floor
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<int32, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
 #pragma endregion
