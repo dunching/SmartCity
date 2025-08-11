@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Pawn.h"
-
 #include "GameplayTagContainer.h"
+
+#include "BuildingGenerateTypes.h"
 
 #include "FloorHelperBase.generated.h"
 
@@ -36,4 +37,11 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTag FloorTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32 FloorIndex = 0;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
+	
 };

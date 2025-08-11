@@ -6,7 +6,7 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "GenerateTypes.h"
+#include "BuildingGenerateTypes.h"
 
 #include "SceneElementBase.generated.h"
 
@@ -14,7 +14,7 @@
  * 门禁
  */
 UCLASS()
-class COMMONTYPE_API ASceneElementBase :
+class BUILDINGTOOLS_API ASceneElementBase :
 	public AActor
 {
 	GENERATED_BODY()

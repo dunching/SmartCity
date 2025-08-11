@@ -7,6 +7,7 @@
 
 #include "AssetRefBase.h"
 #include "GenerateTypes.h"
+#include "BuildingGenerateTypes.h"
 
 #include "AssetRefMap.generated.h"
 
@@ -49,11 +50,7 @@ public:
 	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
 
 #pragma region 场景Actor
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<FSceneElementMap> AllSceneActorMap;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
 #pragma endregion
 
 #pragma region 建筑信息
@@ -62,7 +59,7 @@ public:
 	 * 对应的Floor
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<int32, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+	TMap<FGameplayTag, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
 #pragma endregion
 
 #pragma region 电梯

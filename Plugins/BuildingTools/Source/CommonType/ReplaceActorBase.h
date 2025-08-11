@@ -6,9 +6,7 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "ReplaceActorBase.h"
-
-#include "ReplaceActor.generated.h"
+#include "ReplaceActorBase.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -21,11 +19,15 @@ class AViewerPawn;
  * 雷达扫描效果
  */
 UCLASS()
-class COMMONTYPE_API AReplaceActor :
-	public AReplaceActorBase
+class BUILDINGTOOLS_API AReplaceActorBase :
+	public AActor
 {
 	GENERATED_BODY()
 
 public:
+
+	AReplaceActorBase(
+		const FObjectInitializer& ObjectInitializer
+		);
 
 };

@@ -43,15 +43,20 @@ void AElevator::ChangeTargetFloorIndex(
 	{
 		TargetFloorIndex = FloorIndex;
 
-		if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(FloorIndex))
+		for (const auto &Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			TargetFloorLocation = UAssetRefMap::GetInstance()->FloorHelpers[FloorIndex]->GetActorLocation();
+			if (Iter.Value->FloorIndex == FloorIndex)
+			{
+				TargetFloorLocation = Iter.Value->GetActorLocation();
 			
-			const auto CurrentLocation = GetActorLocation();
+				const auto CurrentLocation = GetActorLocation();
 
-			bIsUp = CurrentLocation.Z < TargetFloorLocation.Z;
+				bIsUp = CurrentLocation.Z < TargetFloorLocation.Z;
 			
-			GetWorldTimerManager().SetTimer(MoveTimerHandle, this, &ThisClass::MoveElevator, Frequence, true);
+				GetWorldTimerManager().SetTimer(MoveTimerHandle, this, &ThisClass::MoveElevator, Frequence, true);
+				
+				break;
+			}
 		}
 	}
 }

@@ -19,7 +19,7 @@
 class AViewerPawn;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
-class AReplaceActor;
+class AReplaceActorBase;
 
 class UGameplayTaskBase;
 
@@ -362,7 +362,7 @@ private:
 
 	bool NormalAdjust(
 		int32& Index,
-		TArray<TSoftObjectPtr<AReplaceActor>>& ItemSet
+		TArray<TSoftObjectPtr<AReplaceActorBase>>& ItemSet
 		);
 
 	void ApplyData(
@@ -374,7 +374,7 @@ private:
 		);
 
 	void ApplyRelatedActors(
-		const TSoftObjectPtr<AReplaceActor>& ItemSet
+		const TSoftObjectPtr<AReplaceActorBase>& ItemSet
 		);
 
 	int32 SceneActorMapIndex = 0;
@@ -382,8 +382,19 @@ private:
 	TArray<FSceneElementMap> SceneActorMap;
 
 
-	int32 StepIndex = -2;
+	enum class EStep
+	{
+		kRecordFloor,
+		kNeedReplaceByRef,
+		kStructItemSet,
+		kInnerStructItemSet,
+		kSoftDecorationItemSet,
+		kSpaceItemSet,
+	};
 
+	EStep Step = EStep::kRecordFloor;
+
+	
 	int32 StructItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
@@ -458,6 +469,16 @@ protected:
 		) override;
 
 private:
+	enum class EStep
+	{
+		kDisplay,
+		kHiden,
+		kConfirmConditional,
+		kSwitchState,
+	};
+
+	EStep Step = EStep::kDisplay;
+
 	/**
 	 * 建筑物
 	 * 用于计算包围框
@@ -478,7 +499,7 @@ private:
 
 	int32 HideRePlaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
 
 
 	int32 DataSmithSceneActorsSetIndex = 0;
@@ -487,7 +508,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TArray<TPair<TSoftObjectPtr<AReplaceActor>, FSceneElementFilter>> ReplaceActorsSet;
+	TArray<TPair<TSoftObjectPtr<AReplaceActorBase>, FSceneElementFilter>> ReplaceActorsSet;
 
 
 	int32 RelatedActorsIndex = 0;
@@ -563,7 +584,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
 
 
 	int32 HideDataSmithSceneActorsSetIndex = 0;
@@ -572,7 +593,7 @@ private:
 
 	int32 HideRePlaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;
@@ -640,7 +661,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;

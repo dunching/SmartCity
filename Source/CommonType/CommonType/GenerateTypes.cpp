@@ -28,20 +28,3 @@ uint32 GetTypeHash(
 {
 	return HashCombine(GetTypeHash(SceneElementTypeHelper.Key), GetTypeHash(SceneElementTypeHelper.Value));
 }
-
-FSceneElementConditional::FSceneElementConditional()
-{
-	
-}
-
-FSceneElementConditional FSceneElementConditional::EmptyConditional;
-
-FSceneElementConditional::FSceneElementConditional(
-	const TSet<FGameplayTag>& InConditionalSet
-	)
-{
-	for (const auto& Iter : InConditionalSet)
-	{
-		ConditionalSet.AddTag(Iter);
-	}
-}

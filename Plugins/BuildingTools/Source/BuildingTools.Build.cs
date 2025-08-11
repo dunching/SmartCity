@@ -14,6 +14,8 @@ public class BuildingTools : ModuleRules
         PublicIncludePaths.AddRange(
 			new string[] {
                    Path.Combine(PluginDirectory, "Source/BuildingTools"),
+                   Path.Combine(PluginDirectory, "Source/CommonType"),
+                   Path.Combine(PluginDirectory, "Source/SceneElement"),
             }
 			);
 				
@@ -41,6 +43,7 @@ public class BuildingTools : ModuleRules
 				"Engine",
                 "GameplayTags",
                 "Json",
+                "DatasmithContent",
 
                 "Effects",
             }
