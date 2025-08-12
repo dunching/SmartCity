@@ -108,6 +108,9 @@ public:
 #pragma region 查看全局
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FControlParam ViewBuildingControlParam;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewSplitFloorControlParam;
 #pragma endregion
 
 #pragma region 查看楼层

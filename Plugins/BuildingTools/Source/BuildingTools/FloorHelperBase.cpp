@@ -12,4 +12,6 @@ AFloorHelperBase::AFloorHelperBase(
 	
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
+
+	BoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

@@ -18,6 +18,8 @@ public:
 
 	static FGameplayTag Seat_Default;
 
+	static FGameplayTag Seat_ViewSplit;
+
 	
 	static FGameplayTag Interaction_Area;
 
@@ -65,7 +67,7 @@ public:
 	static FGameplayTag Interaction_Mode_Elevator;
 
 	static FGameplayTag Interaction_Mode_Intelligence;
-
+	
 
 	static FGameplayTag SceneElement_FanCoil;
 

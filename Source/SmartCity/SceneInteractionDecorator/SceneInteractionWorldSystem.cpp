@@ -122,6 +122,25 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 				return;
 			}
 
+			if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting))
+			{
+				if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+					    UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FPWRLightingMode_Decorator>(
+				                                           UGameplayTagsLibrary::Interaction_Mode,
+				                                           UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting
+				                                          );
+
+				return;
+			}
+
 			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 			{
 				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
@@ -135,42 +154,6 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			                                       UGameplayTagsLibrary::Interaction_Mode,
 			                                       UGameplayTagsLibrary::Interaction_Mode_PWR
 			                                      );
-
-			return;
-		}
-		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Scene))
-		{
-			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-			{
-				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-				    UGameplayTagsLibrary::Interaction_Mode_Scene)
-				{
-					return;
-				}
-			}
-
-			SwitchDecoratorImp<FSceneMode_Decorator>(
-			                                         UGameplayTagsLibrary::Interaction_Mode,
-			                                         UGameplayTagsLibrary::Interaction_Mode_Scene
-			                                        );
-
-			return;
-		}
-		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
-		{
-			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-			{
-				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-				    UGameplayTagsLibrary::Interaction_Mode_Emergency)
-				{
-					return;
-				}
-			}
-
-			SwitchDecoratorImp<FEmergencyMode_Decorator>(
-			                                         UGameplayTagsLibrary::Interaction_Mode,
-			                                         UGameplayTagsLibrary::Interaction_Mode_Emergency
-			                                        );
 
 			return;
 		}
@@ -214,7 +197,43 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			}
 			return;
 		}
-		if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Elevator)
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Scene))
+		{
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_Scene)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FSceneMode_Decorator>(
+			                                         UGameplayTagsLibrary::Interaction_Mode,
+			                                         UGameplayTagsLibrary::Interaction_Mode_Scene
+			                                        );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+		{
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_Emergency)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEmergencyMode_Decorator>(
+			                                             UGameplayTagsLibrary::Interaction_Mode,
+			                                             UGameplayTagsLibrary::Interaction_Mode_Emergency
+			                                            );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Elevator))
 		{
 			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
 			{
@@ -228,6 +247,24 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			SwitchDecoratorImp<FElevatorMode_Decorator>(
 			                                            UGameplayTagsLibrary::Interaction_Mode,
 			                                            UGameplayTagsLibrary::Interaction_Mode_Elevator
+			                                           );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(UGameplayTagsLibrary::Interaction_Mode_SunShade))
+		{
+			if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
+				    UGameplayTagsLibrary::Interaction_Mode_SunShade)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FSunShadeMode_Decorator>(
+			                                            UGameplayTagsLibrary::Interaction_Mode,
+			                                            UGameplayTagsLibrary::Interaction_Mode_SunShade
 			                                           );
 
 			return;
@@ -325,6 +362,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 	const TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
+
 		
 		)>& OnEnd
 	)
@@ -341,7 +379,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 				                                                                        SceneInteractionWorldSystemPtr =
 				                                                                        this;
 			                                                                        GTPtr->FilterTags = FilterTags;
-		                                                                        	GTPtr->OnEnd = OnEnd;
+			                                                                        GTPtr->OnEnd = OnEnd;
 		                                                                        }
 	                                                                        }
 	                                                                       );

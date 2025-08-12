@@ -5,6 +5,8 @@
 
 #include "GameOptions.h"
 #include "GameplayTagsLibrary.h"
+#include "PlanetPlayerController.h"
+#include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
@@ -20,6 +22,15 @@ void TourProcessor::FViewSplitFloorProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>([](UGT_ReplyCameraTransform* GTPtr)
+	{
+		if (GTPtr)
+		{
+			GTPtr->SeatTag = UGameplayTagsLibrary::Seat_ViewSplit;
+		}
+	});
+	
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSplitFloor_Decorator>(
 											  UGameplayTagsLibrary::Interaction_Area,
 											  UGameplayTagsLibrary::Interaction_Area_Floor,
@@ -201,23 +212,7 @@ bool TourProcessor::FViewSplitFloorProcessor::InputAxis(
 
 			if (EventArgs.Key == GameOptionsPtr->MouseWheelAxis)
 			{
-				if (OnwerActorPtr->Controller != nullptr)
-				{
-					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-					                   ViewFloorControlParam.CameraSpringArmSpeed;
-
-					const auto ClampValue = FMath::Clamp(
-					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
-					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MinCameraSpringArm,
-					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MaxCameraSpringArm
-					                                    );
-
-					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
-
-					return true;
-				}
+				// 这个状态下不进行此操作
 			}
 		}
 		break;

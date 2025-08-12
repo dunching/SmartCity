@@ -16,10 +16,12 @@ class UDataLayerAsset;
 class ADatasmithSceneActor;
 class URouteMarker;
 class AFloorHelper;
+class ABuildingHelperBase;
 class AElevator;
 class APostProcessVolume;
 class ASceneElementBase;
 class APersonMark;
+class AFireMark;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -60,6 +62,13 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+	
+	/**
+	 * 楼宇号
+	 * 对应的楼宇
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, TSoftObjectPtr<ABuildingHelperBase>> BuildingHelpers;
 #pragma endregion
 
 #pragma region 电梯
@@ -79,21 +88,6 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<FString> NamePrifix;
-
-	/**
-	 * 设备类型的Key
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<FString> CatogoryPrifix;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString FJPG;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString XFJZ;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString Space;
 #pragma endregion
 
 #pragma region 引用
@@ -105,6 +99,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<APersonMark> PersonMarkClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<AFireMark> FireMarkClass;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> EnergyMaterialInst;

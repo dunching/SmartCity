@@ -5,32 +5,57 @@
 
 #include "CollisionDataStruct.h"
 #include "FloorHelper.h"
+#include "GameplayTagsLibrary.h"
 
 AElevator::AElevator(
 	const FObjectInitializer& ObjectInitializer
 	):
 	 Super(ObjectInitializer)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 }
 
-void AElevator::SwitchState(
-	bool bIsActive
+void AElevator::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-
-	for (auto Iter : StaticMeshComponents)
+	Super::SwitchInteractionType(ConditionalSet);
+	
 	{
-		if (bIsActive)
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
-			Iter->SetRenderCustomDepth(true);
-			Iter->SetCustomDepthStencilValue(1);
+			SetActorHiddenInGame(true);
+
+			TArray<UStaticMeshComponent*> StaticMeshComponents;
+			GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+
+			for (auto Iter : StaticMeshComponents)
+			{
+				Iter->SetRenderCustomDepth(false);
+			}
+			
+			return;
 		}
-		else
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Elevator);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
 		{
-			Iter->SetRenderCustomDepth(false);
+			SetActorHiddenInGame(false);
+
+			TArray<UStaticMeshComponent*> StaticMeshComponents;
+			GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+
+			for (auto Iter : StaticMeshComponents)
+			{
+				Iter->SetRenderCustomDepth(true);
+				Iter->SetCustomDepthStencilValue(1);
+			}
+			
+			return;
 		}
 	}
 }

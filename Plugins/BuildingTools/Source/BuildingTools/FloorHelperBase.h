@@ -41,7 +41,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 FloorIndex = 0;
 	
+	/**
+	 * 该层的所有引用
+	 */
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
-	
+	FSceneElementMap AllReference;
+
 };

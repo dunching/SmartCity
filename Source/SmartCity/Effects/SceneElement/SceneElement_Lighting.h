@@ -19,7 +19,7 @@ class UCameraComponent;
 class AViewerPawn;
 
 /**
- * 雷达扫描效果
+ * 材质自发光
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_Lighting :
@@ -28,4 +28,33 @@ class SMARTCITY_API ASceneElement_Lighting :
 	GENERATED_BODY()
 
 public:
+	
+	ASceneElement_Lighting(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void ReplaceImp(
+		AActor* ActorPtr
+		) override;
+	
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
+
+protected:
+
+	void SetEmissiveValue(int32 Value);
+	
+	/**
+	 * 固定的网格体
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> MeshComponent = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance> EmissiveMaterialInstance;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FName EmissiveValue = TEXT("Emissive");
+
 };

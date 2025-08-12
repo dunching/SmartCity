@@ -226,7 +226,7 @@ private:
 };
 
 /**
- * 选择能耗
+ * 选择暖通
  */
 class SMARTCITY_API FPWRHVACMode_Decorator : public FDecoratorBase
 {
@@ -237,6 +237,20 @@ public:
 	                   );
 
 	FPWRHVACMode_Decorator();
+};
+
+/**
+ * 选择照明
+ */
+class SMARTCITY_API FPWRLightingMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FPWRLightingMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FPWRLightingMode_Decorator();
 };
 
 /**
@@ -273,6 +287,27 @@ public:
 	virtual void Entry() override;
 
 	virtual void Quit() override;
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
+private:
+};
+
+/**
+ * 选择“这样”模式
+ */
+class SMARTCITY_API FSunShadeMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSunShadeMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FSunShadeMode_Decorator();
 
 private:
 };

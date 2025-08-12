@@ -57,6 +57,7 @@ void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
 
+
 		
 		)>& Func
 	)
@@ -394,7 +395,7 @@ private:
 
 	EStep Step = EStep::kRecordFloor;
 
-	
+
 	int32 StructItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
@@ -436,6 +437,7 @@ public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
+		
 		)>;
 
 	UGT_SceneObjSwitch(
@@ -469,12 +471,21 @@ protected:
 		) override;
 
 private:
+	bool ProcessTask_Display();
+
+	bool ProcessTask_Hiden();
+
+	bool ProcessTask_ConfirmConditional();
+
+	bool ProcessTask_SwitchState();
+
 	enum class EStep
 	{
 		kDisplay,
 		kHiden,
 		kConfirmConditional,
 		kSwitchState,
+		kComplete,
 	};
 
 	EStep Step = EStep::kDisplay;
@@ -485,14 +496,20 @@ private:
 	 */
 	TSet<AActor*> Result;
 
-	/**
-	 * 等待显示
-	 */
-	int32 FilterIndex = 0;
 
-	std::map<AActor*, int32> FilterCount;
+	int32 DataSmithSceneActorsSetIndex = 0;
 
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
+	int32 ReplaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorsSet;
+
+	int32 DisplayAryIndex = 0;
+
+	TArray<AActor*> DisplayAry;
+
+	
 	int32 HideDataSmithSceneActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
@@ -500,15 +517,10 @@ private:
 	int32 HideRePlaceActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
+	
+	int32 HideAryIndex = 0;
 
-
-	int32 DataSmithSceneActorsSetIndex = 0;
-
-	TArray<TPair<TSoftObjectPtr<ADatasmithSceneActor>, FSceneElementFilter>> DataSmithSceneActorsSet;
-
-	int32 ReplaceActorsSetIndex = 0;
-
-	TArray<TPair<TSoftObjectPtr<AReplaceActorBase>, FSceneElementFilter>> ReplaceActorsSet;
+	TArray<AActor*> HideAry;
 
 
 	int32 RelatedActorsIndex = 0;
@@ -562,13 +574,24 @@ protected:
 private:
 	bool ProcessTask_Sort();
 
+	bool ProcessTask_ConfirmConditional();
+
 	bool ProcessTask_Display();
 
 	bool ProcessTask_Move(
 		float DeltaTime
 		);
 
-	int32 StepIndex = 0;
+	enum class EStep
+	{
+		kSort,
+		kConfirmConditional,
+		kDisplay,
+		kMove,
+		kComplete,
+	};
+
+	EStep Step = EStep::kSort;
 
 	/**
 	 * 等待显示
@@ -645,7 +668,14 @@ private:
 		float DeltaTime
 		);
 
-	int32 StepIndex = 0;
+	enum class EStep
+	{
+		kSort,
+		kMove,
+		kComplete,
+	};
+
+	EStep Step = EStep::kSort;
 
 	/**
 	 * 等待显示

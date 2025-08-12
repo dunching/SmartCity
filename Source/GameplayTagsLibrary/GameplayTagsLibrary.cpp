@@ -5,6 +5,9 @@
 FGameplayTag UGameplayTagsLibrary::Seat_Default =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Seat.Default")));
 
+FGameplayTag UGameplayTagsLibrary::Seat_ViewSplit =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Seat.ViewSplit")));
+
 
 FGameplayTag UGameplayTagsLibrary::Interaction_Area =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Area")));
