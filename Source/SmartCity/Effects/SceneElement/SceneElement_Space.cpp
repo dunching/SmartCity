@@ -110,31 +110,12 @@ void ASceneElement_Space::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-
-			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-			if (HUDPtr)
-			{
-				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-			}
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			}
-
-			return;
-		}
-	}
-	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
 
@@ -144,10 +125,10 @@ void ASceneElement_Space::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -206,7 +187,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					TSet<AActor*> ActorsAry;
 					for (const auto& Iter : OutOverlap)
 					{
-						if (Iter.GetActor())
+						if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
 						{
 							ActorsAry.Add(Iter.GetActor());
 						}
@@ -215,26 +196,14 @@ void ASceneElement_Space::SwitchInteractionType(
 					TArray<FFeaturesItem> Features;
 					for (const auto& Iter : ActorsAry)
 					{
-						if (Iter)
+						auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
+						if (SceneElementPtr)
 						{
-							if (Iter->IsA(ASceneElement_DeviceBase::StaticClass()))
-							{
-								auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
-								if (SceneElementPtr)
-								{
-									if (SceneElementPtr->DeviceType.MatchesTag(
-									                                           UGameplayTagsLibrary::SceneElement_FanCoil
-									                                          ))
-									{
-										FFeaturesItem FeaturesItem;
-
-										FeaturesItem.Text = SceneElementPtr->SceneElementName;
-										FeaturesItem.SceneElementPtr = SceneElementPtr;
-
-										Features.Add(FeaturesItem);
-									}
-								}
-							}
+							SceneElementPtr->SwitchInteractionType(ConditionalSet);
+						}
+						else
+						{
+							
 						}
 					}
 
@@ -258,7 +227,8 @@ void ASceneElement_Space::SwitchInteractionType(
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -275,5 +245,26 @@ void ASceneElement_Space::SwitchInteractionType(
 			}
 			return;
 		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		
+		SetActorHiddenInGame(true);
+
+		auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+		if (HUDPtr)
+		{
+			HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+		}
+
+		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+		}
+
+		return;
 	}
 }

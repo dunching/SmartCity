@@ -266,7 +266,7 @@ void UGT_BatchBase::TickTask(
 			for (;;)
 			{
 				FSimpleScopeSecondsCounter SimpleScopeSecondsCounter(InScopeSeconds);
-				if (InScopeSeconds > 0.1)
+				if (InScopeSeconds > ScopeTime)
 				{
 					InScopeSeconds = 0;
 					return;
@@ -1068,6 +1068,8 @@ bool UGT_SceneObjSwitch::ProcessTask(
 			{
 			}
 
+			UseScopeType = EUseScopeType::kCount;
+			
 			Step = EStep::kSwitchState;
 			return true;
 		}
@@ -1097,7 +1099,8 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 		return false;
 	}
 
-	if (FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall))
+	if (FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall) ||
+	    FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
 	{
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
@@ -1179,7 +1182,8 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 				                                             Array()
 				                                  );
 				TempDataSmithSceneActorsSet.Append(
-				                                   FloorIter.Value->AllReference.SoftDecorationItem.DatasmithSceneActorSet.
+				                                   FloorIter.Value->AllReference.SoftDecorationItem.
+				                                             DatasmithSceneActorSet.
 				                                             Array()
 				                                  );
 				TempDataSmithSceneActorsSet.Append(
@@ -1220,8 +1224,9 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 				                                                 Array()
 				                                      );
 				TempHideDataSmithSceneActorsSet.Append(
-				                                       FloorIter.Value->AllReference.InnerStructItemSet.DatasmithSceneActorSet
-				                                                .Array()
+				                                       FloorIter.Value->AllReference.InnerStructItemSet.
+				                                                 DatasmithSceneActorSet
+				                                                 .Array()
 				                                      );
 				TempHideDataSmithSceneActorsSet.Append(
 				                                       FloorIter.Value->AllReference.SoftDecorationItem.
@@ -1238,7 +1243,9 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 				TempHideReplaceActorsSet.Append(
 				                                FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.Array()
 				                               );
-				TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.Array());
+				TempHideReplaceActorsSet.Append(
+				                                FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.Array()
+				                               );
 				TempHideReplaceActorsSet.Append(
 				                                FloorIter.Value->AllReference.SoftDecorationItem.ReplaceActorSet.Array()
 				                               );
@@ -1247,9 +1254,6 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 				HideReplaceActorsSet.Append(TempHideReplaceActorsSet.Array());
 			}
 		}
-	}
-	else if (FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
-	{
 	}
 
 	return false;

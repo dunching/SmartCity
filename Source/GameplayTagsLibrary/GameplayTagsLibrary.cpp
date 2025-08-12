@@ -31,6 +31,9 @@ FGameplayTag UGameplayTagsLibrary::Interaction_Area_SplitFloor =
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode")));
 
+FGameplayTag UGameplayTagsLibrary::Interaction_Mode_View =
+	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.View")));
+
 FGameplayTag UGameplayTagsLibrary::Interaction_Mode_Focus =
 	FGameplayTag::RequestGameplayTag(FName(TEXT("Interaction.Mode.Focus")));
 

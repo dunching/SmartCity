@@ -42,21 +42,11 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 	
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-		
-			NiagaraComponentPtr->SetActive(false);
-			
-			return;
-		}
-	}
-	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
 		
@@ -71,7 +61,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC);
 	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -85,7 +75,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -93,6 +83,16 @@ void ASceneElement_HVAC::SwitchInteractionType(
 		
 			return;
 		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		SetActorHiddenInGame(true);
+		
+		NiagaraComponentPtr->SetActive(false);
+			
+		return;
 	}
 }
 

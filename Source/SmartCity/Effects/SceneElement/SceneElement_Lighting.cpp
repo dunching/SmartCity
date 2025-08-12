@@ -43,19 +43,11 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-
-			return;
-		}
-	}
-	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
 
@@ -68,7 +60,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -82,7 +74,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -90,6 +82,14 @@ void ASceneElement_Lighting::SwitchInteractionType(
 
 			return;
 		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		SetActorHiddenInGame(true);
+
+		return;
 	}
 }
 

@@ -262,7 +262,7 @@ protected:
 		float DeltaTime
 		);
 
-	double ScopeTiempo = 1.f;
+	double ScopeTime = .1f;
 
 	enum class EUseScopeType
 	{

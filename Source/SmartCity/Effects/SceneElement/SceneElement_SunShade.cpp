@@ -64,21 +64,12 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-
-			RemoveRouteMarker();
-
-			return;
-		}
-	}
-	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -93,14 +84,15 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_SunShade);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
 			RouteMarkerPtr = CreateWidget<URouteMarker>(
-															 GEngine->GetFirstLocalPlayerController(GetWorld()),
-															 UAssetRefMap::GetInstance()->RouteMarkerClass
-															);
+			                                            GEngine->GetFirstLocalPlayerController(GetWorld()),
+			                                            UAssetRefMap::GetInstance()->RouteMarkerClass
+			                                           );
 			if (RouteMarkerPtr)
 			{
 				RouteMarkerPtr->TextStr = TEXT("遮阳");
@@ -116,7 +108,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -124,6 +117,18 @@ void ASceneElement_SunShade::SwitchInteractionType(
 
 			return;
 		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+
+		//
+		SetActorHiddenInGame(true);
+
+		RemoveRouteMarker();
+
+		return;
 	}
 }
 
@@ -147,7 +152,7 @@ void ASceneElement_SunShade::UpdateAngleImp()
 		if (CurrentAngle < TargetAngle)
 		{
 			CurrentAngle = TargetAngle;
-			
+
 			GetWorldTimerManager().ClearTimer(TimerHandle);
 		}
 	}
@@ -161,7 +166,7 @@ void ASceneElement_SunShade::UpdateAngleImp()
 		if (CurrentAngle > TargetAngle)
 		{
 			CurrentAngle = TargetAngle;
-			
+
 			GetWorldTimerManager().ClearTimer(TimerHandle);
 		}
 	}

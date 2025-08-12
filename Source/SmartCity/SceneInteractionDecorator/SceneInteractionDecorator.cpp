@@ -1203,7 +1203,7 @@ bool FFloor_Decorator::Operation(
 
 						FSceneElementConditional SceneActorConditional;
 
-						SceneActorConditional.ConditionalSet.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
+						SceneActorConditional.ConditionalSet.AddTag(UGameplayTagsLibrary::Interaction_Mode_View);
 
 						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
 							 Iter.GetActor(),

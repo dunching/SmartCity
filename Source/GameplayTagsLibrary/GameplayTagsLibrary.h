@@ -36,6 +36,8 @@ public:
 	
 	static FGameplayTag Interaction_Mode;
 
+	static FGameplayTag Interaction_Mode_View;
+
 	static FGameplayTag Interaction_Mode_Focus;
 
 	static FGameplayTag Interaction_Mode_Empty;

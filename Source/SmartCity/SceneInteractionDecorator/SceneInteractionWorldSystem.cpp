@@ -134,9 +134,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 				}
 
 				SwitchDecoratorImp<FPWRLightingMode_Decorator>(
-				                                           UGameplayTagsLibrary::Interaction_Mode,
-				                                           UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting
-				                                          );
+				                                               UGameplayTagsLibrary::Interaction_Mode,
+				                                               UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting
+				                                              );
 
 				return;
 			}
@@ -363,6 +363,7 @@ void USceneInteractionWorldSystem::UpdateFilter(
 		bool,
 		const TSet<AActor*>&
 
+
 		
 		)>& OnEnd
 	)
@@ -577,7 +578,8 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 
 			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
 				if (FocusActors.Contains(DevicePtr))
 				{
@@ -592,10 +594,10 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 		{
 			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
 
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
 				if (FocusActors.Contains(DevicePtr))
 				{
@@ -641,7 +643,8 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 
 			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
 				return;
 			}

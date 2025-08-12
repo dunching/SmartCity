@@ -72,40 +72,33 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-		
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
-		
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
-			
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_ELV_Radar);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -115,16 +108,17 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 				PrimitiveComponentPtr->SetRenderCustomDepth(true);
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
-			
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -133,8 +127,35 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
-			
+
 			return;
 		}
+	}
+
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			;
+			if (DeviceType.MatchesTag(
+			                          UGameplayTagsLibrary::SceneElement_FanCoil
+			                         ))
+			{
+			}
+			return;
+		}
+	}
+
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		SetActorHiddenInGame(true);
+
+		return;
 	}
 }

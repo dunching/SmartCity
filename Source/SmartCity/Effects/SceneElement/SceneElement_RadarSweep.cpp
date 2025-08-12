@@ -9,8 +9,10 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
-	
-	SweepEffectStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SweepEffectStaticMeshComponent"));
+
+	SweepEffectStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(
+		 TEXT("SweepEffectStaticMeshComponent")
+		);
 	SweepEffectStaticMeshComponent->SetupAttachment(RootComponent);
 }
 
@@ -19,54 +21,57 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
-	
+
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-		
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
-		
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_ELV_Radar);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
 			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
-		
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
 			SweepEffectStaticMeshComponent->SetHiddenInGame(true);
-		
+
 			return;
 		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		SetActorHiddenInGame(true);
+
+		return;
 	}
 }

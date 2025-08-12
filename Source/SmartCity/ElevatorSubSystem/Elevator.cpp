@@ -42,7 +42,7 @@ void AElevator::SwitchInteractionType(
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
 		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Elevator);
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
