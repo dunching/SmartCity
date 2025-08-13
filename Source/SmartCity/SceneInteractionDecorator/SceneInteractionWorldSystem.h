@@ -16,7 +16,7 @@
 
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
-class UGT_SceneObjSwitch;
+class UGT_SwitchSceneElementState;
 class URouteMarker;
 
 /*
@@ -29,7 +29,7 @@ class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
 
 public:
 	friend UGT_InitializeSceneActors;
-	friend UGT_SceneObjSwitch;
+	friend UGT_SwitchSceneElementState;
 
 	static USceneInteractionWorldSystem* GetInstance();
 
@@ -108,6 +108,8 @@ private:
 	 */
 	TMap<FGameplayTag, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 
+	TArray<TSharedPtr<FDecoratorBase>>DecoratorLayerCache;
+	
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
 
 	TSet<AActor*> FocusActors;
@@ -160,6 +162,14 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 			if (OldDecoratorSPtr)
 			{
+				// 下一帧移除，避免在此装饰里面进行修改容器的操作
+				// 避免悬空
+				DecoratorLayerCache.Add(OldDecoratorSPtr);
+				GetWorldImp()->GetTimerManager().SetTimerForNextTick([this]()
+				{
+					DecoratorLayerCache.Empty();
+				});
+			
 				OldDecoratorSPtr->Quit();
 				NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
 			}
@@ -173,6 +183,8 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 		NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
 
+		
+		
 		DecoratorLayerAssetMap.Add(
 		                           MainTag,
 		                           DecoratorSPtr

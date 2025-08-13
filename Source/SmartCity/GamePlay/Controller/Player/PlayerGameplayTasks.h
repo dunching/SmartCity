@@ -212,6 +212,9 @@ public:
 	virtual void Activate() override;
 
 	FGuid ID;
+
+	TObjectPtr<AActor> TargetDevicePtr = nullptr;
+	
 };
 
 /**
@@ -429,7 +432,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SceneObjSwitch : public UGT_BatchBase
+class SMARTCITY_API UGT_SwitchSceneElementState : public UGT_BatchBase
 {
 	GENERATED_BODY()
 
@@ -440,7 +443,7 @@ public:
 		
 		)>;
 
-	UGT_SceneObjSwitch(
+	UGT_SwitchSceneElementState(
 		const FObjectInitializer& ObjectInitializer
 		);
 
@@ -522,6 +525,76 @@ private:
 
 	TArray<AActor*> HideAry;
 
+
+	int32 RelatedActorsIndex = 0;
+};
+
+UCLASS()
+class SMARTCITY_API UGT_SwitchSingleSceneElementState : public UGT_BatchBase
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+		
+		)>;
+
+	UGT_SwitchSingleSceneElementState(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	FSceneElementFilter SceneElementFilter;
+
+	FSceneElementConditional FilterTags;
+
+	FOnEnd OnEnd;
+
+protected:
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+
+private:
+	bool ProcessTask_Display();
+
+	bool ProcessTask_Hiden();
+
+	bool ProcessTask_ConfirmConditional();
+
+	bool ProcessTask_SwitchState();
+
+	enum class EStep
+	{
+		kDisplay,
+		kHiden,
+		kConfirmConditional,
+		kSwitchState,
+		kComplete,
+	};
+
+	EStep Step = EStep::kDisplay;
+
+	/**
+	 * 建筑物
+	 * 用于计算包围框
+	 */
+	TSet<AActor*> Result;
+
+
+	int32 DataSmithSceneActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
+
+	int32 ReplaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorsSet;
+
+	int32 DisplayAryIndex = 0;
+
+	TArray<AActor*> DisplayAry;
+	
 
 	int32 RelatedActorsIndex = 0;
 };

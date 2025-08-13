@@ -213,10 +213,11 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
 				{
 					Iter.Value->NavagationPaths->SwitchDisplay(
-															   AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
-																	Iter.Value->FloorTag
-																   )
-															  );
+					                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().
+					                                           MatchesTag(
+					                                                      Iter.Value->FloorTag
+					                                                     )
+					                                          );
 				}
 			}
 		}
@@ -425,10 +426,10 @@ FPWRHVACMode_Decorator::FPWRHVACMode_Decorator():
 }
 
 FPWRLightingMode_Decorator::FPWRLightingMode_Decorator():
-												Super(
-													  UGameplayTagsLibrary::Interaction_Mode,
-													  UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting
-													 )
+                                                        Super(
+                                                              UGameplayTagsLibrary::Interaction_Mode,
+                                                              UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting
+                                                             )
 {
 }
 
@@ -484,15 +485,13 @@ void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
-
-	
 }
 
 FSunShadeMode_Decorator::FSunShadeMode_Decorator():
-												  Super(
-														UGameplayTagsLibrary::Interaction_Mode,
-														UGameplayTagsLibrary::Interaction_Mode_SunShade
-													   )
+                                                  Super(
+                                                        UGameplayTagsLibrary::Interaction_Mode,
+                                                        UGameplayTagsLibrary::Interaction_Mode_SunShade
+                                                       )
 {
 }
 
@@ -576,11 +575,12 @@ void FExternalWall_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
 				                                                          MulticastDelegate
@@ -588,7 +588,9 @@ void FExternalWall_Decorator::Entry()
 
 				return;
 			}
-			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                            UGameplayTagsLibrary::Interaction_Mode_Emergency
+			                                                           ))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -598,19 +600,21 @@ void FExternalWall_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																		  SceneActorConditional,
-																		  MulticastDelegate
-																		 );
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
 
 				return;
 			}
-			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Elevator))
+			else if (DecoratorSPtr->GetBranchDecoratorType().
+			                        MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Elevator))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -621,15 +625,16 @@ void FExternalWall_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																		  SceneActorConditional,
-																		  MulticastDelegate
-																		 );
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
 
 				return;
 			}
@@ -641,6 +646,7 @@ void FExternalWall_Decorator::Entry()
 				TMulticastDelegate<void(
 					bool,
 					const TSet<AActor*>&
+
 
 					
 					)> MulticastDelegate;
@@ -664,10 +670,11 @@ void FExternalWall_Decorator::Entry()
 	FSceneElementConditional SceneActorConditional;
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-	
+
 	TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
+
 
 		
 		)> MulticastDelegate;
@@ -700,16 +707,18 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
-		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -719,13 +728,14 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
 
@@ -740,13 +750,14 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
 		else
@@ -760,22 +771,23 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
 	}
 	else
 	{
 	}
-	
+
 	FSceneElementConditional SceneActorConditional;
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
@@ -784,15 +796,16 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 		bool,
 		const TSet<AActor*>&
 
-			
+
+		
 		)> MulticastDelegate;
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-															  SceneActorConditional,
-															  MulticastDelegate
-															 );
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FExternalWall_Decorator::Operation(
@@ -922,11 +935,12 @@ void FFloor_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
 				                                                          MulticastDelegate
@@ -934,7 +948,8 @@ void FFloor_Decorator::Entry()
 
 				return;
 			}
-			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Elevator))
+			else if (DecoratorSPtr->GetBranchDecoratorType().
+			                        MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Elevator))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -944,11 +959,12 @@ void FFloor_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
 				                                                          MulticastDelegate
@@ -956,7 +972,9 @@ void FFloor_Decorator::Entry()
 
 				return;
 			}
-			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                            UGameplayTagsLibrary::Interaction_Mode_Emergency
+			                                                           ))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -966,11 +984,12 @@ void FFloor_Decorator::Entry()
 					bool,
 					const TSet<AActor*>&
 
+
 					
 					)> MulticastDelegate;
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-				
+
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
 				                                                          MulticastDelegate
@@ -988,6 +1007,7 @@ void FFloor_Decorator::Entry()
 				TMulticastDelegate<void(
 					bool,
 					const TSet<AActor*>&
+
 
 					
 					)> MulticastDelegate;
@@ -1015,6 +1035,7 @@ void FFloor_Decorator::Entry()
 	TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
+
 
 		
 		)> MulticastDelegate;
@@ -1055,6 +1076,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
@@ -1074,16 +1096,18 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
-		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Emergency))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -1093,13 +1117,14 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&
 
+
 				
 				)> MulticastDelegate;
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-																	  SceneActorConditional,
-																	  MulticastDelegate
-																	 );
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
 			return;
 		}
 		{
@@ -1112,6 +1137,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			TMulticastDelegate<void(
 				bool,
 				const TSet<AActor*>&
+
 
 				
 				)> MulticastDelegate;
@@ -1128,7 +1154,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 	else
 	{
 	}
-	
+
 	FSceneElementConditional SceneActorConditional;
 
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
@@ -1137,15 +1163,16 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		bool,
 		const TSet<AActor*>&
 
-			
+
+		
 		)> MulticastDelegate;
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-															  SceneActorConditional,
-															  MulticastDelegate
-															 );
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FFloor_Decorator::Operation(
@@ -1314,4 +1341,70 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			 }
 		 }
 		);
+}
+
+FSingleDeviceMode_Decorator::FSingleDeviceMode_Decorator(
+		const TObjectPtr<AActor>& InTargetDevicePtr
+	):
+	 Super(
+	       UGameplayTagsLibrary::Interaction_Mode,
+	       UGameplayTagsLibrary::Interaction_Mode_View
+	      )
+	 , TargetDevicePtr(InTargetDevicePtr)
+{
+}
+
+void FSingleDeviceMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
+		 [this](
+		 UGT_CameraTransformLocaterByID* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->TargetDevicePtr = TargetDevicePtr;
+			 }
+		 }
+		);
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       UGameplayTagsLibrary::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	const auto AreaTag = AreaDecoratorSPtr->GetCurrentInteraction_Area();
+	if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(AreaTag))
+	{
+		auto FloorPtr = UAssetRefMap::GetInstance()->FloorHelpers[AreaTag];
+
+		PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSingleSceneElementState>(
+			 [this, FloorPtr, &AreaTag](
+			 UGT_SwitchSingleSceneElementState* GTPtr
+			 )
+			 {
+				 if (GTPtr)
+				 {
+					 GTPtr->
+						 SceneElementFilter = FloorPtr->AllReference.SoftDecorationItem;
+
+					 FSceneElementConditional FSceneElementConditional;
+
+					 FSceneElementConditional.ConditionalSet.AddTag(AreaTag);
+
+					 GTPtr->FilterTags = FSceneElementConditional;
+				 }
+			 }
+			);
+	}
 }

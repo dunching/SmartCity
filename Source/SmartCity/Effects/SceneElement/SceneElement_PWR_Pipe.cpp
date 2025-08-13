@@ -83,6 +83,19 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
+	if (OriginalMaterials.IsEmpty())
+	{
+		for (auto Iter : StaticMeshComponentsAry)
+		{
+			FMaterialsCache MaterialsCache;
+			for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+			{
+				MaterialsCache.MaterialsCacheAry.Add(Iter->GetMaterial(Index));
+			}
+			OriginalMaterials.Add(Iter, MaterialsCache);
+		}
+	}
+
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
@@ -120,19 +133,6 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 			
-			if (OriginalMaterials.IsEmpty())
-			{
-				for (auto Iter : StaticMeshComponentsAry)
-				{
-					FMaterialsCache MaterialsCache;
-					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-					{
-						MaterialsCache.MaterialsCacheAry.Add(Iter->GetMaterial(Index));
-					}
-					OriginalMaterials.Add(Iter, MaterialsCache);
-				}
-			}
-
 			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
 
 			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);

@@ -210,19 +210,29 @@ void UGT_CameraTransformLocaterByID::Activate()
 {
 	Super::Activate();
 
-	auto TargetPtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(ID);
-	if (TargetPtr.IsValid())
+	if (TargetDevicePtr)
 	{
-		auto Result = UKismetAlgorithm::GetCameraSeat(
-		                                              {TargetPtr.Get()},
-		                                              UGameOptions::GetInstance()->ViewDeviceRot,
-		                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
-		                                             );
-
-		TargetLocation = Result.Key.GetLocation();
-		TargetRotation = Result.Key.GetRotation().Rotator();
-		TargetTargetArmLength = Result.Value;
+		
 	}
+	else
+	{
+		TargetDevicePtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(ID).Get();
+	}
+
+	if (!TargetDevicePtr)
+	{
+		return;
+	}
+	
+	auto Result = UKismetAlgorithm::GetCameraSeat(
+												  {TargetDevicePtr},
+												  UGameOptions::GetInstance()->ViewDeviceRot,
+												  UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
+												 );
+
+	TargetLocation = Result.Key.GetLocation();
+	TargetRotation = Result.Key.GetRotation().Rotator();
+	TargetTargetArmLength = Result.Value;
 }
 
 void UGT_CameraTransformLocaterBySpace::Activate()
@@ -624,6 +634,14 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 
 bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 {
+	if (SoftDecorationItemSetIndex < SoftDecorationItemSet.Num())
+	{
+	}
+	else
+	{
+		return false;
+	}
+
 	if (NormalAdjust(SoftDecorationItemSetIndex, SoftDecorationItemSet))
 	{
 	}
@@ -700,6 +718,14 @@ bool UGT_InitializeSceneActors::ProcessTask_ReplaceSoftDecorationItemSet()
 
 bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 {
+	if (SpaceItemSetIndex < SpaceItemSet.Num())
+	{
+	}
+	else
+	{
+		return false;
+	}
+
 	if (NormalAdjust(SpaceItemSetIndex, SpaceItemSet))
 	{
 	}
@@ -776,8 +802,10 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 	}
 	else
 	{
-		RelatedActorsIndex = 0;
 		Index++;
+
+		RelatedActorsIndex = 0;
+		RelatedActors.Empty();
 
 		if (Index < ItemSet.Num())
 		{
@@ -881,9 +909,6 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
 	)
 {
-	RelatedActorsIndex = 0;
-	RelatedActors.Empty();
-
 	ItemSet->GetRootComponent()->SetMobility(EComponentMobility::Movable);
 
 	TArray<AActor*> OutActors;
@@ -989,7 +1014,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	}
 }
 
-UGT_SceneObjSwitch::UGT_SceneObjSwitch(
+UGT_SwitchSceneElementState::UGT_SwitchSceneElementState(
 	const FObjectInitializer& ObjectInitializer
 	):
 	 Super(ObjectInitializer)
@@ -1000,19 +1025,19 @@ UGT_SceneObjSwitch::UGT_SceneObjSwitch(
 	Priority = FGameplayTasks::DefaultPriority;
 }
 
-void UGT_SceneObjSwitch::Activate()
+void UGT_SwitchSceneElementState::Activate()
 {
 	Super::Activate();
 }
 
-void UGT_SceneObjSwitch::TickTask(
+void UGT_SwitchSceneElementState::TickTask(
 	float DeltaTime
 	)
 {
 	Super::TickTask(DeltaTime);
 }
 
-void UGT_SceneObjSwitch::OnDestroy(
+void UGT_SwitchSceneElementState::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
@@ -1024,7 +1049,7 @@ void UGT_SceneObjSwitch::OnDestroy(
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-bool UGT_SceneObjSwitch::ProcessTask(
+bool UGT_SwitchSceneElementState::ProcessTask(
 	float DeltaTime
 	)
 {
@@ -1092,7 +1117,7 @@ bool UGT_SceneObjSwitch::ProcessTask(
 	return false;
 }
 
-bool UGT_SceneObjSwitch::ProcessTask_Display()
+bool UGT_SwitchSceneElementState::ProcessTask_Display()
 {
 	if (FilterTags.ConditionalSet.IsEmpty())
 	{
@@ -1259,7 +1284,7 @@ bool UGT_SceneObjSwitch::ProcessTask_Display()
 	return false;
 }
 
-bool UGT_SceneObjSwitch::ProcessTask_Hiden()
+bool UGT_SwitchSceneElementState::ProcessTask_Hiden()
 {
 	if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
 	{
@@ -1324,12 +1349,12 @@ bool UGT_SceneObjSwitch::ProcessTask_Hiden()
 	return false;
 }
 
-bool UGT_SceneObjSwitch::ProcessTask_ConfirmConditional()
+bool UGT_SwitchSceneElementState::ProcessTask_ConfirmConditional()
 {
 	return false;
 }
 
-bool UGT_SceneObjSwitch::ProcessTask_SwitchState()
+bool UGT_SwitchSceneElementState::ProcessTask_SwitchState()
 {
 	if (DisplayAryIndex < DisplayAry.Num())
 	{
@@ -1375,6 +1400,178 @@ bool UGT_SceneObjSwitch::ProcessTask_SwitchState()
 			else
 			{
 				ActorPtr->SetActorHiddenInGame(true);
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+UGT_SwitchSingleSceneElementState::UGT_SwitchSingleSceneElementState(
+	const FObjectInitializer& ObjectInitializer
+	):
+	 Super(ObjectInitializer)
+{
+	bTickingTask = true;
+	bIsPausable = true;
+
+	Priority = FGameplayTasks::DefaultPriority;
+}
+
+bool UGT_SwitchSingleSceneElementState::ProcessTask(
+	float DeltaTime
+	)
+{
+	switch (Step)
+	{
+	case EStep::kDisplay:
+		{
+			if (ProcessTask_Display())
+			{
+				return true;
+			}
+			else
+			{
+			}
+
+			Step = EStep::kHiden;
+			return true;
+		}
+		break;
+	case EStep::kHiden:
+		{
+			if (ProcessTask_Hiden())
+			{
+				return true;
+			}
+			else
+			{
+			}
+
+			Step = EStep::kConfirmConditional;
+			return true;
+		}
+		break;
+	case EStep::kConfirmConditional:
+		{
+			if (ProcessTask_ConfirmConditional())
+			{
+				return true;
+			}
+			else
+			{
+			}
+
+			UseScopeType = EUseScopeType::kCount;
+			
+			Step = EStep::kSwitchState;
+			return true;
+		}
+		break;
+	case EStep::kSwitchState:
+		{
+			if (ProcessTask_SwitchState())
+			{
+				return true;
+			}
+			else
+			{
+			}
+
+			Step = EStep::kComplete;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UGT_SwitchSingleSceneElementState::ProcessTask_Display()
+{
+	TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
+	TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
+
+	TempDataSmithSceneActorsSet.Append(
+									   SceneElementFilter.DatasmithSceneActorSet.
+												 Array()
+									  );
+
+	TempReplaceActorsSet.Append(
+									   SceneElementFilter.ReplaceActorSet.
+												 Array()
+									  );
+	
+	DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
+
+	ReplaceActorsSet.Append(TempReplaceActorsSet.Array());
+
+	return false;
+}
+
+bool UGT_SwitchSingleSceneElementState::ProcessTask_Hiden()
+{
+	if (DataSmithSceneActorsSetIndex < DataSmithSceneActorsSet.Num())
+	{
+		ON_SCOPE_EXIT
+		{
+			DataSmithSceneActorsSetIndex++;
+		};
+
+		TArray<AActor*> OutActors;
+		DataSmithSceneActorsSet[DataSmithSceneActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+
+		DisplayAry.Append(OutActors);
+
+		return true;
+	}
+
+	if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
+	{
+		ON_SCOPE_EXIT
+		{
+			ReplaceActorsSetIndex++;
+		};
+
+		TArray<AActor*> OutActors;
+		ReplaceActorsSet[ReplaceActorsSetIndex]->GetAttachedActors(OutActors, true, true);
+
+		DisplayAry.Append(OutActors);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool UGT_SwitchSingleSceneElementState::ProcessTask_ConfirmConditional()
+{
+	return false;
+}
+
+bool UGT_SwitchSingleSceneElementState::ProcessTask_SwitchState()
+{
+	if (DisplayAryIndex < DisplayAry.Num())
+	{
+		ON_SCOPE_EXIT
+		{
+			DisplayAryIndex++;
+		};
+
+		auto ActorPtr = DisplayAry[DisplayAryIndex];
+		if (ActorPtr)
+		{
+			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
+			if (SceneElementPtr)
+			{
+				SceneElementPtr->SwitchInteractionType(FilterTags);
+				Result.Add(SceneElementPtr);
+			}
+			else
+			{
+				ActorPtr->SetActorHiddenInGame(false);
+				Result.Add(SceneElementPtr);
 			}
 		}
 

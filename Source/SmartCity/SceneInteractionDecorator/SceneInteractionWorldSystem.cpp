@@ -23,6 +23,7 @@
 #include "ViewBuildingProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
+#include "ViewSingleDeviceProcessor.h"
 #include "ViewSplitFloorProcessor.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
@@ -348,7 +349,8 @@ void USceneInteractionWorldSystem::Operation(
 	EOperatorType OperatorType
 	) const
 {
-	for (const auto& Iter : DecoratorLayerAssetMap)
+	const auto TempDecoratorLayerAssetMap = DecoratorLayerAssetMap;
+	for (const auto& Iter : TempDecoratorLayerAssetMap)
 	{
 		if (Iter.Value)
 		{
@@ -369,9 +371,9 @@ void USceneInteractionWorldSystem::UpdateFilter(
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementState>(
 	                                                                        [this, OnEnd, &FilterTags](
-	                                                                        UGT_SceneObjSwitch* GTPtr
+	                                                                        UGT_SwitchSceneElementState* GTPtr
 	                                                                        )
 	                                                                        {
 		                                                                        if (GTPtr)
@@ -635,6 +637,29 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 				}
 
 				RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
+
+				
+				
+				return;
+			}
+		}
+		{
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_View);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
+			{
+				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+					 [DevicePtr](
+					 auto NewProcessor
+					 )
+					 {
+						 NewProcessor->TargetDevicePtr = DevicePtr;
+					 }
+					);
+
 				return;
 			}
 		}

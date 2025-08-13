@@ -134,7 +134,7 @@ public:
 	                   );
 
 	FEmergencyMode_Decorator();
-	
+
 	virtual void Entry() override;
 
 	virtual void Quit() override;
@@ -151,7 +151,6 @@ public:
 		bool bIsOK,
 		const TSet<AActor*>& InActors
 		) override;
-
 };
 
 /**
@@ -181,10 +180,10 @@ private:
 	void RadarQuery();
 
 	void QueryComplete();
-	
+
 	FTimerHandle QueryTimerHadnle;
 
-	TArray<APersonMark*>GeneratedMarkers;
+	TArray<APersonMark*> GeneratedMarkers;
 };
 
 /**
@@ -312,6 +311,26 @@ public:
 private:
 };
 
+/**
+ * 选中“单个设备”
+ */
+class SMARTCITY_API FSingleDeviceMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FSingleDeviceMode_Decorator,
+						FDecoratorBase
+					   );
+
+	FSingleDeviceMode_Decorator(
+		const TObjectPtr<AActor>& TargetDevicePtr
+		);
+	
+	virtual void Entry() override;
+
+	TObjectPtr<AActor> TargetDevicePtr = nullptr;
+};
+
 #pragma endregion
 
 #pragma region 区域
@@ -341,7 +360,8 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
-	FGameplayTag GetCurrentInteraction_Area()const;
+	FGameplayTag GetCurrentInteraction_Area() const;
+
 protected:
 	void UpdateDisplay();
 

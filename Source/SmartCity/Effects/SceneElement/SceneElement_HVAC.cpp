@@ -6,6 +6,9 @@
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
+#include "InputProcessorSubSystem_Imp.h"
+#include "ViewSingleDeviceProcessor.h"
+#include "TourPawn.h"
 
 ASceneElement_HVAC::ASceneElement_HVAC(
 	const FObjectInitializer& ObjectInitializer
@@ -81,6 +84,26 @@ void ASceneElement_HVAC::SwitchInteractionType(
 
 			NiagaraComponentPtr->SetActive(false);
 		
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_View);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+				 [this](
+				 auto NewProcessor
+				 )
+				 {
+					 NewProcessor->TargetDevicePtr = this;
+				 }
+				);
+
 			return;
 		}
 	}
