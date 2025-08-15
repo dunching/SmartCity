@@ -96,6 +96,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "SmartCitySuite",
+			"Enabled": true
+		},
+		{
 			"Name": "Weather",
 			"Enabled": true
 		}

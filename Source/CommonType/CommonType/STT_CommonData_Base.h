@@ -7,6 +7,7 @@
 // 
 
 #pragma region STT
+
 USTRUCT(Blueprintable, BlueprintType)
 struct COMMONTYPE_API FTaskNode_Conversation_SentenceInfo_Base
 {

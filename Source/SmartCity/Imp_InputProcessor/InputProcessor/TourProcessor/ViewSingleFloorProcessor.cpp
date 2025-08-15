@@ -6,6 +6,7 @@
 #include "GameOptions.h"
 #include "GameplayTagsLibrary.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
@@ -21,8 +22,8 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 	FInputProcessor::EnterAction();
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FFloor_Decorator>(
-										 UGameplayTagsLibrary::Interaction_Area,
-										 UGameplayTagsLibrary::Interaction_Area_Floor,
+										 USmartCitySuiteTags::Interaction_Area,
+										 USmartCitySuiteTags::Interaction_Area_Floor,
 										 Interaction_Area
 										);
 

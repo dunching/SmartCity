@@ -13,6 +13,7 @@
 #include "MainHUDLayout.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 
 ASceneElement_Space::ASceneElement_Space(
 	const FObjectInitializer& ObjectInitializer
@@ -112,7 +113,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -125,7 +126,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Focus);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -168,7 +169,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			if (InteractionModeDecoratorSPtr)
 			{
 				if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-				    UGameplayTagsLibrary::Interaction_Mode_PWR)
+				    USmartCitySuiteTags::Interaction_Mode_PWR)
 				{
 					FString FeatureName = Category;
 
@@ -214,7 +215,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					}
 				}
 				else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-				         UGameplayTagsLibrary::Interaction_Mode_PWR_Lighting)
+				         USmartCitySuiteTags::Interaction_Mode_PWR_Lighting)
 				{
 				}
 			}
@@ -225,7 +226,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())

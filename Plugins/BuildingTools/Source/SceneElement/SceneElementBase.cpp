@@ -22,9 +22,11 @@ void ASceneElementBase::Replace(
 
 		ReplaceImp(ActorRef.LoadSynchronous());
 
+#if WITH_EDITOR
 		SceneElementName = ActorRef->GetActorLabel();
 		
 		SetActorLabel(SceneElementName);
+#endif // WITH_EDITOR
 		
 		ActorRef->Destroy();
 	}

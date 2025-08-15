@@ -13,6 +13,7 @@
 #include "MainHUDLayout.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 
 ASceneElement_PWR_Pipe::ASceneElement_PWR_Pipe(
 	const FObjectInitializer& ObjectInitializer
@@ -99,7 +100,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -126,8 +127,8 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_PWR_Energy);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_Energy);
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -152,7 +153,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{

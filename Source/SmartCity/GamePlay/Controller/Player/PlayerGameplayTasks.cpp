@@ -27,6 +27,7 @@
 #include "TemplateHelper.h"
 #include "CollisionDataStruct.h"
 #include "SceneElement_RadarSweep.h"
+#include "SmartCitySuiteTags.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -1124,8 +1125,8 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 		return false;
 	}
 
-	if (FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall) ||
-	    FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
+	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+	    FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_SplitFloor))
 	{
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
@@ -1177,12 +1178,12 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 			HideReplaceActorsSet.Append(TempHideReplaceActorsSet.Array());
 		}
 	}
-	else if (FilterTags.ConditionalSet.HasTag(UGameplayTagsLibrary::Interaction_Area_Floor))
+	else if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
 	{
-		auto FloorTag = UGameplayTagsLibrary::Interaction_Area_Floor;
+		auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
 		for (const auto Iter : FilterTags.ConditionalSet)
 		{
-			if (Iter.MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
+			if (Iter.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
 			{
 				FloorTag = Iter;
 				break;
@@ -1689,7 +1690,7 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 	{
 		FGameplayTagContainer GameplayTagContainer;
 
-		GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		GameplayTagContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
@@ -2002,7 +2003,7 @@ bool UGT_QuitFloorSplit::ProcessTask_Sort()
 	{
 		FGameplayTagContainer GameplayTagContainer;
 
-		GameplayTagContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		GameplayTagContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{

@@ -4,6 +4,7 @@
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
+#include "SmartCitySuiteTags.h"
 
 ASceneElement_AccessControl::ASceneElement_AccessControl(
 	const FObjectInitializer& ObjectInitializer
@@ -36,7 +37,7 @@ void ASceneElement_AccessControl::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -49,7 +50,7 @@ void ASceneElement_AccessControl::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())

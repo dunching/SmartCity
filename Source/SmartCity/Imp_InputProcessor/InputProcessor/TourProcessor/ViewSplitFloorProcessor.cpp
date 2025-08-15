@@ -8,6 +8,7 @@
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
@@ -27,14 +28,14 @@ void TourProcessor::FViewSplitFloorProcessor::EnterAction()
 	{
 		if (GTPtr)
 		{
-			GTPtr->SeatTag = UGameplayTagsLibrary::Seat_ViewSplit;
+			GTPtr->SeatTag = USmartCitySuiteTags::Seat_ViewSplit;
 		}
 	});
 	
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSplitFloor_Decorator>(
-											  UGameplayTagsLibrary::Interaction_Area,
-											  UGameplayTagsLibrary::Interaction_Area_Floor,
-											  UGameplayTagsLibrary::Interaction_Area_SplitFloor
+											  USmartCitySuiteTags::Interaction_Area.GetTag(),
+											  USmartCitySuiteTags::Interaction_Area_Floor.GetTag(),
+											  USmartCitySuiteTags::Interaction_Area_SplitFloor.GetTag()
 											 );
 
 	SwitchShowCursor(true);

@@ -76,6 +76,8 @@ class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	UGameOptions(const FObjectInitializer& ObjectInitializer);
+	
 	static UGameOptions* GetInstance();
 
 #pragma region 雷达控制

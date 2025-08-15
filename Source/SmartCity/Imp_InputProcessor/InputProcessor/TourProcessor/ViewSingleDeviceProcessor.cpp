@@ -8,6 +8,7 @@
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
@@ -23,8 +24,8 @@ void TourProcessor::FViewSingleDeviceProcessor::EnterAction()
 	FInputProcessor::EnterAction();
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSingleDeviceMode_Decorator>(
-											  UGameplayTagsLibrary::Interaction_Mode,
-											  UGameplayTagsLibrary::Interaction_Mode_View,
+											  USmartCitySuiteTags::Interaction_Mode,
+											  USmartCitySuiteTags::Interaction_Mode_View,
 											  TargetDevicePtr
 											 );
 

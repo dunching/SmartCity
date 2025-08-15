@@ -8,6 +8,7 @@
 #include "GameplayTagsLibrary.h"
 #include "RouteMarker.h"
 #include "AssetRefMap.h"
+#include "SmartCitySuiteTags.h"
 
 ASceneElement_SunShade::ASceneElement_SunShade(
 	const FObjectInitializer& ObjectInitializer
@@ -66,7 +67,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -81,8 +82,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_SunShade);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_SunShade);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -106,7 +107,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())

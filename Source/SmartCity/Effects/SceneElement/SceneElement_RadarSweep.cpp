@@ -1,6 +1,7 @@
 #include "SceneElement_RadarSweep.h"
 
 #include "GameplayTagsLibrary.h"
+#include "SmartCitySuiteTags.h"
 
 ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 	const FObjectInitializer& ObjectInitializer
@@ -25,7 +26,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -38,8 +39,8 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_ELV_Radar);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_ELV_Radar.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -54,7 +55,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())

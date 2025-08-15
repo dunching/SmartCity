@@ -46,7 +46,9 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		);
 
+#if WITH_EDITORONLY_DATA
 	FString SceneElementName;
+#endif
 
 	FSceneElementConditional CurrentConditionalSet;
 };

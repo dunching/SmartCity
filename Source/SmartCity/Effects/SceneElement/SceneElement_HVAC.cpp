@@ -7,6 +7,7 @@
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
 #include "InputProcessorSubSystem_Imp.h"
+#include "SmartCitySuiteTags.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "TourPawn.h"
 
@@ -47,7 +48,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -61,8 +62,8 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_PWR_HVAC);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_HVAC.GetTag());
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -76,7 +77,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -90,7 +91,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_View);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_View.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 			EmptyContainer.Num())

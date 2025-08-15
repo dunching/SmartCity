@@ -6,6 +6,7 @@
 #include "CollisionDataStruct.h"
 #include "FloorHelper.h"
 #include "GameplayTagsLibrary.h"
+#include "SmartCitySuiteTags.h"
 
 AElevator::AElevator(
 	const FObjectInitializer& ObjectInitializer
@@ -39,8 +40,8 @@ void AElevator::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
-		EmptyContainer.AddTag(UGameplayTagsLibrary::Interaction_Mode_Elevator);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Elevator);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{

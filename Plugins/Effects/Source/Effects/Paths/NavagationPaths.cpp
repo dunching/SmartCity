@@ -1,6 +1,5 @@
 #include "NavagationPaths.h"
 
-#include "INodeAndChannelMappings.h"
 #include "Components/SplineComponent.h"
 
 ANavagationPaths::ANavagationPaths(

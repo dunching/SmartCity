@@ -107,6 +107,7 @@ public class SmartCity : ModuleRules
 			"Weather",
 			"BuildingTools",
 			"Effects",
+			"SmartCitySuite",
 			
 			// 其他模块
 			"AssetRef",
