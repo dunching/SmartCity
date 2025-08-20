@@ -25,6 +25,7 @@
 #include "TemplateHelper.h"
 #include "FloorHelperBase.h"
 #include "NavagationPaths.h"
+#include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
 
 FDecoratorBase::FDecoratorBase(
@@ -1238,13 +1239,6 @@ bool FFloor_Decorator::Operation(
 							 SceneActorConditional
 							);
 
-
-						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-						MessageBodySPtr->DeviceID = TEXT("");
-
-						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
 						return true;
 					}
 				}
@@ -1271,6 +1265,12 @@ bool FFloor_Decorator::Operation(
 							continue;
 						}
 
+						auto SpaceElementPtr = Cast<ASceneElement_Space>(Iter.GetActor());
+						if (!SpaceElementPtr)
+						{
+							continue;
+						}
+						
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
 						FSceneElementConditional SceneActorConditional;
@@ -1294,11 +1294,6 @@ bool FFloor_Decorator::Operation(
 							 }
 							);
 
-						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
-
-						MessageBodySPtr->SpaceName = TEXT("");
-
-						UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 						return true;
 					}
 				}

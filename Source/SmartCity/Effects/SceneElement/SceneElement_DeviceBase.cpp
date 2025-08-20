@@ -4,7 +4,9 @@
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
+#include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
+#include "WebChannelWorldSystem.h"
 
 void ASceneElement_DeviceBase::BeginPlay()
 {
@@ -73,6 +75,13 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
+	
+	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+	MessageBodySPtr->DeviceID = TEXT("");
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 

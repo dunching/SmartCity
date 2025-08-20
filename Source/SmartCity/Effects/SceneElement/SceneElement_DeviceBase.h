@@ -49,5 +49,8 @@ public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;
 
+	UPROPERTY(BlueprintReadWrite,EditAnywhere )
+	FString  DeviceID ;
+
 	bool bIsOpened = false;
 };

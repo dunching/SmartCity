@@ -11,9 +11,11 @@
 #include "GameplayTagsLibrary.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
+#include "MessageBody.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "WebChannelWorldSystem.h"
 
 ASceneElement_Space::ASceneElement_Space(
 	const FObjectInitializer& ObjectInitializer
@@ -185,12 +187,12 @@ void ASceneElement_Space::SwitchInteractionType(
 						FeatureName.Append(Description.Title);
 					}
 
-					TSet<AActor*> ActorsAry;
+					TSet<ASceneElement_DeviceBase*> ActorsAry;
 					for (const auto& Iter : OutOverlap)
 					{
 						if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
 						{
-							ActorsAry.Add(Iter.GetActor());
+							ActorsAry.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
 						}
 					}
 
@@ -213,6 +215,17 @@ void ASceneElement_Space::SwitchInteractionType(
 					{
 						HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(this, FeatureName, Features);
 					}
+
+					auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
+
+					MessageBodySPtr->SpaceName = Category;
+					for (auto DeviceIter : ActorsAry)
+					{
+						MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
+					}
+
+					UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+	
 				}
 				else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
 				         USmartCitySuiteTags::Interaction_Mode_PWR_Lighting)

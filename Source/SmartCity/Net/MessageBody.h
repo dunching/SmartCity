@@ -51,6 +51,8 @@ struct FMessageBody_SelectedSpace : public FMessageBody
 
 	FString SpaceName;
 
+	TArray<FString> DeviceIDAry;
+
 protected:
 	
 	virtual TSharedPtr<FJsonObject> SerializeBody()const override;
