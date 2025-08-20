@@ -15,5 +15,15 @@
 				"Win64"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "DatasmithContent",
+			"Enabled": true
+		},
+		{
+			"Name": "Effects",
+			"Enabled": true
+		}
 	]
 }

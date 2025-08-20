@@ -44,7 +44,6 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/GamePlay/GameState");
 		PublicIncludePaths.Add("SmartCity/GamePlay/PlayerState");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn");
-		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn/Horse");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn/Human");
 		PublicIncludePaths.Add("SmartCity/GamePlay/WorldSetting");
 		PublicIncludePaths.Add("SmartCity/GamePlay/PlayerCameraManager");
@@ -56,13 +55,10 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/UI/HUD");
 
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor");
-		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputActions");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/HumanProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/TourProcessor");
 		
-		PrivateIncludePaths.Add("SmartCity/Private");
-
 		if (Target.bBuildEditor == true)
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");

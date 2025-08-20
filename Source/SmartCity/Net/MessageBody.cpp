@@ -88,6 +88,20 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 	return RootJsonObj;
 }
 
+FMessageBody_Test::FMessageBody_Test()
+{
+}
+
+TSharedPtr<FJsonObject> FMessageBody_Test::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = FMessageBody::SerializeBody();
+
+	RootJsonObj->SetStringField(TEXT("Text"),
+								Text);
+	
+	return RootJsonObj;
+}
+
 FString FMessageBody::GetJsonString() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = SerializeBody();

@@ -17,3 +17,12 @@ WeatherSystemCommand
 
 AdjustWeather
 	Param.1:DefaultGameplayTags.ini->Weather 
+
+
+-PixelStreamingURL="ws://127.0.0.1:8888"
+
+-AllowPixelStreamingCommands 
+
+-log 
+
+-RenderOffScreen
