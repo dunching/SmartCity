@@ -5,6 +5,8 @@
 #include "WorldPartition/DataLayer/DataLayerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/WebChannelWorldSystem.h"
+#include "Components/BoxComponent.h"
+#include "Marks/PersonMark.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -14,10 +16,16 @@
 #include "SceneInteractionWorldSystem.h"
 #include "Algorithm.h"
 #include "Elevator.h"
+#include "FloorHelper.h"
 #include "GameplayCommand.h"
 #include "GameplayTagsLibrary.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
+#include "SceneElement_PWR_Pipe.h"
+#include "TemplateHelper.h"
+#include "FloorHelperBase.h"
+#include "NavagationPaths.h"
+#include "SmartCitySuiteTags.h"
 
 FDecoratorBase::FDecoratorBase(
 	FGameplayTag InMainDecoratorType,
@@ -83,8 +91,8 @@ void FDecoratorBase::OnUpdateFilterComplete(
 
 FEmpty_Decorator::FEmpty_Decorator():
                                     Super(
-                                          UGameplayTagsLibrary::Interaction_Mode,
-                                          UGameplayTagsLibrary::Interaction_Mode_Empty
+                                          USmartCitySuiteTags::Interaction_Mode,
+                                          USmartCitySuiteTags::Interaction_Mode_Empty
                                          )
 {
 }
@@ -96,8 +104,8 @@ void FTour_Decorator::Entry()
 
 FTour_Decorator::FTour_Decorator():
                                   Super(
-                                        UGameplayTagsLibrary::Interaction_Mode,
-                                        UGameplayTagsLibrary::Interaction_Mode_Tour
+                                        USmartCitySuiteTags::Interaction_Mode,
+                                        USmartCitySuiteTags::Interaction_Mode_Tour
                                        )
 {
 }
@@ -113,8 +121,8 @@ bool FTour_Decorator::Operation(
 
 FSceneMode_Decorator::FSceneMode_Decorator():
                                             Super(
-                                                  UGameplayTagsLibrary::Interaction_Mode,
-                                                  UGameplayTagsLibrary::Interaction_Mode_Scene
+                                                  USmartCitySuiteTags::Interaction_Mode,
+                                                  USmartCitySuiteTags::Interaction_Mode_Scene
                                                  )
 {
 }
@@ -133,62 +141,303 @@ bool FSceneMode_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
-FRDRadarMode_Decorator::FRDRadarMode_Decorator():
-                                                Super(
-                                                      UGameplayTagsLibrary::Interaction_Mode,
-                                                      UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
-                                                     )
+FEmergencyMode_Decorator::FEmergencyMode_Decorator():
+                                                    Super(
+                                                          USmartCitySuiteTags::Interaction_Mode,
+                                                          USmartCitySuiteTags::Interaction_Mode_Emergency
+                                                         )
 {
 }
 
-FRDRadarMode_Decorator::~FRDRadarMode_Decorator()
+void FEmergencyMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(
+			                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
+				                                            Iter.Value->FloorTag
+				                                           )
+			                                          );
+		}
+	}
+}
+
+void FEmergencyMode_Decorator::Quit()
+{
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(false);
+		}
+	}
+
+	Super::Quit();
+}
+
+void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (NewDecoratorSPtr)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+		{
+			auto AreaDecoratorSPtr =
+				DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
+
+			if (!AreaDecoratorSPtr)
+			{
+				return;
+			}
+
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+				{
+					Iter.Value->NavagationPaths->SwitchDisplay(
+					                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().
+					                                           MatchesTag(
+					                                                      Iter.Value->FloorTag
+					                                                     )
+					                                          );
+				}
+			}
+		}
+		else
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+				{
+					Iter.Value->NavagationPaths->SwitchDisplay(false);
+				}
+			}
+		}
+	}
+}
+
+void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
+}
+
+void FEmergencyMode_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors);
+}
+
+FELVRadarMode_Decorator::FELVRadarMode_Decorator():
+                                                  Super(
+                                                        USmartCitySuiteTags::Interaction_Mode,
+                                                        USmartCitySuiteTags::Interaction_Mode_ELV_Radar
+                                                       )
 {
 }
 
-void FRDRadarMode_Decorator::Entry()
+FELVRadarMode_Decorator::~FELVRadarMode_Decorator()
+{
+}
+
+void FELVRadarMode_Decorator::Entry()
 {
 	Super::Entry();
 
 	GetWorldImp()->GetTimerManager().SetTimer(
 	                                          QueryTimerHadnle,
 	                                          std::bind(&ThisClass::RadarQuery, this),
+#if TEST_RADAR
+	                                          1.f,
+#else
 	                                          UGameOptions::GetInstance()->RadarQueryFrequency,
+#endif
 	                                          true
 	                                         );
 }
 
-void FRDRadarMode_Decorator::Quit()
+void FELVRadarMode_Decorator::Quit()
 {
 	GetWorldImp()->GetTimerManager().ClearTimer(
 	                                            QueryTimerHadnle
 	                                           );
 
+	for (auto Iter : GeneratedMarkers)
+	{
+		Iter->Destroy();
+	}
+	GeneratedMarkers.Empty();
+
 	Super::Quit();
 }
 
-bool FRDRadarMode_Decorator::Operation(
+bool FELVRadarMode_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
 	return Super::Operation(OperatorType);
 }
 
-void FRDRadarMode_Decorator::RadarQuery()
+void FELVRadarMode_Decorator::RadarQuery()
+{
+#if TEST_RADAR
+	QueryComplete();
+#else
+
+#endif
+}
+
+void FELVRadarMode_Decorator::QueryComplete()
+{
+#if TEST_RADAR
+	int32 Num = FMath::RandRange(1, 10);
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+	if (AreaDecoratorSPtr)
+	{
+		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+		{
+			if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetCurrentInteraction_Area())
+			{
+				for (int32 Index = 0; Index < Num; Index++)
+				{
+					const auto Pt = FMath::RandPointInBox(
+					                                      FBox::BuildAABB(
+					                                                      Iter.Value->BoxComponentPtr->
+					                                                           GetComponentLocation(),
+					                                                      Iter.Value->BoxComponentPtr->
+					                                                           GetScaledBoxExtent()
+					                                                     )
+					                                     );
+					if (GeneratedMarkers.IsValidIndex(Index))
+					{
+						GeneratedMarkers[Index]->Update(Pt);
+					}
+					else
+					{
+						auto NewMarkPtr = GetWorldImp()->SpawnActor<APersonMark>(
+							 UAssetRefMap::GetInstance()->PersonMarkClass
+							);
+						NewMarkPtr->Update(Pt);
+
+						GeneratedMarkers.Add(NewMarkPtr);
+					}
+				}
+
+				break;
+			}
+		}
+		for (int32 Index = GeneratedMarkers.Num() - 1; Index >= Num; Index--)
+		{
+			GeneratedMarkers[Index]->Destroy();
+			GeneratedMarkers.RemoveAt(Index);
+		}
+	}
+#else
+
+#endif
+}
+
+FPWRMode_Decorator::FPWRMode_Decorator():
+                                        Super(
+                                              USmartCitySuiteTags::Interaction_Mode,
+                                              USmartCitySuiteTags::Interaction_Mode_PWR
+                                             )
 {
 }
 
-FQDMode_Decorator::FQDMode_Decorator():
-                                      Super(
-                                            UGameplayTagsLibrary::Interaction_Mode,
-                                            UGameplayTagsLibrary::Interaction_Mode_PWR
-                                           )
+FPWREnergyMode_Decorator::FPWREnergyMode_Decorator():
+                                                    Super(
+                                                          USmartCitySuiteTags::Interaction_Mode,
+                                                          USmartCitySuiteTags::Interaction_Mode_PWR_Energy
+                                                         )
+{
+}
+
+void FPWREnergyMode_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors);
+
+	for (auto Iter : InActors)
+	{
+		auto PipePtr = Cast<ASceneElement_PWR_Pipe>(Iter);
+		if (PipePtr)
+		{
+			PipeActors.Add(PipePtr);
+		}
+	}
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(AreaDecoratorSPtr->GetBranchDecoratorType());
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	for (auto Iter : PipeActors)
+	{
+		if (Iter)
+		{
+			Iter->SwitchInteractionType(SceneActorConditional);
+		}
+	}
+}
+
+FPWRHVACMode_Decorator::FPWRHVACMode_Decorator():
+                                                Super(
+                                                      USmartCitySuiteTags::Interaction_Mode,
+                                                      USmartCitySuiteTags::Interaction_Mode_PWR_HVAC
+                                                     )
+{
+}
+
+FPWRLightingMode_Decorator::FPWRLightingMode_Decorator():
+                                                        Super(
+                                                              USmartCitySuiteTags::Interaction_Mode,
+                                                              USmartCitySuiteTags::Interaction_Mode_PWR_Lighting
+                                                             )
 {
 }
 
 FAccessControlMode_Decorator::FAccessControlMode_Decorator():
                                                             Super(
-                                                                  UGameplayTagsLibrary::Interaction_Mode,
-                                                                  UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
+                                                                  USmartCitySuiteTags::Interaction_Mode,
+                                                                  USmartCitySuiteTags::Interaction_Mode_ELV_AccessControl
                                                                  )
 {
 }
@@ -203,16 +452,20 @@ void FAccessControlMode_Decorator::Entry()
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 	USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
 
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode);
+
 	for (auto Iter : OutActors)
 	{
-		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, EInteractionType::kFocus);
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, SceneActorConditional);
 	}
 }
 
 FElevatorMode_Decorator::FElevatorMode_Decorator():
                                                   Super(
-                                                        UGameplayTagsLibrary::Interaction_Mode,
-                                                        UGameplayTagsLibrary::Interaction_Mode_Elevator
+                                                        USmartCitySuiteTags::Interaction_Mode,
+                                                        USmartCitySuiteTags::Interaction_Mode_Elevator
                                                        )
 {
 }
@@ -220,34 +473,34 @@ FElevatorMode_Decorator::FElevatorMode_Decorator():
 void FElevatorMode_Decorator::Entry()
 {
 	Super::Entry();
-
-	for (auto Iter : UAssetRefMap::GetInstance()->ElevatorMap)
-	{
-		if (Iter.Value.ToSoftObjectPath().IsValid())
-		{
-			Iter.Value->SwitchState(true);
-		}
-	}
 }
 
 void FElevatorMode_Decorator::Quit()
 {
-	for (auto Iter : UAssetRefMap::GetInstance()->ElevatorMap)
-	{
-		if (Iter.Value.ToSoftObjectPath().IsValid())
-		{
-			Iter.Value->SwitchState(false);
-		}
-	}
-
 	Super::Quit();
+}
+
+void FElevatorMode_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors);
+}
+
+FSunShadeMode_Decorator::FSunShadeMode_Decorator():
+                                                  Super(
+                                                        USmartCitySuiteTags::Interaction_Mode,
+                                                        USmartCitySuiteTags::Interaction_Mode_SunShade
+                                                       )
+{
 }
 
 FArea_Decorator::FArea_Decorator(
 	const FGameplayTag& Interaction_Area
 	):
 	 Super(
-	       UGameplayTagsLibrary::Interaction_Area,
+	       USmartCitySuiteTags::Interaction_Area,
 	       Interaction_Area
 	      )
 	 , CurrentInteraction_Area(Interaction_Area)
@@ -257,58 +510,6 @@ FArea_Decorator::FArea_Decorator(
 void FArea_Decorator::Entry()
 {
 	Super::Entry();
-
-	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-		 UGameplayTagsLibrary::Interaction_Mode
-		);
-	if (
-		DecoratorSPtr &&
-		!DecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty)
-		)
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-			SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
-	else
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
 }
 
 void FArea_Decorator::OnOtherDecoratorEntry(
@@ -316,49 +517,6 @@ void FArea_Decorator::OnOtherDecoratorEntry(
 	)
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
-
-	if (
-		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode) &&
-		!NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(UGameplayTagsLibrary::Interaction_Mode_Empty)
-		)
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags
-		                                                         );
-	}
-	else
-	{
-		TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
-
-		{
-			FSceneElementConditional SceneActorConditional;
-
-			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-			FilterTags.Add(SceneActorConditional);
-		}
-
-		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-		                                                          FilterTags,
-		                                                          std::bind(
-		                                                                    &ThisClass::OnUpdateFilterComplete,
-		                                                                    this,
-		                                                                    std::placeholders::_1,
-		                                                                    std::placeholders::_2
-		                                                                   )
-		                                                         );
-	}
 }
 
 void FArea_Decorator::OnOtherDecoratorQuit(
@@ -366,6 +524,11 @@ void FArea_Decorator::OnOtherDecoratorQuit(
 	)
 {
 	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
+}
+
+FGameplayTag FArea_Decorator::GetCurrentInteraction_Area() const
+{
+	return CurrentInteraction_Area;
 }
 
 void FArea_Decorator::UpdateDisplay()
@@ -391,6 +554,259 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 void FExternalWall_Decorator::Entry()
 {
 	Super::Entry();
+
+	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+		 USmartCitySuiteTags::Interaction_Mode
+		);
+	if (
+		DecoratorSPtr
+	)
+	{
+		if (
+			DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+		)
+		{
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                            USmartCitySuiteTags::Interaction_Mode_Emergency
+			                                                           ))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			else if (DecoratorSPtr->GetBranchDecoratorType().
+			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
+}
+
+void FExternalWall_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+	)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_Emergency))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FExternalWall_Decorator::Operation(
@@ -420,7 +836,7 @@ FSplitFloor_Decorator::FSplitFloor_Decorator(
 	const FGameplayTag& Interaction_Area
 	):
 	 Super(
-	       UGameplayTagsLibrary::Interaction_Area,
+	       USmartCitySuiteTags::Interaction_Area,
 	       Interaction_Area
 	      )
 {
@@ -463,6 +879,13 @@ void FSplitFloor_Decorator::Quit()
 	Super::Quit();
 }
 
+void FSplitFloor_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+}
+
 bool FSplitFloor_Decorator::NeedAsync() const
 {
 	return true;
@@ -491,6 +914,139 @@ FFloor_Decorator::~FFloor_Decorator()
 void FFloor_Decorator::Entry()
 {
 	Super::Entry();
+
+	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+		 USmartCitySuiteTags::Interaction_Mode
+		);
+	if (
+		DecoratorSPtr
+	)
+	{
+		if (
+			DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+		)
+		{
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			else if (DecoratorSPtr->GetBranchDecoratorType().
+			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                            USmartCitySuiteTags::Interaction_Mode_Emergency
+			                                                           ))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+			else
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          MulticastDelegate
+				                                                         );
+
+				return;
+			}
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 void FFloor_Decorator::Quit()
@@ -499,6 +1055,125 @@ void FFloor_Decorator::Quit()
 	USceneInteractionWorldSystem::GetInstance()->ClearRouteMarker();
 
 	Super::Quit();
+}
+
+void FFloor_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+	)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_Emergency))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&
+
+
+				
+				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          MulticastDelegate
+	                                                         );
 }
 
 bool FFloor_Decorator::Operation(
@@ -553,7 +1228,15 @@ bool FFloor_Decorator::Operation(
 						}
 
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter.GetActor(), EInteractionType::kView);
+
+						FSceneElementConditional SceneActorConditional;
+
+						SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
+
+						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
+							 Iter.GetActor(),
+							 SceneActorConditional
+							);
 
 
 						auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
@@ -583,8 +1266,21 @@ bool FFloor_Decorator::Operation(
 				{
 					if (Iter.GetActor())
 					{
+						if (Iter.GetActor()->IsHidden())
+						{
+							continue;
+						}
+
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter.GetActor(), EInteractionType::kView);
+
+						FSceneElementConditional SceneActorConditional;
+
+						SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus);
+
+						USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
+							 Iter.GetActor(),
+							 SceneActorConditional
+							);
 
 						PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterBySpace>(
 							 [&Iter](
@@ -646,4 +1342,70 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			 }
 		 }
 		);
+}
+
+FSingleDeviceMode_Decorator::FSingleDeviceMode_Decorator(
+		const TObjectPtr<AActor>& InTargetDevicePtr
+	):
+	 Super(
+	       USmartCitySuiteTags::Interaction_Mode,
+	       USmartCitySuiteTags::Interaction_Mode_View
+	      )
+	 , TargetDevicePtr(InTargetDevicePtr)
+{
+}
+
+void FSingleDeviceMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
+		 [this](
+		 UGT_CameraTransformLocaterByID* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->TargetDevicePtr = TargetDevicePtr;
+			 }
+		 }
+		);
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	const auto AreaTag = AreaDecoratorSPtr->GetCurrentInteraction_Area();
+	if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(AreaTag))
+	{
+		auto FloorPtr = UAssetRefMap::GetInstance()->FloorHelpers[AreaTag];
+
+		PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSingleSceneElementState>(
+			 [this, FloorPtr, &AreaTag](
+			 UGT_SwitchSingleSceneElementState* GTPtr
+			 )
+			 {
+				 if (GTPtr)
+				 {
+					 GTPtr->
+						 SceneElementFilter = FloorPtr->AllReference.SoftDecorationItem;
+
+					 FSceneElementConditional FSceneElementConditional;
+
+					 FSceneElementConditional.ConditionalSet.AddTag(AreaTag);
+
+					 GTPtr->FilterTags = FSceneElementConditional;
+				 }
+			 }
+			);
+	}
 }

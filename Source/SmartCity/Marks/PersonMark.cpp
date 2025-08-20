@@ -1,5 +1,7 @@
 #include "PersonMark.h"
 
+#include "NiagaraComponent.h"
+
 APersonMark::APersonMark(
 	const FObjectInitializer& ObjectInitializer
 	):
@@ -24,4 +26,28 @@ APersonMark::APersonMark(
 		Mesh->SetCanEverAffectNavigation(false);
 	}
 
+}
+
+void APersonMark::Update(
+	const FVector& NewLocation
+	)
+{
+	SetActorLocation(NewLocation);
+}
+
+AFireMark::AFireMark(
+	const FObjectInitializer& ObjectInitializer
+	):
+	 Super(ObjectInitializer)
+{
+	RootComponent = CreateOptionalDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	
+	NiagaraComponent = CreateOptionalDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	NiagaraComponent->SetupAttachment(RootComponent);
+}
+
+void AFireMark::Update(
+	const FVector& NewLocation
+	)
+{
 }

@@ -2,7 +2,7 @@
 
 #include "Tools.h"
 
-inline TPair<FTransform, float> UKismetAlgorithm::GetCameraSeat(
+TPair<FTransform, float> UKismetAlgorithm::GetCameraSeat(
 	const TSet<AActor*>& Actors,
 	const FRotator& Rot,
 	float FOV
@@ -50,15 +50,15 @@ FBox UKismetAlgorithm::GetActorBox(
 			Box += Iter->GetComponentsBoundingBox();
 		}
 	}
-	
+
 	DrawDebugBox(
-				 GetWorldImp(),
-				 Box.GetCenter(),
-				 Box.GetExtent(),
-				 FColor::Green,
-				 false,
-				 10
-				);
+	             GetWorldImp(),
+	             Box.GetCenter(),
+	             Box.GetExtent(),
+	             FColor::Green,
+	             false,
+	             10
+	            );
 
 	return Box;
 }

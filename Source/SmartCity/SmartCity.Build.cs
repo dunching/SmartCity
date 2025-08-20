@@ -23,14 +23,12 @@ public class SmartCity : ModuleRules
 		{
 		}
 
-		PublicDefinitions.Add("TESTPLAYERCHARACTERHOLDDATA = 0");
-		PublicDefinitions.Add("TESTAICHARACTERHOLDDATA = 1");
-		PublicDefinitions.Add("TESTRESOURCEBOXHOLDDATA = 1");
-		PublicDefinitions.Add("TESTRAFFLE = 1");
+		PublicDefinitions.Add("TEST_RADAR = 1");
 
 		PublicIncludePaths.Add("SmartCity");
 		PublicIncludePaths.Add("SmartCity/Net");
 		PublicIncludePaths.Add("SmartCity/Effects");
+		PublicIncludePaths.Add("SmartCity/Effects/SceneElement");
 		PublicIncludePaths.Add("SmartCity/ElevatorSubSystem");
 		PublicIncludePaths.Add("SmartCity/SpaceSubSystem");
 		PublicIncludePaths.Add("SmartCity/BuildingTools");
@@ -46,7 +44,6 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/GamePlay/GameState");
 		PublicIncludePaths.Add("SmartCity/GamePlay/PlayerState");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn");
-		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn/Horse");
 		PublicIncludePaths.Add("SmartCity/GamePlay/Pawn/Human");
 		PublicIncludePaths.Add("SmartCity/GamePlay/WorldSetting");
 		PublicIncludePaths.Add("SmartCity/GamePlay/PlayerCameraManager");
@@ -58,14 +55,10 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/UI/HUD");
 
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor");
-		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputActions");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor");
 		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/HumanProcessor");
-		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/HumanProcessor/ActionProcessor");
-		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/TourProcessor/ActionProcessor");
+		PublicIncludePaths.Add("SmartCity/Imp_InputProcessor/InputProcessor/TourProcessor");
 		
-		PrivateIncludePaths.Add("SmartCity/Private");
-
 		if (Target.bBuildEditor == true)
 		{
 			PrivateDependencyModuleNames.Add("UnrealEd");
@@ -108,6 +101,9 @@ public class SmartCity : ModuleRules
 			"StateProcessor",
 			"Utils",
 			"Weather",
+			"BuildingTools",
+			"Effects",
+			"SmartCitySuite",
 			
 			// 其他模块
 			"AssetRef",

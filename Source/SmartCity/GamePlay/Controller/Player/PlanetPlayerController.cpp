@@ -1,14 +1,11 @@
 #include "PlanetPlayerController.h"
 
-#include "InputProcessorSubSystem_Imp.h"
 #include "PlayerGameplayTasks.h"
-#include "ViewBuildingProcessor.h"
-#include "ViewerPawn.h"
-#include "TourPawn.h"
 #include "PixelStreamingInputComponent.h"
+#include "WebChannelWorldSystem.h"
 
 APlanetPlayerController::APlanetPlayerController(const FObjectInitializer& ObjectInitializer) :
-	Super(ObjectInitializer)
+                                                                                              Super(ObjectInitializer)
 {
 	GameplayTasksComponentPtr = CreateDefaultSubobject<UPlayerControllerGameplayTasksComponent>(
 		UPlayerControllerGameplayTasksComponent::ComponentName
@@ -28,4 +25,6 @@ void APlanetPlayerController::OnPossess(APawn* InPawn)
 	if (bIsNewPawn)
 	{
 	}
+
+	UWebChannelWorldSystem::GetInstance()->BindEvent();
 }

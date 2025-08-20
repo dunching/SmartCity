@@ -10,7 +10,7 @@
 		{
 			"Name": "Weather",
 			"Type": "Runtime",
-			"LoadingPhase": "Default",
+			"LoadingPhase": "PostDefault",
 			"WhitelistPlatforms": [
 				"Win64"
 			]

@@ -7,6 +7,7 @@
 #include "GameFramework/Pawn.h"
 
 #include "GameOptions.h"
+#include "FloorHelperBase.h"
 
 #include "FloorHelper.generated.h"
 
@@ -23,16 +24,10 @@ class UActorSequenceComponent;
  */
 UCLASS()
 class SMARTCITY_API AFloorHelper :
-	public AActor
+	public AFloorHelperBase
 {
 	GENERATED_BODY()
 
 public:
 
-	AFloorHelper(
-		const FObjectInitializer& ObjectInitializer
-		);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FGameplayTag FloorTag;
 };

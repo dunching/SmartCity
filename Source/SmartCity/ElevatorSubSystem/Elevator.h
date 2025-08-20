@@ -7,6 +7,7 @@
 #include "GameFramework/Pawn.h"
 
 #include "GameOptions.h"
+#include "SceneElementBase.h"
 
 #include "Elevator.generated.h"
 
@@ -23,7 +24,7 @@ class UActorSequenceComponent;
  */
 UCLASS()
 class SMARTCITY_API AElevator :
-	public AActor
+	public ASceneElementBase
 {
 	GENERATED_BODY()
 
@@ -33,8 +34,10 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	void SwitchState(bool bIsActive);
-	
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
+
 	void ChangeTargetFloorIndex(int32 FloorIndex); 
 	
 protected:

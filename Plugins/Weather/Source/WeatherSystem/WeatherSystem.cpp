@@ -8,23 +8,7 @@
 
 #include "Dynamic_WeatherBase.h"
 #include "Dynamic_SkyBase.h"
-
-UWorld* GetWorldImp()
-{
-#if WITH_EDITOR
-	if (GEditor->IsPlayingSessionInEditor())
-	{
-		auto Ptr = GWorld;
-		return GEngine->GetCurrentPlayWorld() ? GEngine->GetCurrentPlayWorld() : GEditor->PlayWorld.Get();
-	}
-	else
-	{
-		return GEditor->PlayWorld;
-	}
-#else
-	return GEngine->GetCurrentPlayWorld();
-#endif
-}
+#include "Tools.h"
 
 UWeatherSystem* UWeatherSystem::GetInstance()
 {

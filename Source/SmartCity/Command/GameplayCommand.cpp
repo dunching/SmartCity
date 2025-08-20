@@ -18,11 +18,12 @@
 #include "TourPawn.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
+#include "SmartCitySuiteTags.h"
 #include "Kismet/KismetStringLibrary.h"
 
 void SmartCityCommand::ReplyCameraTransform()
 {
-	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(UGameplayTagsLibrary::Interaction_Area_ExternalWall);
+	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 }
 
 void SmartCityCommand::SwitchViewArea(

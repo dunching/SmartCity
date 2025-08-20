@@ -40,7 +40,7 @@ bool FInputProcessor::Tick(
 #if WITH_EDITOR
 	return !bIsRequestQuit;
 #else
-	return !bIsRequestQuit
+	return !bIsRequestQuit;
 #endif
 }
 

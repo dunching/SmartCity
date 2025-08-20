@@ -73,3 +73,20 @@ protected:
 
 };
 
+
+USTRUCT()
+struct FMessageBody_Test : public FMessageBody
+{
+	
+	GENERATED_BODY()
+	
+	FMessageBody_Test();
+	
+	FString Text;
+
+protected:
+	
+	virtual TSharedPtr<FJsonObject> SerializeBody()const override;
+
+};
+
