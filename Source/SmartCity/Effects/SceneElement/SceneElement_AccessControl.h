@@ -8,6 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 
 #include "SceneElement_AccessControl.generated.h"
 
@@ -24,7 +25,7 @@ class UActorSequenceComponent;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_AccessControl :
-	public ASceneElementBase
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 

@@ -263,6 +263,31 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_Lighting);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+			if (HUDPtr)
+			{
+				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+			}
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+			return;
+		}
+	}
+	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 		}

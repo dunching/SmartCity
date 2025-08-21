@@ -8,6 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 
 #include "SceneElement_SunShade.generated.h"
 
@@ -25,7 +26,7 @@ class URouteMarker;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_SunShade :
-	public ASceneElementBase
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 

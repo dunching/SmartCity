@@ -9,6 +9,7 @@
 #include "GameOptions.h"
 #include "GenerateTypes.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 
 #include "SceneElement_PWR_Pipe.generated.h"
 
@@ -26,7 +27,7 @@ class UStaticMeshComponent;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_PWR_Pipe :
-	public ASceneElementBase
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 

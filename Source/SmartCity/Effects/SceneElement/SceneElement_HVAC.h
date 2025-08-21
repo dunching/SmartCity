@@ -26,7 +26,7 @@ class UNiagaraComponent;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_HVAC :
-	public ASceneElementBase
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 

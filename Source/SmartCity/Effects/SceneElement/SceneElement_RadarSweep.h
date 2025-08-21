@@ -8,6 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 
 #include "SceneElement_RadarSweep.generated.h"
 
@@ -23,7 +24,7 @@ class AViewerPawn;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_RadarSweep :
-	public ASceneElementBase
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 
