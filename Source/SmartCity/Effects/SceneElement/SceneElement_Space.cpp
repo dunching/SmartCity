@@ -19,8 +19,8 @@
 
 ASceneElement_Space::ASceneElement_Space(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
@@ -170,8 +170,12 @@ void ASceneElement_Space::SwitchInteractionType(
 				GetInteractionModeDecorator();
 			if (InteractionModeDecoratorSPtr)
 			{
-				if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-				    USmartCitySuiteTags::Interaction_Mode_PWR)
+				const auto BranchDecoratorType = InteractionModeDecoratorSPtr->GetBranchDecoratorType();
+				if (
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_Lighting) ||
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_Energy) ||
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_HVAC)
+				)
 				{
 					FString FeatureName = Category;
 
@@ -206,7 +210,6 @@ void ASceneElement_Space::SwitchInteractionType(
 						}
 						else
 						{
-							
 						}
 					}
 
@@ -225,7 +228,6 @@ void ASceneElement_Space::SwitchInteractionType(
 					}
 
 					UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-	
 				}
 				else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
 				         USmartCitySuiteTags::Interaction_Mode_PWR_Lighting)
@@ -264,7 +266,7 @@ void ASceneElement_Space::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 		}
-		
+
 		SetActorHiddenInGame(true);
 
 		auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
