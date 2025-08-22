@@ -12,6 +12,7 @@
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
 #include "MessageBody.h"
+#include "RouteMarker.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -142,30 +143,6 @@ void ASceneElement_Space::SwitchInteractionType(
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
 
-			TArray<FOverlapResult> OutOverlap;
-
-			FComponentQueryParams Params;
-
-			// Params.bTraceComplex = true;
-
-#if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
-			Params.bDebugQuery = true;
-#endif
-
-			FCollisionObjectQueryParams ObjectQueryParams;
-			ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
-
-			GetWorld()->ComponentOverlapMulti(
-			                                  OutOverlap,
-			                                  StaticMeshComponent,
-			                                  FVector::ZeroVector,
-			                                  FRotator::ZeroRotator,
-			                                  // StaticMeshComponent->GetComponentLocation(),
-			                                  // StaticMeshComponent->GetComponentRotation(),
-			                                  Params,
-			                                  ObjectQueryParams
-			                                 );
-
 			auto InteractionModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->
 				GetInteractionModeDecorator();
 			if (InteractionModeDecoratorSPtr)
@@ -177,19 +154,29 @@ void ASceneElement_Space::SwitchInteractionType(
 					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_HVAC)
 				)
 				{
-					FString FeatureName = Category;
+					TArray<FOverlapResult> OutOverlap;
 
-					if (UAssetRefMap::GetInstance()->ModeDescription.Contains(
-					                                                          InteractionModeDecoratorSPtr->
-					                                                          GetBranchDecoratorType()
-					                                                         ))
-					{
-						const auto Description = UAssetRefMap::GetInstance()->ModeDescription[
-							InteractionModeDecoratorSPtr->
-							GetBranchDecoratorType()];
-						FeatureName.Append(TEXT(":"));
-						FeatureName.Append(Description.Title);
-					}
+					FComponentQueryParams Params;
+
+					// Params.bTraceComplex = true;
+
+#if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
+					Params.bDebugQuery = true;
+#endif
+
+					FCollisionObjectQueryParams ObjectQueryParams;
+					ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+
+					GetWorld()->ComponentOverlapMulti(
+													  OutOverlap,
+													  StaticMeshComponent,
+													  FVector::ZeroVector,
+													  FRotator::ZeroRotator,
+													  // StaticMeshComponent->GetComponentLocation(),
+													  // StaticMeshComponent->GetComponentRotation(),
+													  Params,
+													  ObjectQueryParams
+													 );
 
 					TSet<ASceneElement_DeviceBase*> ActorsAry;
 					for (const auto& Iter : OutOverlap)
@@ -200,7 +187,6 @@ void ASceneElement_Space::SwitchInteractionType(
 						}
 					}
 
-					TArray<FFeaturesItem> Features;
 					for (const auto& Iter : ActorsAry)
 					{
 						auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
@@ -213,12 +199,6 @@ void ASceneElement_Space::SwitchInteractionType(
 						}
 					}
 
-					auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-					if (HUDPtr)
-					{
-						HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(this, FeatureName, Features);
-					}
-
 					auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 					MessageBodySPtr->SpaceName = Category;
@@ -228,10 +208,30 @@ void ASceneElement_Space::SwitchInteractionType(
 					}
 
 					UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+
+					if (UAssetRefMap::GetInstance()->ModeDescription.Contains(
+																			  InteractionModeDecoratorSPtr->
+																			  GetBranchDecoratorType()
+																			 ))
+					{
+						const auto Description = UAssetRefMap::GetInstance()->ModeDescription[
+							InteractionModeDecoratorSPtr->
+							GetBranchDecoratorType()];
+					}
+					
+					return;
 				}
-				else if (InteractionModeDecoratorSPtr->GetBranchDecoratorType() ==
-				         USmartCitySuiteTags::Interaction_Mode_PWR_Lighting)
+			}
+			{
+				RouteMarkerPtr = CreateWidget<URouteMarker>(
+															GEngine->GetFirstLocalPlayerController(GetWorld()),
+															UAssetRefMap::GetInstance()->SpaceRouteMarkerClass
+														   );
+				if (RouteMarkerPtr)
 				{
+					RouteMarkerPtr->TextStr = Category;
+					RouteMarkerPtr->TargetActor = this;
+					RouteMarkerPtr->AddToViewport();
 				}
 			}
 

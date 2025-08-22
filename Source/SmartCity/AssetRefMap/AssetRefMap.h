@@ -95,6 +95,9 @@ public:
 	TSoftObjectPtr<UMaterialInstance> SpaceMaterialInstance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<URouteMarker> SpaceRouteMarkerClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<URouteMarker> RouteMarkerClass;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

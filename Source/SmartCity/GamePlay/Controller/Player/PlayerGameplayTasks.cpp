@@ -1,6 +1,7 @@
 #include "PlayerGameplayTasks.h"
 
 #include "DatasmithAssetUserData.h"
+#include "Engine/OverlapResult.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -38,8 +39,8 @@ FName UPlayerControllerGameplayTasksComponent::ComponentName = TEXT("PlayerContr
 
 UGT_ReplyCameraTransform::UGT_ReplyCameraTransform(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -105,8 +106,8 @@ void UGameplayTaskBase::OnDestroy(
 
 UGT_CameraTransform::UGT_CameraTransform(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -213,7 +214,6 @@ void UGT_CameraTransformLocaterByID::Activate()
 
 	if (TargetDevicePtr)
 	{
-		
 	}
 	else
 	{
@@ -224,12 +224,12 @@ void UGT_CameraTransformLocaterByID::Activate()
 	{
 		return;
 	}
-	
+
 	auto Result = UKismetAlgorithm::GetCameraSeat(
-												  {TargetDevicePtr},
-												  UGameOptions::GetInstance()->ViewDeviceRot,
-												  UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
-												 );
+	                                              {TargetDevicePtr},
+	                                              UGameOptions::GetInstance()->ViewDeviceRot,
+	                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
+	                                             );
 
 	TargetLocation = Result.Key.GetLocation();
 	TargetRotation = Result.Key.GetRotation().Rotator();
@@ -257,8 +257,8 @@ void UGT_CameraTransformLocaterBySpace::Activate()
 
 UGT_BatchBase::UGT_BatchBase(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 }
@@ -342,8 +342,8 @@ bool UGT_BatchBase::ProcessTask(
 
 UGT_InitializeSceneActors::UGT_InitializeSceneActors(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -917,84 +917,153 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 	for (auto& Iter : OutActors)
 	{
-		if (Iter)
+		if (!IsValid(Iter))
 		{
-			bool bIsSceneElement = false;
-			auto Components = Iter->GetComponents();
-			for (auto SecondIter : Components)
+			PRINTINVOKEINFO();
+			continue;
+		}
+
+		bool bIsSceneElement = false;
+		auto Components = Iter->GetComponents();
+		for (auto SecondIter : Components)
+		{
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+			if (!InterfacePtr)
 			{
-				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-				if (InterfacePtr)
+				continue;
+			}
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
+			if (!AUDPtr)
+			{
+				continue;
+			}
+
+			for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
+			{
+				auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
+				if (!MetaDataIter)
 				{
-					auto AUDPtr = Cast<UDatasmithAssetUserData>(
-					                                            InterfacePtr->GetAssetUserDataOfClass(
-						                                             UDatasmithAssetUserData::StaticClass()
-						                                            )
-					                                           );
-					if (!AUDPtr)
+					continue;
+				}
+				if (*MetaDataIter != ThirdIter.Key.Value)
+				{
+					continue;
+				}
+
+				if (ThirdIter.Key.bNeedMerge)
+				{
+					auto HashCode = HashCombine(
+					                            GetTypeHash(ThirdIter.Key.Key),
+					                            GetTypeHash(ThirdIter.Key.Value)
+					                           );
+					if (MergeActorsMap.Contains(HashCode))
 					{
-						continue;
+						MergeActorsMap[HashCode]->Merge(Iter);
 					}
-
-					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
+					else
 					{
-						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
-						if (MetaDataIter && (*MetaDataIter == ThirdIter.Key.Value))
+						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+							 ThirdIter.Value
+							);
+						NewActorPtr->Merge(Iter);
+
+						RelatedActors.Add(NewActorPtr);
+						MergeActorsMap.Add(HashCode, NewActorPtr);
+					}
+				}
+				else if (ThirdIter.Key.bNeedMergeWithNear)
+				{
+					TArray<FOverlapResult> OutOverlaps;
+
+					FVector Pos = Iter->GetActorLocation();
+
+					FCollisionObjectQueryParams ObjectQueryParams;
+					ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+
+					GetWorld()->OverlapMultiByObjectType(
+					                                     OutOverlaps,
+					                                     Pos,
+					                                     FQuat::Identity,
+					                                     ObjectQueryParams,
+					                                     FCollisionShape::MakeSphere(
+						                                      ThirdIter.Key.MergeWithNearDistance
+						                                     )
+					                                    );
+
+					auto HashCode = HashCombine(
+					                            GetTypeHash(ThirdIter.Key.Key),
+					                            GetTypeHash(ThirdIter.Key.Value)
+					                           );
+
+					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+						 ThirdIter.Value
+						);
+
+					NewActorPtr->MergeWithNear(Iter);
+					for (auto OutOverlapsIter : OutOverlaps)
+					{
+						auto TempComponents = Iter->GetComponents();
+						for (auto ComponentIter : TempComponents)
 						{
-							if (ThirdIter.Key.bNeedMerge)
+							auto TempInterfacePtr = Cast<IInterface_AssetUserData>(
+								 ComponentIter
+								);
+							if (TempInterfacePtr)
 							{
-								auto HashCode = HashCombine(
-								                            GetTypeHash(ThirdIter.Key.Key),
-								                            GetTypeHash(ThirdIter.Key.Value)
-								                           );
-								if (MergeActorsMap.Contains(HashCode))
+								auto TempAUDPtr = Cast<UDatasmithAssetUserData>(
+								                                                TempInterfacePtr->
+								                                                GetAssetUserDataOfClass(
+									                                                 UDatasmithAssetUserData::StaticClass()
+									                                                )
+								                                               );
+								if (!TempAUDPtr)
 								{
-									MergeActorsMap[HashCode]->Merge(Iter);
+									continue;
 								}
-								else
-								{
-									auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-										 ThirdIter.Value
-										);
-									NewActorPtr->Merge(Iter);
 
-									RelatedActors.Add(NewActorPtr);
-									MergeActorsMap.Add(HashCode, NewActorPtr);
+								auto TempMetaDataIter = TempAUDPtr->MetaData.Find(*ThirdIter.Key.Key);
+								if (TempMetaDataIter && (*TempMetaDataIter == ThirdIter.Key.Value))
+								{
+									NewActorPtr->MergeWithNear(OutOverlapsIter.GetActor());
+									break;
 								}
 							}
-							else
-							{
-								auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-									 ThirdIter.Value,
-									 Iter->GetActorTransform()
-									);
-								NewActorPtr->Replace(Iter);
-
-								RelatedActors.Add(NewActorPtr);
-							}
-							bIsSceneElement = true;
-							break;
 						}
 					}
-				}
 
-				if (bIsSceneElement)
-				{
-					break;
+					RelatedActors.Add(NewActorPtr);
+					MergeActorsMap.Add(HashCode, NewActorPtr);
 				}
+				else
+				{
+					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+						 ThirdIter.Value,
+						 Iter->GetActorTransform()
+						);
+					NewActorPtr->Replace(Iter);
+
+					RelatedActors.Add(NewActorPtr);
+				}
+				bIsSceneElement = true;
+				break;
 			}
 
 			if (bIsSceneElement)
 			{
+				break;
 			}
-			else
-			{
-				RelatedActors.Add(Iter);
-			}
+		}
+
+		if (bIsSceneElement)
+		{
 		}
 		else
 		{
-			PRINTINVOKEINFO();
+			RelatedActors.Add(Iter);
 		}
 	}
 }
@@ -1017,8 +1086,8 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 UGT_SwitchSceneElementState::UGT_SwitchSceneElementState(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -1095,7 +1164,7 @@ bool UGT_SwitchSceneElementState::ProcessTask(
 			}
 
 			UseScopeType = EUseScopeType::kCount;
-			
+
 			Step = EStep::kSwitchState;
 			return true;
 		}
@@ -1412,8 +1481,8 @@ bool UGT_SwitchSceneElementState::ProcessTask_SwitchState()
 
 UGT_SwitchSingleSceneElementState::UGT_SwitchSingleSceneElementState(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -1466,7 +1535,7 @@ bool UGT_SwitchSingleSceneElementState::ProcessTask(
 			}
 
 			UseScopeType = EUseScopeType::kCount;
-			
+
 			Step = EStep::kSwitchState;
 			return true;
 		}
@@ -1495,15 +1564,15 @@ bool UGT_SwitchSingleSceneElementState::ProcessTask_Display()
 	TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
 
 	TempDataSmithSceneActorsSet.Append(
-									   SceneElementFilter.DatasmithSceneActorSet.
-												 Array()
-									  );
+	                                   SceneElementFilter.DatasmithSceneActorSet.
+	                                                      Array()
+	                                  );
 
 	TempReplaceActorsSet.Append(
-									   SceneElementFilter.ReplaceActorSet.
-												 Array()
-									  );
-	
+	                            SceneElementFilter.ReplaceActorSet.
+	                                               Array()
+	                           );
+
 	DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
 
 	ReplaceActorsSet.Append(TempReplaceActorsSet.Array());
@@ -1584,8 +1653,8 @@ bool UGT_SwitchSingleSceneElementState::ProcessTask_SwitchState()
 
 UGT_FloorSplit::UGT_FloorSplit(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;
@@ -1938,8 +2007,8 @@ bool UGT_FloorSplit::ProcessTask_Move(
 
 UGT_QuitFloorSplit::UGT_QuitFloorSplit(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bTickingTask = true;
 	bIsPausable = true;

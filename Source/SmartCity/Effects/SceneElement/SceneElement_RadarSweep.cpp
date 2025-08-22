@@ -67,6 +67,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 			return;
 		}
 	}
+	
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{

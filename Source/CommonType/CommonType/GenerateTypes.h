@@ -54,6 +54,13 @@ struct COMMONTYPE_API FSceneElementTypeHelper
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bNeedMerge = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool bNeedMergeWithNear = false;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int32 MergeWithNearDistance = 50;
+	
 };
 
 struct COMMONTYPE_API TFSceneElementTypeHelperKeyFuncs :

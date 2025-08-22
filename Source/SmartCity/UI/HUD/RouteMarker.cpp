@@ -27,7 +27,11 @@ FVector URouteMarker::GetHoverPosition()
 {
 	if (TargetActor.IsValid())
 	{
-		return TargetActor->GetActorLocation();
+		FVector Origin;
+		FVector BoxExtent;
+
+		TargetActor->GetActorBounds(false, Origin, BoxExtent);
+		return Origin;
 	}
 
 	return FVector::ZeroVector;

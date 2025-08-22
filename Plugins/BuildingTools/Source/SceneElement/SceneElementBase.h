@@ -32,7 +32,19 @@ public:
 		AActor* ActorPtr
 		);
 	
+	/**
+	 * 合并所有
+	 * @param ActorRef 
+	 */
 	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef
+		);
+
+	/**
+	 * 与附近的合并
+	 * @param ActorRef 
+	 */
+	virtual void MergeWithNear(
 		const TSoftObjectPtr<AActor>& ActorRef
 		);
 

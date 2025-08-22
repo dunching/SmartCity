@@ -18,6 +18,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
+class URouteMarker;
 
 /**
  * 门禁

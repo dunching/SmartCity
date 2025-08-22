@@ -17,6 +17,7 @@ class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
+class URouteMarker;
 
 /**
  * 雷达扫描效果
@@ -51,4 +52,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
+
 };

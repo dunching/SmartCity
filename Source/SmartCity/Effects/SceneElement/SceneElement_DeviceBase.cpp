@@ -1,10 +1,12 @@
 #include "SceneElement_DeviceBase.h"
 
 #include "ActorSequenceComponent.h"
+#include "AssetRefMap.h"
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
 #include "MessageBody.h"
+#include "RouteMarker.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
 
@@ -138,24 +140,6 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
 
-			return;
-		}
-	}
-
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			;
-			if (DeviceType.MatchesTag(
-			                          USmartCitySuiteTags::SceneElement_FanCoil.GetTag()
-			                         ))
-			{
-			}
 			return;
 		}
 	}

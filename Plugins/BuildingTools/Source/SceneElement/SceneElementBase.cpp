@@ -44,6 +44,12 @@ void ASceneElementBase::Merge(
 {
 }
 
+void ASceneElementBase::MergeWithNear(
+	const TSoftObjectPtr<AActor>& ActorRef
+	)
+{
+}
+
 void ASceneElementBase::BeginInteraction()
 {
 }

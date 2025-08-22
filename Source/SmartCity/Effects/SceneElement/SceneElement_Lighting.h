@@ -38,6 +38,14 @@ public:
 		AActor* ActorPtr
 		) override;
 	
+	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef
+		) override;
+
+	virtual void MergeWithNear(
+		const TSoftObjectPtr<AActor>& ActorRef
+		) override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -48,14 +56,17 @@ protected:
 	
 	/**
 	 * 固定的网格体
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> MeshComponent = nullptr;
-	
+	*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> EmissiveMaterialInstance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FName EmissiveValue = TEXT("Emissive");
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
 
 };
