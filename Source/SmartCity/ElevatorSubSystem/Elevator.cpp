@@ -41,7 +41,7 @@ void AElevator::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Elevator);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{

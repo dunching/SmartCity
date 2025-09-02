@@ -26,8 +26,10 @@ public class SmartCity : ModuleRules
 		PublicDefinitions.Add("TEST_RADAR = 1");
 
 		PublicIncludePaths.Add("SmartCity");
+		PublicIncludePaths.Add("SmartCity/Marks");
 		PublicIncludePaths.Add("SmartCity/Net");
 		PublicIncludePaths.Add("SmartCity/Effects");
+		PublicIncludePaths.Add("SmartCity/Effects/Buildings");
 		PublicIncludePaths.Add("SmartCity/Effects/SceneElement");
 		PublicIncludePaths.Add("SmartCity/ElevatorSubSystem");
 		PublicIncludePaths.Add("SmartCity/SpaceSubSystem");

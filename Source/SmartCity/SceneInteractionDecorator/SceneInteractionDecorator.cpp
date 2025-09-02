@@ -1,12 +1,8 @@
 #include "SceneInteractionDecorator.h"
 
 #include "SceneElement_AccessControl.h"
-#include "WorldPartition/DataLayer/DataLayerInstance.h"
-#include "WorldPartition/DataLayer/DataLayerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/WebChannelWorldSystem.h"
-#include "Components/BoxComponent.h"
-#include "Marks/PersonMark.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -15,10 +11,7 @@
 #include "MessageBody.h"
 #include "SceneInteractionWorldSystem.h"
 #include "Algorithm.h"
-#include "Elevator.h"
 #include "FloorHelper.h"
-#include "GameplayCommand.h"
-#include "GameplayTagsLibrary.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "SceneElement_PWR_Pipe.h"
@@ -31,9 +24,9 @@
 FDecoratorBase::FDecoratorBase(
 	FGameplayTag InMainDecoratorType,
 	FGameplayTag InBranchDecoratorType
-	):
-	 MainDecoratorType(InMainDecoratorType)
-	 , BranchDecoratorType(InBranchDecoratorType)
+	) :
+	  MainDecoratorType(InMainDecoratorType)
+	  , BranchDecoratorType(InBranchDecoratorType)
 {
 }
 
@@ -90,11 +83,11 @@ void FDecoratorBase::OnUpdateFilterComplete(
 {
 }
 
-FEmpty_Decorator::FEmpty_Decorator():
-                                    Super(
-                                          USmartCitySuiteTags::Interaction_Mode,
-                                          USmartCitySuiteTags::Interaction_Mode_Empty
-                                         )
+FEmpty_Decorator::FEmpty_Decorator() :
+                                     Super(
+                                           USmartCitySuiteTags::Interaction_Mode,
+                                           USmartCitySuiteTags::Interaction_Mode_Empty
+                                          )
 {
 }
 
@@ -103,11 +96,11 @@ void FTour_Decorator::Entry()
 	Super::Entry();
 }
 
-FTour_Decorator::FTour_Decorator():
-                                  Super(
-                                        USmartCitySuiteTags::Interaction_Mode,
-                                        USmartCitySuiteTags::Interaction_Mode_Tour
-                                       )
+FTour_Decorator::FTour_Decorator() :
+                                   Super(
+                                         USmartCitySuiteTags::Interaction_Mode,
+                                         USmartCitySuiteTags::Interaction_Mode_Tour
+                                        )
 {
 }
 
@@ -120,11 +113,11 @@ bool FTour_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
-FSceneMode_Decorator::FSceneMode_Decorator():
-                                            Super(
-                                                  USmartCitySuiteTags::Interaction_Mode,
-                                                  USmartCitySuiteTags::Interaction_Mode_Scene
-                                                 )
+FSceneMode_Decorator::FSceneMode_Decorator() :
+                                             Super(
+                                                   USmartCitySuiteTags::Interaction_Mode,
+                                                   USmartCitySuiteTags::Interaction_Mode_Scene
+                                                  )
 {
 }
 
@@ -142,11 +135,11 @@ bool FSceneMode_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
-FEmergencyMode_Decorator::FEmergencyMode_Decorator():
-                                                    Super(
-                                                          USmartCitySuiteTags::Interaction_Mode,
-                                                          USmartCitySuiteTags::Interaction_Mode_Emergency
-                                                         )
+FEmergencyMode_Decorator::FEmergencyMode_Decorator() :
+                                                     Super(
+                                                           USmartCitySuiteTags::Interaction_Mode,
+                                                           USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+                                                          )
 {
 }
 
@@ -251,11 +244,11 @@ void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
 }
 
-FELVRadarMode_Decorator::FELVRadarMode_Decorator():
-                                                  Super(
-                                                        USmartCitySuiteTags::Interaction_Mode,
-                                                        USmartCitySuiteTags::Interaction_Mode_ELV_Radar
-                                                       )
+FELVRadarMode_Decorator::FELVRadarMode_Decorator() :
+                                                   Super(
+                                                         USmartCitySuiteTags::Interaction_Mode,
+                                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
+                                                        )
 {
 }
 
@@ -266,31 +259,10 @@ FELVRadarMode_Decorator::~FELVRadarMode_Decorator()
 void FELVRadarMode_Decorator::Entry()
 {
 	Super::Entry();
-
-	GetWorldImp()->GetTimerManager().SetTimer(
-	                                          QueryTimerHadnle,
-	                                          std::bind(&ThisClass::RadarQuery, this),
-#if TEST_RADAR
-	                                          1.f,
-#else
-	                                          UGameOptions::GetInstance()->RadarQueryFrequency,
-#endif
-	                                          true
-	                                         );
 }
 
 void FELVRadarMode_Decorator::Quit()
 {
-	GetWorldImp()->GetTimerManager().ClearTimer(
-	                                            QueryTimerHadnle
-	                                           );
-
-	for (auto Iter : GeneratedMarkers)
-	{
-		Iter->Destroy();
-	}
-	GeneratedMarkers.Empty();
-
 	Super::Quit();
 }
 
@@ -301,84 +273,45 @@ bool FELVRadarMode_Decorator::Operation(
 	return Super::Operation(OperatorType);
 }
 
-void FELVRadarMode_Decorator::RadarQuery()
-{
-#if TEST_RADAR
-	QueryComplete();
-#else
-
-#endif
-}
-
-void FELVRadarMode_Decorator::QueryComplete()
-{
-#if TEST_RADAR
-	int32 Num = FMath::RandRange(1, 10);
-
-	auto AreaDecoratorSPtr =
-		DynamicCastSharedPtr<FArea_Decorator>(
-		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-			                                       USmartCitySuiteTags::Interaction_Area
-			                                      )
-		                                     );
-	if (AreaDecoratorSPtr)
-	{
-		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-		{
-			if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetCurrentInteraction_Area())
-			{
-				for (int32 Index = 0; Index < Num; Index++)
-				{
-					const auto Pt = FMath::RandPointInBox(
-					                                      FBox::BuildAABB(
-					                                                      Iter.Value->BoxComponentPtr->
-					                                                           GetComponentLocation(),
-					                                                      Iter.Value->BoxComponentPtr->
-					                                                           GetScaledBoxExtent()
-					                                                     )
-					                                     );
-					if (GeneratedMarkers.IsValidIndex(Index))
-					{
-						GeneratedMarkers[Index]->Update(Pt);
-					}
-					else
-					{
-						auto NewMarkPtr = GetWorldImp()->SpawnActor<APersonMark>(
-							 UAssetRefMap::GetInstance()->PersonMarkClass
-							);
-						NewMarkPtr->Update(Pt);
-
-						GeneratedMarkers.Add(NewMarkPtr);
-					}
-				}
-
-				break;
-			}
-		}
-		for (int32 Index = GeneratedMarkers.Num() - 1; Index >= Num; Index--)
-		{
-			GeneratedMarkers[Index]->Destroy();
-			GeneratedMarkers.RemoveAt(Index);
-		}
-	}
-#else
-
-#endif
-}
-
-FPWRMode_Decorator::FPWRMode_Decorator():
-                                        Super(
-                                              USmartCitySuiteTags::Interaction_Mode,
-                                              USmartCitySuiteTags::Interaction_Mode_PWR
-                                             )
+FDeviceManaggerMode_Decorator::FDeviceManaggerMode_Decorator() :
+                                                               Super(
+                                                                     USmartCitySuiteTags::Interaction_Mode,
+                                                                     USmartCitySuiteTags::Interaction_Mode_DeviceManagger
+                                                                    )
 {
 }
 
-FPWREnergyMode_Decorator::FPWREnergyMode_Decorator():
-                                                    Super(
-                                                          USmartCitySuiteTags::Interaction_Mode,
-                                                          USmartCitySuiteTags::Interaction_Mode_PWR_Energy
-                                                         )
+FDeviceManaggerMode_Decorator::FDeviceManaggerMode_Decorator(
+	FGameplayTag InBranchDecoratorType
+	) :
+	  Super(
+	        USmartCitySuiteTags::Interaction_Mode,
+	        InBranchDecoratorType
+	       )
+{
+}
+
+FDeviceManaggerPWRMode_Decorator::FDeviceManaggerPWRMode_Decorator(
+	) :
+	  Super(
+	        USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR
+	       )
+{
+}
+
+FDeviceManaggerPWRMode_Decorator::FDeviceManaggerPWRMode_Decorator(
+	FGameplayTag InBranchDecoratorType
+	) :
+	  Super(
+	        InBranchDecoratorType
+	       )
+{
+}
+
+FPWREnergyMode_Decorator::FPWREnergyMode_Decorator() :
+                                                     Super(
+                                                           USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy
+                                                          )
 {
 }
 
@@ -419,27 +352,24 @@ void FPWREnergyMode_Decorator::OnUpdateFilterComplete(
 	}
 }
 
-FPWRHVACMode_Decorator::FPWRHVACMode_Decorator():
-                                                Super(
-                                                      USmartCitySuiteTags::Interaction_Mode,
-                                                      USmartCitySuiteTags::Interaction_Mode_PWR_HVAC
-                                                     )
+FPWRHVACMode_Decorator::FPWRHVACMode_Decorator() :
+                                                 Super(
+                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
+                                                      )
 {
 }
 
-FPWRLightingMode_Decorator::FPWRLightingMode_Decorator():
-                                                        Super(
-                                                              USmartCitySuiteTags::Interaction_Mode,
-                                                              USmartCitySuiteTags::Interaction_Mode_PWR_Lighting
-                                                             )
+FPWRLightingMode_Decorator::FPWRLightingMode_Decorator() :
+                                                         Super(
+                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+                                                              )
 {
 }
 
-FAccessControlMode_Decorator::FAccessControlMode_Decorator():
-                                                            Super(
-                                                                  USmartCitySuiteTags::Interaction_Mode,
-                                                                  USmartCitySuiteTags::Interaction_Mode_ELV_AccessControl
-                                                                 )
+FAccessControlMode_Decorator::FAccessControlMode_Decorator() :
+                                                             Super(
+                                                                   USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl
+                                                                  )
 {
 }
 
@@ -463,11 +393,11 @@ void FAccessControlMode_Decorator::Entry()
 	}
 }
 
-FElevatorMode_Decorator::FElevatorMode_Decorator():
-                                                  Super(
-                                                        USmartCitySuiteTags::Interaction_Mode,
-                                                        USmartCitySuiteTags::Interaction_Mode_Elevator
-                                                       )
+FElevatorMode_Decorator::FElevatorMode_Decorator() :
+                                                   Super(
+                                                         USmartCitySuiteTags::Interaction_Mode,
+                                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+                                                        )
 {
 }
 
@@ -489,22 +419,21 @@ void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	Super::OnUpdateFilterComplete(bIsOK, InActors);
 }
 
-FSunShadeMode_Decorator::FSunShadeMode_Decorator():
-                                                  Super(
-                                                        USmartCitySuiteTags::Interaction_Mode,
-                                                        USmartCitySuiteTags::Interaction_Mode_SunShade
-                                                       )
+FSunShadeMode_Decorator::FSunShadeMode_Decorator() :
+                                                   Super(
+                                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade
+                                                        )
 {
 }
 
 FArea_Decorator::FArea_Decorator(
 	const FGameplayTag& Interaction_Area
-	):
-	 Super(
-	       USmartCitySuiteTags::Interaction_Area,
-	       Interaction_Area
-	      )
-	 , CurrentInteraction_Area(Interaction_Area)
+	) :
+	  Super(
+	        USmartCitySuiteTags::Interaction_Area,
+	        Interaction_Area
+	       )
+	  , CurrentInteraction_Area(Interaction_Area)
 {
 }
 
@@ -545,10 +474,10 @@ void FArea_Decorator::OnUpdateFilterComplete(
 
 FExternalWall_Decorator::FExternalWall_Decorator(
 	const FGameplayTag& Interaction_Area
-	):
-	 Super(
-	       Interaction_Area
-	      )
+	) :
+	  Super(
+	        Interaction_Area
+	       )
 {
 }
 
@@ -591,7 +520,7 @@ void FExternalWall_Decorator::Entry()
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
-			                                                            USmartCitySuiteTags::Interaction_Mode_Emergency
+			                                                            USmartCitySuiteTags::Interaction_Mode_EmergencySystem
 			                                                           ))
 			{
 				FSceneElementConditional SceneActorConditional;
@@ -616,7 +545,7 @@ void FExternalWall_Decorator::Entry()
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().
-			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -720,7 +649,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 			return;
 		}
 		else if (NewDecoratorSPtr->GetBranchDecoratorType().
-		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_Emergency))
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_EmergencySystem))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -741,7 +670,9 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 			return;
 		}
 
-		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+		                                                              ))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -835,11 +766,11 @@ bool FExternalWall_Decorator::Operation(
 
 FSplitFloor_Decorator::FSplitFloor_Decorator(
 	const FGameplayTag& Interaction_Area
-	):
-	 Super(
-	       USmartCitySuiteTags::Interaction_Area,
-	       Interaction_Area
-	      )
+	) :
+	  Super(
+	        USmartCitySuiteTags::Interaction_Area,
+	        Interaction_Area
+	       )
 {
 }
 
@@ -901,10 +832,10 @@ bool FSplitFloor_Decorator::Operation(
 
 FFloor_Decorator::FFloor_Decorator(
 	const FGameplayTag& Interaction_Area
-	):
-	 Super(
-	       Interaction_Area
-	      )
+	) :
+	  Super(
+	        Interaction_Area
+	       )
 {
 }
 
@@ -951,7 +882,7 @@ void FFloor_Decorator::Entry()
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().
-			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+			                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -975,7 +906,7 @@ void FFloor_Decorator::Entry()
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
-			                                                            USmartCitySuiteTags::Interaction_Mode_Emergency
+			                                                            USmartCitySuiteTags::Interaction_Mode_EmergencySystem
 			                                                           ))
 			{
 				FSceneElementConditional SceneActorConditional;
@@ -1088,7 +1019,9 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 			return;
 		}
-		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Elevator))
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+		                                                              ))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -1109,7 +1042,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			return;
 		}
 		else if (NewDecoratorSPtr->GetBranchDecoratorType().
-		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_Emergency))
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_EmergencySystem))
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -1188,6 +1121,22 @@ bool FFloor_Decorator::Operation(
 	case EOperatorType::kLeftMouseButton:
 	case EOperatorType::kRightMouseButton:
 		{
+			// 确认当前的模式
+			auto DecoratorSPtr =
+				DynamicCastSharedPtr<FDeviceManaggerMode_Decorator>(
+																	USceneInteractionWorldSystem::GetInstance()->
+																	GetDecorator(
+																		 USmartCitySuiteTags::Interaction_Mode
+																		)
+																   );
+			if (DecoratorSPtr)
+			{
+			}
+			else
+			{
+				
+			}
+			
 			TArray<struct FHitResult> OutHits;
 
 			auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
@@ -1270,7 +1219,7 @@ bool FFloor_Decorator::Operation(
 						{
 							continue;
 						}
-						
+
 						USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
 						FSceneElementConditional SceneActorConditional;
@@ -1339,14 +1288,22 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 		);
 }
 
+FInteraction_Decorator::FInteraction_Decorator():
+Super(
+			USmartCitySuiteTags::Interaction_Interaction,
+			USmartCitySuiteTags::Interaction_Interaction)
+{
+	
+}
+
 FSingleDeviceMode_Decorator::FSingleDeviceMode_Decorator(
-		const TObjectPtr<AActor>& InTargetDevicePtr
-	):
-	 Super(
-	       USmartCitySuiteTags::Interaction_Mode,
-	       USmartCitySuiteTags::Interaction_Mode_View
-	      )
-	 , TargetDevicePtr(InTargetDevicePtr)
+	const TObjectPtr<AActor>& InTargetDevicePtr
+	) :
+	  Super(
+	        USmartCitySuiteTags::Interaction_Mode,
+	        USmartCitySuiteTags::Interaction_Mode_View
+	       )
+	  , TargetDevicePtr(InTargetDevicePtr)
 {
 }
 
@@ -1403,4 +1360,11 @@ void FSingleDeviceMode_Decorator::Entry()
 			 }
 			);
 	}
+}
+
+void FInteraction_Decorator::SwitchIteractionType(
+	EInteractionType NewInteractionType
+	)
+{
+	InteractionType = NewInteractionType;
 }

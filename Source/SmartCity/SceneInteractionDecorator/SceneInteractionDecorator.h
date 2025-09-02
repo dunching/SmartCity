@@ -175,29 +175,43 @@ public:
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
+};
 
-private:
-	void RadarQuery();
+/**
+ * 选择“设备管理”模式
+ */
+class SMARTCITY_API FDeviceManaggerMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FDeviceManaggerMode_Decorator,
+	                    FDecoratorBase
+	                   );
 
-	void QueryComplete();
+	FDeviceManaggerMode_Decorator();
 
-	FTimerHandle QueryTimerHadnle;
+	FDeviceManaggerMode_Decorator(
+		FGameplayTag InBranchDecoratorType
+		);
 
-	TArray<APersonMark*> GeneratedMarkers;
 };
 
 /**
  * 选择“强电”模式
  */
-class SMARTCITY_API FPWRMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FDeviceManaggerPWRMode_Decorator : public FDeviceManaggerMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FPWRMode_Decorator,
-	                    FDecoratorBase
+	                    FDeviceManaggerPWRMode_Decorator,
+	                    FDeviceManaggerMode_Decorator
 	                   );
 
-	FPWRMode_Decorator();
+	FDeviceManaggerPWRMode_Decorator();
+
+	FDeviceManaggerPWRMode_Decorator(
+		FGameplayTag InBranchDecoratorType
+		);
 
 private:
 };
@@ -205,12 +219,12 @@ private:
 /**
  * 选择能耗
  */
-class SMARTCITY_API FPWREnergyMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FPWREnergyMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
 	                    FPWREnergyMode_Decorator,
-	                    FDecoratorBase
+	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
 	FPWREnergyMode_Decorator();
@@ -227,12 +241,12 @@ private:
 /**
  * 选择暖通
  */
-class SMARTCITY_API FPWRHVACMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FPWRHVACMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
 	                    FPWRHVACMode_Decorator,
-	                    FDecoratorBase
+	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
 	FPWRHVACMode_Decorator();
@@ -241,12 +255,12 @@ public:
 /**
  * 选择照明
  */
-class SMARTCITY_API FPWRLightingMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FPWRLightingMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
 	                    FPWRLightingMode_Decorator,
-	                    FDecoratorBase
+	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
 	FPWRLightingMode_Decorator();
@@ -255,17 +269,33 @@ public:
 /**
  * 选择“门禁”模式
  */
-class SMARTCITY_API FAccessControlMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FAccessControlMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FPWRMode_Decorator,
-	                    FDecoratorBase
+	                    FAccessControlMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
 	FAccessControlMode_Decorator();
 
 	virtual void Entry() override;
+
+private:
+};
+
+/**
+ * 选择“遮阳”设备
+ */
+class SMARTCITY_API FSunShadeMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSunShadeMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
+	                   );
+
+	FSunShadeMode_Decorator();
 
 private:
 };
@@ -296,36 +326,20 @@ private:
 };
 
 /**
- * 选择“这样”模式
- */
-class SMARTCITY_API FSunShadeMode_Decorator : public FDecoratorBase
-{
-public:
-	GENERATIONCLASSINFO(
-	                    FSunShadeMode_Decorator,
-	                    FDecoratorBase
-	                   );
-
-	FSunShadeMode_Decorator();
-
-private:
-};
-
-/**
  * 选中“单个设备”
  */
 class SMARTCITY_API FSingleDeviceMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-						FSingleDeviceMode_Decorator,
-						FDecoratorBase
-					   );
+	                    FSingleDeviceMode_Decorator,
+	                    FDecoratorBase
+	                   );
 
 	FSingleDeviceMode_Decorator(
 		const TObjectPtr<AActor>& TargetDevicePtr
 		);
-	
+
 	virtual void Entry() override;
 
 	TObjectPtr<AActor> TargetDevicePtr = nullptr;
@@ -465,6 +479,37 @@ protected:
 		) override;
 
 private:
+};
+
+#pragma endregion
+
+#pragma region 操作方式
+
+/**
+ * 
+ */
+class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FInteraction_Decorator,
+						FDecoratorBase
+					   );
+
+	FInteraction_Decorator();
+	
+	enum class EInteractionType:uint8
+	{
+		kDevice,
+		kSpace,
+	};
+
+	void SwitchIteractionType(
+		EInteractionType NewInteractionType
+		);
+
+private:
+	EInteractionType InteractionType = EInteractionType::kDevice;
 };
 
 #pragma endregion

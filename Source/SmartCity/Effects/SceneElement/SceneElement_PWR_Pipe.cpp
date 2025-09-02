@@ -128,7 +128,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_Energy);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy);
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{

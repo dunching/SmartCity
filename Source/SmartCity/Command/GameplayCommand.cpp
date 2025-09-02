@@ -23,7 +23,7 @@
 
 void SmartCityCommand::ReplyCameraTransform()
 {
-	USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 }
 
 void SmartCityCommand::SwitchViewArea(
@@ -32,7 +32,7 @@ void SmartCityCommand::SwitchViewArea(
 {
 	for (auto Iter : Args)
 	{
-		USceneInteractionWorldSystem::GetInstance()->SwitchViewArea(FGameplayTag::RequestGameplayTag(*Iter));
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(FGameplayTag::RequestGameplayTag(*Iter));
 		return;
 	}
 }
@@ -44,6 +44,17 @@ void SmartCityCommand::SwitchMode(
 	for (auto Iter : Args)
 	{
 		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::RequestGameplayTag(*Iter));
+		return;
+	}
+}
+
+void SmartCityCommand::SwitchInteraction(
+	const TArray<FString>& Args
+	)
+{
+	for (auto Iter : Args)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionOption(FGameplayTag::RequestGameplayTag(*Iter));
 		return;
 	}
 }

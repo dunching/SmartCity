@@ -39,11 +39,27 @@ public:
 		const FGameplayTag& Interaction
 		) const;
 
+	/**
+	 * 切换交互选项
+	 * @param Interaction_Mode 
+	 */
+	void SwitchInteractionOption(
+		const FGameplayTag& Interaction_Mode
+		);
+
+	/**
+	 * 切换交互模式
+	 * @param Interaction_Mode 
+	 */
 	void SwitchInteractionMode(
 		const FGameplayTag& Interaction_Mode
 		);
 
-	void SwitchViewArea(
+	/**
+	 * 切换交互区域
+	 * @param Interaction_Area 
+	 */
+	void SwitchInteractionArea(
 		const FGameplayTag& Interaction_Area
 		);
 

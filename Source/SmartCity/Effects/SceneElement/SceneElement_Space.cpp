@@ -123,6 +123,12 @@ void ASceneElement_Space::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(true);
 
+			if (RouteMarkerPtr)
+			{
+				RouteMarkerPtr->RemoveFromParent();
+				RouteMarkerPtr = nullptr;
+			}
+			
 			return;
 		}
 	}
@@ -149,9 +155,9 @@ void ASceneElement_Space::SwitchInteractionType(
 			{
 				const auto BranchDecoratorType = InteractionModeDecoratorSPtr->GetBranchDecoratorType();
 				if (
-					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_Lighting) ||
-					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_Energy) ||
-					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_PWR_HVAC)
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting) ||
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy) ||
+					BranchDecoratorType.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC)
 				)
 				{
 					TArray<FOverlapResult> OutOverlap;
@@ -259,13 +265,20 @@ void ASceneElement_Space::SwitchInteractionType(
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+			
+			if (RouteMarkerPtr)
+			{
+				RouteMarkerPtr->RemoveFromParent();
+				RouteMarkerPtr = nullptr;
+			}
+			
 			return;
 		}
 	}
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_Lighting);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting);
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
@@ -284,6 +297,13 @@ void ASceneElement_Space::SwitchInteractionType(
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+			
+			if (RouteMarkerPtr)
+			{
+				RouteMarkerPtr->RemoveFromParent();
+				RouteMarkerPtr = nullptr;
+			}
+			
 			return;
 		}
 	}
@@ -305,7 +325,13 @@ void ASceneElement_Space::SwitchInteractionType(
 		{
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
-
+			
+		if (RouteMarkerPtr)
+		{
+			RouteMarkerPtr->RemoveFromParent();
+			RouteMarkerPtr = nullptr;
+		}
+			
 		return;
 	}
 }

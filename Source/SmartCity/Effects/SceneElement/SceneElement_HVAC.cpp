@@ -63,7 +63,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_PWR_HVAC.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC.GetTag());
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
