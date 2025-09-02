@@ -52,7 +52,11 @@ void UWeatherSystem::AdjustTime(
 
 	if (CustomTime.GetHour() != CurrentTime.GetHour())
 	{
-		GetDynamicSky()->SetTimeSpeed(AdjustTimeSpeed);
+		// GetDynamicSky()->SetTimeSpeed(AdjustTimeSpeed);
+
+		const auto OffsetHour = FMath::Abs( CustomTime.GetHour() - CurrentTime.GetHour());
+
+		GetDynamicSky()->TransitionTimeOfDayCPP(CustomTime.GetHour(), 2.f);
 	}
 }
 
@@ -70,11 +74,11 @@ void UWeatherSystem::OnHoury(
 {
 	auto Now = FDateTime::Now();
 
-	CurrentTime = FDateTime(Now.GetYear(), Now.GetMonth(), Now.GetDay(), Hour);
+	CurrentTime = FDateTime(1, 1, 1, Hour);
 
 	if (Hour == CustomTime.GetHour())
 	{
-		GetDynamicSky()->SetTimeSpeed(OriginalSpeed);
+		// GetDynamicSky()->SetTimeSpeed(OriginalSpeed);
 	}
 
 	// 	auto Global_MPC = UAssetsRef::GetInstance()->Global_MPC.LoadSynchronous();
