@@ -19,10 +19,12 @@
 #include "RouteMarker.h"
 #include "SceneElementBase.h"
 #include "SceneInteractionDecorator.h"
+#include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
+#include "ViewSingleDeviceProcessor.h"
 #include "ViewSplitFloorProcessor.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
@@ -37,9 +39,9 @@ USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 
 TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetInteractionModeDecorator() const
 {
-	if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+	if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
 	{
-		return DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode];
+		return DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode];
 	}
 
 	return nullptr;
@@ -57,130 +59,322 @@ TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetDecorator(
 	return nullptr;
 }
 
+FGameplayTagContainer USceneInteractionWorldSystem::GetAllInteractionTags() const
+{
+	FGameplayTagContainer Result;
+	for (const auto &Iter : DecoratorLayerAssetMap)
+	{
+		Result.AddTag(Iter.Value->GetBranchDecoratorType());	
+	}
+
+	return Result;
+}
+
+void USceneInteractionWorldSystem::SwitchInteractionOption(
+	const FGameplayTag& Interaction_Mode
+	)
+{
+	if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction))
+	{
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+
+		if (!DecoratorSPtr)
+		{
+			SwitchDecoratorImp<FInteraction_Decorator>(
+			                                           USmartCitySuiteTags::Interaction_Interaction,
+			                                           USmartCitySuiteTags::Interaction_Interaction
+			                                          );
+		}
+
+		DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction_Device))
+		{
+			if (DecoratorSPtr)
+			{
+				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kDevice);
+
+				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
+			}
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction_Space))
+		{
+			if (DecoratorSPtr)
+			{
+				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kSpace);
+
+				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
+			}
+			return;
+		}
+	}
+}
+
 void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)
 {
 	if (Interaction_Mode == FGameplayTag::EmptyTag)
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_Empty)
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Mode_Empty)
 			{
 				return;
 			}
 		}
 
 		SwitchDecoratorImp<FEmpty_Decorator>(
-		                                     UGameplayTagsLibrary::Interaction_Mode,
-		                                     UGameplayTagsLibrary::Interaction_Mode_Empty
+		                                     USmartCitySuiteTags::Interaction_Mode,
+		                                     USmartCitySuiteTags::Interaction_Mode_Empty
 		                                    );
 
 		return;
 	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_PWR)
+
+	if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode))
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_PWR)
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR))
 			{
+				if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC))
+				{
+					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+					{
+						if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+						    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC)
+						{
+							return;
+						}
+					}
+
+					SwitchDecoratorImp<FPWRHVACMode_Decorator>(
+					                                           USmartCitySuiteTags::Interaction_Mode,
+					                                           USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
+					                                          );
+
+					return;
+				}
+
+				if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting))
+				{
+					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+					{
+						if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+						    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
+						{
+							return;
+						}
+					}
+
+					SwitchDecoratorImp<FPWRLightingMode_Decorator>(
+					                                               USmartCitySuiteTags::Interaction_Mode,
+					                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+					                                              );
+
+					return;
+				}
+
+				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FDeviceManaggerPWRMode_Decorator>(
+				                                                     USmartCitySuiteTags::Interaction_Mode,
+				                                                     USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR
+				                                                    );
+
 				return;
 			}
-		}
-
-		SwitchDecoratorImp<FQDMode_Decorator>(
-		                                      UGameplayTagsLibrary::Interaction_Mode,
-		                                      UGameplayTagsLibrary::Interaction_Mode_PWR
-		                                     );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Scene)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_Scene)
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade))
 			{
+				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FSunShadeMode_Decorator>(
+				                                            USmartCitySuiteTags::Interaction_Mode,
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade
+				                                           );
+
 				return;
 			}
-		}
-
-		SwitchDecoratorImp<FSceneMode_Decorator>(
-		                                         UGameplayTagsLibrary::Interaction_Mode,
-		                                         UGameplayTagsLibrary::Interaction_Mode_Scene
-		                                        );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_ELV_Radar)
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV))
 			{
+				if (Interaction_Mode == USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
+				{
+					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+					{
+						if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+						    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
+						{
+							return;
+						}
+					}
+
+					SwitchDecoratorImp<FELVRadarMode_Decorator>(
+					                                            USmartCitySuiteTags::Interaction_Mode,
+					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
+					                                           );
+
+					return;
+				}
+				if (Interaction_Mode == USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl)
+				{
+					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+					{
+						if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+						    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl)
+						{
+							return;
+						}
+					}
+
+					SwitchDecoratorImp<FAccessControlMode_Decorator>(
+					                                                 USmartCitySuiteTags::Interaction_Mode,
+					                                                 USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl
+					                                                );
+
+					return;
+				}
 				return;
 			}
-		}
-
-		SwitchDecoratorImp<FRDRadarMode_Decorator>(
-		                                           UGameplayTagsLibrary::Interaction_Mode,
-		                                           UGameplayTagsLibrary::Interaction_Mode_ELV_Radar
-		                                          );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
-		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl)
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
 			{
+				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FElevatorMode_Decorator>(
+				                                            USmartCitySuiteTags::Interaction_Mode,
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+				                                           );
+
 				return;
 			}
+
+			SwitchDecoratorImp<FDeviceManaggerMode_Decorator>(
+			                                                  USmartCitySuiteTags::Interaction_Mode,
+			                                                  USmartCitySuiteTags::Interaction_Mode_DeviceManagger
+			                                                 );
+
+			return;
 		}
-
-		SwitchDecoratorImp<FAccessControlMode_Decorator>(
-		                                                 UGameplayTagsLibrary::Interaction_Mode,
-		                                                 UGameplayTagsLibrary::Interaction_Mode_ELV_AccessControl
-		                                                );
-
-		return;
-	}
-	if (Interaction_Mode == UGameplayTagsLibrary::Interaction_Mode_Elevator)
-	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Mode))
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_Scene))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Mode]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Mode_Elevator)
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
 			{
-				return;
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_Scene)
+				{
+					return;
+				}
 			}
+
+			SwitchDecoratorImp<FSceneMode_Decorator>(
+			                                         USmartCitySuiteTags::Interaction_Mode,
+			                                         USmartCitySuiteTags::Interaction_Mode_Scene
+			                                        );
+
+			return;
 		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_EmergencySystem))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_EmergencySystem)
+				{
+					return;
+				}
+			}
 
-		SwitchDecoratorImp<FElevatorMode_Decorator>(
-		                                            UGameplayTagsLibrary::Interaction_Mode,
-		                                            UGameplayTagsLibrary::Interaction_Mode_Elevator
-		                                           );
+			SwitchDecoratorImp<FEmergencyMode_Decorator>(
+			                                             USmartCitySuiteTags::Interaction_Mode,
+			                                             USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+			                                            );
 
-		return;
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEnergyMode_Decorator>(
+			                                          USmartCitySuiteTags::Interaction_Mode,
+			                                          USmartCitySuiteTags::Interaction_Mode_EnergyManagement
+			                                         );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEnvironmentalPerceptionMode_Decorator>(
+			                                                           USmartCitySuiteTags::Interaction_Mode,
+			                                                           USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
+			                                                          );
+
+			return;
+		}
 	}
 }
 
-void USceneInteractionWorldSystem::SwitchViewArea(
+void USceneInteractionWorldSystem::SwitchInteractionArea(
 	const FGameplayTag& Interaction_Area
 	)
 {
-	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_ExternalWall))
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall))
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Area_ExternalWall)
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_ExternalWall)
 			{
 				return;
 			}
@@ -197,12 +391,12 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		return;
 	}
 
-	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_SplitFloor))
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_SplitFloor))
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Area_SplitFloor)
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_SplitFloor)
 			{
 				return;
 			}
@@ -219,12 +413,12 @@ void USceneInteractionWorldSystem::SwitchViewArea(
 		return;
 	}
 
-	if (Interaction_Area.MatchesTag(UGameplayTagsLibrary::Interaction_Area_Floor))
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
 	{
-		if (DecoratorLayerAssetMap.Contains(UGameplayTagsLibrary::Interaction_Area))
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
-			if (DecoratorLayerAssetMap[UGameplayTagsLibrary::Interaction_Area]->GetBranchDecoratorType() ==
-			    UGameplayTagsLibrary::Interaction_Area_Floor)
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_Floor)
 			{
 				return;
 			}
@@ -247,7 +441,8 @@ void USceneInteractionWorldSystem::Operation(
 	EOperatorType OperatorType
 	) const
 {
-	for (const auto& Iter : DecoratorLayerAssetMap)
+	const auto TempDecoratorLayerAssetMap = DecoratorLayerAssetMap;
+	for (const auto& Iter : TempDecoratorLayerAssetMap)
 	{
 		if (Iter.Value)
 		{
@@ -257,8 +452,8 @@ void USceneInteractionWorldSystem::Operation(
 }
 
 void USceneInteractionWorldSystem::UpdateFilter(
-	const TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs>& FilterTags,
-	const std::function<void(
+	const FSceneElementConditional& FilterTags,
+	const TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
 
@@ -268,24 +463,21 @@ void USceneInteractionWorldSystem::UpdateFilter(
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SceneObjSwitch>(
-	                                                                        [this, OnEnd, &FilterTags](
-	                                                                        UGT_SceneObjSwitch* GTPtr
-	                                                                        )
-	                                                                        {
-		                                                                        if (GTPtr)
-		                                                                        {
-			                                                                        GTPtr->
-				                                                                        SceneInteractionWorldSystemPtr =
-				                                                                        this;
-			                                                                        GTPtr->FilterTags = FilterTags;
-			                                                                        if (OnEnd)
-			                                                                        {
-				                                                                        GTPtr->OnEnd.AddLambda(OnEnd);
-			                                                                        }
-		                                                                        }
-	                                                                        }
-	                                                                       );
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementState>(
+		 [this, OnEnd, &FilterTags](
+		 UGT_SwitchSceneElementState* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->
+					 SceneInteractionWorldSystemPtr =
+					 this;
+				 GTPtr->FilterTags = FilterTags;
+				 GTPtr->OnEnd = OnEnd;
+			 }
+		 }
+		);
 }
 
 void USceneInteractionWorldSystem::InitializeSceneActors()
@@ -420,128 +612,160 @@ void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenQuit(
 
 void USceneInteractionWorldSystem::SwitchInteractionType(
 	AActor* DevicePtr,
-	EInteractionType InInteractionType
+	const FSceneElementConditional& ConditionalSet
 	)
 {
 	if (!DevicePtr)
 	{
 		return;
 	}
-	
-	switch (InInteractionType)
+
+
+	if (FocusActors.Contains(DevicePtr))
 	{
-	case EInteractionType::kView:
+		return;
+	}
+
+	if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
+	{
+		auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
+		if (SceneElementBasePtr)
 		{
-			if (FocusActors.Contains(DevicePtr))
+			SceneElementBasePtr->SwitchInteractionType(ConditionalSet);
+		}
+	}
+	else
+	{
+		{
+			if (ConditionalSet.ConditionalSet.IsEmpty())
 			{
-				return;
-			}
-	
-			FocusActors.Add(DevicePtr);
-			
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
-			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
+				if (!FocusActors.Contains(DevicePtr))
 				{
-					SceneElementBasePtr->SwitchInteractionType(InInteractionType);
+					return;
 				}
-			}
-			else
-			{
+
+				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
+				if (PrimitiveComponentPtr)
+				{
+					PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				}
+
+				FocusActors.Remove(DevicePtr);
+
+				if (!RouteMarkers.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				if (RouteMarkers[DevicePtr])
+				{
+					RouteMarkers[DevicePtr]->RemoveFromParent();
+				}
+
+				RouteMarkers.Remove(DevicePtr);
+
+				return;
 			}
 		}
-		break;
-	case EInteractionType::kFocus:
 		{
-			if (FocusActors.Contains(DevicePtr))
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
+				if (FocusActors.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				FocusActors.Add(DevicePtr);
+
 				return;
 			}
-	
-			FocusActors.Add(DevicePtr);
+		}
+		{
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
+			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
+				if (FocusActors.Contains(DevicePtr))
 				{
-					SceneElementBasePtr->SwitchInteractionType(InInteractionType);
+					return;
 				}
-			}
-			else
-			{
+
+				FocusActors.Add(DevicePtr);
+
 				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
 				if (PrimitiveComponentPtr)
 				{
 					PrimitiveComponentPtr->SetRenderCustomDepth(true);
 					PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 				}
-			}
-			
-			if (RouteMarkers.Contains(DevicePtr))
-			{
+
+				if (RouteMarkers.Contains(DevicePtr))
+				{
+					return;
+				}
+
+				const auto Name = GetName(DevicePtr);
+				if (Name.IsEmpty())
+				{
+					return;
+				}
+				auto RouteMarkerPtr = CreateWidget<URouteMarker>(
+				                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
+				                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
+				                                                );
+				if (RouteMarkerPtr)
+				{
+					RouteMarkerPtr->TextStr = Name;
+					RouteMarkerPtr->TargetActor = DevicePtr;
+					RouteMarkerPtr->AddToViewport();
+				}
+
+				RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
+
+
 				return;
 			}
-
-			const auto Name = GetName(DevicePtr);
-			if (Name.IsEmpty())
-			{
-				return;
-			}
-			auto RouteMarkerPtr = CreateWidget<URouteMarker>(
-															 GEngine->GetFirstLocalPlayerController(GetWorld()),
-															 UAssetRefMap::GetInstance()->RouteMarkerClass
-															);
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->TextStr = Name;
-				RouteMarkerPtr->TargetActor = DevicePtr;
-				RouteMarkerPtr->AddToViewport();
-			}
-
-			RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
 		}
-		break;
-	case EInteractionType::kNone:
 		{
-			if (!FocusActors.Contains(DevicePtr))
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
 			{
+				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+					TourProcessor::FViewSingleDeviceProcessor>(
+					                                           [DevicePtr](
+					                                           auto NewProcessor
+					                                           )
+					                                           {
+						                                           NewProcessor->TargetDevicePtr = DevicePtr;
+					                                           }
+					                                          );
+
 				return;
 			}
-
-			if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
-			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-				if (SceneElementBasePtr)
-				{
-					SceneElementBasePtr->SwitchInteractionType(EInteractionType::kNone);
-				}
-			}
-			else
-			{
-				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-				if (PrimitiveComponentPtr)
-				{
-					PrimitiveComponentPtr->SetRenderCustomDepth(false);
-				}
-			}
-
-			FocusActors.Remove(DevicePtr);
-			
-			if (!RouteMarkers.Contains(DevicePtr))
-			{
-				return;
-			}
-
-			if (RouteMarkers[DevicePtr])
-			{
-				RouteMarkers[DevicePtr]->RemoveFromParent();
-			}
-
-			RouteMarkers.Remove(DevicePtr);
 		}
-		break;
+		{
+			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+
+			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			    EmptyContainer.Num())
+			{
+				return;
+			}
+		}
 	}
 }
 
@@ -556,7 +780,7 @@ void USceneInteractionWorldSystem::ClearFocus()
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(Iter);
 				if (SceneElementBasePtr)
 				{
-					SceneElementBasePtr->SwitchInteractionType(EInteractionType::kNone);
+					SceneElementBasePtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
 				}
 			}
 			else
@@ -569,7 +793,7 @@ void USceneInteractionWorldSystem::ClearFocus()
 			}
 		}
 	}
-	
+
 	FocusActors.Empty();
 }
 

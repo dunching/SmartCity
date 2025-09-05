@@ -6,6 +6,8 @@
 #include "DataTableCollection.h"
 #include "AssetRefMap.h"
 #include "InputProcessorSubSystem_Imp.h"
+#include "DataTableCollection.h"
+#include "AssetRefMap.h"
 
 void APlanetWorldSettings::PostInitializeComponents()
 {

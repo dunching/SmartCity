@@ -15,8 +15,10 @@ ADynamic_SkyBase::ADynamic_SkyBase(
 	
 	SetReplicatingMovement(true);
 
+#if WITH_EDITOR
 	bIsSpatiallyLoaded = false;
-	
+#endif // WITH_EDITOR
+
 }
 
 void ADynamic_SkyBase::BeginPlay()

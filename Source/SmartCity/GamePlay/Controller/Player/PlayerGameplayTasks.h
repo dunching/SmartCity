@@ -12,13 +12,14 @@
 
 #include "GameplayTasksComponent.h"
 #include "GenerateTypes.h"
+#include "SceneInteractionWorldSystem.h"
 
 #include "PlayerGameplayTasks.generated.h"
 
 class AViewerPawn;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
-class AReplaceActor;
+class AReplaceActorBase;
 
 class UGameplayTaskBase;
 
@@ -55,6 +56,8 @@ template <typename GameplayTaskType>
 void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	const std::function<void(
 		GameplayTaskType*
+
+
 		
 		)>& Func
 	)
@@ -209,6 +212,9 @@ public:
 	virtual void Activate() override;
 
 	FGuid ID;
+
+	TObjectPtr<AActor> TargetDevicePtr = nullptr;
+	
 };
 
 /**
@@ -259,7 +265,7 @@ protected:
 		float DeltaTime
 		);
 
-	double ScopeTiempo = 1.f;
+	double ScopeTime = .1f;
 
 	enum class EUseScopeType
 	{
@@ -360,7 +366,7 @@ private:
 
 	bool NormalAdjust(
 		int32& Index,
-		TArray<TSoftObjectPtr<AReplaceActor>>& ItemSet
+		TArray<TSoftObjectPtr<AReplaceActorBase>>& ItemSet
 		);
 
 	void ApplyData(
@@ -372,7 +378,7 @@ private:
 		);
 
 	void ApplyRelatedActors(
-		const TSoftObjectPtr<AReplaceActor>& ItemSet
+		const TSoftObjectPtr<AReplaceActorBase>& ItemSet
 		);
 
 	int32 SceneActorMapIndex = 0;
@@ -380,7 +386,18 @@ private:
 	TArray<FSceneElementMap> SceneActorMap;
 
 
-	int32 StepIndex = -2;
+	enum class EStep
+	{
+		kRecordFloor,
+		kNeedReplaceByRef,
+		kStructItemSet,
+		kInnerStructItemSet,
+		kSoftDecorationItemSet,
+		kSpaceItemSet,
+	};
+
+	EStep Step = EStep::kRecordFloor;
+
 
 	int32 StructItemSetIndex = 0;
 
@@ -402,6 +419,9 @@ private:
 	int32 RelatedActorsIndex = 0;
 
 	TArray<TObjectPtr<AActor>> RelatedActors;
+
+
+	TMap<int32, ASceneElementBase*> MergeActorsMap;
 };
 
 #pragma endregion
@@ -412,7 +432,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SceneObjSwitch : public UGT_BatchBase
+class SMARTCITY_API UGT_SwitchSceneElementState : public UGT_BatchBase
 {
 	GENERATED_BODY()
 
@@ -420,12 +440,10 @@ public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
-
-
 		
 		)>;
 
-	UGT_SceneObjSwitch(
+	UGT_SwitchSceneElementState(
 		const FObjectInitializer& ObjectInitializer
 		);
 
@@ -441,7 +459,7 @@ public:
 
 	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
 
-	TSet<FSceneElementConditional, TSceneElementConditionalKeyFuncs> FilterTags;
+	FSceneElementConditional FilterTags;
 
 	/**
 	 * 是否清除之前的
@@ -456,37 +474,127 @@ protected:
 		) override;
 
 private:
+	bool ProcessTask_Display();
+
+	bool ProcessTask_Hiden();
+
+	bool ProcessTask_ConfirmConditional();
+
+	bool ProcessTask_SwitchState();
+
+	enum class EStep
+	{
+		kDisplay,
+		kHiden,
+		kConfirmConditional,
+		kSwitchState,
+		kComplete,
+	};
+
+	EStep Step = EStep::kDisplay;
+
 	/**
 	 * 建筑物
 	 * 用于计算包围框
 	 */
 	TSet<AActor*> Result;
 
-	/**
-	 * 等待显示
-	 */
-	int32 FilterIndex = 0;
 
-	std::map<AActor*, int32> FilterCount;
+	int32 DataSmithSceneActorsSetIndex = 0;
 
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
+	int32 ReplaceActorsSetIndex = 0;
+
+	TArray<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorsSet;
+
+	int32 DisplayAryIndex = 0;
+
+	TArray<AActor*> DisplayAry;
+
+	
 	int32 HideDataSmithSceneActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
 	int32 HideRePlaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
+	
+	int32 HideAryIndex = 0;
+
+	TArray<AActor*> HideAry;
+
+
+	int32 RelatedActorsIndex = 0;
+};
+
+UCLASS()
+class SMARTCITY_API UGT_SwitchSingleSceneElementState : public UGT_BatchBase
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&
+		
+		)>;
+
+	UGT_SwitchSingleSceneElementState(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	FSceneElementFilter SceneElementFilter;
+
+	FSceneElementConditional FilterTags;
+
+	FOnEnd OnEnd;
+
+protected:
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+
+private:
+	bool ProcessTask_Display();
+
+	bool ProcessTask_Hiden();
+
+	bool ProcessTask_ConfirmConditional();
+
+	bool ProcessTask_SwitchState();
+
+	enum class EStep
+	{
+		kDisplay,
+		kHiden,
+		kConfirmConditional,
+		kSwitchState,
+		kComplete,
+	};
+
+	EStep Step = EStep::kDisplay;
+
+	/**
+	 * 建筑物
+	 * 用于计算包围框
+	 */
+	TSet<AActor*> Result;
 
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 
-	TArray<TPair<TSoftObjectPtr<ADatasmithSceneActor>, FSceneElementFilter>> DataSmithSceneActorsSet;
+	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TArray<TPair<TSoftObjectPtr<AReplaceActor>, FSceneElementFilter>> ReplaceActorsSet;
+	TArray<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorsSet;
 
+	int32 DisplayAryIndex = 0;
+
+	TArray<AActor*> DisplayAry;
+	
 
 	int32 RelatedActorsIndex = 0;
 };
@@ -539,13 +647,24 @@ protected:
 private:
 	bool ProcessTask_Sort();
 
+	bool ProcessTask_ConfirmConditional();
+
 	bool ProcessTask_Display();
 
 	bool ProcessTask_Move(
 		float DeltaTime
 		);
 
-	int32 StepIndex = 0;
+	enum class EStep
+	{
+		kSort,
+		kConfirmConditional,
+		kDisplay,
+		kMove,
+		kComplete,
+	};
+
+	EStep Step = EStep::kSort;
 
 	/**
 	 * 等待显示
@@ -561,7 +680,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
 
 
 	int32 HideDataSmithSceneActorsSetIndex = 0;
@@ -570,7 +689,7 @@ private:
 
 	int32 HideRePlaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActor>> HideReplaceActorsSet;
+	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;
@@ -622,7 +741,14 @@ private:
 		float DeltaTime
 		);
 
-	int32 StepIndex = 0;
+	enum class EStep
+	{
+		kSort,
+		kMove,
+		kComplete,
+	};
+
+	EStep Step = EStep::kSort;
 
 	/**
 	 * 等待显示
@@ -638,7 +764,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActor>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;

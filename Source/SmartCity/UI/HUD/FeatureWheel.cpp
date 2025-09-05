@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/VerticalBox.h"
 
 #include "SceneElementBase.h"
 
@@ -54,10 +55,6 @@ void UFeatureItem::UpdateStateDescription()
 				Text.Append(Iter.Value);
 			}
 		}
-		if (!Text.IsEmpty() && StateText)
-		{
-			StateText->SetText(FText::FromString(Text));
-		}
 	}
 }
 
@@ -93,9 +90,9 @@ void UFeatureWheel::InitalFeaturesItem(
 		NameText->SetText(FText::FromString(FeatureName));
 	}
 
-	if (FeatureCanvas)
+	if (VerticalBoxPtr)
 	{
-		FeatureCanvas->ClearChildren();
+		VerticalBoxPtr->ClearChildren();
 
 		const auto Offset = (SizeBox->GetWidthOverride() / 2) - 100;
 
@@ -108,17 +105,13 @@ void UFeatureWheel::InitalFeaturesItem(
 			{
 				UIPtr->InitalFeaturesItem(Iter);
 
-				FVector Vec(0, 0, -Offset);
-				const auto Angle = Index / static_cast<float>(Num) * 360;
-				Vec = Vec.RotateAngleAxis(Angle, FVector::ForwardVector);
+				// FVector Vec(0, 0, -Offset);
+				// const auto Angle = Index / static_cast<float>(Num) * 360;
+				// Vec = Vec.RotateAngleAxis(Angle, FVector::ForwardVector);
 
 				Index++;
 
-				auto SlotPtr = FeatureCanvas->AddChildToCanvas(UIPtr);
-				SlotPtr->SetAutoSize(true);
-				SlotPtr->SetAnchors(.5f);
-				SlotPtr->SetAlignment(FVector2D(.5f));
-				SlotPtr->SetPosition(FVector2D(Vec.Y, Vec.Z));
+				auto SlotPtr = VerticalBoxPtr->AddChild(UIPtr);
 			}
 		}
 	}

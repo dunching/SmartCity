@@ -7,6 +7,7 @@
 
 #include "AssetRefBase.h"
 #include "GenerateTypes.h"
+#include "BuildingGenerateTypes.h"
 
 #include "AssetRefMap.generated.h"
 
@@ -15,9 +16,12 @@ class UDataLayerAsset;
 class ADatasmithSceneActor;
 class URouteMarker;
 class AFloorHelper;
+class ABuildingHelperBase;
 class AElevator;
 class APostProcessVolume;
 class ASceneElementBase;
+class APersonMark;
+class AFireMark;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -42,22 +46,32 @@ public:
 	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FString, TSubclassOf<ASceneElementBase>> NeedMergeByUserData;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, FModeDecription> ModeDescription;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
 
 #pragma region 场景Actor
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<FSceneElementMap> AllSceneActorMap;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FSceneElementConditional, FSceneElementMap> SceneActorMap;
+
 #pragma endregion
 
 #pragma region 建筑信息
+	/**
+	 * 层数
+	 * 对应的Floor
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<int32, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+	TMap<FGameplayTag, TSoftObjectPtr<AFloorHelper>> FloorHelpers;
+	
+	/**
+	 * 楼宇号
+	 * 对应的楼宇
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, TSoftObjectPtr<ABuildingHelperBase>> BuildingHelpers;
 #pragma endregion
 
 #pragma region 电梯
@@ -77,21 +91,6 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSet<FString> NamePrifix;
-
-	/**
-	 * 设备类型的Key
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSet<FString> CatogoryPrifix;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString FJPG;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString XFJZ;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FString Space;
 #pragma endregion
 
 #pragma region 引用
@@ -99,6 +98,18 @@ public:
 	TSoftObjectPtr<UMaterialInstance> SpaceMaterialInstance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<URouteMarker> SpaceRouteMarkerClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<URouteMarker> RouteMarkerClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<APersonMark> PersonMarkClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<AFireMark> FireMarkClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance> EnergyMaterialInst;
 #pragma endregion
 };

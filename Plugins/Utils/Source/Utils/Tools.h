@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Tools.generated.h"
+
 #define GENERATIONCLASSINFO(ThisClassType, ParentClassType) \
 using ThisClass = ThisClassType; \
 using Super = ParentClassType;
@@ -14,3 +16,12 @@ using ThisClass = ThisClassType;
 extern UTILS_API bool GIsExiting;
 
 UTILS_API UWorld* GetWorldImp();
+
+USTRUCT(BlueprintType)
+struct FMaterialAry
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	TArray<class UMaterialInterface*>MaterialsAry;
+};

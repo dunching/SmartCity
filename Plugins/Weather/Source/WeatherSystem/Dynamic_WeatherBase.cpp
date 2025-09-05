@@ -14,7 +14,9 @@ ADynamic_WeatherBase::ADynamic_WeatherBase(
 
 	SetReplicatingMovement(true);
 
+#if WITH_EDITOR
 	bIsSpatiallyLoaded = false;
+#endif // WITH_EDITOR
 
 	WeatherMap.Add(WeatherSettings::Clear_Skies, nullptr);
 	WeatherMap.Add(WeatherSettings::Cloudy, nullptr);
@@ -83,3 +85,21 @@ FGameplayTag ADynamic_WeatherBase::GetCurrentWeather() const
 {
 	return CurrentWeather;
 }
+
+namespace WeatherSettings
+{
+	UE_DEFINE_GAMEPLAY_TAG(Clear_Skies, "Weather.Clear_Skies");
+	UE_DEFINE_GAMEPLAY_TAG(Cloudy, "Weather.Cloudy");
+	UE_DEFINE_GAMEPLAY_TAG(Foggy, "Weather.Foggy");
+	UE_DEFINE_GAMEPLAY_TAG(Overcast, "Weather.Overcast");
+	UE_DEFINE_GAMEPLAY_TAG(Partly_Cloudy, "Weather.Partly_Cloudy");
+	UE_DEFINE_GAMEPLAY_TAG(Rain, "Weather.Rain");
+	UE_DEFINE_GAMEPLAY_TAG(Rain_Light, "Weather.Rain_Light");
+	UE_DEFINE_GAMEPLAY_TAG(Rain_Thunderstorm, "Weather.Rain_Thunderstorm");
+	UE_DEFINE_GAMEPLAY_TAG(Sand_Dust_Calm, "Weather.Sand_Dust_Calm");
+	UE_DEFINE_GAMEPLAY_TAG(Sand_Dust_Storm, "Weather.Sand_Dust_Storm");
+	UE_DEFINE_GAMEPLAY_TAG(Snow, "Weather.Snow");
+	UE_DEFINE_GAMEPLAY_TAG(Snow_Blizzard, "Weather.Snow_Blizzard");
+	UE_DEFINE_GAMEPLAY_TAG(Snow_Light, "Weather.Snow_Light");
+}
+

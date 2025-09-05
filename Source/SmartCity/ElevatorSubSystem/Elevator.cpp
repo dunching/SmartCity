@@ -5,32 +5,58 @@
 
 #include "CollisionDataStruct.h"
 #include "FloorHelper.h"
+#include "GameplayTagsLibrary.h"
+#include "SmartCitySuiteTags.h"
 
 AElevator::AElevator(
 	const FObjectInitializer& ObjectInitializer
 	):
 	 Super(ObjectInitializer)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 }
 
-void AElevator::SwitchState(
-	bool bIsActive
+void AElevator::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
 	)
 {
-	TArray<UStaticMeshComponent*> StaticMeshComponents;
-	GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-
-	for (auto Iter : StaticMeshComponents)
+	Super::SwitchInteractionType(ConditionalSet);
+	
 	{
-		if (bIsActive)
+		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
-			Iter->SetRenderCustomDepth(true);
-			Iter->SetCustomDepthStencilValue(1);
+			SetActorHiddenInGame(true);
+
+			TArray<UStaticMeshComponent*> StaticMeshComponents;
+			GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+
+			for (auto Iter : StaticMeshComponents)
+			{
+				Iter->SetRenderCustomDepth(false);
+			}
+			
+			return;
 		}
-		else
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
-			Iter->SetRenderCustomDepth(false);
+			SetActorHiddenInGame(false);
+
+			TArray<UStaticMeshComponent*> StaticMeshComponents;
+			GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+
+			for (auto Iter : StaticMeshComponents)
+			{
+				Iter->SetRenderCustomDepth(true);
+				Iter->SetCustomDepthStencilValue(1);
+			}
+			
+			return;
 		}
 	}
 }
@@ -43,15 +69,20 @@ void AElevator::ChangeTargetFloorIndex(
 	{
 		TargetFloorIndex = FloorIndex;
 
-		if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(FloorIndex))
+		for (const auto &Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			TargetFloorLocation = UAssetRefMap::GetInstance()->FloorHelpers[FloorIndex]->GetActorLocation();
+			if (Iter.Value->FloorIndex == FloorIndex)
+			{
+				TargetFloorLocation = Iter.Value->GetActorLocation();
 			
-			const auto CurrentLocation = GetActorLocation();
+				const auto CurrentLocation = GetActorLocation();
 
-			bIsUp = CurrentLocation.Z < TargetFloorLocation.Z;
+				bIsUp = CurrentLocation.Z < TargetFloorLocation.Z;
 			
-			GetWorldTimerManager().SetTimer(MoveTimerHandle, this, &ThisClass::MoveElevator, Frequence, true);
+				GetWorldTimerManager().SetTimer(MoveTimerHandle, this, &ThisClass::MoveElevator, Frequence, true);
+				
+				break;
+			}
 		}
 	}
 }

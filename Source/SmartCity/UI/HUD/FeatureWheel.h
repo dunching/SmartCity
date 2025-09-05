@@ -9,6 +9,7 @@
 
 #include "FeatureWheel.generated.h"
 
+class UVerticalBox;
 class UCanvasPanel;
 class UTextBlock;
 class USizeBox;
@@ -51,9 +52,6 @@ protected:
 	UTextBlock* NameText = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* StateText = nullptr;
-
-	UPROPERTY(meta = (BindWidget))
 	UButton* Button = nullptr;
 
 	FFeaturesItem FeaturesItem;
@@ -79,7 +77,7 @@ private:
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UCanvasPanel* FeatureCanvas = nullptr;
+	UVerticalBox* VerticalBoxPtr = nullptr;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* NameText = nullptr;

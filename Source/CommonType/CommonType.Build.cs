@@ -23,15 +23,14 @@ public class CommonType : ModuleRules
         PublicIncludePaths.Add("CommonType");
         PublicIncludePaths.Add("CommonType/CommonType");
 
-        PrivateDependencyModuleNames.AddRange(new string[] { });
-        
         PrivateDependencyModuleNames.AddRange(new string[] {
             "Core",
             "CoreUObject",
             "Engine",
             "GameplayTags",
-            
             "DatasmithContent",
+            
+            "BuildingTools",
         });
 
         PublicDependencyModuleNames.AddRange(new string[] {

@@ -8,8 +8,6 @@
 
 #include "CoreMinimal.h"
 
-#include "TemplateHelper.generated.h"
-
 #pragma region 回调容器
 template<typename ValueType>
 class TOnValueChangedCallbackHandle final
@@ -391,27 +389,3 @@ TSharedPtr<GameplayAbilityTargetDataType> MakeSPtr_GameplayAbilityTargetData(con
 
 	return ResultSPtr;
 }
-
-class ABuildingBase;
-class UPlanetGameplayAbility;
-class UPlanetGameplayAbility_SkillBase;
-
-USTRUCT(BlueprintType)
-struct FMaterialAry
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY()
-	TArray<class UMaterialInterface*>MaterialsAry;
-};
-
-struct FCapturesInfo
-{
-	struct FCaptureInfo
-	{
-		ABuildingBase* CapturePtPtr = nullptr;
-	};
-
-	TArray<TSharedPtr<FCaptureInfo>> CapturesInfoAry;
-};
-

@@ -76,6 +76,8 @@ class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	UGameOptions(const FObjectInitializer& ObjectInitializer);
+	
 	static UGameOptions* GetInstance();
 
 #pragma region 雷达控制
@@ -108,6 +110,9 @@ public:
 #pragma region 查看全局
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FControlParam ViewBuildingControlParam;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewSplitFloorControlParam;
 #pragma endregion
 
 #pragma region 查看楼层

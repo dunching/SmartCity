@@ -10,6 +10,8 @@
 #include "Tools.h"
 
 class USceneInteractionWorldSystem;
+class ASceneElement_PWR_Pipe;
+class APersonMark;
 
 class SMARTCITY_API FDecoratorBase
 {
@@ -52,13 +54,13 @@ public:
 
 	FGameplayTag GetBranchDecoratorType() const;
 
-protected:
-	TDelegate<void()> OnAsyncQuitComplete;
-
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors
 		);
+
+protected:
+	TDelegate<void()> OnAsyncQuitComplete;
 
 	FGameplayTag MainDecoratorType;
 
@@ -121,19 +123,86 @@ public:
 };
 
 /**
- * 选择“雷达控制”模式
+ * 选择“火灾-逃生路线”模式
  */
-class SMARTCITY_API FRDRadarMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FEmergencyMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FRDRadarMode_Decorator,
+	                    FEmergencyMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
-	FRDRadarMode_Decorator();
+	FEmergencyMode_Decorator();
 
-	virtual ~FRDRadarMode_Decorator();
+	virtual void Entry() override;
+
+	virtual void Quit() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnOtherDecoratorQuit(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+};
+
+/**
+ * 选择能耗
+ */
+class SMARTCITY_API FEnergyMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FEnergyMode_Decorator,
+						FDecoratorBase
+					   );
+
+	FEnergyMode_Decorator();
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
+private:
+	TSet<ASceneElement_PWR_Pipe*> PipeActors;
+};
+
+/**
+ * 选择环境感知
+ */
+class SMARTCITY_API FEnvironmentalPerceptionMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FEnvironmentalPerceptionMode_Decorator,
+						FDecoratorBase
+					   );
+
+	FEnvironmentalPerceptionMode_Decorator();
+};
+
+/**
+ * 选择“雷达控制”模式
+ */
+class SMARTCITY_API FELVRadarMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FELVRadarMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FELVRadarMode_Decorator();
+
+	virtual ~FELVRadarMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -142,43 +211,105 @@ public:
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
+};
 
-private:
-	void RadarQuery();
+/**
+ * 选择“设备管理”模式
+ */
+class SMARTCITY_API FDeviceManaggerMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FDeviceManaggerMode_Decorator,
+	                    FDecoratorBase
+	                   );
 
-	FTimerHandle QueryTimerHadnle;
+	FDeviceManaggerMode_Decorator();
+
+	FDeviceManaggerMode_Decorator(
+		FGameplayTag InBranchDecoratorType
+		);
+
 };
 
 /**
  * 选择“强电”模式
  */
-class SMARTCITY_API FQDMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FDeviceManaggerPWRMode_Decorator : public FDeviceManaggerMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FQDMode_Decorator,
-	                    FDecoratorBase
+	                    FDeviceManaggerPWRMode_Decorator,
+	                    FDeviceManaggerMode_Decorator
 	                   );
 
-	FQDMode_Decorator();
+	FDeviceManaggerPWRMode_Decorator();
+
+	FDeviceManaggerPWRMode_Decorator(
+		FGameplayTag InBranchDecoratorType
+		);
 
 private:
 };
 
 /**
- * 选择“门禁”模式
+ * 选择暖通
  */
-class SMARTCITY_API FAccessControlMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FPWRHVACMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FQDMode_Decorator,
-	                    FDecoratorBase
+	                    FPWRHVACMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
+	                   );
+
+	FPWRHVACMode_Decorator();
+};
+
+/**
+ * 选择照明
+ */
+class SMARTCITY_API FPWRLightingMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FPWRLightingMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
+	                   );
+
+	FPWRLightingMode_Decorator();
+};
+
+/**
+ * 选择“门禁”模式
+ */
+class SMARTCITY_API FAccessControlMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FAccessControlMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
 	FAccessControlMode_Decorator();
 
 	virtual void Entry() override;
+
+private:
+};
+
+/**
+ * 选择“遮阳”设备
+ */
+class SMARTCITY_API FSunShadeMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSunShadeMode_Decorator,
+	                    FDeviceManaggerPWRMode_Decorator
+	                   );
+
+	FSunShadeMode_Decorator();
 
 private:
 };
@@ -200,7 +331,32 @@ public:
 
 	virtual void Quit() override;
 
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
 private:
+};
+
+/**
+ * 选中“单个设备”
+ */
+class SMARTCITY_API FSingleDeviceMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSingleDeviceMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FSingleDeviceMode_Decorator(
+		const TObjectPtr<AActor>& TargetDevicePtr
+		);
+
+	virtual void Entry() override;
+
+	TObjectPtr<AActor> TargetDevicePtr = nullptr;
 };
 
 #pragma endregion
@@ -232,6 +388,8 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
+	FGameplayTag GetCurrentInteraction_Area() const;
+
 protected:
 	void UpdateDisplay();
 
@@ -260,6 +418,10 @@ public:
 
 	virtual void Entry() override;
 
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
@@ -283,6 +445,10 @@ public:
 	virtual void Entry() override;
 
 	virtual void Quit() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
 
 	virtual bool NeedAsync() const override;
 
@@ -312,6 +478,10 @@ public:
 
 	virtual void Quit() override;
 
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
@@ -323,6 +493,50 @@ protected:
 		) override;
 
 private:
+};
+
+#pragma endregion
+
+#pragma region 操作方式
+
+/**
+ * 
+ */
+class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FInteraction_Decorator,
+						FDecoratorBase
+					   );
+
+	enum class EInteractionType:uint8
+	{
+		kDevice,
+		kSpace,
+	};
+
+	FInteraction_Decorator();
+	
+	virtual void Entry() override;
+
+	void SwitchIteractionType(
+		EInteractionType NewInteractionType
+		);
+
+	EInteractionType GetInteractionType()const;
+	
+	FGameplayTag GetCurrentWeather()const;
+	
+	int32 GetCurrentHour()const;
+	
+private:
+	
+	EInteractionType InteractionType = EInteractionType::kDevice;
+
+	FGameplayTag CurrentWeather;
+
+	int32 CurrentHour;
 };
 
 #pragma endregion

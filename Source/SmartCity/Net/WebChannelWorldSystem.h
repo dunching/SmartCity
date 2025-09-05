@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 
 #include "GameplayTagContainer.h"
+#include "PixelStreamingPlayerId.h"
 #include "Engine/World.h"
 
 #include "SceneInteractionDecorator.h"
@@ -15,6 +16,8 @@
 
 class FDecoratorBase;
 struct FMessageBody;
+struct FMessageBody_Send;
+struct FMessageBody_Receive;
 
 /*
  */
@@ -31,15 +34,24 @@ public:
 	
 	void InitializeDeserializeStrategies();
 	
-	void SendMessage(const TSharedPtr<FMessageBody>& Message);
-
-private:
-
-	UFUNCTION()
-	void OnAllConnectionsClosed(FString StreamerId);
+	void SendMessage(const TSharedPtr<FMessageBody_Send>& Message);
 
 	UFUNCTION()
 	void OnInput(const FString& Descriptor);
 
-	TMap<FString,TSharedPtr<FMessageBody>>DeserializeStrategiesMap;
+private:
+
+	UFUNCTION()
+	void OnConnectedToSignallingServerNative();
+
+	void NewConnectionNative(FString Str, FPixelStreamingPlayerId ID, bool bIsTrue);
+
+	UFUNCTION()
+	void OnAllConnectionsClosed(FString StreamerId);
+
+	void MessageTickImp();
+	
+	TMap<FString,TSharedPtr<FMessageBody_Receive>>DeserializeStrategiesMap;
+
+	FTimerHandle MessageTickTimerHandle;
 };

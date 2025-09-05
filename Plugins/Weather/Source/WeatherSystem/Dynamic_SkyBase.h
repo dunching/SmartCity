@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetUseRealWorldTime(bool bUseRealWorldTime);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TransitionTimeOfDayCPP(int32 Hour, float Duration);
+
 	void AddtionalProcess();
 
 	int32 AddOnHourly(const FOnHourly& OnHourly);

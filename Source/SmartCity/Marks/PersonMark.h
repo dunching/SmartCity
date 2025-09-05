@@ -9,7 +9,7 @@
 
 #include "PersonMark.generated.h"
 
-
+class UNiagaraComponent;
 
 /*
  * 用于表示人物的标记点
@@ -22,7 +22,27 @@ class SMARTCITY_API APersonMark : public AActor
 public:
 	APersonMark(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	void Update(const FVector& NewLocation);
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USkeletalMeshComponent> Mesh;
+
+};
+
+/*
+ * 用于表示火灾的标记点
+ */
+UCLASS()
+class SMARTCITY_API AFireMark : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	AFireMark(const FObjectInitializer& ObjectInitializer);
+
+	void Update(const FVector& NewLocation);
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<UNiagaraComponent> NiagaraComponent;
 
 };

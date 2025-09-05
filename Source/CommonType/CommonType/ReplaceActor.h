@@ -6,6 +6,8 @@
 
 #include "GameFramework/Pawn.h"
 
+#include "ReplaceActorBase.h"
+
 #include "ReplaceActor.generated.h"
 
 class UPlayerComponent;
@@ -20,14 +22,10 @@ class AViewerPawn;
  */
 UCLASS()
 class COMMONTYPE_API AReplaceActor :
-	public AActor
+	public AReplaceActorBase
 {
 	GENERATED_BODY()
 
 public:
-
-	AReplaceActor(
-		const FObjectInitializer& ObjectInitializer
-		);
 
 };
