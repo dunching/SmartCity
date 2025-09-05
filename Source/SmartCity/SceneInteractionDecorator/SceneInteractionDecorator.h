@@ -154,6 +154,42 @@ public:
 };
 
 /**
+ * 选择能耗
+ */
+class SMARTCITY_API FEnergyMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FEnergyMode_Decorator,
+						FDecoratorBase
+					   );
+
+	FEnergyMode_Decorator();
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors
+		) override;
+
+private:
+	TSet<ASceneElement_PWR_Pipe*> PipeActors;
+};
+
+/**
+ * 选择环境感知
+ */
+class SMARTCITY_API FEnvironmentalPerceptionMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FEnvironmentalPerceptionMode_Decorator,
+						FDecoratorBase
+					   );
+
+	FEnvironmentalPerceptionMode_Decorator();
+};
+
+/**
  * 选择“雷达控制”模式
  */
 class SMARTCITY_API FELVRadarMode_Decorator : public FDecoratorBase
@@ -214,28 +250,6 @@ public:
 		);
 
 private:
-};
-
-/**
- * 选择能耗
- */
-class SMARTCITY_API FPWREnergyMode_Decorator : public FDeviceManaggerPWRMode_Decorator
-{
-public:
-	GENERATIONCLASSINFO(
-	                    FPWREnergyMode_Decorator,
-	                    FDeviceManaggerPWRMode_Decorator
-	                   );
-
-	FPWREnergyMode_Decorator();
-
-	virtual void OnUpdateFilterComplete(
-		bool bIsOK,
-		const TSet<AActor*>& InActors
-		) override;
-
-private:
-	TSet<ASceneElement_PWR_Pipe*> PipeActors;
 };
 
 /**
@@ -496,20 +510,33 @@ public:
 						FDecoratorBase
 					   );
 
-	FInteraction_Decorator();
-	
 	enum class EInteractionType:uint8
 	{
 		kDevice,
 		kSpace,
 	};
 
+	FInteraction_Decorator();
+	
+	virtual void Entry() override;
+
 	void SwitchIteractionType(
 		EInteractionType NewInteractionType
 		);
 
+	EInteractionType GetInteractionType()const;
+	
+	FGameplayTag GetCurrentWeather()const;
+	
+	int32 GetCurrentHour()const;
+	
 private:
+	
 	EInteractionType InteractionType = EInteractionType::kDevice;
+
+	FGameplayTag CurrentWeather;
+
+	int32 CurrentHour;
 };
 
 #pragma endregion

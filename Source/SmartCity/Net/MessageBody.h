@@ -24,31 +24,51 @@ struct FMessageBody
 
 	virtual ~FMessageBody();
 
-	virtual TSharedPtr<FJsonObject> Deserialize(const FString& JsonStr);
-
-	FString GetJsonString()const;
-
-	FString GetName()const;
+	FString GetCMDName()const;
 	
 public:
-	
-	virtual TSharedPtr<FJsonObject> SerializeBody()const;
 
-	FString Name;
+	static FString CMD; 
+	
+	FString CMD_Name;
 
 	FGuid Guid;
 };
 
 USTRUCT()
-struct FMessageBody_SelectedSpace : public FMessageBody
+struct FMessageBody_Send : public FMessageBody
+{
+	GENERATED_BODY()
+	
+public:
+	
+	FString GetJsonString()const;
+
+	virtual TSharedPtr<FJsonObject> SerializeBody()const;
+};
+
+USTRUCT()
+struct FMessageBody_Receive : public FMessageBody
+{
+	GENERATED_BODY()
+	
+public:
+	
+	virtual void Deserialize(
+		const FString& JsonStr
+		);
+
+	virtual void DoAction()const;
+};
+
+USTRUCT()
+struct FMessageBody_SelectedSpace : public FMessageBody_Send
 {
 	
 	GENERATED_BODY()
 	
 	FMessageBody_SelectedSpace();
 	
-	virtual TSharedPtr<FJsonObject> Deserialize(const FString& JsonStr) override;
-
 	FString SpaceName;
 
 	TArray<FString> DeviceIDAry;
@@ -60,7 +80,7 @@ protected:
 };
 
 USTRUCT()
-struct FMessageBody_SelectedDevice : public FMessageBody
+struct FMessageBody_SelectedDevice : public FMessageBody_Send
 {
 	
 	GENERATED_BODY()
@@ -75,9 +95,8 @@ protected:
 
 };
 
-
 USTRUCT()
-struct FMessageBody_Test : public FMessageBody
+struct FMessageBody_Test : public FMessageBody_Send
 {
 	
 	GENERATED_BODY()
@@ -88,7 +107,25 @@ struct FMessageBody_Test : public FMessageBody
 
 protected:
 	
-	virtual TSharedPtr<FJsonObject> SerializeBody()const override;
+};
 
+USTRUCT()
+struct FMessageBody_AdjustCameraSeat : public FMessageBody_Receive
+{
+	
+	GENERATED_BODY()
+	
+	FMessageBody_AdjustCameraSeat();
+
+private:
+	
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction()const override;
+	
+	int32 Pitch = 0;
+	
 };
 

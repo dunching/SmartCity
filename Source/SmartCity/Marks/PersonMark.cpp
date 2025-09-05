@@ -32,7 +32,7 @@ void APersonMark::Update(
 	const FVector& NewLocation
 	)
 {
-	SetActorLocation(NewLocation);
+	SetActorRelativeLocation(NewLocation);
 }
 
 AFireMark::AFireMark(

@@ -25,7 +25,7 @@ class SMARTCITY_API UMainHUDLayout : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void NativeConstruct() override;
+	virtual void NativeConstruct() override;
 
 	void InitalFeaturesItem(
 		ASceneElement_Space * SceneElement_SpacePtr,

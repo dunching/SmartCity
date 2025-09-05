@@ -16,6 +16,8 @@
 
 class FDecoratorBase;
 struct FMessageBody;
+struct FMessageBody_Send;
+struct FMessageBody_Receive;
 
 /*
  */
@@ -32,7 +34,10 @@ public:
 	
 	void InitializeDeserializeStrategies();
 	
-	void SendMessage(const TSharedPtr<FMessageBody>& Message);
+	void SendMessage(const TSharedPtr<FMessageBody_Send>& Message);
+
+	UFUNCTION()
+	void OnInput(const FString& Descriptor);
 
 private:
 
@@ -44,12 +49,9 @@ private:
 	UFUNCTION()
 	void OnAllConnectionsClosed(FString StreamerId);
 
-	UFUNCTION()
-	void OnInput(const FString& Descriptor);
-
 	void MessageTickImp();
 	
-	TMap<FString,TSharedPtr<FMessageBody>>DeserializeStrategiesMap;
+	TMap<FString,TSharedPtr<FMessageBody_Receive>>DeserializeStrategiesMap;
 
 	FTimerHandle MessageTickTimerHandle;
 };

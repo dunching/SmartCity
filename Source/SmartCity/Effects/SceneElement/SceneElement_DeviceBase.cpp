@@ -106,6 +106,26 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar.GetTag());
 

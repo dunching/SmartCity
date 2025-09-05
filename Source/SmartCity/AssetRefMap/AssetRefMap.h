@@ -46,6 +46,9 @@ public:
 	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FString, TSubclassOf<ASceneElementBase>> NeedMergeByUserData;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, FModeDecription> ModeDescription;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

@@ -11,35 +11,40 @@
 #include "SmartCitySuiteTags.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
+#include "Kismet/GameplayStatics.h"
 
 TourProcessor::FViewBuildingProcessor::FViewBuildingProcessor(
 	FOwnerPawnType* CharacterPtr
-	):
-	 Super(CharacterPtr)
+	) :
+	  Super(CharacterPtr)
 {
 }
 
 void TourProcessor::FViewBuildingProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
-	
+
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>([](UGT_ReplyCameraTransform* GTPtr)
-	{
-		if (GTPtr)
-		{
-			GTPtr->SeatTag = USmartCitySuiteTags::Seat_Default;
-		}
-	});
-	
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
+		 [](
+		 UGT_ReplyCameraTransform* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->SeatTag = USmartCitySuiteTags::Seat_Default;
+			 }
+		 }
+		);
+
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
-												USmartCitySuiteTags::Interaction_Area.GetTag(),
-												USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag(),
-												USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
-											   );
+		 USmartCitySuiteTags::Interaction_Area.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
+		);
 
 	SwitchShowCursor(true);
-	
+
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
@@ -143,7 +148,8 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 					{
 						bHasRoted = true;
 
-						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->ViewBuildingControlParam.RotYawSpeed;
+						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
+						                 ViewBuildingControlParam.RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
 						return true;
@@ -181,7 +187,7 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                ViewBuildingControlParam. RotPitchSpeed;
+						                 ViewBuildingControlParam.RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(Rot);
 
 						return true;
@@ -198,7 +204,7 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                  ViewBuildingControlParam. MoveSpeed;
+						                   ViewBuildingControlParam.MoveSpeed;
 
 						OnwerActorPtr->AddMovementInput(
 						                                Direction,
@@ -215,14 +221,14 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 				if (OnwerActorPtr->Controller != nullptr)
 				{
 					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-					                  ViewBuildingControlParam. CameraSpringArmSpeed;
+					                   ViewBuildingControlParam.CameraSpringArmSpeed;
 
 					const auto ClampValue = FMath::Clamp(
 					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
 					                                     GameOptionsPtr->
-					                                    ViewBuildingControlParam. MinCameraSpringArm,
+					                                     ViewBuildingControlParam.MinCameraSpringArm,
 					                                     GameOptionsPtr->
-					                                   ViewBuildingControlParam.  MaxCameraSpringArm
+					                                     ViewBuildingControlParam.MaxCameraSpringArm
 					                                    );
 
 					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
@@ -236,4 +242,63 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 	}
 
 	return Super::InputKey(EventArgs);
+}
+
+void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
+	const FRotator& CameraSeat
+	)
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransform>(
+	                                                                         [PCPtr, &CameraSeat](
+	                                                                         UGT_CameraTransform* GTPtr
+	                                                                         )
+	                                                                         {
+		                                                                         if (GTPtr)
+		                                                                         {
+			                                                                         TArray<AActor*> OutActors;
+			                                                                         UGameplayStatics::GetAllActorsOfClass(
+				                                                                          GTPtr,
+				                                                                          AViewerPawn::StaticClass(),
+				                                                                          OutActors
+				                                                                         );
+
+			                                                                         for (auto ActorIter : OutActors)
+			                                                                         {
+				                                                                         auto ViewerPawnPtr = Cast<
+					                                                                         AViewerPawn>(ActorIter);
+				                                                                         if (ViewerPawnPtr)
+				                                                                         {
+					                                                                         if (ViewerPawnPtr->SeatTag
+						                                                                         ==
+						                                                                         USmartCitySuiteTags::Seat_Default)
+					                                                                         {
+						                                                                         GTPtr->TargetLocation =
+							                                                                         ViewerPawnPtr->
+							                                                                         GetActorLocation();
+
+						                                                                         GTPtr->TargetRotation =
+							                                                                         FRotator(
+								                                                                          CameraSeat.
+								                                                                          Pitch,
+								                                                                          ViewerPawnPtr
+								                                                                          ->
+								                                                                          GetActorRotation()
+								                                                                          .Yaw,
+								                                                                          0
+								                                                                         );
+
+						                                                                         GTPtr->
+							                                                                         TargetTargetArmLength
+							                                                                         = ViewerPawnPtr->
+							                                                                         SpringArmComponent
+							                                                                         ->TargetArmLength;
+
+						                                                                         return;
+					                                                                         }
+				                                                                         }
+			                                                                         }
+		                                                                         }
+	                                                                         }
+	                                                                        );
 }

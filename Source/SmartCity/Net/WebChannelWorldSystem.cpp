@@ -55,17 +55,13 @@ void UWebChannelWorldSystem::BindEvent()
 void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 {
 	{
-		auto MessageSPtr = MakeShared<FMessageBody_SelectedSpace>();
-		DeserializeStrategiesMap.Add(MessageSPtr->GetName(), MessageSPtr);
-	}
-	{
-		auto MessageSPtr = MakeShared<FMessageBody_SelectedDevice>();
-		DeserializeStrategiesMap.Add(MessageSPtr->GetName(), MessageSPtr);
+		auto MessageSPtr = MakeShared<FMessageBody_AdjustCameraSeat>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 }
 
 void UWebChannelWorldSystem::SendMessage(
-	const TSharedPtr<FMessageBody>& Message
+	const TSharedPtr<FMessageBody_Send>& Message
 	)
 {
 	if (Message)
@@ -127,11 +123,12 @@ void UWebChannelWorldSystem::OnInput(
 	if (jsonObject)
 	{
 		FString Name;
-		if (jsonObject->TryGetStringField(TEXT("Name"), Name))
+		if (jsonObject->TryGetStringField(FMessageBody_Receive::CMD, Name))
 		{
 			if (DeserializeStrategiesMap.Contains(Name))
 			{
 				DeserializeStrategiesMap[Name]->Deserialize(JsonStr);
+				DeserializeStrategiesMap[Name]->DoAction();
 			}
 		}
 	}

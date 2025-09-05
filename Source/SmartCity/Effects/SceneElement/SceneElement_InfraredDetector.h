@@ -8,8 +8,9 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 
-#include "SceneElement_Space.generated.h"
+#include "SceneElement_InfraredDetector.generated.h"
 
 class UPlayerComponent;
 class USphereComponent;
@@ -17,24 +18,25 @@ class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
-class URouteMarker;
+class APersonMark;
 
 /**
  * 雷达扫描效果
  */
 UCLASS()
-class SMARTCITY_API ASceneElement_Space :
-	public ASceneElementBase
+class SMARTCITY_API ASceneElement_InfraredDetector :
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 
 public:
-	ASceneElement_Space(
+
+	ASceneElement_InfraredDetector(
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void BeginPlay() override;
-
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
 	virtual void ReplaceImp(
 		AActor* ActorPtr
 		) override;
@@ -43,17 +45,17 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	FString Category;
-
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FString DataSmith_Key = TEXT("Element*空间划分");
-	
-protected:
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> AnchorComponent = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> SweepEffectStaticMeshComponent = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 Deepth = 120;
+	
+private:
 };

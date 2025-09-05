@@ -50,8 +50,6 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_HVAC,"Interaction.Mode.DeviceManagger.PWR.HVAC");
 
-	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_Energy ,"Interaction.Mode.DeviceManagger.PWR.Energy");
-
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_SunShade ,"Interaction.Mode.DeviceManagger.PWR.SunShade");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_Monitor,"Interaction.Mode.DeviceManagger.PWR.Monitor");
@@ -64,7 +62,9 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_Elevator,"Interaction.Mode.DeviceManagger.Elevator");
 
-	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_EnergYManagement,"Interaction.Mode.EnergYManagement");
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_EnvironmentalPerception,"Interaction.Mode.EnvironmentalPerception");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_EnergyManagement,"Interaction.Mode.EnergyManagement");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_EmergencySystem,"Interaction.Mode.EmergencySystem");
 

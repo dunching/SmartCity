@@ -21,11 +21,24 @@ namespace SmartCityCommand
 		EConsoleVariableFlags::ECVF_Default
 	);
 	
+	void AdjustCameraSeat(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand AdjustCameraSeatCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("AdjustCameraSeat"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(AdjustCameraSeat),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
 	void SwitchViewArea(const TArray< FString >& Args);
 
 	static FAutoConsoleCommand SwitchViewAreaCMD(
 		//CMD 名字，在控制台输入这个调用
-		TEXT("SwitchInteractionArea"),
+		TEXT("SwitchViewArea"),
 		//控制台帮助信息，选择这个命令的时候会看到
 		TEXT("this is a CMD test."),
 		//创建静态委托，输入上面的命令后会调用到后面的函数
@@ -101,13 +114,26 @@ namespace SmartCityCommand
 	
 	void ElevatorMoveToFloor(const TArray< FString >& Args);
 
-	static FAutoConsoleCommand ElevatorMoveToFloorMD(
+	static FAutoConsoleCommand ElevatorMoveToFloorcMD(
 		//CMD 名字，在控制台输入这个调用
 		TEXT("ElevatorMoveToFloor"),
 		//控制台帮助信息，选择这个命令的时候会看到
 		TEXT("this is a CMD test."),
 		//创建静态委托，输入上面的命令后会调用到后面的函数
 		FConsoleCommandWithArgsDelegate::CreateStatic(ElevatorMoveToFloor),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void SetSpaceFeature(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetSpaceFeatureCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetSpaceFeature"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetSpaceFeature),
 		//可选标志位掩码
 		EConsoleVariableFlags::ECVF_Default
 	);

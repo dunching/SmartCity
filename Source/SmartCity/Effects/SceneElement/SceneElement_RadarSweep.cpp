@@ -78,6 +78,43 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 
 			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
+			QuitQuery();
+			
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+
+			EntryQuery();
+			
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Interaction.GetTag());
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+
 			EntryQuery();
 			
 			return;
@@ -166,14 +203,14 @@ void ASceneElement_RadarSweep::QueryComplete()
 		{
 			if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetCurrentInteraction_Area())
 			{
+				const auto FloorLocation = Iter.Value->GetActorLocation();
+				
 				for (int32 Index = 0; Index < Num; Index++)
 				{
 					const auto Pt = FMath::RandPointInBox(
-					                                      FBox::BuildAABB(
-					                                                      Iter.Value->BoxComponentPtr->
-					                                                           GetComponentLocation(),
-					                                                      Iter.Value->BoxComponentPtr->
-					                                                           GetScaledBoxExtent()
+					                                      FBox(
+					                                                      FVector(-250,0,-250),
+					                                                      FVector(250, 800, -250)
 					                                                     )
 					                                     );
 					if (GeneratedMarkers.IsValidIndex(Index))
@@ -185,6 +222,7 @@ void ASceneElement_RadarSweep::QueryComplete()
 						auto NewMarkPtr = GetWorldImp()->SpawnActor<APersonMark>(
 							 UAssetRefMap::GetInstance()->PersonMarkClass
 							);
+						NewMarkPtr->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 						NewMarkPtr->Update(Pt);
 
 						GeneratedMarkers.Add(NewMarkPtr);

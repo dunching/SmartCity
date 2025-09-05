@@ -56,6 +56,7 @@ void UGT_ReplyCameraTransform::Activate()
 	                                      AViewerPawn::StaticClass(),
 	                                      OutActors
 	                                     );
+	
 	for (auto ActorIter : OutActors)
 	{
 		auto ViewerPawnPtr = Cast<AViewerPawn>(ActorIter);
@@ -954,28 +955,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					continue;
 				}
 
-				if (ThirdIter.Key.bNeedMerge)
-				{
-					auto HashCode = HashCombine(
-					                            GetTypeHash(ThirdIter.Key.Key),
-					                            GetTypeHash(ThirdIter.Key.Value)
-					                           );
-					if (MergeActorsMap.Contains(HashCode))
-					{
-						MergeActorsMap[HashCode]->Merge(Iter);
-					}
-					else
-					{
-						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-							 ThirdIter.Value
-							);
-						NewActorPtr->Merge(Iter);
-
-						RelatedActors.Add(NewActorPtr);
-						MergeActorsMap.Add(HashCode, NewActorPtr);
-					}
-				}
-				else if (ThirdIter.Key.bNeedMergeWithNear)
+				if (ThirdIter.Key.bNeedMergeWithNear)
 				{
 					TArray<FOverlapResult> OutOverlaps;
 
@@ -1048,6 +1028,38 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 					RelatedActors.Add(NewActorPtr);
 				}
+				bIsSceneElement = true;
+				break;
+			}
+
+			for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedMergeByUserData)
+			{
+				auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key);
+				if (!MetaDataIter)
+				{
+					continue;
+				}
+				
+				auto HashCode = HashCombine(
+												GetTypeHash(*MetaDataIter),
+												GetTypeHash(ThirdIter.Key)
+											   );
+				
+				if (MergeActorsMap.Contains(HashCode))
+				{
+					MergeActorsMap[HashCode]->Merge(Iter);
+				}
+				else
+				{
+					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+						 ThirdIter.Value
+						);
+					NewActorPtr->Merge(Iter);
+
+					RelatedActors.Add(NewActorPtr);
+					MergeActorsMap.Add(HashCode, NewActorPtr);
+				}
+				
 				bIsSceneElement = true;
 				break;
 			}

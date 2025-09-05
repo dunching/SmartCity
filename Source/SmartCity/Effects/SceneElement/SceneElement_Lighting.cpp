@@ -138,21 +138,21 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 			EmptyContainer.Num())
 		{
-			RouteMarkerPtr = CreateWidget<URouteMarker>(
-														GEngine->GetFirstLocalPlayerController(GetWorld()),
-														UAssetRefMap::GetInstance()->SpaceRouteMarkerClass
-													   );
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->TextStr = TEXT("照明");
-				RouteMarkerPtr->TargetActor = this;
-				RouteMarkerPtr->AddToViewport();
-			}
-			if (DeviceType.MatchesTag(
-									  USmartCitySuiteTags::SceneElement_FanCoil.GetTag()
-									 ))
-			{
-			}
+			// RouteMarkerPtr = CreateWidget<URouteMarker>(
+			// 											GEngine->GetFirstLocalPlayerController(GetWorld()),
+			// 											UAssetRefMap::GetInstance()->SpaceRouteMarkerClass
+			// 										   );
+			// if (RouteMarkerPtr)
+			// {
+			// 	RouteMarkerPtr->TextStr = TEXT("照明");
+			// 	RouteMarkerPtr->TargetActor = this;
+			// 	RouteMarkerPtr->AddToViewport();
+			// }
+			// if (DeviceType.MatchesTag(
+			// 						  USmartCitySuiteTags::SceneElement_FanCoil.GetTag()
+			// 						 ))
+			// {
+			// }
 			return;
 		}
 	}

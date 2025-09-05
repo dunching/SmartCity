@@ -38,6 +38,8 @@ namespace TourProcessor
 			const FInputKeyEventArgs& EventArgs 
 			) override;
 
+		void AdjustCameraSeat(const FRotator&CameraSeat);
+		
 	private:
 
 		bool bHasRoted = false;

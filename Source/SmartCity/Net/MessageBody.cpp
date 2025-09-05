@@ -6,8 +6,11 @@
 #include "Tools.h"
 #include "AssetRefMap.h"
 #include "GameplayTagsLibrary.h"
+#include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
 #include "SceneInteractionDecorator.h"
+#include "TemplateHelper.h"
+#include "ViewBuildingProcessor.h"
 
 FMessageBody::FMessageBody()
 {
@@ -18,7 +21,22 @@ FMessageBody::~FMessageBody()
 {
 }
 
-TSharedPtr<FJsonObject> FMessageBody::Deserialize(const FString& JsonStr)
+TSharedPtr<FJsonObject> FMessageBody_Send::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = MakeShareable<FJsonObject>(new FJsonObject);
+	
+	RootJsonObj->SetStringField(CMD,
+								CMD_Name);
+	
+	RootJsonObj->SetStringField(TEXT("Guid"),
+								Guid.ToString());
+
+	return RootJsonObj;
+}
+
+void FMessageBody_Receive::Deserialize(
+	const FString& JsonStr
+	)
 {
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
@@ -27,45 +45,25 @@ TSharedPtr<FJsonObject> FMessageBody::Deserialize(const FString& JsonStr)
 	FJsonSerializer::Deserialize(JsonReader,
 								 jsonObject);
 
-	if (jsonObject->TryGetStringField(TEXT("Name"),Name))
-	{
-	}
-
 	FString GuidStr;
 	if (jsonObject->TryGetStringField(TEXT("Guid"),GuidStr))
 	{
 		Guid  = FGuid(JsonStr);
 	}
-
-	return jsonObject;
 }
 
-TSharedPtr<FJsonObject> FMessageBody::SerializeBody() const
+void FMessageBody_Receive::DoAction() const
 {
-	TSharedPtr<FJsonObject> RootJsonObj = MakeShareable<FJsonObject>(new FJsonObject);
-	
-	RootJsonObj->SetStringField(TEXT("Name"),
-	                            Name);
-	
-	RootJsonObj->SetStringField(TEXT("Guid"),
-	                            Guid.ToString());
-
-	return RootJsonObj;
 }
 
 FMessageBody_SelectedSpace::FMessageBody_SelectedSpace()
 {
-	Name = TEXT("SelectedSpace");
-}
-
-TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::Deserialize(const FString& JsonStr)
-{
-	return FMessageBody::Deserialize(JsonStr);
+	CMD_Name = TEXT("SelectedSpace");
 }
 
 TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 {
-	TSharedPtr<FJsonObject> RootJsonObj = FMessageBody::SerializeBody();
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
 	RootJsonObj->SetStringField(TEXT("SpaceName"),
 								SpaceName);
@@ -75,12 +73,12 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 
 FMessageBody_SelectedDevice::FMessageBody_SelectedDevice()
 {
-	Name = TEXT("SelectedDevice");
+	CMD_Name = TEXT("SelectedDevice");
 }
 
 TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 {
-	TSharedPtr<FJsonObject> RootJsonObj = FMessageBody::SerializeBody();
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
 	RootJsonObj->SetStringField(TEXT("DeviceID"),
 								DeviceID);
@@ -88,21 +86,46 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 	return RootJsonObj;
 }
 
+FMessageBody_AdjustCameraSeat::FMessageBody_AdjustCameraSeat()
+{
+	CMD_Name = TEXT("AdjustCameraSeat");
+}
+
+void FMessageBody_AdjustCameraSeat::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+	
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(JsonReader,
+								 jsonObject);
+
+	if (jsonObject->TryGetNumberField(TEXT("Param"),Pitch))
+	{
+	}
+}
+
+void FMessageBody_AdjustCameraSeat::DoAction() const
+{
+	auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
+		 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
+		);
+	if (ViewBuildingProcessorSPtr)
+	{
+		ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(Pitch,0,0));
+		return;
+	}
+}
+
 FMessageBody_Test::FMessageBody_Test()
 {
 }
 
-TSharedPtr<FJsonObject> FMessageBody_Test::SerializeBody() const
-{
-	TSharedPtr<FJsonObject> RootJsonObj = FMessageBody::SerializeBody();
-
-	RootJsonObj->SetStringField(TEXT("Text"),
-								Text);
-	
-	return RootJsonObj;
-}
-
-FString FMessageBody::GetJsonString() const
+FString FMessageBody_Send::GetJsonString() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = SerializeBody();
 
@@ -114,7 +137,9 @@ FString FMessageBody::GetJsonString() const
 	return JsonString;
 }
 
-FString FMessageBody::GetName() const
+FString FMessageBody::CMD = TEXT("CMD");
+
+FString FMessageBody::GetCMDName() const
 {
-	return Name;
+	return CMD_Name;
 }

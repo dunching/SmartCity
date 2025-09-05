@@ -59,6 +59,17 @@ TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetDecorator(
 	return nullptr;
 }
 
+FGameplayTagContainer USceneInteractionWorldSystem::GetAllInteractionTags() const
+{
+	FGameplayTagContainer Result;
+	for (const auto &Iter : DecoratorLayerAssetMap)
+	{
+		Result.AddTag(Iter.Value->GetBranchDecoratorType());	
+	}
+
+	return Result;
+}
+
 void USceneInteractionWorldSystem::SwitchInteractionOption(
 	const FGameplayTag& Interaction_Mode
 	)
@@ -67,41 +78,45 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 	{
 		auto DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-																USceneInteractionWorldSystem::GetInstance()->
-																GetDecorator(
-																	 USmartCitySuiteTags::Interaction_Interaction
-																	)
-															   );
-		
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+
 		if (!DecoratorSPtr)
 		{
 			SwitchDecoratorImp<FInteraction_Decorator>(
-												 USmartCitySuiteTags::Interaction_Interaction,
-												 USmartCitySuiteTags::Interaction_Interaction
-												);
+			                                           USmartCitySuiteTags::Interaction_Interaction,
+			                                           USmartCitySuiteTags::Interaction_Interaction
+			                                          );
 		}
-		
+
 		DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-																USceneInteractionWorldSystem::GetInstance()->
-																GetDecorator(
-																	 USmartCitySuiteTags::Interaction_Interaction
-																	)
-															   );
-		
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+
 		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction_Device))
 		{
 			if (DecoratorSPtr)
 			{
 				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kDevice);
+
+				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 			}
 			return;
 		}
 		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction_Space))
-		{									
+		{
 			if (DecoratorSPtr)
 			{
 				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kSpace);
+
+				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 			}
 			return;
 		}
@@ -137,25 +152,6 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 		{
 			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR))
 			{
-				if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy))
-				{
-					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
-					{
-						if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
-						    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy)
-						{
-							return;
-						}
-					}
-
-					SwitchDecoratorImp<FPWREnergyMode_Decorator>(
-					                                             USmartCitySuiteTags::Interaction_Mode,
-					                                             USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy
-					                                            );
-
-					return;
-				}
-
 				if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC))
 				{
 					if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
@@ -327,6 +323,42 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			                                             USmartCitySuiteTags::Interaction_Mode,
 			                                             USmartCitySuiteTags::Interaction_Mode_EmergencySystem
 			                                            );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEnergyMode_Decorator>(
+			                                          USmartCitySuiteTags::Interaction_Mode,
+			                                          USmartCitySuiteTags::Interaction_Mode_EnergyManagement
+			                                         );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FEnvironmentalPerceptionMode_Decorator>(
+			                                                           USmartCitySuiteTags::Interaction_Mode,
+			                                                           USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
+			                                                          );
 
 			return;
 		}

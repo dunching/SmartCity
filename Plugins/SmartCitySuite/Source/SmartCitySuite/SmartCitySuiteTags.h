@@ -55,8 +55,6 @@ namespace USmartCitySuiteTags
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR_HVAC);
 
-	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR_Energy);
-	
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR_SunShade);
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR_Monitor);
@@ -69,7 +67,9 @@ namespace USmartCitySuiteTags
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_Elevator);
 
-	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_EnergYManagement);
+	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_EnvironmentalPerception);
+
+	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_EnergyManagement);
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_EmergencySystem);
 

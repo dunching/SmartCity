@@ -39,6 +39,8 @@ public:
 		const FGameplayTag& Interaction
 		) const;
 
+	FGameplayTagContainer GetAllInteractionTags() const;
+	
 	/**
 	 * 切换交互选项
 	 * @param Interaction_Mode 

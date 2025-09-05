@@ -88,12 +88,15 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	{
 		for (auto Iter : StaticMeshComponentsAry)
 		{
-			FMaterialsCache MaterialsCache;
-			for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+			if (Iter)
 			{
-				MaterialsCache.MaterialsCacheAry.Add(Iter->GetMaterial(Index));
+				FMaterialsCache MaterialsCache;
+				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+				{
+					MaterialsCache.MaterialsCacheAry.Add(Iter->GetMaterial(Index));
+				}
+				OriginalMaterials.Add(Iter, MaterialsCache);
 			}
-			OriginalMaterials.Add(Iter, MaterialsCache);
 		}
 	}
 
@@ -108,14 +111,17 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			
 			for (auto Iter : StaticMeshComponentsAry)
 			{
-				if (OriginalMaterials.Contains(Iter))
+				if (Iter)
 				{
-					auto& Ref = OriginalMaterials[Iter];
-					if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
+					if (OriginalMaterials.Contains(Iter))
 					{
-						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						auto& Ref = OriginalMaterials[Iter];
+						if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
 						{
-							Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
+							for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+							{
+								Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
+							}
 						}
 					}
 				}
@@ -128,7 +134,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Energy);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement);
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
@@ -142,9 +148,12 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
 			for (auto Iter : StaticMeshComponentsAry)
 			{
-				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+				if (Iter)
 				{
-					Iter->SetMaterial(Index, MaterialInstanceDynamic);
+					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+					{
+						Iter->SetMaterial(Index, MaterialInstanceDynamic);
+					}
 				}
 			}
 			return;
@@ -161,14 +170,17 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			
 			for (auto Iter : StaticMeshComponentsAry)
 			{
-				if (OriginalMaterials.Contains(Iter))
+				if (Iter)
 				{
-					auto& Ref = OriginalMaterials[Iter];
-					if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
+					if (OriginalMaterials.Contains(Iter))
 					{
-						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						auto& Ref = OriginalMaterials[Iter];
+						if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
 						{
-							Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
+							for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+							{
+								Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
+							}
 						}
 					}
 				}

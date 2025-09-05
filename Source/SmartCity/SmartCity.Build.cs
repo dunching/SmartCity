@@ -31,6 +31,7 @@ public class SmartCity : ModuleRules
 		PublicIncludePaths.Add("SmartCity/Effects");
 		PublicIncludePaths.Add("SmartCity/Effects/Buildings");
 		PublicIncludePaths.Add("SmartCity/Effects/SceneElement");
+		PublicIncludePaths.Add("SmartCity/Effects/Spaces");
 		PublicIncludePaths.Add("SmartCity/ElevatorSubSystem");
 		PublicIncludePaths.Add("SmartCity/SpaceSubSystem");
 		PublicIncludePaths.Add("SmartCity/BuildingTools");
