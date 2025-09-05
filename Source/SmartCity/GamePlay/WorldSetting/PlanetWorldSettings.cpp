@@ -2,6 +2,9 @@
 
 #include "Subsystems/SubsystemBlueprintLibrary.h"
 
+
+#include "DataTableCollection.h"
+#include "AssetRefMap.h"
 #include "InputProcessorSubSystem_Imp.h"
 
 void APlanetWorldSettings::PostInitializeComponents()

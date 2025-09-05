@@ -6,6 +6,7 @@
 
 #include "GameFramework/PlayerState.h"
 
+#include "GameplayTagContainer.h"
 #include "CoreMinimal.h"
 
 #include "PlanetPlayerState.generated.h"
