@@ -493,6 +493,8 @@ protected:
 		) override;
 
 private:
+
+	TSet<AActor*>PreviousActors;
 };
 
 #pragma endregion

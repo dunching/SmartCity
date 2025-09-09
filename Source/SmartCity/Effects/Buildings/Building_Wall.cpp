@@ -26,18 +26,13 @@ void ABuilding_Wall::ReplaceImp(
 {
 	Super::ReplaceImp(ActorPtr);
 
-	TArray<AActor*> OutActors;
-	ActorPtr->GetAttachedActors(OutActors);
-	for (auto Iter : OutActors)
-	{
-		Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	}
-	
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
+			// StaticMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			
 			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
 			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
@@ -73,13 +68,14 @@ void ABuilding_Wall::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
-	
+
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -87,11 +83,12 @@ void ABuilding_Wall::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -99,9 +96,10 @@ void ABuilding_Wall::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
 

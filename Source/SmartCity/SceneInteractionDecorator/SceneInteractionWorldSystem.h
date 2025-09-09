@@ -99,6 +99,8 @@ public:
 		const FSceneElementConditional& FilterTags
 		);
 
+	void AddFocusActor(AActor*ActorPtr);
+	
 	void ClearFocus();
 
 	void ClearRouteMarker();

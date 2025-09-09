@@ -22,6 +22,7 @@ class APostProcessVolume;
 class ASceneElementBase;
 class APersonMark;
 class AFireMark;
+class ASceneElement_Space;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FString, TSubclassOf<ASceneElementBase>> NeedMergeByUserData;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FSceneSpace SpaceInfo;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, FModeDecription> ModeDescription;
@@ -96,6 +100,9 @@ public:
 #pragma region 引用
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> SpaceMaterialInstance;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<ASceneElement_Space> SceneElement_SpaceClass;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<URouteMarker> SpaceRouteMarkerClass;

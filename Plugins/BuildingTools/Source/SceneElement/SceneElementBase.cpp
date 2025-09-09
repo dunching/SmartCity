@@ -36,6 +36,23 @@ void ASceneElementBase::ReplaceImp(
 	AActor* ActorPtr
 	)
 {
+	if (ActorPtr)
+	{
+		AActor* ParentPtr = ActorPtr->GetAttachParentActor();
+		if (ParentPtr && !GetAttachParentActor())
+		{
+			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
+		}
+		SetActorTransform(ActorPtr->GetTransform());
+		
+		TArray<AActor*> OutActors;
+		ActorPtr->GetAttachedActors(OutActors);
+		for (auto Iter : OutActors)
+		{
+			Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		}
+	
+	}
 }
 
 void ASceneElementBase::Merge(

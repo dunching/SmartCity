@@ -769,6 +769,13 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 	}
 }
 
+void USceneInteractionWorldSystem::AddFocusActor(
+	AActor* ActorPtr
+	)
+{
+	FocusActors.Add(ActorPtr);
+}
+
 void USceneInteractionWorldSystem::ClearFocus()
 {
 	for (auto Iter : FocusActors)

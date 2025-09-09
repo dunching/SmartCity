@@ -123,6 +123,17 @@ public:
 	FControlParam ViewFloorControlParam;
 #pragma endregion
 
+#pragma region 查看区域
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	int32 ViewSpaceArmLen = 1350;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	FRotator ViewSpaceRot = FRotator(-60, 90, 0);
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewSpaceControlParam;
+#pragma endregion
+
 #pragma region 查看单个设备
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	FRotator ViewDeviceRot = FRotator(-30, 30, 0);

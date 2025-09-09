@@ -28,6 +28,7 @@
 #include "TemplateHelper.h"
 #include "CollisionDataStruct.h"
 #include "SceneElement_RadarSweep.h"
+#include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
@@ -56,7 +57,7 @@ void UGT_ReplyCameraTransform::Activate()
 	                                      AViewerPawn::StaticClass(),
 	                                      OutActors
 	                                     );
-	
+
 	for (auto ActorIter : OutActors)
 	{
 		auto ViewerPawnPtr = Cast<AViewerPawn>(ActorIter);
@@ -234,7 +235,7 @@ void UGT_CameraTransformLocaterByID::Activate()
 
 	TargetLocation = Result.Key.GetLocation();
 	TargetRotation = Result.Key.GetRotation().Rotator();
-	TargetTargetArmLength = Result.Value;
+	TargetTargetArmLength = Result.Value + 500;
 }
 
 void UGT_CameraTransformLocaterBySpace::Activate()
@@ -246,13 +247,13 @@ void UGT_CameraTransformLocaterBySpace::Activate()
 	{
 		auto Result = UKismetAlgorithm::GetCameraSeat(
 		                                              {TargetPtr.Get()},
-		                                              UGameOptions::GetInstance()->ViewDeviceRot,
-		                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
+		                                              UGameOptions::GetInstance()->ViewSpaceRot,
+		                                              UGameOptions::GetInstance()->ViewSpaceControlParam.FOV
 		                                             );
 
 		TargetLocation = Result.Key.GetLocation();
 		TargetRotation = Result.Key.GetRotation().Rotator();
-		TargetTargetArmLength = Result.Value;
+		TargetTargetArmLength = UGameOptions::GetInstance()->ViewSpaceArmLen;
 	}
 }
 
@@ -483,6 +484,15 @@ bool UGT_InitializeSceneActors::ProcessTask(
 			}
 			else
 			{
+				if (SpaceItemSetIndex < SpaceItemSet.Num())
+				{
+					ApplyRelatedActors(SpaceItemSet[SpaceItemSetIndex]);
+				}
+				else
+				{
+					RelatedActorsIndex = 0;
+					RelatedActors.Empty();
+				}
 			}
 
 			Step = EStep::kSpaceItemSet;
@@ -742,6 +752,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 	};
 
 	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
+	const auto SpaceInfo = UAssetRefMap::GetInstance()->SpaceInfo;
 	auto Iter = RelatedActors[RelatedActorsIndex];
 	if (Iter)
 	{
@@ -753,29 +764,58 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 		auto Components = Iter->GetComponents();
 		for (auto SecondIter : Components)
 		{
-			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-			if (PrimitiveComponentPtr)
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+			if (!InterfacePtr)
 			{
-				for (int32 Index = 0; Index < PrimitiveComponentPtr->GetNumMaterials(); Index++)
-				{
-					PrimitiveComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
-				}
-
-				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				PrimitiveComponentPtr->SetCollisionObjectType(Space_Object);
-				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-
-				PrimitiveComponentPtr->SetCastShadow(false);
-				PrimitiveComponentPtr->bVisibleInReflectionCaptures = false;
-				PrimitiveComponentPtr->bVisibleInRealTimeSkyCaptures = false;
-				PrimitiveComponentPtr->bVisibleInRayTracing = false;
-				PrimitiveComponentPtr->bReceivesDecals = false;
-				PrimitiveComponentPtr->bUseAsOccluder = false;
-
-				break;
+				continue;
 			}
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
+			if (!AUDPtr)
+			{
+				continue;
+			}
+
+			auto MetaDataIter = AUDPtr->MetaData.Find(*SpaceInfo.Key);
+			if (!MetaDataIter)
+			{
+				continue;
+			}
+			if (*MetaDataIter != SpaceInfo.Value)
+			{
+				continue;
+			}
+
+			auto SpaceNameValueIter = AUDPtr->MetaData.Find(*SpaceInfo.SpaceNameValue);
+			if (!SpaceNameValueIter)
+			{
+				continue;
+			}
+
+			auto HashCode = HashCombine(
+			                            GetTypeHash(*MetaDataIter),
+			                            GetTypeHash(*SpaceNameValueIter)
+			                           );
+
+			if (MergeActorsMap.Contains(HashCode))
+			{
+				MergeActorsMap[HashCode]->Merge(Iter);
+			}
+			else
+			{
+				auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Space>(
+				                                                               UAssetRefMap::GetInstance()->
+				                                                               SceneElement_SpaceClass
+				                                                              );
+				NewActorPtr->Merge(Iter);
+
+				RelatedActors.Add(NewActorPtr);
+				MergeActorsMap.Add(HashCode, NewActorPtr);
+			}
+			break;
 		}
 	}
 
@@ -982,8 +1022,8 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-
 					NewActorPtr->MergeWithNear(Iter);
+					
 					for (auto OutOverlapsIter : OutOverlaps)
 					{
 						auto TempComponents = Iter->GetComponents();
@@ -1021,8 +1061,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				else
 				{
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-						 ThirdIter.Value,
-						 Iter->GetActorTransform()
+						 ThirdIter.Value
 						);
 					NewActorPtr->Replace(Iter);
 
@@ -1039,12 +1078,12 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				{
 					continue;
 				}
-				
+
 				auto HashCode = HashCombine(
-												GetTypeHash(*MetaDataIter),
-												GetTypeHash(ThirdIter.Key)
-											   );
-				
+				                            GetTypeHash(*MetaDataIter),
+				                            GetTypeHash(ThirdIter.Key)
+				                           );
+
 				if (MergeActorsMap.Contains(HashCode))
 				{
 					MergeActorsMap[HashCode]->Merge(Iter);
@@ -1059,7 +1098,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					RelatedActors.Add(NewActorPtr);
 					MergeActorsMap.Add(HashCode, NewActorPtr);
 				}
-				
+
 				bIsSceneElement = true;
 				break;
 			}

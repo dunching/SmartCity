@@ -96,3 +96,24 @@ public:
 COMMONTYPE_API uint32 GetTypeHash(
 	const FSceneElementTypeHelper& SceneElementTypeHelper
 	);
+
+USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FSceneSpace
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Key;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Value;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString SpaceNameValue;
+
+};
+
+COMMONTYPE_API uint32 GetTypeHash(
+	const FSceneSpace& SceneElementTypeHelper
+	);
+

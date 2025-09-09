@@ -39,6 +39,10 @@ public:
 		AActor* ActorPtr
 		) override;
 
+	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef
+		) override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -51,9 +55,9 @@ public:
 	FString DataSmith_Key = TEXT("Element*空间划分");
 protected:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
 	

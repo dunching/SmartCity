@@ -18,10 +18,13 @@
 #include "SceneElement_PWR_Pipe.h"
 #include "TemplateHelper.h"
 #include "FloorHelperBase.h"
+#include "InputProcessorSubSystem_Imp.h"
 #include "NavagationPaths.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
+#include "ViewSingleFloorProcessor.h"
 #include "WeatherSystem.h"
+#include "TourPawn.h"
 
 FDecoratorBase::FDecoratorBase(
 	FGameplayTag InMainDecoratorType,
@@ -1142,6 +1145,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		TMulticastDelegate<void(
 			bool,
 			const TSet<AActor*>&
+
 			
 			)> MulticastDelegate;
 
@@ -1240,13 +1244,31 @@ bool FFloor_Decorator::Operation(
 										continue;
 									}
 
-									USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+									{
+										FSceneElementConditional SceneActorConditional;
+
+										SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+										SceneActorConditional.ConditionalSet.AddTag(
+											 DecoratorSPtr->GetBranchDecoratorType()
+											);
+
+										for (auto PreviousActorsIter : PreviousActors)
+										{
+											USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
+												 PreviousActorsIter,
+												 SceneActorConditional
+												);
+										}
+										PreviousActors.Empty();
+									}
 
 									FSceneElementConditional SceneActorConditional;
 
 									SceneActorConditional.ConditionalSet.AddTag(
 									                                            USmartCitySuiteTags::Interaction_Mode_View
 									                                           );
+
+									PreviousActors.Add(Iter.GetActor());
 
 									USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
 										 Iter.GetActor(),
@@ -1256,6 +1278,17 @@ bool FFloor_Decorator::Operation(
 									return true;
 								}
 							}
+
+							// 取消选择
+							USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
+							UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleFloorProcessor>(
+								 [this](
+								 auto NewProcessor
+								 )
+								 {
+									 NewProcessor->Interaction_Area = GetCurrentInteraction_Area();
+								 }
+								);
 						}
 					}
 					break;
@@ -1310,7 +1343,23 @@ bool FFloor_Decorator::Operation(
 										continue;
 									}
 
-									USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+									{
+										FSceneElementConditional SceneActorConditional;
+
+										SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+										SceneActorConditional.ConditionalSet.AddTag(
+											 DecoratorSPtr->GetBranchDecoratorType()
+											);
+
+										for (auto PreviousActorsIter : PreviousActors)
+										{
+											USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(
+												 PreviousActorsIter,
+												 SceneActorConditional
+												);
+										}
+										PreviousActors.Empty();
+									}
 
 									FSceneElementConditional SceneActorConditional;
 
@@ -1322,6 +1371,8 @@ bool FFloor_Decorator::Operation(
 										 Iter.GetActor(),
 										 SceneActorConditional
 										);
+
+									PreviousActors.Add(Iter.GetActor());
 
 									PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
 										UGT_CameraTransformLocaterBySpace>(

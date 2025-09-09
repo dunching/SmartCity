@@ -23,8 +23,6 @@ ASceneElement_Space::ASceneElement_Space(
 	) :
 	  Super(ObjectInitializer)
 {
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
 }
 
 void ASceneElement_Space::BeginPlay()
@@ -36,74 +34,95 @@ void ASceneElement_Space::ReplaceImp(
 	AActor* ActorPtr
 	)
 {
-	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
+}
+
+void ASceneElement_Space::Merge(
+	const TSoftObjectPtr<AActor>& ActorRef
+	)
+{
+	Super::Merge(ActorRef);
+
+	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
-		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+		AActor* ParentPtr = ActorRef->GetAttachParentActor();
+		if (ParentPtr && !GetAttachParentActor())
+		{
+			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepRelativeTransform);
+			SetActorRelativeTransform(FTransform::Identity);
+		}
+
+		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
 		if (STPtr)
 		{
-			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-		}
+			auto NewComponentPtr = Cast<UStaticMeshComponent>(
+			                                                  AddComponentByClass(
+				                                                   UStaticMeshComponent::StaticClass(),
+				                                                   true,
+				                                                   STPtr->GetStaticMeshComponent()->
+				                                                          GetComponentTransform(),
+				                                                   false
+				                                                  )
+			                                                 );
 
-		auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
+			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-		TArray<UStaticMeshComponent*> Components;
-		GetComponents<UStaticMeshComponent>(Components);
-		for (auto Iter : Components)
-		{
-			if (Iter)
+			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			NewComponentPtr->SetCollisionObjectType(Space_Object);
+			NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+			NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
+
+			NewComponentPtr->SetRenderCustomDepth(false);
+
+			auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
+
+			for (int32 Index = 0; Index < NewComponentPtr->GetNumMaterials(); Index++)
 			{
-				Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				Iter->SetCollisionObjectType(Space_Object);
-				Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				Iter->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-				Iter->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-				Iter->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
-
-				Iter->SetRenderCustomDepth(false);
-
-				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-				{
-					Iter->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
-				}
-
-				Iter->SetCastShadow(false);
-				Iter->bVisibleInReflectionCaptures = false;
-				Iter->bVisibleInRealTimeSkyCaptures = false;
-				Iter->bVisibleInRayTracing = false;
-				Iter->bReceivesDecals = false;
-				Iter->bUseAsOccluder = false;
-
-				break;
+				NewComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
 			}
-		}
 
-		ActorPtr->GetComponents<UStaticMeshComponent>(Components);
-		for (auto SecondIter : Components)
-		{
-			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-			if (InterfacePtr)
+			NewComponentPtr->SetCastShadow(false);
+			NewComponentPtr->bVisibleInReflectionCaptures = false;
+			NewComponentPtr->bVisibleInRealTimeSkyCaptures = false;
+			NewComponentPtr->bVisibleInRayTracing = false;
+			NewComponentPtr->bReceivesDecals = false;
+			NewComponentPtr->bUseAsOccluder = false;
+
+			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			TArray<UStaticMeshComponent*> Components;
+			STPtr->GetComponents<UStaticMeshComponent>(Components);
+			for (auto SecondIter : Components)
 			{
-				auto AUDPtr = Cast<UDatasmithAssetUserData>(
-				                                            InterfacePtr->GetAssetUserDataOfClass(
-					                                             UDatasmithAssetUserData::StaticClass()
-					                                            )
-				                                           );
-				if (!AUDPtr)
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+				if (InterfacePtr)
 				{
-					continue;
-				}
-				for (const auto& ThirdIter : AUDPtr->MetaData)
-				{
-					if (ThirdIter.Key == DataSmith_Key)
+					auto AUDPtr = Cast<UDatasmithAssetUserData>(
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
+					if (!AUDPtr)
 					{
-						Category = ThirdIter.Value;
-						break;
+						continue;
 					}
+					for (const auto& ThirdIter : AUDPtr->MetaData)
+					{
+						if (ThirdIter.Key == DataSmith_Key)
+						{
+							Category = ThirdIter.Value;
+							break;
+						}
+					}
+					break;
 				}
-				break;
 			}
 		}
+
+		ActorRef->Destroy();
 	}
 }
 
@@ -162,52 +181,58 @@ void ASceneElement_Space::SwitchInteractionType(
 			FCollisionObjectQueryParams ObjectQueryParams;
 			ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
 
-			GetWorld()->ComponentOverlapMulti(
-			                                  OutOverlap,
-			                                  StaticMeshComponent,
-			                                  FVector::ZeroVector,
-			                                  FRotator::ZeroRotator,
-			                                  // StaticMeshComponent->GetComponentLocation(),
-			                                  // StaticMeshComponent->GetComponentRotation(),
-			                                  Params,
-			                                  ObjectQueryParams
-			                                 );
-
-			TSet<ASceneElement_DeviceBase*> ActorsAry;
-			for (const auto& Iter : OutOverlap)
-			{
-				if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
-				{
-					ActorsAry.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
-				}
-			}
-
-			for (const auto& Iter : ActorsAry)
-			{
-				auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
-				if (SceneElementPtr)
-				{
-					SceneElementPtr->SwitchInteractionType(ConditionalSet);
-				}
-				else
-				{
-				}
-			}
-
 			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 			MessageBodySPtr->SpaceName = Category;
-			for (auto DeviceIter : ActorsAry)
+			for (auto MeshIter : StaticMeshComponentsAry)
 			{
-				MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
+				GetWorld()->ComponentOverlapMulti(
+				                                  OutOverlap,
+				                                  MeshIter,
+				                                  FVector::ZeroVector,
+				                                  FRotator::ZeroRotator,
+				                                  // StaticMeshComponent->GetComponentLocation(),
+				                                  // StaticMeshComponent->GetComponentRotation(),
+				                                  Params,
+				                                  ObjectQueryParams
+				                                 );
+
+				TSet<ASceneElement_DeviceBase*> ActorsAry;
+				for (const auto& Iter : OutOverlap)
+				{
+					if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
+					{
+						ActorsAry.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
+					}
+				}
+
+				for (const auto& Iter : ActorsAry)
+				{
+					auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
+					if (SceneElementPtr)
+					{
+						SceneElementPtr->SwitchInteractionType(ConditionalSet);
+					}
+					else
+					{
+					}
+				}
+
+				for (auto DeviceIter : ActorsAry)
+				{
+					if (DeviceIter)
+					{
+						MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
+					}
+				}
 			}
 
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			auto HUDPtr = Cast<AMainHUD>(
-										 GEngine->GetFirstLocalPlayerController(GetWorldImp())->
-												  GetHUD()
-										);
+			                             GEngine->GetFirstLocalPlayerController(GetWorldImp())->
+			                                      GetHUD()
+			                            );
 			if (HUDPtr)
 			{
 				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
@@ -241,11 +266,11 @@ void ASceneElement_Space::SwitchInteractionType(
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				switch (DecoratorSPtr->GetInteractionType())
@@ -282,12 +307,11 @@ void ASceneElement_Space::SwitchInteractionType(
 							RouteMarkerPtr->RemoveFromParent();
 							RouteMarkerPtr = nullptr;
 						}
-
 					}
 					break;
 				}
 			}
-			
+
 			return;
 		}
 	}
@@ -300,15 +324,14 @@ void ASceneElement_Space::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				switch (DecoratorSPtr->GetInteractionType())
@@ -349,7 +372,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					break;
 				}
 			}
-			
+
 			return;
 		}
 	}
@@ -363,15 +386,14 @@ void ASceneElement_Space::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				switch (DecoratorSPtr->GetInteractionType())
@@ -412,7 +434,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					break;
 				}
 			}
-			
+
 			return;
 		}
 	}
@@ -425,15 +447,14 @@ void ASceneElement_Space::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				switch (DecoratorSPtr->GetInteractionType())
@@ -474,7 +495,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					break;
 				}
 			}
-			
+
 			return;
 		}
 	}

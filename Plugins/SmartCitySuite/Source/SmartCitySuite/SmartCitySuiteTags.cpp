@@ -23,7 +23,11 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor ,"Interaction.Area.Floor");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_Roof ,"Interaction.Area.Floor.Roof");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F1 ,"Interaction.Area.Floor.F1");
+
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_B1 ,"Interaction.Area.Floor.B1");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Space ,"Interaction.Area.Space");
 

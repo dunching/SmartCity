@@ -28,3 +28,13 @@ uint32 GetTypeHash(
 {
 	return HashCombine(GetTypeHash(SceneElementTypeHelper.Key), GetTypeHash(SceneElementTypeHelper.Value));
 }
+
+uint32 GetTypeHash(
+	const FSceneSpace& SceneElementTypeHelper
+	)
+{
+	return HashCombine(
+	                   GetTypeHash(SceneElementTypeHelper.Key),
+	                   HashCombine(GetTypeHash(SceneElementTypeHelper.Value), GetTypeHash(SceneElementTypeHelper.SpaceNameValue))
+	                  );
+}

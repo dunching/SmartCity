@@ -66,7 +66,7 @@ bool TourProcessor::FViewSingleDeviceProcessor::InputKey(
 			{
 				bHasMoved = false;
 
-				bStartMove = true;
+				// bStartMove = true;
 				return true;
 			}
 		}
@@ -180,7 +180,7 @@ bool TourProcessor::FViewSingleDeviceProcessor::InputAxis(
 					}
 					else if (bStartMove)
 					{
-						bHasMoved = true;
+						// bHasMoved = true;
 
 						const FRotator Rotation = OnwerActorPtr->Controller->GetControlRotation();
 

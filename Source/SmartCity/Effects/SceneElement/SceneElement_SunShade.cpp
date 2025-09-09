@@ -44,6 +44,8 @@ void ASceneElement_SunShade::ReplaceImp(
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
+			// ChestMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			
 			FanMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
 			FVector Min;
@@ -52,8 +54,8 @@ void ASceneElement_SunShade::ReplaceImp(
 
 			FBox Box(Min, Max);
 
-			FanAncherMeshComponent->SetRelativeLocation(FVector(0, 0, Box.GetExtent().Z));
-			FanMeshComponent->SetRelativeLocation(FVector(0, 0, -Box.GetExtent().Z));
+			FanAncherMeshComponent->SetRelativeLocation(FVector(0, 0, Box.GetSize().Z));
+			FanMeshComponent->SetRelativeLocation(FVector(0, 0, -Box.GetSize().Z));
 		}
 	}
 }
@@ -74,6 +76,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
+			UpdateAngle(0);
+			
 			RemoveRouteMarker();
 
 			return;
@@ -90,6 +94,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
+			UpdateAngle(0);
+			
 			RouteMarkerPtr = CreateWidget<URouteMarker>(
 			                                            GEngine->GetFirstLocalPlayerController(GetWorld()),
 			                                            UAssetRefMap::GetInstance()->RouteMarkerClass
@@ -114,6 +120,25 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
+			UpdateAngle(-90);
+			
+			RemoveRouteMarker();
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			UpdateAngle(-90);
+			
 			RemoveRouteMarker();
 
 			return;
@@ -127,6 +152,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		//
 		SetActorHiddenInGame(true);
 
+		UpdateAngle(0);
+			
 		RemoveRouteMarker();
 
 		return;
@@ -172,7 +199,7 @@ void ASceneElement_SunShade::UpdateAngleImp()
 		}
 	}
 
-	FanAncherMeshComponent->SetRelativeRotation(FRotator(CurrentAngle, 0, 0));
+	FanAncherMeshComponent->SetRelativeRotation(FRotator(0, 0,CurrentAngle));
 }
 
 void ASceneElement_SunShade::RemoveRouteMarker()
