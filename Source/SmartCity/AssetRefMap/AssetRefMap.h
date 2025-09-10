@@ -58,6 +58,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<APostProcessVolume>> PostProcessVolumeMap;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int32 ViewLightingTime = 20;
+
 #pragma region 场景Actor
 
 #pragma endregion

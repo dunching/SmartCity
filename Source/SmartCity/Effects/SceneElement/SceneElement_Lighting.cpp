@@ -36,13 +36,13 @@ void ASceneElement_Lighting::ReplaceImp(
 				if (Iter)
 				{
 					auto Transform = STPtr->GetStaticMeshComponent()->
-																		  GetComponentTransform();
+					                        GetComponentTransform();
 					Iter->SetRelativeLocation(Transform.GetLocation());
-					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90,-90,0));
+					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90, -90, 0));
 					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 				}
 			}
-			
+
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
@@ -112,13 +112,13 @@ void ASceneElement_Lighting::MergeWithNear(
 				if (Iter)
 				{
 					auto Transform = STPtr->GetStaticMeshComponent()->
-																		  GetComponentTransform();
+					                        GetComponentTransform();
 					Iter->SetRelativeLocation(Transform.GetLocation());
-					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90,0,0));
+					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90, 0, 0));
 					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 				}
 			}
-			
+
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
@@ -188,6 +188,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			SetActorHiddenInGame(false);
 
 			SetEmissiveValue(1);
+			SwitchLight(5);
 
 			return;
 		}
@@ -203,6 +204,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			SetActorHiddenInGame(false);
 
 			SetEmissiveValue(0);
+			SwitchLight(0);
 
 			return;
 		}
@@ -283,7 +285,14 @@ void ASceneElement_Lighting::SwitchLight(
 		if (Iter)
 		{
 			Iter->Intensity = Intensity;
-			Iter->SetHiddenInGame(true);
+			if (Intensity <= 0)
+			{
+				Iter->SetHiddenInGame(true);
+			}
+			else
+			{
+				Iter->SetHiddenInGame(false);
+			}
 		}
 	}
 }

@@ -380,6 +380,34 @@ FPWRLightingMode_Decorator::FPWRLightingMode_Decorator() :
 {
 }
 
+void FPWRLightingMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
+}
+
+void FPWRLightingMode_Decorator::Quit()
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+
+		FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
+	}
+
+	Super::Quit();
+}
+
 FAccessControlMode_Decorator::FAccessControlMode_Decorator() :
                                                              Super(
                                                                    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl
@@ -1146,6 +1174,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			bool,
 			const TSet<AActor*>&
 
+
 			
 			)> MulticastDelegate;
 
@@ -1281,14 +1310,16 @@ bool FFloor_Decorator::Operation(
 
 							// 取消选择
 							USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
-							UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleFloorProcessor>(
-								 [this](
-								 auto NewProcessor
-								 )
-								 {
-									 NewProcessor->Interaction_Area = GetCurrentInteraction_Area();
-								 }
-								);
+							UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+								TourProcessor::FViewSingleFloorProcessor>(
+								                                          [this](
+								                                          auto NewProcessor
+								                                          )
+								                                          {
+									                                          NewProcessor->Interaction_Area =
+										                                          GetCurrentInteraction_Area();
+								                                          }
+								                                         );
 						}
 					}
 					break;

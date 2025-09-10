@@ -278,6 +278,11 @@ public:
 	                   );
 
 	FPWRLightingMode_Decorator();
+	
+	virtual void Entry() override;
+
+	virtual void Quit() override;
+
 };
 
 /**
