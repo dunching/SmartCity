@@ -54,6 +54,8 @@ public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere)
 	FString DataSmith_Key = TEXT("Element*空间划分");
 protected:
+
+	void SwitchColor(const FColor& Color);
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;

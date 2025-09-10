@@ -52,6 +52,8 @@ public:
 
 protected:
 
+	void SwitchLight(int32 Intensity);
+	
 	void SetEmissiveValue(int32 Value);
 	
 	/**

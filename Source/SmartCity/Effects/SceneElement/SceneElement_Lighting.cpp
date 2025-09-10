@@ -3,6 +3,8 @@
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
 #include "Engine/StaticMeshActor.h"
+#include "Components/LocalLightComponent.h"
+#include "Engine/RectLight.h"
 
 #include "TourPawn.h"
 #include "InputProcessorSubSystem_Imp.h"
@@ -26,12 +28,27 @@ void ASceneElement_Lighting::ReplaceImp(
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
+			TArray<ULocalLightComponent*> LocalLightComponents;
+			GetComponents<ULocalLightComponent>(LocalLightComponents);
+
+			for (auto Iter : LocalLightComponents)
+			{
+				if (Iter)
+				{
+					auto Transform = STPtr->GetStaticMeshComponent()->
+																		  GetComponentTransform();
+					Iter->SetRelativeLocation(Transform.GetLocation());
+					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90,-90,0));
+					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+				}
+			}
+			
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
 				                                                   true,
-																   STPtr->GetStaticMeshComponent()->
-																		  GetComponentTransform(),
+				                                                   STPtr->GetStaticMeshComponent()->
+				                                                          GetComponentTransform(),
 				                                                   false
 				                                                  )
 			                                                 );
@@ -57,6 +74,8 @@ void ASceneElement_Lighting::ReplaceImp(
 
 			StaticMeshComponentsAry.Add(NewComponentPtr);
 		}
+
+		SwitchLight(0);
 	}
 }
 
@@ -85,6 +104,21 @@ void ASceneElement_Lighting::MergeWithNear(
 		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
 		if (STPtr)
 		{
+			TArray<ULocalLightComponent*> LocalLightComponents;
+			GetComponents<ULocalLightComponent>(LocalLightComponents);
+
+			for (auto Iter : LocalLightComponents)
+			{
+				if (Iter)
+				{
+					auto Transform = STPtr->GetStaticMeshComponent()->
+																		  GetComponentTransform();
+					Iter->SetRelativeLocation(Transform.GetLocation());
+					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90,0,0));
+					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+				}
+			}
+			
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
@@ -118,6 +152,8 @@ void ASceneElement_Lighting::MergeWithNear(
 		}
 
 		ActorRef->Destroy();
+
+		SwitchLight(0);
 	}
 }
 
@@ -232,6 +268,23 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		RouteMarkerPtr = nullptr;
 
 		return;
+	}
+}
+
+void ASceneElement_Lighting::SwitchLight(
+	int32 Intensity
+	)
+{
+	TArray<ULocalLightComponent*> LocalLightComponents;
+	GetComponents<ULocalLightComponent>(LocalLightComponents);
+
+	for (auto Iter : LocalLightComponents)
+	{
+		if (Iter)
+		{
+			Iter->Intensity = Intensity;
+			Iter->SetHiddenInGame(true);
+		}
 	}
 }
 

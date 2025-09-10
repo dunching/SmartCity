@@ -99,6 +99,9 @@ public:
 
 #pragma region 引用
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FName SpaceMaterialColorName = TEXT("BarrierColorPrimary");
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> SpaceMaterialInstance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

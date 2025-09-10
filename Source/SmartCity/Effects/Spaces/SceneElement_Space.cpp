@@ -28,6 +28,8 @@ ASceneElement_Space::ASceneElement_Space(
 void ASceneElement_Space::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
 }
 
 void ASceneElement_Space::ReplaceImp(
@@ -79,9 +81,11 @@ void ASceneElement_Space::Merge(
 
 			auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
 
+			auto MatInst  = UMaterialInstanceDynamic::Create(SpaceMaterialInstance.LoadSynchronous(), this);
+			
 			for (int32 Index = 0; Index < NewComponentPtr->GetNumMaterials(); Index++)
 			{
-				NewComponentPtr->SetMaterial(Index, SpaceMaterialInstance.LoadSynchronous());
+				NewComponentPtr->SetMaterial(Index, MatInst);
 			}
 
 			NewComponentPtr->SetCastShadow(false);
@@ -160,7 +164,9 @@ void ASceneElement_Space::SwitchInteractionType(
 		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
-
+			
+			SwitchColor(FColor::Red);
+			
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
@@ -290,6 +296,8 @@ void ASceneElement_Space::SwitchInteractionType(
 					{
 						SetActorHiddenInGame(false);
 
+						SwitchColor(FColor::White);
+			
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -351,6 +359,8 @@ void ASceneElement_Space::SwitchInteractionType(
 					{
 						SetActorHiddenInGame(false);
 
+						SwitchColor(FColor::White);
+			
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -413,6 +423,8 @@ void ASceneElement_Space::SwitchInteractionType(
 					{
 						SetActorHiddenInGame(false);
 
+						SwitchColor(FColor::White);
+			
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -474,6 +486,8 @@ void ASceneElement_Space::SwitchInteractionType(
 					{
 						SetActorHiddenInGame(false);
 
+						SwitchColor(FColor::White);
+			
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -533,4 +547,22 @@ void ASceneElement_Space::SetFeatures(
 	)
 {
 	FeaturesAry = InFeaturesAry;
+}
+
+void ASceneElement_Space::SwitchColor(
+	const FColor& Color
+	)
+{
+	for (auto MeshIter : StaticMeshComponentsAry)
+	{
+		const auto Mats = MeshIter->GetMaterials();
+		for (auto MatIter : Mats)
+		{
+			auto MatInst =Cast<UMaterialInstanceDynamic>(MatIter);
+			if (MatInst)
+			{
+				MatInst->SetVectorParameterValue(UAssetRefMap::GetInstance()->SpaceMaterialColorName, Color);
+			}
+		}
+	}
 }
