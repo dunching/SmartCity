@@ -23,7 +23,7 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FFloor_Decorator>(
 										 USmartCitySuiteTags::Interaction_Area,
-										 USmartCitySuiteTags::Interaction_Area_Floor,
+										 Interaction_Area,
 										 Interaction_Area
 										);
 

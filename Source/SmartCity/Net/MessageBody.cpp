@@ -9,6 +9,7 @@
 #include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
 #include "SceneInteractionDecorator.h"
+#include "SceneInteractionWorldSystem.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
 
@@ -56,6 +57,34 @@ void FMessageBody_Receive::DoAction() const
 {
 }
 
+FMessageBody_Receive_SwitchViewArea::FMessageBody_Receive_SwitchViewArea()
+{
+	CMD_Name = TEXT("SwitchViewArea");
+}
+
+void FMessageBody_Receive_SwitchViewArea::Deserialize(
+	const FString& JsonStr
+	)
+{
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(JsonReader,
+								 jsonObject);
+
+	FString AreaTagStr;
+	if (jsonObject->TryGetStringField(TEXT("AreaTag"),AreaTagStr))
+	{
+		AreaTag = FGameplayTag::RequestGameplayTag(*AreaTagStr);
+	}
+}
+
+void FMessageBody_Receive_SwitchViewArea::DoAction() const
+{
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(AreaTag);
+}
+
 FMessageBody_SelectedSpace::FMessageBody_SelectedSpace()
 {
 	CMD_Name = TEXT("SelectedSpace");
@@ -86,12 +115,12 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 	return RootJsonObj;
 }
 
-FMessageBody_AdjustCameraSeat::FMessageBody_AdjustCameraSeat()
+FMessageBody_Receive_AdjustCameraSeat::FMessageBody_Receive_AdjustCameraSeat()
 {
 	CMD_Name = TEXT("AdjustCameraSeat");
 }
 
-void FMessageBody_AdjustCameraSeat::Deserialize(
+void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	const FString& JsonStr
 	)
 {
@@ -109,7 +138,7 @@ void FMessageBody_AdjustCameraSeat::Deserialize(
 	}
 }
 
-void FMessageBody_AdjustCameraSeat::DoAction() const
+void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 {
 	auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
 		 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()

@@ -53,6 +53,8 @@ namespace USmartCitySuiteTags
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger);
 
+	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_SunShadow);
+
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR);
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Mode_DeviceManagger_PWR_Lighting);

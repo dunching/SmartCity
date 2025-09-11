@@ -62,9 +62,9 @@ TSharedPtr<FDecoratorBase> USceneInteractionWorldSystem::GetDecorator(
 FGameplayTagContainer USceneInteractionWorldSystem::GetAllInteractionTags() const
 {
 	FGameplayTagContainer Result;
-	for (const auto &Iter : DecoratorLayerAssetMap)
+	for (const auto& Iter : DecoratorLayerAssetMap)
 	{
-		Result.AddTag(Iter.Value->GetBranchDecoratorType());	
+		Result.AddTag(Iter.Value->GetBranchDecoratorType());
 	}
 
 	return Result;
@@ -451,19 +451,21 @@ void USceneInteractionWorldSystem::Operation(
 	}
 }
 
-void USceneInteractionWorldSystem::UpdateFilter(
+UGT_SwitchSceneElementState* USceneInteractionWorldSystem::UpdateFilter(
 	const FSceneElementConditional& FilterTags,
+	bool bBreakRuntimeTask,
 	const TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
-
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
 
 		
 		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementState>(
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementState>(
+		 bBreakRuntimeTask,
 		 [this, OnEnd, &FilterTags](
 		 UGT_SwitchSceneElementState* GTPtr
 		 )
@@ -486,6 +488,7 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_InitializeSceneActors>(
+		 false,
 		 [this](
 		 UGT_InitializeSceneActors* GTPtr
 		 )

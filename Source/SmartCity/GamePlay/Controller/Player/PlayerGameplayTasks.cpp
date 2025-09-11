@@ -350,7 +350,7 @@ UGT_InitializeSceneActors::UGT_InitializeSceneActors(
 	bTickingTask = true;
 	bIsPausable = true;
 
-	Priority = FGameplayTasks::DefaultPriority / 2;
+	Priority = FGameplayTasks::DefaultPriority;
 
 	UseScopeType = EUseScopeType::kCount;
 
@@ -1148,7 +1148,7 @@ UGT_SwitchSceneElementState::UGT_SwitchSceneElementState(
 	bTickingTask = true;
 	bIsPausable = true;
 
-	Priority = FGameplayTasks::DefaultPriority;
+	Priority = 1.5 * FGameplayTasks::DefaultPriority;
 }
 
 void UGT_SwitchSceneElementState::Activate()
@@ -1167,11 +1167,6 @@ void UGT_SwitchSceneElementState::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
-	if (OnEnd.IsBound())
-	{
-		OnEnd.Broadcast(true, Result);
-	}
-
 	Super::OnDestroy(bInOwnerFinished);
 }
 
@@ -1238,6 +1233,11 @@ bool UGT_SwitchSceneElementState::ProcessTask(
 			Step = EStep::kComplete;
 			return true;
 		}
+	}
+
+	if (OnEnd.IsBound())
+	{
+		OnEnd.Broadcast(true, Result, this);
 	}
 
 	return false;
@@ -1543,7 +1543,7 @@ UGT_SwitchSingleSceneElementState::UGT_SwitchSingleSceneElementState(
 	bTickingTask = true;
 	bIsPausable = true;
 
-	Priority = FGameplayTasks::DefaultPriority;
+	Priority = 1.5 * FGameplayTasks::DefaultPriority;
 }
 
 bool UGT_SwitchSingleSceneElementState::ProcessTask(

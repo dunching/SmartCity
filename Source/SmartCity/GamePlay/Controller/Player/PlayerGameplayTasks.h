@@ -12,15 +12,17 @@
 
 #include "GameplayTasksComponent.h"
 #include "GenerateTypes.h"
+#include "LogWriter.h"
 #include "SceneInteractionWorldSystem.h"
 
 #include "PlayerGameplayTasks.generated.h"
 
+class UGT_CameraTransform;
 class AViewerPawn;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
 class AReplaceActorBase;
-
+class UGT_RuntimeTask;
 class UGameplayTaskBase;
 
 /*
@@ -42,18 +44,21 @@ public:
 		) override;
 
 	template <typename GameplayTaskType>
-	void StartGameplayTask(
+	GameplayTaskType* StartGameplayTask(
+		bool bBreakRuntimeTask,
 		const std::function<void(
 			GameplayTaskType*
-
 
 			
 			)>& Func
 		);
+
+	TArray<TObjectPtr<UGameplayTaskBase>> RuntimeTaskAry;
 };
 
 template <typename GameplayTaskType>
-void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
+GameplayTaskType* UPlayerControllerGameplayTasksComponent::StartGameplayTask(
+	bool bBreakRuntimeTask,
 	const std::function<void(
 		GameplayTaskType*
 
@@ -62,6 +67,32 @@ void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 		)>& Func
 	)
 {
+	if (bBreakRuntimeTask)
+	{
+		if constexpr (std::same_as<GameplayTaskType, UGT_InitializeSceneActors>)
+		{
+		}
+		else
+		{
+			const auto TempKnownTasks = KnownTasks;
+			for (auto Iter : TempKnownTasks)
+			{
+				if (Iter->IsA(UGT_CameraTransform::StaticClass()) || Iter->IsA(UGT_RuntimeTask::StaticClass()))
+				{
+					Iter->EndTask();
+				}
+			}
+		}
+	}
+
+	if (KnownTasks.IsEmpty())
+	{
+	}
+	else
+	{
+		PRINTINVOKEWITHSTR(FString( TEXT("")));
+	}
+
 	auto GameplayTaskPtr = UGameplayTask::NewTask<GameplayTaskType>(
 	                                                                TScriptInterface<
 		                                                                IGameplayTaskOwnerInterface>(
@@ -75,6 +106,8 @@ void UPlayerControllerGameplayTasksComponent::StartGameplayTask(
 	}
 
 	GameplayTaskPtr->ReadyForActivation();
+
+	return GameplayTaskPtr;
 }
 
 
@@ -214,7 +247,6 @@ public:
 	FGuid ID;
 
 	TObjectPtr<AActor> TargetDevicePtr = nullptr;
-	
 };
 
 /**
@@ -428,18 +460,28 @@ private:
 
 #pragma region 场景对象切换
 
+UCLASS()
+class SMARTCITY_API UGT_RuntimeTask : public UGT_BatchBase
+{
+	GENERATED_BODY()
+
+public:
+};
+
 /**
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SwitchSceneElementState : public UGT_BatchBase
+class SMARTCITY_API UGT_SwitchSceneElementState : public UGT_RuntimeTask
 {
 	GENERATED_BODY()
 
 public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
+
 		
 		)>;
 
@@ -512,7 +554,7 @@ private:
 
 	TArray<AActor*> DisplayAry;
 
-	
+
 	int32 HideDataSmithSceneActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
@@ -520,7 +562,7 @@ private:
 	int32 HideRePlaceActorsSetIndex = 0;
 
 	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
-	
+
 	int32 HideAryIndex = 0;
 
 	TArray<AActor*> HideAry;
@@ -530,7 +572,7 @@ private:
 };
 
 UCLASS()
-class SMARTCITY_API UGT_SwitchSingleSceneElementState : public UGT_BatchBase
+class SMARTCITY_API UGT_SwitchSingleSceneElementState : public UGT_RuntimeTask
 {
 	GENERATED_BODY()
 
@@ -538,6 +580,8 @@ public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&
+
+
 		
 		)>;
 
@@ -594,7 +638,7 @@ private:
 	int32 DisplayAryIndex = 0;
 
 	TArray<AActor*> DisplayAry;
-	
+
 
 	int32 RelatedActorsIndex = 0;
 };
@@ -603,7 +647,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_FloorSplit : public UGT_BatchBase
+class SMARTCITY_API UGT_FloorSplit : public UGT_RuntimeTask
 {
 	GENERATED_BODY()
 
@@ -699,7 +743,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_QuitFloorSplit : public UGT_BatchBase
+class SMARTCITY_API UGT_QuitFloorSplit : public UGT_RuntimeTask
 {
 	GENERATED_BODY()
 

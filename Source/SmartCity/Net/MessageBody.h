@@ -62,6 +62,45 @@ public:
 };
 
 USTRUCT()
+struct FMessageBody_Receive_AdjustCameraSeat : public FMessageBody_Receive
+{
+	
+	GENERATED_BODY()
+	
+	FMessageBody_Receive_AdjustCameraSeat();
+
+private:
+	
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction()const override;
+	
+	int32 Pitch = 0;
+	
+};
+
+
+USTRUCT()
+struct FMessageBody_Receive_SwitchViewArea : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+	
+public:
+
+	FMessageBody_Receive_SwitchViewArea();
+	
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction()const override;
+
+	FGameplayTag AreaTag;
+};
+
+USTRUCT()
 struct FMessageBody_SelectedSpace : public FMessageBody_Send
 {
 	
@@ -108,24 +147,3 @@ struct FMessageBody_Test : public FMessageBody_Send
 protected:
 	
 };
-
-USTRUCT()
-struct FMessageBody_AdjustCameraSeat : public FMessageBody_Receive
-{
-	
-	GENERATED_BODY()
-	
-	FMessageBody_AdjustCameraSeat();
-
-private:
-	
-	virtual void Deserialize(
-		const FString& JsonStr
-		) override;
-
-	virtual void DoAction()const override;
-	
-	int32 Pitch = 0;
-	
-};
-

@@ -14,8 +14,8 @@
 
 TourProcessor::FViewSplitFloorProcessor::FViewSplitFloorProcessor(
 	FOwnerPawnType* CharacterPtr
-	):
-	 Super(CharacterPtr)
+	) :
+	  Super(CharacterPtr)
 {
 }
 
@@ -23,23 +23,28 @@ void TourProcessor::FViewSplitFloorProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>([](UGT_ReplyCameraTransform* GTPtr)
-	{
-		if (GTPtr)
-		{
-			GTPtr->SeatTag = USmartCitySuiteTags::Seat_ViewSplit;
-		}
-	});
-	
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSplitFloor_Decorator>(
-											  USmartCitySuiteTags::Interaction_Area.GetTag(),
-											  USmartCitySuiteTags::Interaction_Area_Floor.GetTag(),
-											  USmartCitySuiteTags::Interaction_Area_SplitFloor.GetTag()
-											 );
+		 USmartCitySuiteTags::Interaction_Area.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_Floor.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_SplitFloor.GetTag()
+		);
+
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
+		 false,
+		 [](
+		 UGT_ReplyCameraTransform* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->SeatTag = USmartCitySuiteTags::Seat_ViewSplit;
+			 }
+		 }
+		);
 
 	SwitchShowCursor(true);
-	
+
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{

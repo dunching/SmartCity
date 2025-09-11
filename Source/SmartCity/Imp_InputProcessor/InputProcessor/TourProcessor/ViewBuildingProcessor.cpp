@@ -24,8 +24,15 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
+	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
+		 USmartCitySuiteTags::Interaction_Area.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag(),
+		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
+		);
+
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
+	false,
 		 [](
 		 UGT_ReplyCameraTransform* GTPtr
 		 )
@@ -35,12 +42,6 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 				 GTPtr->SeatTag = USmartCitySuiteTags::Seat_Default;
 			 }
 		 }
-		);
-
-	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
-		 USmartCitySuiteTags::Interaction_Area.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
 		);
 
 	SwitchShowCursor(true);
@@ -250,6 +251,7 @@ void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransform>(
+	false,
 	                                                                         [PCPtr, &CameraSeat](
 	                                                                         UGT_CameraTransform* GTPtr
 	                                                                         )

@@ -48,6 +48,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger ,"Interaction.Mode.DeviceManagger");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_SunShadow ,"Interaction.Mode.DeviceManagger.SunShadow");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR ,"Interaction.Mode.DeviceManagger.PWR");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_Lighting,"Interaction.Mode.DeviceManagger.PWR.Lighting");

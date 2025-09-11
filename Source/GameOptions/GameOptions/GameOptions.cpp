@@ -1,5 +1,9 @@
 #include "GameOptions.h"
 
+UGameOptions::UGameOptions()
+{
+}
+
 UGameOptions::UGameOptions(
 	const FObjectInitializer& ObjectInitializer
 	):Super(ObjectInitializer)

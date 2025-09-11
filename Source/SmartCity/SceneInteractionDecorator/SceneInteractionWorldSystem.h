@@ -40,7 +40,7 @@ public:
 		) const;
 
 	FGameplayTagContainer GetAllInteractionTags() const;
-	
+
 	/**
 	 * 切换交互选项
 	 * @param Interaction_Mode 
@@ -69,12 +69,13 @@ public:
 		EOperatorType OperatorType
 		) const;
 
-	void UpdateFilter(
+	UGT_SwitchSceneElementState* UpdateFilter(
 		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&
-			
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElementState*
 			)>& OnEnd
 		);
 
@@ -99,8 +100,10 @@ public:
 		const FSceneElementConditional& FilterTags
 		);
 
-	void AddFocusActor(AActor*ActorPtr);
-	
+	void AddFocusActor(
+		AActor* ActorPtr
+		);
+
 	void ClearFocus();
 
 	void ClearRouteMarker();
@@ -128,8 +131,8 @@ private:
 	 */
 	TMap<FGameplayTag, TSharedPtr<FDecoratorBase>> DecoratorLayerAssetMap;
 
-	TArray<TSharedPtr<FDecoratorBase>>DecoratorLayerCache;
-	
+	TArray<TSharedPtr<FDecoratorBase>> DecoratorLayerCache;
+
 	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
 
 	TSet<AActor*> FocusActors;
@@ -148,6 +151,11 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	if (DecoratorLayerAssetMap.Contains(MainTag))
 	{
 		auto OldDecoratorSPtr = DecoratorLayerAssetMap[MainTag];
+		if (OldDecoratorSPtr->GetBranchDecoratorType() == BranchTag)
+		{
+			return;
+		}
+
 		if (OldDecoratorSPtr->NeedAsync())
 		{
 			OldDecoratorSPtr->Quit();
@@ -185,11 +193,13 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 				// 下一帧移除，避免在此装饰里面进行修改容器的操作
 				// 避免悬空
 				DecoratorLayerCache.Add(OldDecoratorSPtr);
-				GetWorldImp()->GetTimerManager().SetTimerForNextTick([this]()
-				{
-					DecoratorLayerCache.Empty();
-				});
-			
+				GetWorldImp()->GetTimerManager().SetTimerForNextTick(
+				                                                     [this]()
+				                                                     {
+					                                                     DecoratorLayerCache.Empty();
+				                                                     }
+				                                                    );
+
 				OldDecoratorSPtr->Quit();
 				NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
 			}
@@ -203,8 +213,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 
 		NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
 
-		
-		
+
 		DecoratorLayerAssetMap.Add(
 		                           MainTag,
 		                           DecoratorSPtr

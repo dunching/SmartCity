@@ -55,7 +55,11 @@ void UWebChannelWorldSystem::BindEvent()
 void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 {
 	{
-		auto MessageSPtr = MakeShared<FMessageBody_AdjustCameraSeat>();
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_AdjustCameraSeat>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_SwitchViewArea>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 }

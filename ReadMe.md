@@ -2,8 +2,37 @@
 
 ReplyCameraTransform 
 
-SwitchViewArea 
-	Param.1:DefaultGameplayTags.ini->Interaction.Area
+{
+	"CMD":"SwitchViewArea" ，
+	"GUID":“”，
+	“AreaTag”:“Interaction.Area.ExternalWall”\“Interaction.Area.Floor.F1”、“Interaction.Area.Floor.B1”
+}
+
+{
+	"CMD":"AdjustHour" ，
+	"GUID":“”，
+	“Hour”:0~24
+}
+
+{
+	"CMD":"AdjustWeather" ，
+	"GUID":“”，
+	“Weather”:Clear_Skies、Cloudy、Foggy、Overcast、Partly_Cloudy、Rain、Rain_Light、Rain_Thunderstorm、Sand_Dust_Calm、Sand_Dust_Storm、Snow、Snow_Blizzard、Snow_Light
+}
+
+{
+	"CMD":"SwitchMode" ，
+	"GUID":“”，
+	“Weather”:
+		"Interaction.Mode.DeviceManagger"、
+		"Interaction.Mode.DeviceManagger.SunShadow"、
+		"Interaction.Mode.DeviceManagger.PWR.Lighting"、
+		"Interaction.Mode.DeviceManagger.PWR.HVAC"、
+		"Interaction.Mode.DeviceManagger.ELV.Radar"、
+		"Interaction.Mode.EnvironmentalPerception"、
+		"Interaction.Mode.EnergyManagement"、
+		"Interaction.Mode.EmergencySystem"、
+}
 
 SwitchMode 
 	Param.1:DefaultGameplayTags.ini->Interaction.Mode
@@ -20,6 +49,8 @@ AdjustWeather
 
 
 程序启动参数
+-PixelStreamingURL="ws://127.0.0.1:8888" -RenderOffScreen -log 	
+
 -PixelStreamingURL="ws://127.0.0.1:8888"		像素流地址
 			
 -AllowPixelStreamingCommands 					

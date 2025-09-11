@@ -76,6 +76,8 @@ class GAMEOPTIONS_API UGameOptions : public UGameUserSettings
 	GENERATED_BODY()
 
 public:
+	UGameOptions();
+	
 	UGameOptions(const FObjectInitializer& ObjectInitializer);
 	
 	static UGameOptions* GetInstance();

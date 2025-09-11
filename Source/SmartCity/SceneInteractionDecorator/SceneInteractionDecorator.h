@@ -12,6 +12,7 @@
 class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
+class UGT_SwitchSceneElementState;
 
 class SMARTCITY_API FDecoratorBase
 {
@@ -56,15 +57,24 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		);
 
 protected:
+	void IncreaseWaitTaskCount();
+	
+	void DecreaseWaitTaskCount();
+
+	int32 GetWaitTaskCount()const;
+	
 	TDelegate<void()> OnAsyncQuitComplete;
 
 	FGameplayTag MainDecoratorType;
 
 	FGameplayTag BranchDecoratorType;
+private:
+	int32 WaitTaskCount = 0;
 };
 
 #pragma region 模式
@@ -149,7 +159,8 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 };
 
@@ -168,7 +179,8 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
 private:
@@ -338,7 +350,8 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
 private:
@@ -400,10 +413,13 @@ protected:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
 	FGameplayTag CurrentInteraction_Area;
+
+	TArray<UGT_SwitchSceneElementState*>SwitchSceneElementStateAry;
 };
 
 /**
@@ -430,6 +446,13 @@ public:
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
+	
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
+		) override;
+
 };
 
 /**
@@ -494,7 +517,8 @@ public:
 protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
 private:

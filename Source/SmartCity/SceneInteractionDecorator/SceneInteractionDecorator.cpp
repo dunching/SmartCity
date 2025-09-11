@@ -83,9 +83,25 @@ FGameplayTag FDecoratorBase::GetBranchDecoratorType() const
 
 void FDecoratorBase::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
+}
+
+void FDecoratorBase::IncreaseWaitTaskCount()
+{
+	WaitTaskCount++;
+}
+
+void FDecoratorBase::DecreaseWaitTaskCount()
+{
+	WaitTaskCount--;
+}
+
+int32 FDecoratorBase::GetWaitTaskCount() const
+{
+	return WaitTaskCount;
 }
 
 FEmpty_Decorator::FEmpty_Decorator() :
@@ -243,10 +259,11 @@ void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
 
 void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors);
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 }
 
 FEnvironmentalPerceptionMode_Decorator::FEnvironmentalPerceptionMode_Decorator() :
@@ -331,10 +348,11 @@ FEnergyMode_Decorator::FEnergyMode_Decorator() :
 
 void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors);
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 
 	for (auto Iter : InActors)
 	{
@@ -455,10 +473,11 @@ void FElevatorMode_Decorator::Quit()
 
 void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors);
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 }
 
 FSunShadeMode_Decorator::FSunShadeMode_Decorator() :
@@ -509,7 +528,8 @@ void FArea_Decorator::UpdateDisplay()
 
 void FArea_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
 }
@@ -563,7 +583,8 @@ void FExternalWall_Decorator::Entry()
 
 					TMulticastDelegate<void(
 						bool,
-						const TSet<AActor*>&
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElementState*
 
 
 						
@@ -573,6 +594,7 @@ void FExternalWall_Decorator::Entry()
 
 					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 					                                                          SceneActorConditional,
+					                                                          true,
 					                                                          MulticastDelegate
 					                                                         );
 
@@ -588,7 +610,8 @@ void FExternalWall_Decorator::Entry()
 
 					TMulticastDelegate<void(
 						bool,
-						const TSet<AActor*>&
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElementState*
 
 
 						
@@ -598,6 +621,7 @@ void FExternalWall_Decorator::Entry()
 
 					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 					                                                          SceneActorConditional,
+					                                                          true,
 					                                                          MulticastDelegate
 					                                                         );
 
@@ -613,7 +637,8 @@ void FExternalWall_Decorator::Entry()
 
 					TMulticastDelegate<void(
 						bool,
-						const TSet<AActor*>&
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElementState*
 
 
 						
@@ -623,6 +648,7 @@ void FExternalWall_Decorator::Entry()
 
 					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 					                                                          SceneActorConditional,
+					                                                          true,
 					                                                          MulticastDelegate
 					                                                         );
 
@@ -635,7 +661,8 @@ void FExternalWall_Decorator::Entry()
 
 					TMulticastDelegate<void(
 						bool,
-						const TSet<AActor*>&
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElementState*
 
 
 						
@@ -646,6 +673,7 @@ void FExternalWall_Decorator::Entry()
 
 					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 					                                                          SceneActorConditional,
+					                                                          true,
 					                                                          MulticastDelegate
 					                                                         );
 
@@ -663,7 +691,8 @@ void FExternalWall_Decorator::Entry()
 
 	TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
 
 
 		
@@ -673,6 +702,7 @@ void FExternalWall_Decorator::Entry()
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
+	                                                          true,
 	                                                          MulticastDelegate
 	                                                         );
 }
@@ -695,7 +725,8 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -703,6 +734,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
 			return;
@@ -716,7 +748,8 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -724,6 +757,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
 			return;
@@ -740,7 +774,8 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -748,6 +783,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
 			return;
@@ -761,7 +797,8 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -771,6 +808,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
 			return;
@@ -786,7 +824,8 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 	TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
 
 
 		
@@ -796,6 +835,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
+	                                                          true,
 	                                                          MulticastDelegate
 	                                                         );
 }
@@ -823,6 +863,16 @@ bool FExternalWall_Decorator::Operation(
 	return false;
 }
 
+void FExternalWall_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+	
+}
+
 FSplitFloor_Decorator::FSplitFloor_Decorator(
 	const FGameplayTag& Interaction_Area
 	) :
@@ -839,6 +889,7 @@ void FSplitFloor_Decorator::Entry()
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_FloorSplit>(
+	                                                                    true,
 	                                                                    [this](
 	                                                                    UGT_FloorSplit* GTPtr
 	                                                                    )
@@ -851,6 +902,7 @@ void FSplitFloor_Decorator::Quit()
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_QuitFloorSplit>(
+	                                                                        true,
 	                                                                        [this](
 	                                                                        auto GTPtr
 	                                                                        )
@@ -930,7 +982,8 @@ void FFloor_Decorator::Entry()
 
 				TMulticastDelegate<void(
 					bool,
-					const TSet<AActor*>&
+					const TSet<AActor*>&,
+					UGT_SwitchSceneElementState*
 
 
 					
@@ -940,9 +993,11 @@ void FFloor_Decorator::Entry()
 
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
+				                                                          true,
 				                                                          MulticastDelegate
 				                                                         );
 
+				IncreaseWaitTaskCount();
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().
@@ -954,7 +1009,8 @@ void FFloor_Decorator::Entry()
 
 				TMulticastDelegate<void(
 					bool,
-					const TSet<AActor*>&
+					const TSet<AActor*>&,
+					UGT_SwitchSceneElementState*
 
 
 					
@@ -964,9 +1020,11 @@ void FFloor_Decorator::Entry()
 
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
+				                                                          true,
 				                                                          MulticastDelegate
 				                                                         );
 
+				IncreaseWaitTaskCount();
 				return;
 			}
 			else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
@@ -979,7 +1037,8 @@ void FFloor_Decorator::Entry()
 
 				TMulticastDelegate<void(
 					bool,
-					const TSet<AActor*>&
+					const TSet<AActor*>&,
+					UGT_SwitchSceneElementState*
 
 
 					
@@ -989,9 +1048,11 @@ void FFloor_Decorator::Entry()
 
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
+				                                                          true,
 				                                                          MulticastDelegate
 				                                                         );
 
+				IncreaseWaitTaskCount();
 				return;
 			}
 			else
@@ -1003,7 +1064,8 @@ void FFloor_Decorator::Entry()
 
 				TMulticastDelegate<void(
 					bool,
-					const TSet<AActor*>&
+					const TSet<AActor*>&,
+					UGT_SwitchSceneElementState*
 
 
 					
@@ -1014,9 +1076,11 @@ void FFloor_Decorator::Entry()
 
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 				                                                          SceneActorConditional,
+				                                                          true,
 				                                                          MulticastDelegate
 				                                                         );
 
+				IncreaseWaitTaskCount();
 				return;
 			}
 		}
@@ -1031,7 +1095,8 @@ void FFloor_Decorator::Entry()
 
 	TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
 
 
 		
@@ -1041,8 +1106,11 @@ void FFloor_Decorator::Entry()
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
+	                                                          true,
 	                                                          MulticastDelegate
 	                                                         );
+
+	IncreaseWaitTaskCount();
 }
 
 void FFloor_Decorator::Quit()
@@ -1071,7 +1139,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -1079,8 +1148,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
+
+			IncreaseWaitTaskCount();
 			return;
 		}
 		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
@@ -1093,7 +1165,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -1101,8 +1174,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
+
+			IncreaseWaitTaskCount();
 			return;
 		}
 		else if (NewDecoratorSPtr->GetBranchDecoratorType().
@@ -1114,7 +1190,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -1122,8 +1199,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
+
+			IncreaseWaitTaskCount();
 			return;
 		}
 		{
@@ -1134,7 +1214,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			TMulticastDelegate<void(
 				bool,
-				const TSet<AActor*>&
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
 
 
 				
@@ -1144,8 +1225,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
+			                                                          true,
 			                                                          MulticastDelegate
 			                                                         );
+
+			IncreaseWaitTaskCount();
 			return;
 		}
 	}
@@ -1172,7 +1256,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 		TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElementState*
 
 
 			
@@ -1180,8 +1265,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 		                                                          SceneActorConditional,
+		                                                          true,
 		                                                          MulticastDelegate
 		                                                         );
+
+		IncreaseWaitTaskCount();
 		return;
 	}
 
@@ -1191,7 +1279,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 	TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElementState*
 
 
 		
@@ -1201,8 +1290,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 	                                                          SceneActorConditional,
+	                                                          true,
 	                                                          MulticastDelegate
 	                                                         );
+
+	IncreaseWaitTaskCount();
 }
 
 bool FFloor_Decorator::Operation(
@@ -1310,16 +1402,16 @@ bool FFloor_Decorator::Operation(
 
 							// 取消选择
 							USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
-							UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-								TourProcessor::FViewSingleFloorProcessor>(
-								                                          [this](
-								                                          auto NewProcessor
-								                                          )
-								                                          {
-									                                          NewProcessor->Interaction_Area =
-										                                          GetCurrentInteraction_Area();
-								                                          }
-								                                         );
+							// UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+							// 	TourProcessor::FViewSingleFloorProcessor>(
+							// 	                                          [this](
+							// 	                                          auto NewProcessor
+							// 	                                          )
+							// 	                                          {
+							// 		                                          NewProcessor->Interaction_Area =
+							// 			                                          GetCurrentInteraction_Area();
+							// 	                                          }
+							// 	                                         );
 						}
 					}
 					break;
@@ -1407,6 +1499,7 @@ bool FFloor_Decorator::Operation(
 
 									PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
 										UGT_CameraTransformLocaterBySpace>(
+										                                   false,
 										                                   [&Iter](
 										                                   UGT_CameraTransformLocaterBySpace* GTPtr
 										                                   )
@@ -1444,10 +1537,13 @@ bool FFloor_Decorator::Operation(
 
 void FFloor_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElementState* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors);
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+
+	DecreaseWaitTaskCount();
 
 	auto Result = UKismetAlgorithm::GetCameraSeat(
 	                                              InActors,
@@ -1457,6 +1553,7 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
+		 false,
 		 [Result](
 		 UGT_ModifyCameraTransform* GTPtr
 		 )
@@ -1504,6 +1601,7 @@ void FSingleDeviceMode_Decorator::Entry()
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
+		 false,
 		 [this](
 		 UGT_CameraTransformLocaterByID* GTPtr
 		 )
@@ -1533,6 +1631,7 @@ void FSingleDeviceMode_Decorator::Entry()
 		auto FloorPtr = UAssetRefMap::GetInstance()->FloorHelpers[AreaTag];
 
 		PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSingleSceneElementState>(
+			 false,
 			 [this, FloorPtr, &AreaTag](
 			 UGT_SwitchSingleSceneElementState* GTPtr
 			 )
