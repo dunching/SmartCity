@@ -30,20 +30,26 @@ class SMARTCITY_API ASceneElement_RadarSweep :
 	GENERATED_BODY()
 
 public:
-
 	ASceneElement_RadarSweep(
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void OnConstruction(const FTransform& Transform) override;
-	
+	virtual void OnConstruction(
+		const FTransform& Transform
+		) override;
+
+	virtual FBox GetComponentsBoundingBox(
+		bool bNonColliding = false,
+		bool bIncludeFromChildActors = false
+		) const override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> AnchorComponent = nullptr;
 
@@ -51,19 +57,19 @@ public:
 	TObjectPtr<UStaticMeshComponent> SweepEffectStaticMeshComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FVector MeshSize = {42,42,42};
-	
+	FVector MeshSize = {42, 42, 42};
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Deepth = 120;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Area = 90;
-	
+
 private:
 	void EntryQuery();
-	
+
 	void QuitQuery();
-	
+
 	void RadarQuery();
 
 	void QueryComplete();

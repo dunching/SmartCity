@@ -1,7 +1,7 @@
 
 #include "HoverWidgetBase.h"
 
-inline FVector2D UHoverWidgetBase::ModifyProjectedLocalPosition(
+ FVector2D UHoverWidgetBase::ModifyProjectedLocalPosition(
 	const FGeometry& ViewportGeometry,
 	const FVector2D& LocalPosition
 )
