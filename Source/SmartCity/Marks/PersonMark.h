@@ -10,6 +10,7 @@
 #include "PersonMark.generated.h"
 
 class UNiagaraComponent;
+class USceneComponent;
 
 /*
  * 用于表示人物的标记点
@@ -22,10 +23,15 @@ class SMARTCITY_API APersonMark : public AActor
 public:
 	APersonMark(const FObjectInitializer& ObjectInitializer);
 
+	virtual void Tick(float DeltaTime) override;
+	
 	void Update(const FVector& NewLocation);
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<USkeletalMeshComponent> Mesh;
+	TObjectPtr<USceneComponent> AnchorComponent;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float RotSpeed = 10;
 
 };
 

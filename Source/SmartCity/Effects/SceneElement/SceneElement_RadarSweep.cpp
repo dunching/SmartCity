@@ -44,6 +44,36 @@ void ASceneElement_RadarSweep::OnConstruction(
 	                                   );
 }
 
+FBox ASceneElement_RadarSweep::GetComponentsBoundingBox(
+	bool bNonColliding,
+	bool bIncludeFromChildActors
+	) const
+{
+	FBox Box(ForceInit);
+
+	ForEachComponent<UPrimitiveComponent>(
+	                                      bIncludeFromChildActors,
+	                                      [&](
+	                                      const UPrimitiveComponent* InPrimComp
+	                                      )
+	                                      {
+		                                      if (InPrimComp == SweepEffectStaticMeshComponent)
+		                                      {
+			                                      return;
+		                                      }
+
+		                                      // Only use collidable components to find collision bounding box.
+		                                      if (InPrimComp->IsRegistered() && (
+			                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
+		                                      {
+			                                      Box += InPrimComp->Bounds.GetBox();
+		                                      }
+	                                      }
+	                                     );
+
+	return Box;
+}
+
 void ASceneElement_RadarSweep::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
@@ -59,9 +89,9 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
-			
+
 			QuitQuery();
-			
+
 			return;
 		}
 	}
@@ -79,7 +109,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			QuitQuery();
-			
+
 			return;
 		}
 	}
@@ -97,7 +127,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			EntryQuery();
-			
+
 			return;
 		}
 	}
@@ -116,7 +146,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			EntryQuery();
-			
+
 			return;
 		}
 	}
@@ -131,9 +161,9 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 			SetActorHiddenInGame(false);
 
 			SweepEffectStaticMeshComponent->SetHiddenInGame(true);
-			
+
 			QuitQuery();
-			
+
 			return;
 		}
 	}
@@ -143,25 +173,26 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		{
 		}
 		SetActorHiddenInGame(true);
-		
+
 		QuitQuery();
-		
+
 		return;
 	}
 }
 
 void ASceneElement_RadarSweep::EntryQuery()
 {
+#if TEST_RADAR
+	RadarQuery();
+#else
 	GetWorld()->GetTimerManager().SetTimer(
 	                                       QueryTimerHadnle,
 	                                       std::bind(&ThisClass::RadarQuery, this),
-#if TEST_RADAR
-	                                       1.f,
-#else
 	                                       UGameOptions::GetInstance()->RadarQueryFrequency,
-#endif
-	                                       true
+	                                       true,
+	                                       0
 	                                      );
+#endif
 }
 
 void ASceneElement_RadarSweep::QuitQuery()
@@ -189,7 +220,7 @@ void ASceneElement_RadarSweep::RadarQuery()
 void ASceneElement_RadarSweep::QueryComplete()
 {
 #if TEST_RADAR
-	int32 Num = FMath::RandRange(1, 10);
+	int32 Num = FMath::RandRange(1, 5);
 
 	auto AreaDecoratorSPtr =
 		DynamicCastSharedPtr<FArea_Decorator>(
@@ -204,14 +235,14 @@ void ASceneElement_RadarSweep::QueryComplete()
 			if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetCurrentInteraction_Area())
 			{
 				const auto FloorLocation = Iter.Value->GetActorLocation();
-				
+
 				for (int32 Index = 0; Index < Num; Index++)
 				{
 					const auto Pt = FMath::RandPointInBox(
 					                                      FBox(
-					                                                      FVector(-250,0,-250),
-					                                                      FVector(250, 800, -250)
-					                                                     )
+					                                           FVector(0, -250, 0),
+					                                           FVector(800, 250, 0)
+					                                          )
 					                                     );
 					if (GeneratedMarkers.IsValidIndex(Index))
 					{
