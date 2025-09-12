@@ -62,6 +62,18 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_SwitchViewArea>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_SwitchMode>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_AdjustHour>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_AdjustWeather>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
 }
 
 void UWebChannelWorldSystem::SendMessage(

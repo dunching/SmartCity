@@ -295,6 +295,14 @@ public:
 
 	virtual void Quit() override;
 
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual void OnOtherDecoratorQuit(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
 };
 
 /**
@@ -559,7 +567,11 @@ public:
 	
 	FGameplayTag GetCurrentWeather()const;
 	
+	void  SetCurrentWeather(const FGameplayTag&WeatherTag);
+	
 	int32 GetCurrentHour()const;
+	
+	void SetCurrentHour(int32 Hour);
 	
 private:
 	

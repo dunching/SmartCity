@@ -441,6 +441,13 @@ void USceneInteractionWorldSystem::Operation(
 	EOperatorType OperatorType
 	) const
 {
+	// 如果有进行的任务，暂停操作
+	if (Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()))->GameplayTasksComponentPtr->
+		HasActiveTasks(UGameplayTask::StaticClass()))
+	{
+		return;
+	}
+
 	const auto TempDecoratorLayerAssetMap = DecoratorLayerAssetMap;
 	for (const auto& Iter : TempDecoratorLayerAssetMap)
 	{
@@ -458,6 +465,7 @@ UGT_SwitchSceneElementState* USceneInteractionWorldSystem::UpdateFilter(
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElementState*
+
 
 		
 		)>& OnEnd

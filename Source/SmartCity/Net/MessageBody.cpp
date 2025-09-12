@@ -10,8 +10,10 @@
 #include "LogWriter.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
+#include "WeatherSystem.h"
 
 FMessageBody::FMessageBody()
 {
@@ -25,12 +27,16 @@ FMessageBody::~FMessageBody()
 TSharedPtr<FJsonObject> FMessageBody_Send::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = MakeShareable<FJsonObject>(new FJsonObject);
-	
-	RootJsonObj->SetStringField(CMD,
-								CMD_Name);
-	
-	RootJsonObj->SetStringField(TEXT("Guid"),
-								Guid.ToString());
+
+	RootJsonObj->SetStringField(
+	                            CMD,
+	                            CMD_Name
+	                           );
+
+	RootJsonObj->SetStringField(
+	                            TEXT("Guid"),
+	                            Guid.ToString()
+	                           );
 
 	return RootJsonObj;
 }
@@ -43,13 +49,15 @@ void FMessageBody_Receive::Deserialize(
 
 	TSharedPtr<FJsonObject> jsonObject;
 
-	FJsonSerializer::Deserialize(JsonReader,
-								 jsonObject);
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
 
 	FString GuidStr;
-	if (jsonObject->TryGetStringField(TEXT("Guid"),GuidStr))
+	if (jsonObject->TryGetStringField(TEXT("Guid"), GuidStr))
 	{
-		Guid  = FGuid(JsonStr);
+		Guid = FGuid(JsonStr);
 	}
 }
 
@@ -66,15 +74,19 @@ void FMessageBody_Receive_SwitchViewArea::Deserialize(
 	const FString& JsonStr
 	)
 {
+	Super::Deserialize(JsonStr);
+
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;
 
-	FJsonSerializer::Deserialize(JsonReader,
-								 jsonObject);
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
 
 	FString AreaTagStr;
-	if (jsonObject->TryGetStringField(TEXT("AreaTag"),AreaTagStr))
+	if (jsonObject->TryGetStringField(TEXT("AreaTag"), AreaTagStr))
 	{
 		AreaTag = FGameplayTag::RequestGameplayTag(*AreaTagStr);
 	}
@@ -83,6 +95,122 @@ void FMessageBody_Receive_SwitchViewArea::Deserialize(
 void FMessageBody_Receive_SwitchViewArea::DoAction() const
 {
 	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(AreaTag);
+}
+
+FMessageBody_Receive_SwitchMode::FMessageBody_Receive_SwitchMode()
+{
+	CMD_Name = TEXT("SwitchMode");
+}
+
+void FMessageBody_Receive_SwitchMode::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	FString Str;
+	if (jsonObject->TryGetStringField(TEXT("Mode"), Str))
+	{
+		ModeTag = FGameplayTag::RequestGameplayTag(*Str);
+	}
+}
+
+void FMessageBody_Receive_SwitchMode::DoAction() const
+{
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(ModeTag);
+}
+
+FMessageBody_Receive_AdjustHour::FMessageBody_Receive_AdjustHour()
+{
+	CMD_Name = TEXT("AdjustHour");
+}
+
+void FMessageBody_Receive_AdjustHour::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	if (jsonObject->TryGetNumberField(TEXT("Hour"), Hour))
+	{
+	}
+}
+
+void FMessageBody_Receive_AdjustHour::DoAction() const
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		DecoratorSPtr->SetCurrentHour(Hour);
+	}
+}
+
+FMessageBody_Receive_AdjustWeather::FMessageBody_Receive_AdjustWeather()
+{
+	CMD_Name = TEXT("AdjustWeather");
+}
+
+void FMessageBody_Receive_AdjustWeather::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	FString Str;
+	if (jsonObject->TryGetStringField(TEXT("Weather"), Str))
+	{
+		Weather = FGameplayTag::RequestGameplayTag(*(TEXT("Weather.") + Str));
+	}
+}
+
+void FMessageBody_Receive_AdjustWeather::DoAction() const
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		DecoratorSPtr->SetCurrentWeather(Weather);
+	}
 }
 
 FMessageBody_SelectedSpace::FMessageBody_SelectedSpace()
@@ -94,9 +222,11 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
-	RootJsonObj->SetStringField(TEXT("SpaceName"),
-								SpaceName);
-	
+	RootJsonObj->SetStringField(
+	                            TEXT("SpaceName"),
+	                            SpaceName
+	                           );
+
 	return RootJsonObj;
 }
 
@@ -109,9 +239,11 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
-	RootJsonObj->SetStringField(TEXT("DeviceID"),
-								DeviceID);
-	
+	RootJsonObj->SetStringField(
+	                            TEXT("DeviceID"),
+	                            DeviceID
+	                           );
+
 	return RootJsonObj;
 }
 
@@ -125,15 +257,17 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	)
 {
 	Super::Deserialize(JsonStr);
-	
+
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;
 
-	FJsonSerializer::Deserialize(JsonReader,
-								 jsonObject);
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
 
-	if (jsonObject->TryGetNumberField(TEXT("Param"),Pitch))
+	if (jsonObject->TryGetNumberField(TEXT("Param"), Pitch))
 	{
 	}
 }
@@ -145,7 +279,7 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 		);
 	if (ViewBuildingProcessorSPtr)
 	{
-		ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(Pitch,0,0));
+		ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(Pitch, 0, 0));
 		return;
 	}
 }
@@ -160,8 +294,10 @@ FString FMessageBody_Send::GetJsonString() const
 
 	FString JsonString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
-	FJsonSerializer::Serialize(RootJsonObj.ToSharedRef(),
-	                           Writer);
+	FJsonSerializer::Serialize(
+	                           RootJsonObj.ToSharedRef(),
+	                           Writer
+	                          );
 
 	return JsonString;
 }

@@ -402,7 +402,21 @@ void FPWRLightingMode_Decorator::Entry()
 {
 	Super::Entry();
 
-	UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+	if (AreaDecoratorSPtr && AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
+		     USmartCitySuiteTags::Interaction_Area_Floor
+		    ))
+	{
+		UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
+	}
+	else
+	{
+	}
 }
 
 void FPWRLightingMode_Decorator::Quit()
@@ -424,6 +438,43 @@ void FPWRLightingMode_Decorator::Quit()
 	}
 
 	Super::Quit();
+}
+
+void FPWRLightingMode_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+	{
+		UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
+	}
+	else
+	{
+		// 确认当前的模式
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+		if (DecoratorSPtr)
+		{
+			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+
+			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
+			UWeatherSystem::GetInstance()->AdjustTime(Time);
+		}
+	}
+}
+
+void FPWRLightingMode_Decorator::OnOtherDecoratorQuit(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
 }
 
 FAccessControlMode_Decorator::FAccessControlMode_Decorator() :
@@ -870,7 +921,6 @@ void FExternalWall_Decorator::OnUpdateFilterComplete(
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
-	
 }
 
 FSplitFloor_Decorator::FSplitFloor_Decorator(
@@ -1669,7 +1719,27 @@ FGameplayTag FInteraction_Decorator::GetCurrentWeather() const
 	return CurrentWeather;
 }
 
+void FInteraction_Decorator::SetCurrentWeather(
+	const FGameplayTag& WeatherTag
+	)
+{
+	CurrentWeather = WeatherTag;
+
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(CurrentWeather);
+}
+
 int32 FInteraction_Decorator::GetCurrentHour() const
 {
 	return CurrentHour;
+}
+
+void FInteraction_Decorator::SetCurrentHour(
+	int32 Hour
+	)
+{
+	CurrentHour = Hour;
+
+	FDateTime Time(1, 1, 1, Hour);
+
+	UWeatherSystem::GetInstance()->AdjustTime(Time);
 }
