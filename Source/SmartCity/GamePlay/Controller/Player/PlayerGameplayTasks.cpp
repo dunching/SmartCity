@@ -802,7 +802,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 
 			if (MergeActorsMap.Contains(HashCode))
 			{
-				MergeActorsMap[HashCode]->Merge(Iter);
+				MergeActorsMap[HashCode]->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
 			}
 			else
 			{
@@ -810,7 +810,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 				                                                               UAssetRefMap::GetInstance()->
 				                                                               SceneElement_SpaceClass
 				                                                              );
-				NewActorPtr->Merge(Iter);
+				NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
 
 				RelatedActors.Add(NewActorPtr);
 				MergeActorsMap.Add(HashCode, NewActorPtr);
@@ -990,80 +990,17 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				{
 					continue;
 				}
-				if (*MetaDataIter != ThirdIter.Key.Value)
+				if (ThirdIter.Key.bOnlyKey)
 				{
-					continue;
+				}
+				else
+				{
+					if (*MetaDataIter != ThirdIter.Key.Value)
+					{
+						continue;
+					}
 				}
 
-				// if (ThirdIter.Key.bNeedMergeWithNear)
-				// {
-				// 	TArray<FOverlapResult> OutOverlaps;
-				//
-				// 	FVector Pos = Iter->GetActorLocation();
-				//
-				// 	FCollisionObjectQueryParams ObjectQueryParams;
-				// 	ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
-				//
-				// 	GetWorld()->OverlapMultiByObjectType(
-				// 	                                     OutOverlaps,
-				// 	                                     Pos,
-				// 	                                     FQuat::Identity,
-				// 	                                     ObjectQueryParams,
-				// 	                                     FCollisionShape::MakeSphere(
-				// 		                                      ThirdIter.Key.MergeWithNearDistance
-				// 		                                     )
-				// 	                                    );
-				//
-				// 	auto HashCode = HashCombine(
-				// 	                            GetTypeHash(ThirdIter.Key.Key),
-				// 	                            GetTypeHash(ThirdIter.Key.Value)
-				// 	                           );
-				//
-				// 	auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
-				// 		 ThirdIter.Value
-				// 		);
-				// 	NewActorPtr->MergeWithNear(Iter);
-				// 	
-				// 	for (auto OutOverlapsIter : OutOverlaps)
-				// 	{
-				// 		auto ActorPtr = OutOverlapsIter.GetActor();
-				// 		if (!ActorPtr)
-				// 		{
-				// 			continue;
-				// 		}
-				// 		auto TempComponents = OutOverlapsIter.GetActor()->GetComponents();
-				// 		for (auto ComponentIter : TempComponents)
-				// 		{
-				// 			auto TempInterfacePtr = Cast<IInterface_AssetUserData>(
-				// 				 ComponentIter
-				// 				);
-				// 			if (TempInterfacePtr)
-				// 			{
-				// 				auto TempAUDPtr = Cast<UDatasmithAssetUserData>(
-				// 				                                                TempInterfacePtr->
-				// 				                                                GetAssetUserDataOfClass(
-				// 					                                                 UDatasmithAssetUserData::StaticClass()
-				// 					                                                )
-				// 				                                               );
-				// 				if (!TempAUDPtr)
-				// 				{
-				// 					continue;
-				// 				}
-				//
-				// 				auto TempMetaDataIter = TempAUDPtr->MetaData.Find(*ThirdIter.Key.Key);
-				// 				if (TempMetaDataIter && (*TempMetaDataIter == ThirdIter.Key.Value))
-				// 				{
-				// 					NewActorPtr->MergeWithNear(OutOverlapsIter.GetActor());
-				// 					break;
-				// 				}
-				// 			}
-				// 		}
-				// 	}
-				//
-				// 	RelatedActors.Add(NewActorPtr);
-				// 	MergeActorsMap.Add(HashCode, NewActorPtr);
-				// }
-				// else
 				{
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
@@ -1078,10 +1015,21 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 			for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedMergeByUserData)
 			{
-				auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key);
+				auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
 				if (!MetaDataIter)
 				{
 					continue;
+				}
+				
+				if (ThirdIter.Key.bOnlyKey)
+				{
+				}
+				else
+				{
+					if (*MetaDataIter != ThirdIter.Key.Value)
+					{
+						continue;
+					}
 				}
 
 				auto HashCode = HashCombine(
@@ -1091,14 +1039,14 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 				if (MergeActorsMap.Contains(HashCode))
 				{
-					MergeActorsMap[HashCode]->Merge(Iter);
+					MergeActorsMap[HashCode]->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 				}
 				else
 				{
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-					NewActorPtr->Merge(Iter);
+					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 
 					RelatedActors.Add(NewActorPtr);
 					MergeActorsMap.Add(HashCode, NewActorPtr);

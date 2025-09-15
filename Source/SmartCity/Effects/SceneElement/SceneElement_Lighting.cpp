@@ -80,10 +80,11 @@ void ASceneElement_Lighting::ReplaceImp(
 }
 
 void ASceneElement_Lighting::Merge(
-	const TSoftObjectPtr<AActor>& ActorRef
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& UserData
 	)
 {
-	Super::Merge(ActorRef);
+	Super::Merge(ActorRef, UserData);
 }
 
 void ASceneElement_Lighting::MergeWithNear(

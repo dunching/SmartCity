@@ -23,7 +23,14 @@ uint32 TFSceneElementTypeHelperKeyFuncs::GetKeyHash(
 }
 
 uint32 GetTypeHash(
-	const FSceneElementTypeHelper& SceneElementTypeHelper
+	const FSceneElementReplaceHelper& SceneElementTypeHelper
+	)
+{
+	return HashCombine(GetTypeHash(SceneElementTypeHelper.Key), GetTypeHash(SceneElementTypeHelper.Value));
+}
+
+uint32 GetTypeHash(
+	const FSceneElementMergeHelper& SceneElementTypeHelper
 	)
 {
 	return HashCombine(GetTypeHash(SceneElementTypeHelper.Key), GetTypeHash(SceneElementTypeHelper.Value));

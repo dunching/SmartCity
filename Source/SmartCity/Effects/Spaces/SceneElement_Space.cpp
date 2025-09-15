@@ -39,10 +39,11 @@ void ASceneElement_Space::ReplaceImp(
 }
 
 void ASceneElement_Space::Merge(
-	const TSoftObjectPtr<AActor>& ActorRef
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& UserData
 	)
 {
-	Super::Merge(ActorRef);
+	Super::Merge(ActorRef, UserData);
 
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{

@@ -34,11 +34,14 @@ void ASceneElement_PWR_Pipe::ReplaceImp(
 }
 
 void ASceneElement_PWR_Pipe::Merge(
-	const TSoftObjectPtr<AActor>& ActorRef
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::Merge(ActorRef);
+	Super::Merge(ActorRef, UserData);
 
+	UserData = InUserData;
+	
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		AActor* ParentPtr = ActorRef->GetAttachParentActor();
@@ -138,25 +141,112 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-			
-			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
-
-			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
-
-			EnergyValue = FMath::RandRange(0.f, 1.f);
-			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
-			for (auto Iter : StaticMeshComponentsAry)
+			if (
+				(UserData.Key == TEXT("Element*照明回路编号")) ||
+				(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+			)
 			{
-				if (Iter)
+				SetActorHiddenInGame(false);
+			
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+
+				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+
+				EnergyValue = FMath::RandRange(0.f, 1.f);
+				MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+				for (auto Iter : StaticMeshComponentsAry)
 				{
-					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+					if (Iter)
 					{
-						Iter->SetMaterial(Index, MaterialInstanceDynamic);
+						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						{
+							Iter->SetMaterial(Index, MaterialInstanceDynamic);
+						}
 					}
 				}
+				return;
 			}
-			return;
+			else
+			{
+				SetActorHiddenInGame(true);
+			}
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+		{
+			if (
+				(UserData.Key == TEXT("Element*照明回路编号")) ||
+				(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+			)
+			{
+				SetActorHiddenInGame(false);
+			
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+
+				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+
+				EnergyValue = FMath::RandRange(0.f, 1.f);
+				MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+				for (auto Iter : StaticMeshComponentsAry)
+				{
+					if (Iter)
+					{
+						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						{
+							Iter->SetMaterial(Index, MaterialInstanceDynamic);
+						}
+					}
+				}
+				return;
+			}
+			else
+			{
+				SetActorHiddenInGame(true);
+			}
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
+	
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV);
+	
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+		{
+			if (
+				(UserData.Key == TEXT("Element*管线类型编号")) 
+			)
+			{
+				SetActorHiddenInGame(false);
+			
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+
+				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+
+				EnergyValue = FMath::RandRange(0.f, 1.f);
+				MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+				for (auto Iter : StaticMeshComponentsAry)
+				{
+					if (Iter)
+					{
+						for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+						{
+							Iter->SetMaterial(Index, MaterialInstanceDynamic);
+						}
+					}
+				}
+				return;
+			}
+			else
+			{
+				SetActorHiddenInGame(true);
+			}
 		}
 	}
 	{

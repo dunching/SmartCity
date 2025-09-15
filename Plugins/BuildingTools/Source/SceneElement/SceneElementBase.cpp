@@ -56,7 +56,8 @@ void ASceneElementBase::ReplaceImp(
 }
 
 void ASceneElementBase::Merge(
-	const TSoftObjectPtr<AActor>& ActorRef
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& UserData
 	)
 {
 }

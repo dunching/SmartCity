@@ -44,10 +44,10 @@ public:
 	 * 将指定的ADatasmithSceneActor的用户数据的引用的Actor替换成指定类型的ASceneElementBase
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FSceneElementTypeHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
+	TMap<FSceneElementReplaceHelper, TSubclassOf<ASceneElementBase>> NeedReplaceByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FString, TSubclassOf<ASceneElementBase>> NeedMergeByUserData;
+	TMap<FSceneElementMergeHelper, TSubclassOf<ASceneElementBase>> NeedMergeByUserData;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FSceneSpace SpaceInfo;

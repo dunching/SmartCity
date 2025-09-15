@@ -39,7 +39,8 @@ public:
 		) override;
 	
 	virtual void Merge(
-		const TSoftObjectPtr<AActor>& ActorRef
+		const TSoftObjectPtr<AActor>& ActorRef,
+		const TPair<FName, FString>& UserData
 		) override;
 
 	virtual void MergeWithNear(

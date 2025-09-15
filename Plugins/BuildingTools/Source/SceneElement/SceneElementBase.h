@@ -34,10 +34,12 @@ public:
 	
 	/**
 	 * 合并所有
-	 * @param ActorRef 
+	 * @param ActorRef
+	 * @param UserData 
 	 */
 	virtual void Merge(
-		const TSoftObjectPtr<AActor>& ActorRef
+		const TSoftObjectPtr<AActor>& ActorRef,
+		const TPair<FName, FString>& UserData
 		);
 
 	/**

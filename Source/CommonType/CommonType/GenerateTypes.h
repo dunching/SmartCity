@@ -42,9 +42,12 @@ struct COMMONTYPE_API FModeDecription
 };
 
 USTRUCT(BlueprintType, Blueprintable)
-struct COMMONTYPE_API FSceneElementTypeHelper
+struct COMMONTYPE_API FSceneElementReplaceHelper
 {
 	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool bOnlyKey = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Key;
@@ -52,26 +55,17 @@ struct COMMONTYPE_API FSceneElementTypeHelper
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FString Value;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	bool bNeedMerge = false;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	bool bNeedMergeWithNear = false;
-	
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	int32 MergeWithNearDistance = 50;
-	
 };
 
 struct COMMONTYPE_API TFSceneElementTypeHelperKeyFuncs :
 	BaseKeyFuncs<
-		FSceneElementTypeHelper, FSceneElementTypeHelper,
+		FSceneElementReplaceHelper, FSceneElementReplaceHelper,
 		false
 	>
 {
 private:
 	typedef BaseKeyFuncs<
-		FSceneElementTypeHelper, FSceneElementTypeHelper,
+		FSceneElementReplaceHelper, FSceneElementReplaceHelper,
 		false
 	> Super;
 
@@ -94,7 +88,27 @@ public:
 };
 
 COMMONTYPE_API uint32 GetTypeHash(
-	const FSceneElementTypeHelper& SceneElementTypeHelper
+	const FSceneElementReplaceHelper& SceneElementTypeHelper
+	);
+
+USTRUCT(BlueprintType, Blueprintable)
+struct COMMONTYPE_API FSceneElementMergeHelper
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool bOnlyKey = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Key;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FString Value;
+
+};
+
+COMMONTYPE_API uint32 GetTypeHash(
+	const FSceneElementMergeHelper& SceneElementTypeHelper
 	);
 
 USTRUCT(BlueprintType, Blueprintable)
