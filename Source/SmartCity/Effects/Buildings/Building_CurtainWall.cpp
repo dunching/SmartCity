@@ -49,7 +49,13 @@ void ABuilding_CurtainWall::ReplaceImp(
 				NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
 
 				NewComponentPtr->SetRenderCustomDepth(false);
-
+			
+				auto Mats = Iter->GetMaterials();
+				for (int32 Index = 0;Index < Mats.Num(); Index++)
+				{
+					NewComponentPtr->SetMaterial(Index, Mats[Index]);
+				}
+				
 				StaticMeshComponentsAry.Add(NewComponentPtr);
 				break;
 			}

@@ -572,6 +572,8 @@ public:
 	int32 GetCurrentHour()const;
 	
 	void SetCurrentHour(int32 Hour);
+
+
 	
 private:
 	
@@ -580,6 +582,21 @@ private:
 	FGameplayTag CurrentWeather;
 
 	int32 CurrentHour;
+
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 WallTranlucent = 100;
+	
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 PillarTranlucent = 100;
+
+	/**
+	 * 是否显示家具
+	 */
+	bool bShowFurniture = true;
 };
 
 #pragma endregion

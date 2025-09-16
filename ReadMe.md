@@ -34,6 +34,14 @@ ReplyCameraTransform
 		"Interaction.Mode.EmergencySystem"、
 }
 
+{
+	"CMD":"SceneItemOption" ，
+	"GUID":“”，
+	"Wall":0~100
+	"Pillar":0~100
+	"Furniture":true
+}
+
 SwitchMode 
 	Param.1:DefaultGameplayTags.ini->Interaction.Mode
 
