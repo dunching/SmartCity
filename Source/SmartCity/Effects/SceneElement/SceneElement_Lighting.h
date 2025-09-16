@@ -43,10 +43,6 @@ public:
 		const TPair<FName, FString>& UserData
 		) override;
 
-	virtual void MergeWithNear(
-		const TSoftObjectPtr<AActor>& ActorRef
-		) override;
-
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -60,7 +56,7 @@ protected:
 	/**
 	 * 固定的网格体
 	*/
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

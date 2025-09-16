@@ -11,7 +11,7 @@
 #include "SceneElement_DeviceBase.h"
 #include "Tools.h"
 
-#include "Building_Wall.generated.h"
+#include "Building_CurtainWall.generated.h"
 
 class UStaticMeshComponent;
 
@@ -19,13 +19,13 @@ class UStaticMeshComponent;
  * 墙
  */
 UCLASS()
-class SMARTCITY_API ABuilding_Wall :
+class SMARTCITY_API ABuilding_CurtainWall :
 	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
-	ABuilding_Wall(
+	ABuilding_CurtainWall(
 		const FObjectInitializer& ObjectInitializer
 		);
 
@@ -48,9 +48,9 @@ public:
 		
 	/**
 	 * 网格体
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+	*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;

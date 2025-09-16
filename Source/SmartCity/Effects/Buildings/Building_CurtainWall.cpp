@@ -1,4 +1,4 @@
-#include "Building_Wall.h"
+#include "Building_CurtainWall.h"
 
 #include "AssetRefMap.h"
 #include "Engine/StaticMeshActor.h"
@@ -6,58 +6,51 @@
 #include "CollisionDataStruct.h"
 #include "SmartCitySuiteTags.h"
 
-ABuilding_Wall::ABuilding_Wall(
+ABuilding_CurtainWall::ABuilding_CurtainWall(
 	const FObjectInitializer& ObjectInitializer
 	) :
 	  Super(ObjectInitializer)
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
-
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	StaticMeshComponent->SetCollisionObjectType(Wall_Object);
-	StaticMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
-void ABuilding_Wall::ReplaceImp(
+void ABuilding_CurtainWall::ReplaceImp(
 	AActor* ActorPtr
 	)
 {
 	Super::ReplaceImp(ActorPtr);
 
-	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
+	if (ActorPtr && ActorPtr->IsA(AActor::StaticClass()))
 	{
-		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
-		if (STPtr)
-		{
-			// StaticMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
-
-			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-
-			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
-			{
-				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
-			}
-		}
-
 		TArray<UStaticMeshComponent*> Components;
-		GetComponents<UStaticMeshComponent>(Components);
+		ActorPtr->GetComponents<UStaticMeshComponent>(Components);
 		for (auto Iter : Components)
 		{
 			if (Iter)
 			{
-				Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				Iter->SetCollisionObjectType(Wall_Object);
-				Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+				auto NewComponentPtr = Cast<UStaticMeshComponent>(
+																  AddComponentByClass(
+																	   UStaticMeshComponent::StaticClass(),
+																	   true,
+																	   Iter->
+																			  GetComponentTransform(),
+																	   false
+																	  )
+																 );
+				NewComponentPtr->SetStaticMesh(Iter->GetStaticMesh());
+				NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
-				Iter->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-				Iter->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-				Iter->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				NewComponentPtr->SetCollisionObjectType(Wall_Object);
+				NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
-				Iter->SetRenderCustomDepth(false);
+				NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
 
+				NewComponentPtr->SetRenderCustomDepth(false);
+
+				StaticMeshComponentsAry.Add(NewComponentPtr);
 				break;
 			}
 		}
@@ -79,7 +72,7 @@ void ABuilding_Wall::ReplaceImp(
 	}
 }
 
-void ABuilding_Wall::SwitchInteractionType(
+void ABuilding_CurtainWall::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
@@ -136,7 +129,7 @@ void ABuilding_Wall::SwitchInteractionType(
 	}
 }
 
-void ABuilding_Wall::SwitchState(
+void ABuilding_CurtainWall::SwitchState(
 	EState State
 	)
 {

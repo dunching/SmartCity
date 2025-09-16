@@ -1,5 +1,7 @@
 #include "PlanetPlayerCameraManager.h"
 
+#include "SceneElement_AccessControl.h"
+
 static TAutoConsoleVariable<int32> APlanetPlayerCameraManager_Draw(
                                                                    TEXT("APlanetPlayerCameraManager.Draw"),
                                                                    0,
@@ -18,7 +20,7 @@ APlanetPlayerCameraManager::APlanetPlayerCameraManager(
 	ViewPitchMin = -70;
 
 	// 往上看的限制
-	ViewPitchMin = 50;
+	ViewPitchMax = 50;
 }
 
 void APlanetPlayerCameraManager::BeginPlay()
@@ -50,4 +52,16 @@ void APlanetPlayerCameraManager::UpdateCamera(
 		}
 	}
 #endif
+}
+
+void APlanetPlayerCameraManager::UpdateCameraSetting(
+	const FControlParam& ControlParam
+	)
+{
+
+	// 往下看的限制
+	ViewPitchMin = ControlParam.CameraPitchMinLimit;
+
+	// 往上看的限制
+	ViewPitchMax = ControlParam.CameraPitchMaxLimit;
 }

@@ -1,7 +1,9 @@
 #include "ViewBuildingProcessor.h"
 
+#include "Dynamic_WeatherBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "GameOptions.h"
 #include "GameplayTagsLibrary.h"
@@ -9,9 +11,10 @@
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
-#include "Kismet/GameplayStatics.h"
+#include "WeatherSystem.h"
 
 TourProcessor::FViewBuildingProcessor::FViewBuildingProcessor(
 	FOwnerPawnType* CharacterPtr
@@ -44,6 +47,24 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 		 }
 		);
 
+	{
+		// 确认当前的模式
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+														 USceneInteractionWorldSystem::GetInstance()->
+														 GetDecorator(
+																	  USmartCitySuiteTags::Interaction_Interaction
+																	 )
+														);
+		if (DecoratorSPtr)
+		{
+			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+
+			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
+			UWeatherSystem::GetInstance()->AdjustTime(Time);
+		}
+	}
+	
 	SwitchShowCursor(true);
 
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();

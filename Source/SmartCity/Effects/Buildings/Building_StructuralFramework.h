@@ -11,7 +11,7 @@
 #include "SceneElement_DeviceBase.h"
 #include "Tools.h"
 
-#include "Building_Wall.generated.h"
+#include "Building_StructuralFramework.generated.h"
 
 class UStaticMeshComponent;
 
@@ -19,13 +19,13 @@ class UStaticMeshComponent;
  * 墙
  */
 UCLASS()
-class SMARTCITY_API ABuilding_Wall :
+class SMARTCITY_API ABuilding_StructuralFramework :
 	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
-	ABuilding_Wall(
+	ABuilding_StructuralFramework(
 		const FObjectInitializer& ObjectInitializer
 		);
 

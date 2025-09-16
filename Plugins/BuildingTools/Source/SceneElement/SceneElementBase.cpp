@@ -2,8 +2,8 @@
 
 ASceneElementBase::ASceneElementBase(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 }
@@ -14,20 +14,27 @@ void ASceneElementBase::Replace(
 {
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
-		AActor* ParentPtr = ActorRef->GetAttachParentActor();
-		if (ParentPtr)
+		AActor* ParentPtr = ActorRef.LoadSynchronous()->GetAttachParentActor();
+		if (ParentPtr && !GetAttachParentActor())
 		{
 			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
+			SetActorTransform(ActorRef.LoadSynchronous()->GetTransform());
 		}
 
+		TArray<AActor*> OutActors;
+		ActorRef.LoadSynchronous()->GetAttachedActors(OutActors);
+		for (auto Iter : OutActors)
+		{
+			Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		}
 		ReplaceImp(ActorRef.LoadSynchronous());
 
 #if WITH_EDITOR
 		SceneElementName = ActorRef->GetActorLabel();
-		
+
 		SetActorLabel(SceneElementName);
 #endif // WITH_EDITOR
-		
+
 		ActorRef->Destroy();
 	}
 }
@@ -38,20 +45,6 @@ void ASceneElementBase::ReplaceImp(
 {
 	if (ActorPtr)
 	{
-		AActor* ParentPtr = ActorPtr->GetAttachParentActor();
-		if (ParentPtr && !GetAttachParentActor())
-		{
-			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
-		}
-		SetActorTransform(ActorPtr->GetTransform());
-		
-		TArray<AActor*> OutActors;
-		ActorPtr->GetAttachedActors(OutActors);
-		for (auto Iter : OutActors)
-		{
-			Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-		}
-	
 	}
 }
 
@@ -60,12 +53,22 @@ void ASceneElementBase::Merge(
 	const TPair<FName, FString>& UserData
 	)
 {
-}
+	if (ActorRef.ToSoftObjectPath().IsValid())
+	{
+		AActor* ParentPtr = ActorRef.LoadSynchronous()->GetAttachParentActor();
+		if (ParentPtr && !GetAttachParentActor())
+		{
+			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
+			SetActorTransform(ActorRef.LoadSynchronous()->GetTransform());
+		}
 
-void ASceneElementBase::MergeWithNear(
-	const TSoftObjectPtr<AActor>& ActorRef
-	)
-{
+		TArray<AActor*> OutActors;
+		ActorRef.LoadSynchronous()->GetAttachedActors(OutActors);
+		for (auto Iter : OutActors)
+		{
+			Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		}
+	}
 }
 
 void ASceneElementBase::BeginInteraction()

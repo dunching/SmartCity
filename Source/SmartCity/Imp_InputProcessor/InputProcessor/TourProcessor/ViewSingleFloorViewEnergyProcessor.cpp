@@ -1,4 +1,4 @@
-#include "ViewSingleFloorProcessor.h"
+#include "ViewSingleFloorViewEnergyProcessor.h"
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -10,14 +10,14 @@
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
-TourProcessor::FViewSingleFloorProcessor::FViewSingleFloorProcessor(
+TourProcessor::FViewSingleFloorViewEnergyProcessor::FViewSingleFloorViewEnergyProcessor(
 	FOwnerPawnType* CharacterPtr
 	):
 	 Super(CharacterPtr)
 {
 }
 
-void TourProcessor::FViewSingleFloorProcessor::EnterAction()
+void TourProcessor::FViewSingleFloorViewEnergyProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
@@ -26,11 +26,20 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorControlParam);
+		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorEnergyControlParam);
+		
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(GameOptionsPtr->
+						   ViewFloorEnergyControlParam, 0);
+
+		UpdateCamera(GameOptionsPtr->
+						   ViewFloorEnergyControlParam);
+					
 	}
 }
 
-bool TourProcessor::FViewSingleFloorProcessor::InputKey(
+bool TourProcessor::FViewSingleFloorViewEnergyProcessor::InputKey(
 	const FInputKeyEventArgs& EventArgs
 	)
 {
@@ -102,7 +111,7 @@ bool TourProcessor::FViewSingleFloorProcessor::InputKey(
 	return Super::InputKey(EventArgs);
 }
 
-bool TourProcessor::FViewSingleFloorProcessor::InputAxis(
+bool TourProcessor::FViewSingleFloorViewEnergyProcessor::InputAxis(
 	const FInputKeyEventArgs& EventArgs
 	)
 {
@@ -199,18 +208,11 @@ bool TourProcessor::FViewSingleFloorProcessor::InputAxis(
 				if (OnwerActorPtr->Controller != nullptr)
 				{
 					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-					                   ViewFloorControlParam.CameraSpringArmSpeed;
+					                   ViewFloorEnergyControlParam.CameraSpringArmSpeed;
 
-					const auto ClampValue = FMath::Clamp(
-					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
-					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MinCameraSpringArm,
-					                                     GameOptionsPtr->
-					                                     ViewFloorControlParam.MaxCameraSpringArm
-					                                    );
-
-					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
-
+					UpdateCameraArmLen(GameOptionsPtr->
+									   ViewFloorEnergyControlParam, Value);
+					
 					return true;
 				}
 			}

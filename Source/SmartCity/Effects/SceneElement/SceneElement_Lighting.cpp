@@ -39,7 +39,7 @@ void ASceneElement_Lighting::ReplaceImp(
 					                        GetComponentTransform();
 					Iter->SetRelativeLocation(Transform.GetLocation());
 					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90, -90, 0));
-					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 				}
 			}
 
@@ -53,7 +53,7 @@ void ASceneElement_Lighting::ReplaceImp(
 				                                                  )
 			                                                 );
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			NewComponentPtr->SetCollisionObjectType(Device_Object);
@@ -85,77 +85,6 @@ void ASceneElement_Lighting::Merge(
 	)
 {
 	Super::Merge(ActorRef, UserData);
-}
-
-void ASceneElement_Lighting::MergeWithNear(
-	const TSoftObjectPtr<AActor>& ActorRef
-	)
-{
-	Super::MergeWithNear(ActorRef);
-
-	if (ActorRef.ToSoftObjectPath().IsValid())
-	{
-		AActor* ParentPtr = ActorRef->GetAttachParentActor();
-		if (ParentPtr && !GetAttachParentActor())
-		{
-			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepRelativeTransform);
-			SetActorRelativeTransform(FTransform::Identity);
-		}
-
-		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
-		if (STPtr)
-		{
-			TArray<ULocalLightComponent*> LocalLightComponents;
-			GetComponents<ULocalLightComponent>(LocalLightComponents);
-
-			for (auto Iter : LocalLightComponents)
-			{
-				if (Iter)
-				{
-					auto Transform = STPtr->GetStaticMeshComponent()->
-					                        GetComponentTransform();
-					Iter->SetRelativeLocation(Transform.GetLocation());
-					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90, 0, 0));
-					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-				}
-			}
-
-			auto NewComponentPtr = Cast<UStaticMeshComponent>(
-			                                                  AddComponentByClass(
-				                                                   UStaticMeshComponent::StaticClass(),
-				                                                   true,
-				                                                   STPtr->GetStaticMeshComponent()->
-				                                                          GetComponentTransform(),
-				                                                   false
-				                                                  )
-			                                                 );
-			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
-			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			NewComponentPtr->SetCollisionObjectType(Device_Object);
-			NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-			NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-			NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-			NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
-
-			NewComponentPtr->SetRenderCustomDepth(false);
-
-			const auto Num = NewComponentPtr->GetNumMaterials();
-			for (int32 Index = 0; Index < Num; Index++)
-			{
-				auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
-				NewComponentPtr->SetMaterial(Index, MaterialPtr);
-			}
-
-			StaticMeshComponentsAry.Add(NewComponentPtr);
-		}
-
-		ActorRef->Destroy();
-
-		SwitchLight(0);
-	}
 }
 
 void ASceneElement_Lighting::SwitchInteractionType(

@@ -1,4 +1,4 @@
-#include "Building_Wall.h"
+#include "Building_Pillar.h"
 
 #include "AssetRefMap.h"
 #include "Engine/StaticMeshActor.h"
@@ -6,7 +6,7 @@
 #include "CollisionDataStruct.h"
 #include "SmartCitySuiteTags.h"
 
-ABuilding_Wall::ABuilding_Wall(
+ABuilding_Pillar::ABuilding_Pillar(
 	const FObjectInitializer& ObjectInitializer
 	) :
 	  Super(ObjectInitializer)
@@ -21,7 +21,7 @@ ABuilding_Wall::ABuilding_Wall(
 	StaticMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
-void ABuilding_Wall::ReplaceImp(
+void ABuilding_Pillar::ReplaceImp(
 	AActor* ActorPtr
 	)
 {
@@ -79,7 +79,7 @@ void ABuilding_Wall::ReplaceImp(
 	}
 }
 
-void ABuilding_Wall::SwitchInteractionType(
+void ABuilding_Pillar::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
@@ -136,7 +136,7 @@ void ABuilding_Wall::SwitchInteractionType(
 	}
 }
 
-void ABuilding_Wall::SwitchState(
+void ABuilding_Pillar::SwitchState(
 	EState State
 	)
 {

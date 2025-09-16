@@ -56,8 +56,6 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_HVAC,"Interaction.Mode.DeviceManagger.PWR.HVAC");
 
-	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_SunShade ,"Interaction.Mode.DeviceManagger.PWR.SunShade");
-
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_PWR_Monitor,"Interaction.Mode.DeviceManagger.PWR.Monitor");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_DeviceManagger_ELV ,"Interaction.Mode.DeviceManagger.ELV");

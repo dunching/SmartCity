@@ -44,7 +44,7 @@ void ASceneElement_SunShade::ReplaceImp(
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
-			// ChestMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			ChestMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
 			
 			FanMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
@@ -87,7 +87,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
@@ -96,33 +96,16 @@ void ASceneElement_SunShade::SwitchInteractionType(
 
 			UpdateAngle(0);
 			
-			RouteMarkerPtr = CreateWidget<URouteMarker>(
-			                                            GEngine->GetFirstLocalPlayerController(GetWorld()),
-			                                            UAssetRefMap::GetInstance()->RouteMarkerClass
-			                                           );
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->TextStr = TEXT("遮阳");
-				RouteMarkerPtr->TargetActor = this;
-				RouteMarkerPtr->AddToViewport();
-			}
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			UpdateAngle(-90);
-			
-			RemoveRouteMarker();
+			// RouteMarkerPtr = CreateWidget<URouteMarker>(
+			//                                             GEngine->GetFirstLocalPlayerController(GetWorld()),
+			//                                             UAssetRefMap::GetInstance()->RouteMarkerClass
+			//                                            );
+			// if (RouteMarkerPtr)
+			// {
+			// 	RouteMarkerPtr->TextStr = TEXT("遮阳");
+			// 	RouteMarkerPtr->TargetActor = this;
+			// 	RouteMarkerPtr->AddToViewport();
+			// }
 
 			return;
 		}

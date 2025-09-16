@@ -9,51 +9,44 @@
 #include "GameOptions.h"
 #include "SceneElementBase.h"
 #include "SceneElement_DeviceBase.h"
-#include "Tools.h"
 
-#include "Building_Wall.generated.h"
+#include "SceneElement_RollerBlind.generated.h"
 
-class UStaticMeshComponent;
+class UActorSequence;
 
 /**
- * 墙
+ * 门禁
  */
 UCLASS()
-class SMARTCITY_API ABuilding_Wall :
-	public ASceneElementBase
+class SMARTCITY_API ASceneElement_RollerBlind :
+	public ASceneElement_DeviceBase
 {
 	GENERATED_BODY()
 
 public:
-	ABuilding_Wall(
+
+	ASceneElement_RollerBlind(
 		const FObjectInitializer& ObjectInitializer
 		);
-
-	virtual void ReplaceImp(
-		AActor* ActorPtr
-		) override;
 
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	enum class EState : uint8
-	{
-		kOriginal,
-		kTranslucent,
-		kHiden,
-	};
-	
-	void SwitchState(EState State);
-		
+protected:
+
 	/**
-	 * 网格体
+	 * 0 ~ 1
+	 * 0: 完全关闭
+	 * 1：完全打开
+	 * @param Percent 
 	 */
+	void PlayAnimation(float Percent);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-
+	float Duration = 1.f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
-
-	FGameplayTag Floor;
+	TObjectPtr<UActorSequenceComponent> MySequenceComponent = nullptr;
+	
 };
