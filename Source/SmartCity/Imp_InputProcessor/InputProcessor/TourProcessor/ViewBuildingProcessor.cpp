@@ -35,7 +35,7 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
-	false,
+		 false,
 		 [](
 		 UGT_ReplyCameraTransform* GTPtr
 		 )
@@ -51,11 +51,11 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 		// 确认当前的模式
 		auto DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-														 USceneInteractionWorldSystem::GetInstance()->
-														 GetDecorator(
-																	  USmartCitySuiteTags::Interaction_Interaction
-																	 )
-														);
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
 		if (DecoratorSPtr)
 		{
 			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
@@ -64,7 +64,7 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 			UWeatherSystem::GetInstance()->AdjustTime(Time);
 		}
 	}
-	
+
 	SwitchShowCursor(true);
 
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
@@ -272,7 +272,7 @@ void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransform>(
-	false,
+	                                                                         false,
 	                                                                         [PCPtr, &CameraSeat](
 	                                                                         UGT_CameraTransform* GTPtr
 	                                                                         )

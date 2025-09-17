@@ -125,7 +125,8 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 
 void USceneInteractionWorldSystem::SetInteractionOption(
 	const FGameplayTag& Interaction_Mode,
-	const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func
+	const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+	bool bImmediatelyUpdate
 	)
 {
 	if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction))
@@ -159,7 +160,10 @@ void USceneInteractionWorldSystem::SetInteractionOption(
 			Func(DecoratorSPtr);
 		}
 
-		NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
+		if (bImmediatelyUpdate)
+		{
+			NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
+		}
 	}
 }
 

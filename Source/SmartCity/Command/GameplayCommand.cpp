@@ -47,9 +47,11 @@ void SmartCityCommand::AdjustCameraSeat(
 		                                                               TEXT(
 		                                                                    R"({
     "CMD": "AdjustCameraSeat",
-    "Param": %s
+    "MinPitch": %s,
+    "MaxPitch": %s
 })"
 		                                                                   ),
+		                                                               *Args[0],
 		                                                               *Args[0]
 		                                                              )
 		                                              );
@@ -224,7 +226,8 @@ void SmartCityCommand::SetWallTranlucent(
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-	                                                                  }
+	                                                                  },
+	                                                                  true
 	                                                                 );
 }
 
@@ -238,17 +241,18 @@ void SmartCityCommand::SetPillarTranlucent(
 	}
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-																	  [&Args](
-																	  const TSharedPtr<FInteraction_Decorator>& SPtr
-																	  )
-																	  {
-																		  SPtr->PillarTranlucent =
-																			  UKismetStringLibrary::Conv_StringToInt(
-																				   Args[0]
-																				  );
-																	  }
-																	 );
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->PillarTranlucent =
+			                                                                  UKismetStringLibrary::Conv_StringToInt(
+				                                                                   Args[0]
+				                                                                  );
+	                                                                  },
+	                                                                  true
+	                                                                 );
 }
 
 void SmartCityCommand::SetStairsTranlucent(
@@ -261,17 +265,18 @@ void SmartCityCommand::SetStairsTranlucent(
 	}
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-																	  [&Args](
-																	  const TSharedPtr<FInteraction_Decorator>& SPtr
-																	  )
-																	  {
-																		  SPtr->StairsTranlucent =
-																			  UKismetStringLibrary::Conv_StringToInt(
-																				   Args[0]
-																				  );
-																	  }
-																	 );
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->StairsTranlucent =
+			                                                                  UKismetStringLibrary::Conv_StringToInt(
+				                                                                   Args[0]
+				                                                                  );
+	                                                                  },
+	                                                                  true
+	                                                                 );
 }
 
 void SmartCityCommand::SetShowCurtainWall(
@@ -284,17 +289,19 @@ void SmartCityCommand::SetShowCurtainWall(
 	}
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-																	  [&Args](
-																	  const TSharedPtr<FInteraction_Decorator>& SPtr
-																	  )
-																	  {
-																		  SPtr->bShowCurtainWall =
-																			  static_cast<bool>( UKismetStringLibrary::Conv_StringToInt(
-																				   Args[0]
-																				  ));
-																	  }
-																	 );
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->bShowCurtainWall =
+			                                                                  static_cast<bool>(
+				                                                                  UKismetStringLibrary::Conv_StringToInt(
+					                                                                   Args[0]
+					                                                                  ));
+	                                                                  },
+	                                                                  true
+	                                                                 );
 }
 
 void SmartCityCommand::SetShowFurniture(
@@ -307,15 +314,24 @@ void SmartCityCommand::SetShowFurniture(
 	}
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-																	  [&Args](
-																	  const TSharedPtr<FInteraction_Decorator>& SPtr
-																	  )
-																	  {
-																		  SPtr->bShowFurniture =
-																		  	static_cast<bool>( UKismetStringLibrary::Conv_StringToInt(
-																				   Args[0]
-																				  ));
-																	  }
-																	 );
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->bShowFurniture =
+			                                                                  static_cast<bool>(
+				                                                                  UKismetStringLibrary::Conv_StringToInt(
+					                                                                   Args[0]
+					                                                                  ));
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetCameraPitch(
+	const TArray<FString>& Args
+	)
+{
+	
 }

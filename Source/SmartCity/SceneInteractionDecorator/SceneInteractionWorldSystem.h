@@ -51,7 +51,8 @@ public:
 
 	void SetInteractionOption(
 		const FGameplayTag& Interaction_Mode,
-		const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func
+		const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+		bool bImmediatelyUpdate
 		);
 
 	/**

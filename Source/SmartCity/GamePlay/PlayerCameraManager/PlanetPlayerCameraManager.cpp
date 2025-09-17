@@ -1,6 +1,10 @@
 #include "PlanetPlayerCameraManager.h"
 
 #include "SceneElement_AccessControl.h"
+#include "SceneInteractionDecorator.h"
+#include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 
 static TAutoConsoleVariable<int32> APlanetPlayerCameraManager_Draw(
                                                                    TEXT("APlanetPlayerCameraManager.Draw"),
@@ -11,8 +15,8 @@ static TAutoConsoleVariable<int32> APlanetPlayerCameraManager_Draw(
 
 APlanetPlayerCameraManager::APlanetPlayerCameraManager(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	bClientSimulatingViewTarget = 1;
 
@@ -55,13 +59,32 @@ void APlanetPlayerCameraManager::UpdateCamera(
 }
 
 void APlanetPlayerCameraManager::UpdateCameraSetting(
-	const FControlParam& ControlParam
+	float InViewPitchMin,
+	float InViewPitchMax
 	)
 {
-
 	// 往下看的限制
-	ViewPitchMin = ControlParam.CameraPitchMinLimit;
+	ViewPitchMin = InViewPitchMin;
 
 	// 往上看的限制
-	ViewPitchMax = ControlParam.CameraPitchMaxLimit;
+	ViewPitchMax = InViewPitchMax;
+}
+
+void APlanetPlayerCameraManager::UpdateCameraSetting()
+{
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		// 往下看的限制
+		ViewPitchMin = DecoratorSPtr->ViewPitchMin;
+
+		// 往上看的限制
+		ViewPitchMax = DecoratorSPtr->ViewPitchMax;
+	}
 }

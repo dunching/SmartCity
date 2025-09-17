@@ -72,7 +72,9 @@ private:
 
 	virtual void DoAction() const override;
 
-	int32 Pitch = 0;
+	int32 MinPitch = 0;
+
+	int32 MaxPitch = 0;
 };
 
 USTRUCT()
@@ -141,6 +143,48 @@ public:
 	virtual void DoAction() const override;
 
 	FGameplayTag Weather;
+};
+
+USTRUCT()
+struct FMessageBody_Receive_InteractionOption : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+public:
+	FMessageBody_Receive_InteractionOption();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 WallTranlucent = 100;
+	
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 PillarTranlucent = 100;
+
+	/**
+	 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 StairsTranlucent = 100;
+
+	/**
+	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	bool bShowCurtainWall = true;
+
+	/**
+	 * 是否显示家具
+	 */
+	bool bShowFurniture = true;
+
+	bool bImmediatelyUpdate = true;
 };
 
 

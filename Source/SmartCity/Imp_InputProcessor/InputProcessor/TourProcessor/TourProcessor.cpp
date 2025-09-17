@@ -13,6 +13,17 @@ TourProcessor::FTourProcessor::FTourProcessor(
 {
 }
 
+void TourProcessor::FTourProcessor::UpdateCameraSetting(
+	float InViewPitchMin,
+	float InViewPitchMax
+	)
+{
+	Cast<APlanetPlayerCameraManager>(
+									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+									)->UpdateCameraSetting(InViewPitchMin, InViewPitchMax);
+
+}
+
 bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	const FControlParam& ControlParam,
 	float Value
@@ -38,7 +49,7 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 
 	Cast<APlanetPlayerCameraManager>(
 	                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-	                                )->UpdateCameraSetting(ControlParam);
+	                                )->UpdateCameraSetting();
 
 	return true;
 }
@@ -55,7 +66,7 @@ bool TourProcessor::FTourProcessor::UpdateCamera(
 
 	Cast<APlanetPlayerCameraManager>(
 									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-									)->UpdateCameraSetting(ControlParam);
+									)->UpdateCameraSetting();
 
 	return true;
 }
