@@ -33,9 +33,9 @@ namespace TourProcessor
 	
 	protected:
 
-		bool UpdateCameraArmLen(const FControlParam&ControlParam,float Value);
+		bool UpdateCameraArmLen(const FControlParam&ControlParam,float OffsetValue);
 
-		bool UpdateCamera(const FControlParam&ControlParam);
+		bool UpdateCameraClampPitch(const FControlParam&ControlParam);
 	};
 
 }

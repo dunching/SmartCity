@@ -26,7 +26,7 @@ void TourProcessor::FTourProcessor::UpdateCameraSetting(
 
 bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	const FControlParam& ControlParam,
-	float Value
+	float OffsetValue
 	)
 {
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
@@ -38,7 +38,7 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	auto GameOptionsPtr = UGameOptions::GetInstance();
 
 	const auto ClampValue = FMath::Clamp(
-	                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
+	                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - OffsetValue,
 	                                     GameOptionsPtr->
 	                                     ViewFloorEnergyControlParam.MinCameraSpringArm,
 	                                     GameOptionsPtr->
@@ -54,7 +54,7 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	return true;
 }
 
-bool TourProcessor::FTourProcessor::UpdateCamera(
+bool TourProcessor::FTourProcessor::UpdateCameraClampPitch(
 	const FControlParam& ControlParam
 	)
 {
@@ -66,7 +66,7 @@ bool TourProcessor::FTourProcessor::UpdateCamera(
 
 	Cast<APlanetPlayerCameraManager>(
 									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-									)->UpdateCameraSetting();
+									)->UpdateCameraSetting(ControlParam.CameraPitchMinLimit,ControlParam.CameraPitchMaxLimit);
 
 	return true;
 }

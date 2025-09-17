@@ -33,7 +33,7 @@ void TourProcessor::FViewSingleFloorViewEnergyProcessor::EnterAction()
 		UpdateCameraArmLen(GameOptionsPtr->
 						   ViewFloorEnergyControlParam, 0);
 
-		UpdateCamera(GameOptionsPtr->
+		UpdateCameraClampPitch(GameOptionsPtr->
 						   ViewFloorEnergyControlParam);
 					
 	}

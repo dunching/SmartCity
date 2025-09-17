@@ -34,7 +34,14 @@ void TourProcessor::FViewSingleDeviceProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewDeviceControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(GameOptionsPtr->
+						   ViewDeviceControlParam, 0);
+
+		UpdateCameraClampPitch(GameOptionsPtr->
+						   ViewDeviceControlParam);
+					
 	}
 }
 

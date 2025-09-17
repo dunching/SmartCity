@@ -70,7 +70,18 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewBuildingControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(
+		                   GameOptionsPtr->
+		                   ViewBuildingControlParam,
+		                   0
+		                  );
+
+		UpdateCameraClampPitch(
+		                       GameOptionsPtr->
+		                       ViewBuildingControlParam
+		                      );
 	}
 }
 

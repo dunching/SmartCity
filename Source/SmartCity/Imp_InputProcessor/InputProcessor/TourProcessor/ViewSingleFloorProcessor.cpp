@@ -26,7 +26,14 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(GameOptionsPtr->
+						   ViewFloorControlParam, 0);
+
+		UpdateCameraClampPitch(GameOptionsPtr->
+						   ViewFloorControlParam);
+					
 	}
 }
 
