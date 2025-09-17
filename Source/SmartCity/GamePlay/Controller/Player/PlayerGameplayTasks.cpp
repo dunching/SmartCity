@@ -1109,6 +1109,8 @@ UGT_SwitchSceneElementState::UGT_SwitchSceneElementState(
 void UGT_SwitchSceneElementState::Activate()
 {
 	Super::Activate();
+
+	FilterTags.ConditionalSet.RemoveTag(USmartCitySuiteTags::Interaction_Mode_Empty);
 }
 
 void UGT_SwitchSceneElementState::TickTask(

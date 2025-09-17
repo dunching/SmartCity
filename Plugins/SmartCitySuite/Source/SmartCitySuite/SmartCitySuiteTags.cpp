@@ -81,6 +81,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Interaction_Space,"Interaction.Interaction.Space");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Interaction_WallTranlucent,"Interaction.Interaction.WallTranlucent");
+
 
 	UE_DEFINE_GAMEPLAY_TAG(SceneElement_FanCoil,"SceneElement.FanCoil");
 }

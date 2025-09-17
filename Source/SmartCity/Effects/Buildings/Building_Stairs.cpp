@@ -1,11 +1,11 @@
-#include "Building_Pillar.h"
+#include "Building_Stairs.h"
 
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 
-void ABuilding_Pillar::SwitchInteractionType(
+void ABuilding_Stairs::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
@@ -42,17 +42,17 @@ void ABuilding_Pillar::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->PillarTranlucent <= 0)
+				if (DecoratorSPtr->StairsTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (DecoratorSPtr->PillarTranlucent >= 100)
+				else if (DecoratorSPtr->StairsTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(DecoratorSPtr->PillarTranlucent);
+					SetTranslucent(DecoratorSPtr->StairsTranlucent);
 				}
 
 				return;

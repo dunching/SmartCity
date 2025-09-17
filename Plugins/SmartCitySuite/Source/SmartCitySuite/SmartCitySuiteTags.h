@@ -88,6 +88,8 @@ namespace USmartCitySuiteTags
 
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Interaction_Space);
 
+	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Interaction_Interaction_WallTranlucent);
+
 	
 	SMARTCITYSUITE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SceneElement_FanCoil);
 

@@ -573,16 +573,6 @@ public:
 	
 	void SetCurrentHour(int32 Hour);
 
-
-	
-private:
-	
-	EInteractionType InteractionType = EInteractionType::kDevice;
-
-	FGameplayTag CurrentWeather;
-
-	int32 CurrentHour;
-
 	/**
 	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
 	 */
@@ -594,9 +584,27 @@ private:
 	int32 PillarTranlucent = 100;
 
 	/**
+	 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 StairsTranlucent = 100;
+
+	/**
+	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	bool bShowCurtainWall = true;
+
+	/**
 	 * 是否显示家具
 	 */
 	bool bShowFurniture = true;
+private:
+	
+	EInteractionType InteractionType = EInteractionType::kDevice;
+
+	FGameplayTag CurrentWeather;
+
+	int32 CurrentHour;
+
 };
 
 #pragma endregion

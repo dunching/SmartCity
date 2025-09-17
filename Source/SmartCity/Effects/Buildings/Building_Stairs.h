@@ -12,7 +12,7 @@
 #include "SceneElement_DeviceBase.h"
 #include "Tools.h"
 
-#include "Building_CurtainWall.generated.h"
+#include "Building_Stairs.generated.h"
 
 class UStaticMeshComponent;
 
@@ -20,7 +20,7 @@ class UStaticMeshComponent;
  * 墙
  */
 UCLASS()
-class SMARTCITY_API ABuilding_CurtainWall :
+class SMARTCITY_API ABuilding_Stairs :
 	public ABuilding_ItemBase
 {
 	GENERATED_BODY()

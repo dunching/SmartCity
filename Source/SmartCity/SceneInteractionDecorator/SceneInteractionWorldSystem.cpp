@@ -123,6 +123,46 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 	}
 }
 
+void USceneInteractionWorldSystem::SetInteractionOption(
+	const FGameplayTag& Interaction_Mode,
+	const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func
+	)
+{
+	if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction))
+	{
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             
+														 GetDecorator(
+																	  USmartCitySuiteTags::Interaction_Interaction
+																	 )
+														);
+
+		if (!DecoratorSPtr)
+		{
+			SwitchDecoratorImp<FInteraction_Decorator>(
+													   USmartCitySuiteTags::Interaction_Interaction,
+													   USmartCitySuiteTags::Interaction_Interaction
+													  );
+		}
+
+		DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             
+														 GetDecorator(
+																	  USmartCitySuiteTags::Interaction_Interaction
+																	 )
+														);
+
+		if (Func)
+		{
+			Func(DecoratorSPtr);
+		}
+
+		NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
+	}
+}
+
 void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Building_ItemBase.h"
 
 #include "GameFramework/Pawn.h"
 
@@ -20,40 +21,13 @@ class UStaticMeshComponent;
  */
 UCLASS()
 class SMARTCITY_API ABuilding_Pillar :
-	public ASceneElementBase
+	public ABuilding_ItemBase
 {
 	GENERATED_BODY()
 
 public:
-	ABuilding_Pillar(
-		const FObjectInitializer& ObjectInitializer
-		);
-
-	virtual void ReplaceImp(
-		AActor* ActorPtr
-		) override;
-
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	enum class EState : uint8
-	{
-		kOriginal,
-		kTranslucent,
-		kHiden,
-	};
-	
-	void SwitchState(EState State);
-		
-	/**
-	 * 网格体
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
-
-	FGameplayTag Floor;
 };

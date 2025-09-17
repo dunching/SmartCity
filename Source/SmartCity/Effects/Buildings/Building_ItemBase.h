@@ -8,38 +8,31 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 #include "Tools.h"
 
-#include "SceneElement_Furniture.generated.h"
+#include "Building_ItemBase.generated.h"
 
-class UPlayerComponent;
-class USphereComponent;
-class UFloatingPawnMovement;
-class USpringArmComponent;
-class UCameraComponent;
-class AViewerPawn;
-class URouteMarker;
+class UStaticMeshComponent;
 
 /**
- * 雷达扫描效果
+ * 墙
  */
 UCLASS()
-class SMARTCITY_API ASceneElement_Furniture :
+class SMARTCITY_API ABuilding_ItemBase :
 	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
-	ASceneElement_Furniture(
+	ABuilding_ItemBase(
 		const FObjectInitializer& ObjectInitializer
 		);
-
-	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
 		AActor* ActorPtr
 		) override;
-	
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -52,15 +45,16 @@ public:
 	
 	void SwitchState(EState State);
 		
-protected:
-
+	void SetTranslucent(int32 Value);
+		
 	/**
 	 * 网格体
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
 
+	FGameplayTag Floor;
 };

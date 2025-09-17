@@ -50,10 +50,27 @@ void ASceneElement_Furniture::ReplaceImp(
 			StaticMeshComponent->SetWorldTransform(STPtr->GetStaticMeshComponent()->GetComponentTransform());
 			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 			
-			auto Mats = STPtr->GetStaticMeshComponent()->GetMaterials();
-			for (int32 Index = 0;Index < Mats.Num(); Index++)
+			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
 			{
-				StaticMeshComponent->SetMaterial(Index, Mats[Index]);
+				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+			}
+		}
+
+		TArray<UStaticMeshComponent*> Components;
+		GetComponents<UStaticMeshComponent>(Components);
+		
+		for (auto Iter : Components)
+		{
+			if (Iter)
+			{
+				FMaterialAry MaterialAry;
+				auto Mats = Iter->GetMaterials();
+				for (auto MatIter : Mats)
+				{
+					MaterialAry.MaterialsAry.Add(MatIter);
+				}
+
+				MaterialMap.Add(Iter, MaterialAry);
 			}
 		}
 	}
@@ -86,6 +103,21 @@ void ASceneElement_Furniture::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
+			// 确认当前的模式
+			auto DecoratorSPtr =
+				DynamicCastSharedPtr<FInteraction_Decorator>(
+															 USceneInteractionWorldSystem::GetInstance()->
+															 GetDecorator(
+																		  USmartCitySuiteTags::Interaction_Interaction
+																		 )
+															);
+			if (DecoratorSPtr)
+			{
+				SwitchState(DecoratorSPtr->bShowFurniture ? EState::kOriginal : EState::kHiden);
+
+				return;
+			}
+
 			SetActorHiddenInGame(false);
 
 			return;
@@ -99,5 +131,48 @@ void ASceneElement_Furniture::SwitchInteractionType(
 		SetActorHiddenInGame(true);
 
 		return;
+	}
+}
+
+void ASceneElement_Furniture::SwitchState(
+	EState State
+	)
+{
+	switch (State)
+	{
+	case EState::kOriginal:
+		{
+			SetActorHiddenInGame(false);
+
+			TArray<UStaticMeshComponent*> Components;
+			GetComponents<UStaticMeshComponent>(Components);
+
+			auto WallTranslucentMatInst = UAssetRefMap::GetInstance()->WallTranslucentMatInst.LoadSynchronous();
+			for (auto Iter : Components)
+			{
+				if (!Iter)
+				{
+					continue;
+				}
+				auto MatAry = MaterialMap.Find(Iter);
+				if (!MatAry)
+				{
+					continue;
+				}
+
+				const auto MatNum = Iter->GetMaterials().Num();
+				const auto OriMatNum = MatAry->MaterialsAry.Num();
+				for (int32 Index = 0; Index < MatNum && Index < OriMatNum; Index++)
+				{
+					Iter->SetMaterial(Index, MatAry->MaterialsAry[Index]);
+				}
+			}
+		}
+		break;
+	case EState::kHiden:
+		{
+			SetActorHiddenInGame(true);
+		}
+		break;
 	}
 }

@@ -138,4 +138,69 @@ namespace SmartCityCommand
 		EConsoleVariableFlags::ECVF_Default
 	);
 	
+	void SetWallTranlucent(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetWallTranlucentCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetWallTranlucent"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetWallTranlucent),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void SetPillarTranlucent(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetPillarTranlucentCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetPillarTranlucent"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetPillarTranlucent),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void SetStairsTranlucent(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetStairsTranlucentCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetStairsTranlucent"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetStairsTranlucent),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void SetShowCurtainWall(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetShowCurtainWallCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetShowCurtainWall"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetShowCurtainWall),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void SetShowFurniture(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand SetShowFurnitureCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("SetShowFurniture"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(SetShowFurniture),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
 };
