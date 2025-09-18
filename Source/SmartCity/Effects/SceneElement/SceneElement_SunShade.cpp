@@ -36,10 +36,11 @@ ASceneElement_SunShade::ASceneElement_SunShade(
 }
 
 void ASceneElement_SunShade::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{

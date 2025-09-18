@@ -363,6 +363,16 @@ void FEnergyMode_Decorator::OnUpdateFilterComplete(
 		if (PipePtr)
 		{
 			PipeActors.Add(PipePtr);
+
+			continue;
+		}
+		
+		auto DevicePtr = Cast<ASceneElement_DeviceBase>(Iter);
+		if (DevicePtr)
+		{
+			OtherDevices.Add(DevicePtr);
+
+			continue;
 		}
 	}
 
@@ -379,6 +389,16 @@ void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 	for (auto Iter : PipeActors)
+	{
+		if (Iter)
+		{
+			Iter->SwitchInteractionType(SceneActorConditional);
+			
+			IDMap.Add(Iter->GetID(), Iter);
+		}
+	}
+
+	for (auto Iter : OtherDevices)
 	{
 		if (Iter)
 		{
@@ -1368,6 +1388,9 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				UGT_SwitchSceneElementState*
 				
 				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,

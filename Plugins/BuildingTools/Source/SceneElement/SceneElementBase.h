@@ -25,21 +25,23 @@ public:
 		);
 
 	void Replace(
-		const TSoftObjectPtr<AActor>& ActorRef
+		const TSoftObjectPtr<AActor>& ActorRef,
+		const TPair<FName, FString>& InUserData
 		);
 
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		);
 
 	/**
 	 * 合并所有
 	 * @param ActorRef
-	 * @param UserData 
+	 * @param InUserData 
 	 */
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& UserData
+		const TPair<FName, FString>& InUserData
 		);
 
 	virtual void BeginInteraction();
@@ -52,6 +54,10 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		);
 
+	void RecordOnriginalMat();
+
+	void RevertOnriginalMat();
+	
 #if WITH_EDITORONLY_DATA
 	FString SceneElementName;
 #endif
@@ -60,4 +66,8 @@ public:
 	FString DeviceID;
 
 	FSceneElementConditional CurrentConditionalSet;
+	
+	UPROPERTY()
+	TMap<UStaticMeshComponent*, FMaterialsCache>OriginalMaterials;
+
 };

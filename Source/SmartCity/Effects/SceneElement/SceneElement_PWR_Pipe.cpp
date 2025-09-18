@@ -28,7 +28,8 @@ void ASceneElement_PWR_Pipe::BeginPlay()
 }
 
 void ASceneElement_PWR_Pipe::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
 }
@@ -141,7 +142,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			{
 				SetActorHiddenInGame(false);
 			
-				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
@@ -180,7 +181,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			{
 				SetActorHiddenInGame(false);
 			
-				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
@@ -218,7 +219,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			{
 				SetActorHiddenInGame(false);
 			
-				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyMaterialInst.LoadSynchronous();
+				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
@@ -279,4 +280,23 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		
 		return;
 	}
+}
+
+FString ASceneElement_PWR_Pipe::GetID() const
+{
+	if (
+		(UserData.Key == TEXT("Element*照明回路编号")) ||
+		(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+	)
+	{
+		return UserData.Value;
+	}
+	if (
+		(UserData.Key == TEXT("Element*管线类型编号")) 
+	)
+	{
+		return UserData.Value;
+	}
+
+	return TEXT("");
 }

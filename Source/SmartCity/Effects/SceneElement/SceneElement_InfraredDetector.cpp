@@ -38,10 +38,11 @@ void ASceneElement_InfraredDetector::OnConstruction(
 }
 
 void ASceneElement_InfraredDetector::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 	
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{

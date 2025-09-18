@@ -34,7 +34,8 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void BeginInteraction() override;

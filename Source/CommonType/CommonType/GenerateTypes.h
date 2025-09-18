@@ -12,15 +12,7 @@
 class ADatasmithSceneActor;
 class AReplaceActor;
 class ASceneElementBase;
-
-USTRUCT(BlueprintType, Blueprintable)
-struct COMMONTYPE_API FMaterialsCache
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<UMaterialInterface*> MaterialsCacheAry;
-};
+class UMaterialInterface;
 
 UENUM()
 enum class EOperatorType: uint8

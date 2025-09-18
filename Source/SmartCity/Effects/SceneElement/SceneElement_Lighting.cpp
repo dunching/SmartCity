@@ -2,6 +2,7 @@
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "DatasmithAssetUserData.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/LocalLightComponent.h"
 #include "Engine/RectLight.h"
@@ -9,7 +10,10 @@
 #include "TourPawn.h"
 #include "InputProcessorSubSystem_Imp.h"
 #include "RouteMarker.h"
+#include "SceneElement_PWR_Pipe.h"
+#include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "ViewSingleDeviceProcessor.h"
 
 ASceneElement_Lighting::ASceneElement_Lighting(
@@ -20,14 +24,44 @@ ASceneElement_Lighting::ASceneElement_Lighting(
 }
 
 void ASceneElement_Lighting::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
+	UserData = InUserData;
+
 	if (ActorPtr)
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
+			auto Components
+			= STPtr->GetComponents();
+			for (auto SecondIter : Components)
+			{
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+				if (!InterfacePtr)
+				{
+					continue;
+				}
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+															InterfacePtr->GetAssetUserDataOfClass(
+																 UDatasmithAssetUserData::StaticClass()
+																)
+														   );
+				if (!AUDPtr)
+				{
+					continue;
+				}
+				auto ID = AUDPtr->MetaData.Find(TEXT("Element*设备回路编号"));
+				if (!ID)
+				{
+					continue;
+				}
+
+				PWR_ID = *ID;
+			}
+			
 			TArray<ULocalLightComponent*> LocalLightComponents;
 			GetComponents<ULocalLightComponent>(LocalLightComponents);
 
@@ -65,14 +99,9 @@ void ASceneElement_Lighting::ReplaceImp(
 
 			NewComponentPtr->SetRenderCustomDepth(false);
 
-			const auto Num = NewComponentPtr->GetNumMaterials();
-			for (int32 Index = 0; Index < Num; Index++)
-			{
-				auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
-				NewComponentPtr->SetMaterial(Index, MaterialPtr);
-			}
-
 			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			RecordOnriginalMat();
 		}
 
 		SwitchLight(0);
@@ -81,10 +110,10 @@ void ASceneElement_Lighting::ReplaceImp(
 
 void ASceneElement_Lighting::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& UserData
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::Merge(ActorRef, UserData);
+	Super::Merge(ActorRef, InUserData);
 }
 
 void ASceneElement_Lighting::SwitchInteractionType(
@@ -120,6 +149,58 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			SetEmissiveValue(1);
 			SwitchLight(5);
 
+			RevertOnriginalMat();
+			
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			SetEmissiveValue(0);
+			SwitchLight(0);
+
+			auto DecoratorSPtr =
+				DynamicCastSharedPtr<FEnergyMode_Decorator>(
+															USceneInteractionWorldSystem::GetInstance()->
+															GetDecorator(
+																		 USmartCitySuiteTags::Interaction_Mode
+																		)
+														   );
+			if (!DecoratorSPtr)
+			{
+				return;
+			}
+			if (!DecoratorSPtr->IDMap.Contains(PWR_ID))
+			{
+				return;
+			}
+			
+			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
+
+			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+
+			const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
+			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+			for (auto Iter : StaticMeshComponentsAry)
+			{
+				if (Iter)
+				{
+					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+					{
+						Iter->SetMaterial(Index, MaterialInstanceDynamic);
+					}
+				}
+			}
+
 			return;
 		}
 	}
@@ -133,6 +214,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
+			RevertOnriginalMat();
+			
 			SetEmissiveValue(0);
 			SwitchLight(0);
 
@@ -234,6 +317,12 @@ void ASceneElement_Lighting::SetEmissiveValue(
 	for (auto MeshIter : StaticMeshComponentsAry)
 	{
 		const auto Num = MeshIter->GetNumMaterials();
+		for (int32 Index = 0; Index < Num; Index++)
+		{
+			auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
+			MeshIter->SetMaterial(Index, MaterialPtr);
+		}
+
 		for (int32 Index = 0; Index < Num; Index++)
 		{
 			auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));

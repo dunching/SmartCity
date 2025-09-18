@@ -14,6 +14,15 @@ class ADatasmithSceneActor;
 class ASceneElementBase;
 
 USTRUCT(BlueprintType, Blueprintable)
+struct BUILDINGTOOLS_API FMaterialsCache
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TArray<UMaterialInterface*> MaterialsCacheAry;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
 struct BUILDINGTOOLS_API FSceneElementFilter
 {
 	GENERATED_BODY()

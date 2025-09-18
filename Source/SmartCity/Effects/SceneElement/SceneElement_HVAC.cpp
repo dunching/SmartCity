@@ -121,8 +121,9 @@ void ASceneElement_HVAC::SwitchInteractionType(
 }
 
 void ASceneElement_HVAC::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 }

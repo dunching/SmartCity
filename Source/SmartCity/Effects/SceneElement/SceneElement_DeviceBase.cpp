@@ -16,10 +16,11 @@ void ASceneElement_DeviceBase::BeginPlay()
 }
 
 void ASceneElement_DeviceBase::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 
 	TArray<UStaticMeshComponent*> Components;
 	GetComponents<UStaticMeshComponent>(Components);

@@ -9,7 +9,8 @@ ASceneElementBase::ASceneElementBase(
 }
 
 void ASceneElementBase::Replace(
-	const TSoftObjectPtr<AActor>& ActorRef
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& InUserData
 	)
 {
 	if (ActorRef.ToSoftObjectPath().IsValid())
@@ -27,7 +28,7 @@ void ASceneElementBase::Replace(
 		{
 			Iter->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 		}
-		ReplaceImp(ActorRef.LoadSynchronous());
+		ReplaceImp(ActorRef.LoadSynchronous(), InUserData);
 
 #if WITH_EDITOR
 		SceneElementName = ActorRef->GetActorLabel();
@@ -40,7 +41,8 @@ void ASceneElementBase::Replace(
 }
 
 void ASceneElementBase::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
 	if (ActorPtr)
@@ -50,7 +52,7 @@ void ASceneElementBase::ReplaceImp(
 
 void ASceneElementBase::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& UserData
+	const TPair<FName, FString>& InUserData
 	)
 {
 	if (ActorRef.ToSoftObjectPath().IsValid())
@@ -89,4 +91,50 @@ void ASceneElementBase::SwitchInteractionType(
 	)
 {
 	CurrentConditionalSet = ConditionalSet;
+}
+
+void ASceneElementBase::RecordOnriginalMat()
+{
+	TArray<UStaticMeshComponent*> Components;
+	GetComponents<UStaticMeshComponent>(Components);
+	for (auto Iter : Components)
+	{
+		if (Iter)
+		{
+			FMaterialsCache MaterialAry;
+			auto Mats = Iter->GetMaterials();
+			for (auto MatIter : Mats)
+			{
+				MaterialAry.MaterialsCacheAry.Add(MatIter);
+			}
+
+			OriginalMaterials.Add(Iter, MaterialAry);
+		}
+	}
+}
+
+void ASceneElementBase::RevertOnriginalMat()
+{
+	TArray<UStaticMeshComponent*> Components;
+	GetComponents<UStaticMeshComponent>(Components);
+
+	for (auto Iter : Components)
+	{
+		if (!Iter)
+		{
+			continue;
+		}
+		auto MatAry = OriginalMaterials.Find(Iter);
+		if (!MatAry)
+		{
+			continue;
+		}
+
+		const auto MatNum = Iter->GetMaterials().Num();
+		const auto OriMatNum = MatAry->MaterialsCacheAry.Num();
+		for (int32 Index = 0; Index < MatNum && Index < OriMatNum; Index++)
+		{
+			Iter->SetMaterial(Index, MatAry->MaterialsCacheAry[Index]);
+		}
+	}
 }

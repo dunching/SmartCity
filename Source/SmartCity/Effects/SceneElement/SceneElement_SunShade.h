@@ -37,7 +37,8 @@ public:
 		);
 
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 	
 	virtual void SwitchInteractionType(

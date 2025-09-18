@@ -535,7 +535,7 @@ bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
 			                                                             Iter.Value,
 			                                                             SecondIter->GetActorTransform()
 			                                                            );
-			NewActorPtr->Replace(SecondIter);
+			NewActorPtr->Replace(SecondIter, {});
 		}
 	}
 
@@ -1010,7 +1010,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-					NewActorPtr->Replace(Iter);
+					NewActorPtr->Replace(Iter,{*ThirdIter.Key.Key, *MetaDataIter});
 					NewActorPtr->DeviceID = *Datasmith_UniqueId;
 
 					RelatedActors.Add(NewActorPtr);

@@ -39,28 +39,28 @@ public:
 	virtual void BeginPlay() override;
 	
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& UserData
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-protected:
-
+	FString GetID()const;
+	
 	float EnergyValue = 0.f;
+
+protected:
 
 	TPair<FName, FString> UserData;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
-
-	UPROPERTY()
-	TMap<UStaticMeshComponent*, FMaterialsCache>OriginalMaterials;
 
 };

@@ -8,10 +8,11 @@
 #include "TemplateHelper.h"
 
 void ABuilding_CurtainWall::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 
 	if (ActorPtr && ActorPtr->IsA(AActor::StaticClass()))
 	{
@@ -58,14 +59,14 @@ void ABuilding_CurtainWall::ReplaceImp(
 		{
 			if (Iter)
 			{
-				FMaterialAry MaterialAry;
+				FMaterialsCache MaterialAry;
 				auto Mats = Iter->GetMaterials();
 				for (auto MatIter : Mats)
 				{
-					MaterialAry.MaterialsAry.Add(MatIter);
+					MaterialAry.MaterialsCacheAry.Add(MatIter);
 				}
 
-				MaterialMap.Add(Iter, MaterialAry);
+				OriginalMaterials.Add(Iter, MaterialAry);
 			}
 		}
 	}
@@ -149,17 +150,17 @@ void ABuilding_CurtainWall::SwitchState(EState State)
 				{
 					continue;
 				}
-				auto MatAry = MaterialMap.Find(Iter);
+				auto MatAry = OriginalMaterials.Find(Iter);
 				if (!MatAry)
 				{
 					continue;
 				}
 
 				const auto MatNum = Iter->GetMaterials().Num();
-				const auto OriMatNum = MatAry->MaterialsAry.Num();
+				const auto OriMatNum = MatAry->MaterialsCacheAry.Num();
 				for (int32 Index = 0; Index < MatNum && Index < OriMatNum; Index++)
 				{
-					Iter->SetMaterial(Index, MatAry->MaterialsAry[Index]);
+					Iter->SetMaterial(Index, MatAry->MaterialsCacheAry[Index]);
 				}
 			}
 		}

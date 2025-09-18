@@ -27,7 +27,8 @@ class SMARTCITY_API ABuilding_CurtainWall :
 
 public:
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void SwitchInteractionType(
@@ -46,8 +47,5 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
 
 };

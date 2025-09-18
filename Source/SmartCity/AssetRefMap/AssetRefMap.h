@@ -123,7 +123,10 @@ public:
 	TSubclassOf<AFireMark> FireMarkClass;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TSoftObjectPtr<UMaterialInstance> EnergyMaterialInst;
+	TSoftObjectPtr<UMaterialInstance> EnergyPipeMaterialInst;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance> EnergyDeviceMaterialInst;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> WallTranslucentMatInst;

@@ -37,7 +37,8 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 	
 	virtual void SwitchInteractionType(
@@ -60,7 +61,4 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
-
 };

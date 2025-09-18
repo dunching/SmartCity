@@ -35,12 +35,13 @@ public:
 		);
 
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 	
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& UserData
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void SwitchInteractionType(
@@ -68,4 +69,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
 
+	TPair<FName, FString> UserData;
+
+	FString PWR_ID ;
+	
 };

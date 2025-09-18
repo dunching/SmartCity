@@ -38,7 +38,8 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
 	virtual void ReplaceImp(
-		AActor* ActorPtr
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
 		) override;
 
 	virtual void SwitchInteractionType(

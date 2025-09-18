@@ -21,10 +21,11 @@ ASceneElement_Monitor::ASceneElement_Monitor(
 }
 
 void ASceneElement_Monitor::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 	
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{

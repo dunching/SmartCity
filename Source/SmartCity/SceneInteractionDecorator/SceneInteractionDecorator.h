@@ -13,6 +13,7 @@ class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
 class UGT_SwitchSceneElementState;
+class ASceneElement_DeviceBase;
 
 class SMARTCITY_API FDecoratorBase
 {
@@ -184,8 +185,12 @@ public:
 		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
+	TMap<FString, ASceneElement_PWR_Pipe*>IDMap;
+	
 private:
 	TSet<ASceneElement_PWR_Pipe*> PipeActors;
+	
+	TSet<ASceneElement_DeviceBase*> OtherDevices;
 };
 
 /**

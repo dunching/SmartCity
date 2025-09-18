@@ -25,10 +25,11 @@ ABuilding_ItemBase::ABuilding_ItemBase(
 }
 
 void ABuilding_ItemBase::ReplaceImp(
-	AActor* ActorPtr
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
 	)
 {
-	Super::ReplaceImp(ActorPtr);
+	Super::ReplaceImp(ActorPtr, InUserData);
 
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
@@ -65,20 +66,7 @@ void ABuilding_ItemBase::ReplaceImp(
 			}
 		}
 
-		for (auto Iter : Components)
-		{
-			if (Iter)
-			{
-				FMaterialAry MaterialAry;
-				auto Mats = Iter->GetMaterials();
-				for (auto MatIter : Mats)
-				{
-					MaterialAry.MaterialsAry.Add(MatIter);
-				}
-
-				MaterialMap.Add(Iter, MaterialAry);
-			}
-		}
+		RecordOnriginalMat();
 	}
 }
 
@@ -163,29 +151,7 @@ void ABuilding_ItemBase::SwitchState(
 		{
 			SetActorHiddenInGame(false);
 
-			TArray<UStaticMeshComponent*> Components;
-			GetComponents<UStaticMeshComponent>(Components);
-
-			auto WallTranslucentMatInst = UAssetRefMap::GetInstance()->WallTranslucentMatInst.LoadSynchronous();
-			for (auto Iter : Components)
-			{
-				if (!Iter)
-				{
-					continue;
-				}
-				auto MatAry = MaterialMap.Find(Iter);
-				if (!MatAry)
-				{
-					continue;
-				}
-
-				const auto MatNum = Iter->GetMaterials().Num();
-				const auto OriMatNum = MatAry->MaterialsAry.Num();
-				for (int32 Index = 0; Index < MatNum && Index < OriMatNum; Index++)
-				{
-					Iter->SetMaterial(Index, MatAry->MaterialsAry[Index]);
-				}
-			}
+			RevertOnriginalMat();
 		}
 		break;
 	case EState::kHiden:
