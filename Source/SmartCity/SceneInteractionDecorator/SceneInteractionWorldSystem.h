@@ -49,6 +49,12 @@ public:
 		const FGameplayTag& Interaction_Mode
 		);
 
+	void SetInteractionOption(
+		const FGameplayTag& Interaction_Mode,
+		const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+		bool bImmediatelyUpdate
+		);
+
 	/**
 	 * 切换交互模式
 	 * @param Interaction_Mode 

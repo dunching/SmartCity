@@ -21,18 +21,19 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
-	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FFloor_Decorator>(
-										 USmartCitySuiteTags::Interaction_Area,
-										 Interaction_Area,
-										 Interaction_Area
-										);
-
 	SwitchShowCursor(true);
 	
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(GameOptionsPtr->
+						   ViewFloorControlParam, 0);
+
+		UpdateCameraClampPitch(GameOptionsPtr->
+						   ViewFloorControlParam);
+					
 	}
 }
 

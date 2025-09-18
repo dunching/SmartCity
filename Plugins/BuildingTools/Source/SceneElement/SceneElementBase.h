@@ -31,7 +31,7 @@ public:
 	virtual void ReplaceImp(
 		AActor* ActorPtr
 		);
-	
+
 	/**
 	 * 合并所有
 	 * @param ActorRef
@@ -42,20 +42,12 @@ public:
 		const TPair<FName, FString>& UserData
 		);
 
-	/**
-	 * 与附近的合并
-	 * @param ActorRef 
-	 */
-	virtual void MergeWithNear(
-		const TSoftObjectPtr<AActor>& ActorRef
-		);
-
 	virtual void BeginInteraction();
 
 	virtual void EndInteraction();
 
-	virtual TMap<FString,FString> GetStateDescription()const;
-	
+	virtual TMap<FString, FString> GetStateDescription() const;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		);
@@ -63,6 +55,9 @@ public:
 #if WITH_EDITORONLY_DATA
 	FString SceneElementName;
 #endif
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FString DeviceID;
 
 	FSceneElementConditional CurrentConditionalSet;
 };

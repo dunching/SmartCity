@@ -1,7 +1,9 @@
 #include "ViewBuildingProcessor.h"
 
+#include "Dynamic_WeatherBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "GameOptions.h"
 #include "GameplayTagsLibrary.h"
@@ -9,9 +11,10 @@
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
-#include "Kismet/GameplayStatics.h"
+#include "WeatherSystem.h"
 
 TourProcessor::FViewBuildingProcessor::FViewBuildingProcessor(
 	FOwnerPawnType* CharacterPtr
@@ -32,7 +35,7 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
-	false,
+		 false,
 		 [](
 		 UGT_ReplyCameraTransform* GTPtr
 		 )
@@ -44,12 +47,41 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 		 }
 		);
 
+	{
+		// 确认当前的模式
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
+		if (DecoratorSPtr)
+		{
+			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+
+			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
+			UWeatherSystem::GetInstance()->AdjustTime(Time);
+		}
+	}
+
 	SwitchShowCursor(true);
 
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewBuildingControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		UpdateCameraArmLen(
+		                   GameOptionsPtr->
+		                   ViewBuildingControlParam,
+		                   0
+		                  );
+
+		UpdateCameraClampPitch(
+		                       GameOptionsPtr->
+		                       ViewBuildingControlParam
+		                      );
 	}
 }
 
@@ -251,7 +283,7 @@ void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransform>(
-	false,
+	                                                                         false,
 	                                                                         [PCPtr, &CameraSeat](
 	                                                                         UGT_CameraTransform* GTPtr
 	                                                                         )

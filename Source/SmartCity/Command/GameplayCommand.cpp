@@ -47,9 +47,11 @@ void SmartCityCommand::AdjustCameraSeat(
 		                                                               TEXT(
 		                                                                    R"({
     "CMD": "AdjustCameraSeat",
-    "Param": %s
+    "MinPitch": %s,
+    "MaxPitch": %s
 })"
 		                                                                   ),
+		                                                               *Args[0],
 		                                                               *Args[0]
 		                                                              )
 		                                              );
@@ -147,7 +149,7 @@ void SmartCityCommand::LocaterByID(
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
-	false,
+		 false,
 		 [&Args](
 		 UGT_CameraTransformLocaterByID* GTPtr
 		 )
@@ -186,11 +188,11 @@ void SmartCityCommand::SetSpaceFeature(
 
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(
-										  GetWorldImp(),
-										  ASceneElement_Space::StaticClass(),
-										  OutActors
-										 );
-	
+	                                      GetWorldImp(),
+	                                      ASceneElement_Space::StaticClass(),
+	                                      OutActors
+	                                     );
+
 	for (auto ActorIter : OutActors)
 	{
 		auto SpacePtr = Cast<ASceneElement_Space>(ActorIter);
@@ -203,4 +205,133 @@ void SmartCityCommand::SetSpaceFeature(
 			return;
 		}
 	}
+}
+
+void SmartCityCommand::SetWallTranlucent(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->WallTranlucent =
+			                                                                  UKismetStringLibrary::Conv_StringToInt(
+				                                                                   Args[0]
+				                                                                  );
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetPillarTranlucent(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->PillarTranlucent =
+			                                                                  UKismetStringLibrary::Conv_StringToInt(
+				                                                                   Args[0]
+				                                                                  );
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetStairsTranlucent(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->StairsTranlucent =
+			                                                                  UKismetStringLibrary::Conv_StringToInt(
+				                                                                   Args[0]
+				                                                                  );
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetShowCurtainWall(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->bShowCurtainWall =
+			                                                                  static_cast<bool>(
+				                                                                  UKismetStringLibrary::Conv_StringToInt(
+					                                                                   Args[0]
+					                                                                  ));
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetShowFurniture(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [&Args](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->bShowFurniture =
+			                                                                  static_cast<bool>(
+				                                                                  UKismetStringLibrary::Conv_StringToInt(
+					                                                                   Args[0]
+					                                                                  ));
+	                                                                  },
+	                                                                  true
+	                                                                 );
+}
+
+void SmartCityCommand::SetCameraPitch(
+	const TArray<FString>& Args
+	)
+{
+	
 }

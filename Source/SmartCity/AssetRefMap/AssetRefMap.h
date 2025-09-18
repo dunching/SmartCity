@@ -124,5 +124,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> EnergyMaterialInst;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UMaterialInstance> WallTranslucentMatInst;
 #pragma endregion
 };

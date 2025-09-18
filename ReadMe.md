@@ -34,6 +34,24 @@ ReplyCameraTransform
 		"Interaction.Mode.EmergencySystem"、
 }
 
+{
+	"CMD":"SceneItemOption" ，
+	"GUID":“”，
+	"Wall":0~100				// 墙
+	"Pillar":0~100				// 柱
+	"StairsTranlucent":0~100	// 梯
+	"ShowCurtainWall":true		// 幕墙
+	"ShowFurniture":true		// 家具
+	"ImmediatelyUpdate":true	// 是否立即更新，如在配合SwitchMode一起发送时，则此值为false，
+}
+
+{
+	"CMD":"AdjustCameraSeat" ，// 整楼时，调整默认角度，单楼时限制的角度
+	"GUID":“”，
+	"MinPitch":-180~180
+	"MaxPitch":-180~180
+}
+
 SwitchMode 
 	Param.1:DefaultGameplayTags.ini->Interaction.Mode
 

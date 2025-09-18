@@ -6,6 +6,7 @@
 
 #include "InputProcessor.h"
 #include "GenerateTypes.h"
+#include "TourProcessor.h"
 
 class ATrackVehicleBase;
 class ATourPawn;
@@ -17,10 +18,10 @@ namespace TourProcessor
 	/**
 	 * 楼层炸开
 	 */
-	class SMARTCITY_API FViewSplitFloorProcessor : public FInputProcessor
+	class SMARTCITY_API FViewSplitFloorProcessor : public FTourProcessor
 	{
 	private:
-		GENERATIONCLASSINFO(FViewSplitFloorProcessor, FInputProcessor);
+		GENERATIONCLASSINFO(FViewSplitFloorProcessor, FTourProcessor);
 
 	public:
 		using FOwnerPawnType = ATourPawn;

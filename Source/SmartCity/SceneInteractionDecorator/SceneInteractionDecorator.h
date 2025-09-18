@@ -63,16 +63,17 @@ public:
 
 protected:
 	void IncreaseWaitTaskCount();
-	
+
 	void DecreaseWaitTaskCount();
 
-	int32 GetWaitTaskCount()const;
-	
+	int32 GetWaitTaskCount() const;
+
 	TDelegate<void()> OnAsyncQuitComplete;
 
 	FGameplayTag MainDecoratorType;
 
 	FGameplayTag BranchDecoratorType;
+
 private:
 	int32 WaitTaskCount = 0;
 };
@@ -171,9 +172,9 @@ class SMARTCITY_API FEnergyMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-						FEnergyMode_Decorator,
-						FDecoratorBase
-					   );
+	                    FEnergyMode_Decorator,
+	                    FDecoratorBase
+	                   );
 
 	FEnergyMode_Decorator();
 
@@ -194,9 +195,9 @@ class SMARTCITY_API FEnvironmentalPerceptionMode_Decorator : public FDecoratorBa
 {
 public:
 	GENERATIONCLASSINFO(
-						FEnvironmentalPerceptionMode_Decorator,
-						FDecoratorBase
-					   );
+	                    FEnvironmentalPerceptionMode_Decorator,
+	                    FDecoratorBase
+	                   );
 
 	FEnvironmentalPerceptionMode_Decorator();
 };
@@ -241,7 +242,6 @@ public:
 	FDeviceManaggerMode_Decorator(
 		FGameplayTag InBranchDecoratorType
 		);
-
 };
 
 /**
@@ -290,7 +290,7 @@ public:
 	                   );
 
 	FPWRLightingMode_Decorator();
-	
+
 	virtual void Entry() override;
 
 	virtual void Quit() override;
@@ -302,7 +302,6 @@ public:
 	virtual void OnOtherDecoratorQuit(
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
-
 };
 
 /**
@@ -427,7 +426,7 @@ protected:
 
 	FGameplayTag CurrentInteraction_Area;
 
-	TArray<UGT_SwitchSceneElementState*>SwitchSceneElementStateAry;
+	TArray<UGT_SwitchSceneElementState*> SwitchSceneElementStateAry;
 };
 
 /**
@@ -454,13 +453,12 @@ public:
 	virtual bool Operation(
 		EOperatorType OperatorType
 		) override;
-	
+
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElementState* TaskPtr
 		) override;
-
 };
 
 /**
@@ -530,8 +528,7 @@ protected:
 		) override;
 
 private:
-
-	TSet<AActor*>PreviousActors;
+	TSet<AActor*> PreviousActors;
 };
 
 #pragma endregion
@@ -545,9 +542,9 @@ class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-						FInteraction_Decorator,
-						FDecoratorBase
-					   );
+	                    FInteraction_Decorator,
+	                    FDecoratorBase
+	                   );
 
 	enum class EInteractionType:uint8
 	{
@@ -556,25 +553,57 @@ public:
 	};
 
 	FInteraction_Decorator();
-	
+
 	virtual void Entry() override;
 
 	void SwitchIteractionType(
 		EInteractionType NewInteractionType
 		);
 
-	EInteractionType GetInteractionType()const;
-	
-	FGameplayTag GetCurrentWeather()const;
-	
-	void  SetCurrentWeather(const FGameplayTag&WeatherTag);
-	
-	int32 GetCurrentHour()const;
-	
-	void SetCurrentHour(int32 Hour);
-	
+	EInteractionType GetInteractionType() const;
+
+	FGameplayTag GetCurrentWeather() const;
+
+	void SetCurrentWeather(
+		const FGameplayTag& WeatherTag
+		);
+
+	int32 GetCurrentHour() const;
+
+	void SetCurrentHour(
+		int32 Hour
+		);
+
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 WallTranlucent = 100;
+
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 PillarTranlucent = 100;
+
+	/**
+	 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 StairsTranlucent = 100;
+
+	/**
+	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	bool bShowCurtainWall = true;
+
+	/**
+	 * 是否显示家具
+	 */
+	bool bShowFurniture = true;
+
+	float ViewPitchMin = 45;
+
+	float ViewPitchMax = 45;
+
 private:
-	
 	EInteractionType InteractionType = EInteractionType::kDevice;
 
 	FGameplayTag CurrentWeather;

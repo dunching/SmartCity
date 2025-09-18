@@ -13,6 +13,7 @@
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
+#include "ViewSingleFloorProcessor.h"
 #include "WeatherSystem.h"
 
 FMessageBody::FMessageBody()
@@ -213,6 +214,80 @@ void FMessageBody_Receive_AdjustWeather::DoAction() const
 	}
 }
 
+FMessageBody_Receive_InteractionOption::FMessageBody_Receive_InteractionOption()
+{
+	CMD_Name = TEXT("InteractionOption");
+}
+
+void FMessageBody_Receive_InteractionOption::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	if (jsonObject->TryGetNumberField(TEXT("WallTranlucent"), WallTranlucent))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("PillarTranlucent"), PillarTranlucent))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("StairsTranlucent"), StairsTranlucent))
+	{
+	}
+
+	if (jsonObject->TryGetBoolField(TEXT("ShowCurtainWall"), bShowCurtainWall))
+	{
+	}
+
+	if (jsonObject->TryGetBoolField(TEXT("ShowFurniture"), bShowFurniture))
+	{
+	}
+
+	if (jsonObject->TryGetBoolField(TEXT("bImmediatelyUpdate"), bImmediatelyUpdate))
+	{
+	}
+}
+
+void FMessageBody_Receive_InteractionOption::DoAction() const
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  SPtr->WallTranlucent = WallTranlucent;
+			                                                                  SPtr->PillarTranlucent = PillarTranlucent;
+			                                                                  SPtr->StairsTranlucent = StairsTranlucent;
+			                                                                  SPtr->bShowCurtainWall = bShowCurtainWall;
+			                                                                  SPtr->bShowFurniture = bShowFurniture;
+		                                                                  },
+		                                                                  bImmediatelyUpdate
+		                                                                 );
+	}
+}
+
 FMessageBody_SelectedSpace::FMessageBody_SelectedSpace()
 {
 	CMD_Name = TEXT("SelectedSpace");
@@ -267,20 +342,36 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetNumberField(TEXT("Param"), Pitch))
+	if (jsonObject->TryGetNumberField(TEXT("MinPitch"), MinPitch))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("MaxPitch"), MaxPitch))
 	{
 	}
 }
 
 void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 {
-	auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
-		 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
-		);
-	if (ViewBuildingProcessorSPtr)
 	{
-		ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(Pitch, 0, 0));
-		return;
+		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
+			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
+			);
+		if (ViewBuildingProcessorSPtr)
+		{
+			ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(MinPitch, 0, 0));
+			return;
+		}
+	}
+	{
+		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewSingleFloorProcessor>(
+			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
+			);
+		if (ViewBuildingProcessorSPtr)
+		{
+			ViewBuildingProcessorSPtr->UpdateCameraSetting(MinPitch, MaxPitch);
+			return;
+		}
 	}
 }
 

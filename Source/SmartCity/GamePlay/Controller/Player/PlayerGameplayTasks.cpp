@@ -982,6 +982,11 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 			{
 				continue;
 			}
+			auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
+			if (!Datasmith_UniqueId)
+			{
+				continue;
+			}
 
 			for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
 			{
@@ -1006,6 +1011,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						 ThirdIter.Value
 						);
 					NewActorPtr->Replace(Iter);
+					NewActorPtr->DeviceID = *Datasmith_UniqueId;
 
 					RelatedActors.Add(NewActorPtr);
 				}
@@ -1047,6 +1053,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						 ThirdIter.Value
 						);
 					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->DeviceID = *Datasmith_UniqueId;
 
 					RelatedActors.Add(NewActorPtr);
 					MergeActorsMap.Add(HashCode, NewActorPtr);
@@ -1102,6 +1109,8 @@ UGT_SwitchSceneElementState::UGT_SwitchSceneElementState(
 void UGT_SwitchSceneElementState::Activate()
 {
 	Super::Activate();
+
+	FilterTags.ConditionalSet.RemoveTag(USmartCitySuiteTags::Interaction_Mode_Empty);
 }
 
 void UGT_SwitchSceneElementState::TickTask(

@@ -78,7 +78,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 	{
 		auto DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             
 			                                             GetDecorator(
 			                                                          USmartCitySuiteTags::Interaction_Interaction
 			                                                         )
@@ -94,7 +94,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 
 		DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             USceneInteractionWorldSystem::GetInstance()->
+			                                             
 			                                             GetDecorator(
 			                                                          USmartCitySuiteTags::Interaction_Interaction
 			                                                         )
@@ -119,6 +119,50 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 			}
 			return;
+		}
+	}
+}
+
+void USceneInteractionWorldSystem::SetInteractionOption(
+	const FGameplayTag& Interaction_Mode,
+	const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+	bool bImmediatelyUpdate
+	)
+{
+	if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Interaction))
+	{
+		auto DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             
+														 GetDecorator(
+																	  USmartCitySuiteTags::Interaction_Interaction
+																	 )
+														);
+
+		if (!DecoratorSPtr)
+		{
+			SwitchDecoratorImp<FInteraction_Decorator>(
+													   USmartCitySuiteTags::Interaction_Interaction,
+													   USmartCitySuiteTags::Interaction_Interaction
+													  );
+		}
+
+		DecoratorSPtr =
+			DynamicCastSharedPtr<FInteraction_Decorator>(
+			                                             
+														 GetDecorator(
+																	  USmartCitySuiteTags::Interaction_Interaction
+																	 )
+														);
+
+		if (Func)
+		{
+			Func(DecoratorSPtr);
+		}
+
+		if (bImmediatelyUpdate)
+		{
+			NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 		}
 	}
 }
@@ -206,24 +250,6 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				return;
 			}
-			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade))
-			{
-				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
-				{
-					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
-					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade)
-					{
-						return;
-					}
-				}
-
-				SwitchDecoratorImp<FSunShadeMode_Decorator>(
-				                                            USmartCitySuiteTags::Interaction_Mode,
-				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_SunShade
-				                                           );
-
-				return;
-			}
 			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV))
 			{
 				if (Interaction_Mode == USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
@@ -282,7 +308,24 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				return;
 			}
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow))
+			{
+				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+						USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
+					{
+						return;
+					}
+				}
 
+				SwitchDecoratorImp<FSunShadeMode_Decorator>(
+															USmartCitySuiteTags::Interaction_Mode,
+															USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow
+														   );
+
+				return;
+			}
 			SwitchDecoratorImp<FDeviceManaggerMode_Decorator>(
 			                                                  USmartCitySuiteTags::Interaction_Mode,
 			                                                  USmartCitySuiteTags::Interaction_Mode_DeviceManagger
@@ -380,13 +423,11 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 			}
 		}
 
-		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewBuildingProcessor>(
-			 [Interaction_Area](
-			 auto NewProcessor
-			 )
-			 {
-			 }
-			);
+		SwitchDecoratorImp<FExternalWall_Decorator>(
+											 USmartCitySuiteTags::Interaction_Area,
+											 Interaction_Area,
+											 Interaction_Area
+											);
 
 		return;
 	}
@@ -402,13 +443,11 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 			}
 		}
 
-		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSplitFloorProcessor>(
-			 [](
-			 auto NewProcessor
-			 )
-			 {
-			 }
-			);
+		SwitchDecoratorImp<FSplitFloor_Decorator>(
+											 USmartCitySuiteTags::Interaction_Area,
+											 Interaction_Area,
+											 Interaction_Area
+											);
 
 		return;
 	}
@@ -424,14 +463,11 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 			}
 		}
 
-		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleFloorProcessor>(
-			 [Interaction_Area](
-			 auto NewProcessor
-			 )
-			 {
-				 NewProcessor->Interaction_Area = Interaction_Area;
-			 }
-			);
+		SwitchDecoratorImp<FFloor_Decorator>(
+											 USmartCitySuiteTags::Interaction_Area,
+											 Interaction_Area,
+											 Interaction_Area
+											);
 
 		return;
 	}

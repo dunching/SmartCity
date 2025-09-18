@@ -1,67 +1,9 @@
 #include "Building_Wall.h"
 
-#include "Engine/StaticMeshActor.h"
-
-#include "CollisionDataStruct.h"
+#include "SceneInteractionDecorator.h"
+#include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
-
-ABuilding_Wall::ABuilding_Wall(
-	const FObjectInitializer& ObjectInitializer
-	) :
-	  Super(ObjectInitializer)
-{
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
-
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	StaticMeshComponent->SetCollisionObjectType(Wall_Object);
-	StaticMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-}
-
-void ABuilding_Wall::ReplaceImp(
-	AActor* ActorPtr
-	)
-{
-	Super::ReplaceImp(ActorPtr);
-
-	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
-	{
-		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
-		if (STPtr)
-		{
-			// StaticMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
-			
-			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-
-			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
-			{
-				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
-			}
-		}
-	}
-
-	TArray<UStaticMeshComponent*> Components;
-	GetComponents<UStaticMeshComponent>(Components);
-	for (auto Iter : Components)
-	{
-		if (Iter)
-		{
-			Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			Iter->SetCollisionObjectType(Wall_Object);
-			Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-			Iter->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-			Iter->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-			Iter->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
-
-			Iter->SetRenderCustomDepth(false);
-
-			break;
-		}
-	}
-}
+#include "TemplateHelper.h"
 
 void ABuilding_Wall::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
@@ -72,25 +14,51 @@ void ABuilding_Wall::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+			EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
+			SwitchState(EState::kOriginal);
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			// 确认当前的模式
+			auto DecoratorSPtr =
+				DynamicCastSharedPtr<FInteraction_Decorator>(
+															 USceneInteractionWorldSystem::GetInstance()->
+															 GetDecorator(
+																		  USmartCitySuiteTags::Interaction_Interaction
+																		 )
+															);
+			if (DecoratorSPtr)
+			{
+				if (DecoratorSPtr->WallTranlucent <= 0)
+				{
+					SwitchState(EState::kHiden);
+				}
+				else if (DecoratorSPtr->WallTranlucent >= 100)
+				{
+					SwitchState(EState::kOriginal);
+				}
+				else
+				{
+					SetTranslucent(DecoratorSPtr->WallTranlucent);
+				}
+
+				return;
+			}
+
+			SwitchState(EState::kOriginal);
 
 			return;
 		}
@@ -99,9 +67,9 @@ void ABuilding_Wall::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+			EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(true);
+			SwitchState(EState::kHiden);
 
 			return;
 		}

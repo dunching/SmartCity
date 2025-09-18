@@ -44,13 +44,6 @@ void ASceneElement_PWR_Pipe::Merge(
 	
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
-		AActor* ParentPtr = ActorRef->GetAttachParentActor();
-		if (ParentPtr && !GetAttachParentActor())
-		{
-			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepRelativeTransform);
-			SetActorRelativeTransform(FTransform::Identity);
-		}
-
 		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
 		if (STPtr)
 		{
@@ -64,7 +57,7 @@ void ASceneElement_PWR_Pipe::Merge(
 				                                                  )
 			                                                 );
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 			NewComponentPtr->SetCollisionObjectType(Device_Object);

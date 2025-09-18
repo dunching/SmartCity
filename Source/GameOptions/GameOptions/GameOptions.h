@@ -67,6 +67,12 @@ public:
 	FRotator ViewRot = FRotator(-30, 10, 0);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	float CameraPitchMaxLimit = 50.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
+	float CameraPitchMinLimit = -70.f;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	float FOV = 90.f;
 };
 
@@ -123,6 +129,11 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FControlParam ViewFloorControlParam;
+#pragma endregion
+
+#pragma region 查看能源
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewFloorEnergyControlParam;
 #pragma endregion
 
 #pragma region 查看区域

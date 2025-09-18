@@ -6,6 +6,8 @@
 
 #include "PlanetPlayerCameraManager.generated.h"
 
+struct FControlParam;
+
 /**
  *
  */
@@ -24,4 +26,9 @@ public:
 	virtual void UpdateCamera(
 		float DeltaTime
 		) override;
+
+	void UpdateCameraSetting(float InViewPitchMin,float InViewPitchMax);
+	
+	void UpdateCameraSetting();
+	
 };
