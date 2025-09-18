@@ -90,7 +90,7 @@ void ASceneElement_Furniture::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(true);
+			SwitchState(EState::kOriginal);
 
 			return;
 		}
@@ -118,19 +118,21 @@ void ASceneElement_Furniture::SwitchInteractionType(
 				return;
 			}
 
-			SetActorHiddenInGame(false);
+			SwitchState(EState::kOriginal);
 
 			return;
 		}
 	}
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
 		{
+			SwitchState(EState::kHiden);
+
+			return;
 		}
-
-		SetActorHiddenInGame(true);
-
-		return;
 	}
 }
 

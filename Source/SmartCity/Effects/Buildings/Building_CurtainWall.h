@@ -21,13 +21,33 @@ class UStaticMeshComponent;
  */
 UCLASS()
 class SMARTCITY_API ABuilding_CurtainWall :
-	public ABuilding_ItemBase
+	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
+	virtual void ReplaceImp(
+		AActor* ActorPtr
+		) override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
+
+	enum class EState : uint8
+	{
+		kOriginal,
+		kHiden,
+	};
+	
+	void SwitchState(EState State);
+
+protected:
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TMap<UStaticMeshComponent*, FMaterialAry> MaterialMap;
 
 };
