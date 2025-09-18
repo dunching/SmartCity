@@ -129,7 +129,7 @@ bool TourProcessor::FViewSingleFloorProcessor::InputAxis(
 			{
 				if (OnwerActorPtr->Controller != nullptr)
 				{
-					if (bStartRot)
+					if (bStartRot && GameOptionsPtr->bAllowRotByYaw)
 					{
 						bHasRoted = true;
 
@@ -167,7 +167,7 @@ bool TourProcessor::FViewSingleFloorProcessor::InputAxis(
 			{
 				if (OnwerActorPtr->Controller != nullptr)
 				{
-					if (bStartRot)
+					if (bStartRot && GameOptionsPtr->bAllowRotByYaw)
 					{
 						bHasRoted = true;
 

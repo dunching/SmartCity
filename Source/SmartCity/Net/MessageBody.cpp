@@ -5,6 +5,7 @@
 
 #include "Tools.h"
 #include "AssetRefMap.h"
+#include "GameOptions.h"
 #include "GameplayTagsLibrary.h"
 #include "InputProcessorSubSystem_Imp.h"
 #include "LogWriter.h"
@@ -254,7 +255,7 @@ void FMessageBody_Receive_InteractionOption::Deserialize(
 	{
 	}
 
-	if (jsonObject->TryGetBoolField(TEXT("bImmediatelyUpdate"), bImmediatelyUpdate))
+	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
 	{
 	}
 }
@@ -349,6 +350,10 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	if (jsonObject->TryGetNumberField(TEXT("MaxPitch"), MaxPitch))
 	{
 	}
+
+	if (jsonObject->TryGetBoolField(TEXT("AllowRotByYaw"), bAllowRotByYaw))
+	{
+	}
 }
 
 void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
@@ -373,6 +378,8 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 			return;
 		}
 	}
+
+	UGameOptions::GetInstance()->bAllowRotByYaw = bAllowRotByYaw;
 }
 
 FMessageBody_Test::FMessageBody_Test()

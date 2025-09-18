@@ -35,14 +35,14 @@ ReplyCameraTransform
 }
 
 {
-	"CMD":"SceneItemOption" ，
+	"CMD":"InteractionOption" ，
 	"GUID":“”，
-	"Wall":0~100				// 墙
-	"Pillar":0~100				// 柱
-	"StairsTranlucent":0~100	// 梯
-	"ShowCurtainWall":true		// 幕墙
-	"ShowFurniture":true		// 家具
-	"ImmediatelyUpdate":true	// 是否立即更新，如在配合SwitchMode一起发送时，则此值为false，
+	"WallTranlucent":	0~100	100			// 墙
+	"PillarTranlucent":	0~100	100			// 柱
+	"StairsTranlucent":0~100	100			// 梯
+	"ShowCurtainWall":true					// 幕墙
+	"ShowFurniture":true					// 家具
+	"ImmediatelyUpdate":true				// 是否立即更新，如在配合SwitchMode一起发送时，则此值为false，
 }
 
 {
@@ -50,6 +50,7 @@ ReplyCameraTransform
 	"GUID":“”，
 	"MinPitch":-180~180
 	"MaxPitch":-180~180
+	"AllowRotByYaw":true
 }
 
 SwitchMode 

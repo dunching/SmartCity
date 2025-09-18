@@ -160,6 +160,8 @@ public:
 	int32 FocusOutline = 1;
 #pragma endregion
 
+	bool bAllowRotByYaw = true;
+	
 protected:
 
 private:

@@ -75,6 +75,8 @@ private:
 	int32 MinPitch = 0;
 
 	int32 MaxPitch = 0;
+
+	bool bAllowRotByYaw = true;
 };
 
 USTRUCT()
