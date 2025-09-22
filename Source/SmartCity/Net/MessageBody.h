@@ -14,6 +14,8 @@
 #include "MessageBody.generated.h"
 
 class FDecoratorBase;
+class ASceneElement_Space;
+class ASceneElement_DeviceBase;
 
 USTRUCT()
 struct FMessageBody
@@ -189,6 +191,19 @@ public:
 	bool bImmediatelyUpdate = true;
 };
 
+
+USTRUCT()
+struct FMessageBody_SelectedFloor : public FMessageBody_Send
+{
+	GENERATED_BODY()
+
+	FMessageBody_SelectedFloor();
+
+	TMap<ASceneElement_Space*, TSet<ASceneElement_DeviceBase*>> SpacesMap;
+
+protected:
+	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
+};
 
 USTRUCT()
 struct FMessageBody_SelectedSpace : public FMessageBody_Send

@@ -18,6 +18,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class URouteMarker;
+class ASceneElement_DeviceBase;
 
 /**
  * 雷达扫描效果
@@ -49,7 +50,11 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
+	
 	void SetFeatures(const TArray<FString>& InFeaturesAry);
+
+	TSet<ASceneElement_DeviceBase*>GetAllDevices()const;
 	
 	FString Category;
 

@@ -53,7 +53,9 @@ public:
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		);
-
+	
+	virtual TSharedPtr<FJsonValue> GetSceneElementData() const;
+	
 	void RecordOnriginalMat();
 
 	void RevertOnriginalMat();

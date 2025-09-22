@@ -176,65 +176,32 @@ void ASceneElement_Space::SwitchInteractionType(
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
 
-			TArray<FOverlapResult> OutOverlap;
-
-			FComponentQueryParams Params;
-
-			// Params.bTraceComplex = true;
-
-#if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
-			Params.bDebugQuery = true;
-#endif
-
-			FCollisionObjectQueryParams ObjectQueryParams;
-			ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
-
 			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 			MessageBodySPtr->SpaceName = Category;
-			for (auto MeshIter : StaticMeshComponentsAry)
+			
+			TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
+
+			for (const auto& Iter : ActorsAry)
 			{
-				GetWorld()->ComponentOverlapMulti(
-				                                  OutOverlap,
-				                                  MeshIter,
-				                                  FVector::ZeroVector,
-				                                  FRotator::ZeroRotator,
-				                                  // StaticMeshComponent->GetComponentLocation(),
-				                                  // StaticMeshComponent->GetComponentRotation(),
-				                                  Params,
-				                                  ObjectQueryParams
-				                                 );
-
-				TSet<ASceneElement_DeviceBase*> ActorsAry;
-				for (const auto& Iter : OutOverlap)
+				auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
+				if (SceneElementPtr)
 				{
-					if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
-					{
-						ActorsAry.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
-					}
+					SceneElementPtr->SwitchInteractionType(ConditionalSet);
 				}
-
-				for (const auto& Iter : ActorsAry)
+				else
 				{
-					auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
-					if (SceneElementPtr)
-					{
-						SceneElementPtr->SwitchInteractionType(ConditionalSet);
-					}
-					else
-					{
-					}
-				}
-
-				for (auto DeviceIter : ActorsAry)
-				{
-					if (DeviceIter)
-					{
-						MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
-					}
 				}
 			}
 
+			for (auto DeviceIter : ActorsAry)
+			{
+				if (DeviceIter)
+				{
+					MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
+				}
+			}
+			
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			auto HUDPtr = Cast<AMainHUD>(
@@ -544,11 +511,72 @@ void ASceneElement_Space::SwitchInteractionType(
 	}
 }
 
+TSharedPtr<FJsonValue> ASceneElement_Space::GetSceneElementData() const
+{
+	auto Result = Super::GetSceneElementData();
+
+	auto RootJsonObj = Result->AsObject();
+
+	RootJsonObj->SetStringField(
+								TEXT("DataSmith_Key"),
+								DataSmith_Key
+							   );
+
+	RootJsonObj->SetStringField(
+								TEXT("Category"),
+								Category
+							   );
+
+	return Result;
+}
+
 void ASceneElement_Space::SetFeatures(
 	const TArray<FString>& InFeaturesAry
 	)
 {
 	FeaturesAry = InFeaturesAry;
+}
+
+TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
+{
+	TSet<ASceneElement_DeviceBase*>Result;
+
+	TArray<FOverlapResult> OutOverlap;
+
+	FComponentQueryParams Params;
+
+	// Params.bTraceComplex = true;
+
+#if !(UE_BUILD_TEST || UE_BUILD_SHIPPING)
+	Params.bDebugQuery = true;
+#endif
+
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+
+	for (auto MeshIter : StaticMeshComponentsAry)
+	{
+		GetWorld()->ComponentOverlapMulti(
+										  OutOverlap,
+										  MeshIter,
+										  FVector::ZeroVector,
+										  FRotator::ZeroRotator,
+										  // StaticMeshComponent->GetComponentLocation(),
+										  // StaticMeshComponent->GetComponentRotation(),
+										  Params,
+										  ObjectQueryParams
+										 );
+
+		for (const auto& Iter : OutOverlap)
+		{
+			if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
+			{
+				Result.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
+			}
+		}
+	}
+
+	return Result;
 }
 
 void ASceneElement_Space::SwitchColor(

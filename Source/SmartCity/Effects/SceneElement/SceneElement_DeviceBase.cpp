@@ -79,7 +79,7 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
-	
+
 	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
 
 	MessageBodySPtr->DeviceID = TEXT("");
@@ -111,7 +111,7 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -165,7 +165,6 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 			return;
 		}
 	}
-
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
@@ -174,4 +173,18 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 
 		return;
 	}
+}
+
+TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
+{
+	auto Result = Super::GetSceneElementData();
+
+	auto RootJsonObj = Result->AsObject();
+
+	RootJsonObj->SetStringField(
+	                            TEXT("DeviceType"),
+	                            DeviceType.ToString()
+	                           );
+
+	return Result;
 }

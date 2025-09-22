@@ -93,6 +93,25 @@ void ASceneElementBase::SwitchInteractionType(
 	CurrentConditionalSet = ConditionalSet;
 }
 
+TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
+{
+	auto RootJsonObj = MakeShared<FJsonObject>();
+	
+	auto Result = MakeShared<FJsonValueObject>(RootJsonObj);
+
+	RootJsonObj->SetStringField(
+								TEXT("ID"),
+								DeviceID
+							   );
+
+	RootJsonObj->SetStringField(
+								TEXT("CurrentConditionalSet"),
+								CurrentConditionalSet.ConditionalSet.ToString()
+							   );
+
+	return Result;
+}
+
 void ASceneElementBase::RecordOnriginalMat()
 {
 	TArray<UStaticMeshComponent*> Components;

@@ -1,21 +1,16 @@
 #include "MessageBody.h"
 
-#include "Subsystems/SubsystemBlueprintLibrary.h"
-#include "WorldPartition/DataLayer/DataLayerManager.h"
-
-#include "Tools.h"
 #include "AssetRefMap.h"
 #include "GameOptions.h"
-#include "GameplayTagsLibrary.h"
 #include "InputProcessorSubSystem_Imp.h"
-#include "LogWriter.h"
+#include "SceneElement_DeviceBase.h"
+#include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
 #include "ViewSingleFloorProcessor.h"
-#include "WeatherSystem.h"
 
 FMessageBody::FMessageBody()
 {
@@ -287,6 +282,39 @@ void FMessageBody_Receive_InteractionOption::DoAction() const
 		                                                                  bImmediatelyUpdate
 		                                                                 );
 	}
+}
+
+FMessageBody_SelectedFloor::FMessageBody_SelectedFloor()
+{
+	CMD_Name = TEXT("SelectedFloor");
+}
+
+TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
+
+	TArray<TSharedPtr<FJsonValue>>Array;
+
+	for (const auto& Iter : SpacesMap)
+	{
+		auto SpaceObject = Iter.Key->GetSceneElementData()->AsObject();
+		
+		TArray<TSharedPtr<FJsonValue>>DeviceArray;
+
+		for (const auto& SecondIter : Iter.Value)
+		{
+			DeviceArray.Add(SecondIter->GetSceneElementData());
+		}
+
+		SpaceObject->SetArrayField(TEXT("Devices"), DeviceArray);
+	}
+
+	RootJsonObj->SetArrayField(
+							   TEXT("Spaces"),
+							   Array
+							  );
+
+	return RootJsonObj;
 }
 
 FMessageBody_SelectedSpace::FMessageBody_SelectedSpace()

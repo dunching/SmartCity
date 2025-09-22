@@ -51,6 +51,8 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 	
+	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
+	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;
 

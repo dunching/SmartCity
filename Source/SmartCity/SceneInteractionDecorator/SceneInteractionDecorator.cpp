@@ -11,6 +11,7 @@
 #include "MessageBody.h"
 #include "SceneInteractionWorldSystem.h"
 #include "Algorithm.h"
+#include "DatasmithSceneActor.h"
 #include "Dynamic_WeatherBase.h"
 #include "FloorHelper.h"
 #include "PlanetPlayerController.h"
@@ -1806,6 +1807,35 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			 }
 		 }
 		);
+
+	
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		
+		if (FloorIter.Value->GameplayTagContainer.HasTag(GetBranchDecoratorType()))
+		{
+			auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
+			
+			for (auto Iter : FloorIter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet)
+			{
+				TArray<AActor*> OutActors;
+				Iter->GetAttachedActors(OutActors, true, true);
+
+				for (auto SpaceIter : OutActors)
+				{
+					auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
+					if (SpacePtr )
+					{
+						MessageSPtr->SpacesMap.Add(SpacePtr,SpacePtr->GetAllDevices());
+					}
+				}
+			}
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr );
+			
+			return;
+		}
+	}
 }
 
 FInteraction_Decorator::FInteraction_Decorator() :
