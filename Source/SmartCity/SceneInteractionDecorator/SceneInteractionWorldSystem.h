@@ -18,6 +18,7 @@ class FDecoratorBase;
 class UGT_InitializeSceneActors;
 class UGT_SwitchSceneElementState;
 class URouteMarker;
+class ASceneElementBase;
 
 /*
  * 
@@ -87,8 +88,8 @@ public:
 
 	void InitializeSceneActors();
 
-	TWeakObjectPtr<AActor> FindSceneActor(
-		const FGuid& ID
+	TWeakObjectPtr<ASceneElementBase> FindSceneActor(
+		const FString& ID
 		) const;
 
 	FString GetName(
@@ -139,7 +140,7 @@ private:
 
 	TArray<TSharedPtr<FDecoratorBase>> DecoratorLayerCache;
 
-	TMap<FGuid, TWeakObjectPtr<AActor>> ItemRefMap;
+	TMap<FString, ASceneElementBase*> SceneElementMap;
 
 	TSet<AActor*> FocusActors;
 

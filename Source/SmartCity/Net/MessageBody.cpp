@@ -1,6 +1,7 @@
 #include "MessageBody.h"
 
 #include "AssetRefMap.h"
+#include "FloorHelper.h"
 #include "GameOptions.h"
 #include "InputProcessorSubSystem_Imp.h"
 #include "SceneElement_DeviceBase.h"
@@ -284,6 +285,47 @@ void FMessageBody_Receive_InteractionOption::DoAction() const
 	}
 }
 
+FMessageBody_Receive_LocaterDeviceByID::FMessageBody_Receive_LocaterDeviceByID()
+{
+	CMD_Name = TEXT("LocaterDeviceByID");
+}
+
+void FMessageBody_Receive_LocaterDeviceByID::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
+	{
+	}
+}
+
+void FMessageBody_Receive_LocaterDeviceByID::DoAction() const
+{
+	auto SceneElementPtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(DeviceID);
+	if (SceneElementPtr.IsValid())
+	{
+		auto DevicePtr = Cast<ASceneElement_DeviceBase>(SceneElementPtr.Get());
+		if (DevicePtr && DevicePtr->BelongFloor)
+		{
+			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
+			                                                                   USmartCitySuiteTags::Interaction_Mode_Empty
+			                                                                  );
+			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(DevicePtr->BelongFloor->FloorTag);
+		}
+	}
+}
+
 FMessageBody_SelectedFloor::FMessageBody_SelectedFloor()
 {
 	CMD_Name = TEXT("SelectedFloor");
@@ -293,26 +335,29 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
-	TArray<TSharedPtr<FJsonValue>>Array;
+	TArray<TSharedPtr<FJsonValue>> Array;
 
 	for (const auto& Iter : SpacesMap)
 	{
-		auto SpaceObject = Iter.Key->GetSceneElementData()->AsObject();
-		
-		TArray<TSharedPtr<FJsonValue>>DeviceArray;
+		auto SpaceValue = Iter.Key->GetSceneElementData();
+		auto SpaceObj = SpaceValue->AsObject();
+
+		TArray<TSharedPtr<FJsonValue>> DeviceArray;
 
 		for (const auto& SecondIter : Iter.Value)
 		{
 			DeviceArray.Add(SecondIter->GetSceneElementData());
 		}
 
-		SpaceObject->SetArrayField(TEXT("Devices"), DeviceArray);
+		SpaceObj->SetArrayField(TEXT("Devices"), DeviceArray);
+
+		Array.Add(SpaceValue);
 	}
 
 	RootJsonObj->SetArrayField(
-							   TEXT("Spaces"),
-							   Array
-							  );
+	                           TEXT("Spaces"),
+	                           Array
+	                          );
 
 	return RootJsonObj;
 }

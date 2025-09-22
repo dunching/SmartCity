@@ -562,13 +562,13 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 		);
 }
 
-TWeakObjectPtr<AActor> USceneInteractionWorldSystem::FindSceneActor(
-	const FGuid& ID
+TWeakObjectPtr<ASceneElementBase> USceneInteractionWorldSystem::FindSceneActor(
+	const FString& ID
 	) const
 {
-	if (ItemRefMap.Contains(ID))
+	if (SceneElementMap.Contains(ID))
 	{
-		return ItemRefMap[ID];
+		return SceneElementMap[ID];
 	}
 	return nullptr;
 }

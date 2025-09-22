@@ -156,7 +156,7 @@ void SmartCityCommand::LocaterByID(
 		 {
 			 if (GTPtr)
 			 {
-				 GTPtr->ID = FGuid(Args[0]);
+				 GTPtr->ID = Args[0];
 			 }
 		 }
 		);
@@ -334,4 +334,30 @@ void SmartCityCommand::SetCameraPitch(
 	)
 {
 	
+}
+
+void SmartCityCommand::LocaterDeviceByID(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+													   FString::Printf(
+																	   TEXT(
+																			R"({
+    "CMD": "LocaterDeviceByID",
+    "DeviceID": "%s"
+})"
+																		   ),
+																	   *Args[0]
+																	  )
+													  );
+		return;
+	}
 }

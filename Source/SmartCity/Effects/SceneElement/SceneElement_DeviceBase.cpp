@@ -5,6 +5,7 @@
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "FloorHelper.h"
 #include "GameplayTagsLibrary.h"
 #include "MessageBody.h"
 #include "RouteMarker.h"
@@ -56,6 +57,28 @@ void ASceneElement_DeviceBase::EndInteraction()
 	Super::EndInteraction();
 
 	bIsOpened = false;
+}
+
+void ASceneElement_DeviceBase::InitialSceneElement()
+{
+	Super::InitialSceneElement();
+	
+	auto ParentPtr = GetAttachParentActor();
+	AFloorHelper* FloorPtr = nullptr;
+	for (; ParentPtr;)
+	{
+		ParentPtr = ParentPtr->GetAttachParentActor();
+		FloorPtr = Cast<AFloorHelper>(ParentPtr);
+		if (FloorPtr)
+		{
+			break;
+		}
+	}
+
+	if (FloorPtr)
+	{
+		BelongFloor = FloorPtr;
+	}
 }
 
 TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const

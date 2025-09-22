@@ -75,7 +75,7 @@ public:
 	void UnRegisterTicker();
 
 	void SetOnQuitFunc(const FOnQuitFunc& InOnQuitFunc);
-	
+
 protected:
 
 	void IncreaseAsyncTaskNum();
@@ -87,6 +87,7 @@ protected:
 	void SwitchShowCursor(bool bIsShowCursor);
 
 	FOwnerPawnType* OnwerPawnPtr = nullptr;
+
 
 private:
 

@@ -441,13 +441,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 			}
 			else
 			{
-				if (InnerStructItemSetIndex < InnerStructItemSet.Num())
-				{
-					ApplyRelatedActors(InnerStructItemSet[InnerStructItemSetIndex]);
-				}
-				else
-				{
-				}
 			}
 
 			Step = EStep::kInnerStructItemSet;
@@ -461,13 +454,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 			}
 			else
 			{
-				if (SoftDecorationItemSetIndex < SoftDecorationItemSet.Num())
-				{
-					ApplyRelatedActors(SoftDecorationItemSet[SoftDecorationItemSetIndex]);
-				}
-				else
-				{
-				}
 			}
 
 			Step = EStep::kSoftDecorationItemSet;
@@ -481,13 +467,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 			}
 			else
 			{
-				if (SpaceItemSetIndex < SpaceItemSet.Num())
-				{
-					ApplyRelatedActors(SpaceItemSet[SpaceItemSetIndex]);
-				}
-				else
-				{
-				}
 			}
 
 			Step = EStep::kSpaceItemSet;
@@ -547,13 +526,12 @@ bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
 		return false;
 	}
 
-	if (NormalAdjust(StructItemSetIndex, StructItemSet))
+	ApplyRelatedActors(StructItemSet[StructItemSetIndex]);
+
+	ON_SCOPE_EXIT
 	{
-	}
-	else
-	{
-		return false;
-	}
+		StructItemSetIndex++;
+	};
 
 	return true;
 }
@@ -568,13 +546,12 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 		return false;
 	}
 
-	if (NormalAdjust(InnerStructItemSetIndex, InnerStructItemSet))
+	ApplyRelatedActors(InnerStructItemSet[InnerStructItemSetIndex]);
+
+	ON_SCOPE_EXIT
 	{
-	}
-	else
-	{
-		return false;
-	}
+		InnerStructItemSetIndex++;
+	};
 
 	return true;
 }
@@ -589,13 +566,12 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 		return false;
 	}
 
-	if (NormalAdjust(SoftDecorationItemSetIndex, SoftDecorationItemSet))
+	ApplyRelatedActors(SoftDecorationItemSet[SoftDecorationItemSetIndex]);
+
+	ON_SCOPE_EXIT
 	{
-	}
-	else
-	{
-		return false;
-	}
+		SoftDecorationItemSetIndex++;
+	};
 
 	return true;
 }
@@ -615,17 +591,77 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 		return false;
 	}
 
-	if (NormalAdjust(SpaceItemSetIndex, SpaceItemSet))
+	ON_SCOPE_EXIT
 	{
-	}
-	else
-	{
-		return false;
-	}
+		SpaceItemSetIndex++;
+	};
 
-	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
 	const auto SpaceInfo = UAssetRefMap::GetInstance()->SpaceInfo;
 
+	TArray<AActor*> OutActors;
+	SpaceItemSet[SpaceItemSetIndex]->GetAttachedActors(OutActors, true, true);
+
+	for (auto Iter : OutActors)
+	{
+		if (Iter)
+		{
+			auto Components = Iter->GetComponents();
+			for (auto SecondIter : Components)
+			{
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+				if (!InterfacePtr)
+				{
+					continue;
+				}
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+				                                            InterfacePtr->GetAssetUserDataOfClass(
+					                                             UDatasmithAssetUserData::StaticClass()
+					                                            )
+				                                           );
+				if (!AUDPtr)
+				{
+					continue;
+				}
+
+				auto MetaDataIter = AUDPtr->MetaData.Find(*SpaceInfo.Key);
+				if (!MetaDataIter)
+				{
+					continue;
+				}
+				if (*MetaDataIter != SpaceInfo.Value)
+				{
+					continue;
+				}
+
+				auto SpaceNameValueIter = AUDPtr->MetaData.Find(*SpaceInfo.SpaceNameValue);
+				if (!SpaceNameValueIter)
+				{
+					continue;
+				}
+
+				auto HashCode = HashCombine(
+				                            GetTypeHash(*MetaDataIter),
+				                            GetTypeHash(*SpaceNameValueIter)
+				                           );
+
+				if (MergeActorsMap.Contains(HashCode))
+				{
+					MergeActorsMap[HashCode]->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
+				}
+				else
+				{
+					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Space>(
+						 UAssetRefMap::GetInstance()->
+						 SceneElement_SpaceClass
+						);
+					NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
+
+					MergeActorsMap.Add(HashCode, NewActorPtr);
+				}
+				break;
+			}
+		}
+	}
 	return true;
 }
 
@@ -641,16 +677,6 @@ bool UGT_InitializeSceneActors::ReplacedActor(
 	return false;
 }
 
-bool UGT_InitializeSceneActors::NormalAdjust(
-	int32& Index,
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
-	)
-{
-	Index++;
-	
-	return true;
-}
-
 void UGT_InitializeSceneActors::ApplyData(
 	int32 Index
 	)
@@ -664,11 +690,6 @@ void UGT_InitializeSceneActors::ApplyData(
 		for (const auto& Iter : SceneActorMap[Index].StructItemSet.DatasmithSceneActorSet)
 		{
 			StructItemSet.Add(Iter);
-		}
-
-		if (StructItemSet.IsValidIndex(StructItemSetIndex))
-		{
-			ApplyRelatedActors(StructItemSet[StructItemSetIndex]);
 		}
 
 		InnerStructItemSetIndex = 0;
@@ -729,7 +750,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 			{
 				continue;
 			}
-			
+
 			auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
 			if (!Datasmith_UniqueId)
 			{
@@ -759,7 +780,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						 ThirdIter.Value
 						);
 					NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->InitialSceneElement();
 					NewActorPtr->DeviceID = *Datasmith_UniqueId;
+					
+					USceneInteractionWorldSystem::GetInstance()->SceneElementMap.Add(NewActorPtr->DeviceID, NewActorPtr);
 				}
 				bIsSceneElement = true;
 				break;
@@ -799,9 +823,11 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						 ThirdIter.Value
 						);
 					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->InitialSceneElement();
 					NewActorPtr->DeviceID = *Datasmith_UniqueId;
 
 					MergeActorsMap.Add(HashCode, NewActorPtr);
+					USceneInteractionWorldSystem::GetInstance()->SceneElementMap.Add(NewActorPtr->DeviceID, NewActorPtr);
 				}
 
 				bIsSceneElement = true;
@@ -820,8 +846,9 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 		else
 		{
 			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
-				);
+			                                                                 );
 			NewActorPtr->Replace(Iter, {});
+			NewActorPtr->InitialSceneElement();
 		}
 	}
 }

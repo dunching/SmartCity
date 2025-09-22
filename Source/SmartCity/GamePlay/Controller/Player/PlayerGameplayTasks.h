@@ -244,7 +244,7 @@ public:
 
 	virtual void Activate() override;
 
-	FGuid ID;
+	FString ID;
 
 	TObjectPtr<AActor> TargetDevicePtr = nullptr;
 };
@@ -380,20 +380,11 @@ protected:
 
 	bool ProcessTask_SpaceItemSet();
 
+	
+	
 private:
 	bool ReplacedActor(
 		AActor* ActorPtr
-		);
-
-	/**
-	 * 
-	 * @param Index tu
-	 * @param ItemSet 
-	 * @return true：未处理完成，false：处理完成
-	 */
-	bool NormalAdjust(
-		int32& Index,
-		TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
 		);
 
 	void ApplyData(
@@ -437,7 +428,6 @@ private:
 	int32 SpaceItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
-
 
 
 	TMap<int32, ASceneElementBase*> MergeActorsMap;
