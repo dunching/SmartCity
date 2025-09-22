@@ -232,7 +232,7 @@ void ASceneElement_RadarSweep::QueryComplete()
 	{
 		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetCurrentInteraction_Area())
+			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()) )
 			{
 				const auto FloorLocation = Iter.Value->GetActorLocation();
 

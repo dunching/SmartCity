@@ -28,6 +28,7 @@
 #include "TemplateHelper.h"
 #include "CollisionDataStruct.h"
 #include "SceneElement_RadarSweep.h"
+#include "SceneElement_Regualar.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
 
@@ -446,8 +447,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 				}
 				else
 				{
-					RelatedActorsIndex = 0;
-					RelatedActors.Empty();
 				}
 			}
 
@@ -468,8 +467,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 				}
 				else
 				{
-					RelatedActorsIndex = 0;
-					RelatedActors.Empty();
 				}
 			}
 
@@ -490,8 +487,6 @@ bool UGT_InitializeSceneActors::ProcessTask(
 				}
 				else
 				{
-					RelatedActorsIndex = 0;
-					RelatedActors.Empty();
 				}
 			}
 
@@ -560,36 +555,6 @@ bool UGT_InitializeSceneActors::ProcessTask_StructItemSet()
 		return false;
 	}
 
-	ON_SCOPE_EXIT
-	{
-		RelatedActorsIndex++;
-	};
-
-	auto Iter = RelatedActors[RelatedActorsIndex];
-	if (Iter)
-	{
-		if (ReplacedActor(Iter))
-		{
-			return true;
-		}
-
-		auto Components = Iter->GetComponents();
-		for (auto SecondIter : Components)
-		{
-			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				PrimitiveComponentPtr->SetCollisionObjectType(ExternalWall_Object);
-				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-
-				break;
-			}
-		}
-	}
-
 	return true;
 }
 
@@ -611,36 +576,6 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet()
 		return false;
 	}
 
-	ON_SCOPE_EXIT
-	{
-		RelatedActorsIndex++;
-	};
-
-	auto Iter = RelatedActors[RelatedActorsIndex];
-	if (Iter)
-	{
-		if (ReplacedActor(Iter))
-		{
-			return true;
-		}
-
-		auto Components = Iter->GetComponents();
-		for (auto SecondIter : Components)
-		{
-			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				PrimitiveComponentPtr->SetCollisionObjectType(Floor_Object);
-				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-
-				break;
-			}
-		}
-	}
-
 	return true;
 }
 
@@ -660,64 +595,6 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet()
 	else
 	{
 		return false;
-	}
-
-	ON_SCOPE_EXIT
-	{
-		RelatedActorsIndex++;
-	};
-
-	auto Iter = RelatedActors[RelatedActorsIndex];
-	if (Iter)
-	{
-		if (ReplacedActor(Iter))
-		{
-			return true;
-		}
-
-		auto Components = Iter->GetComponents();
-		for (auto SecondIter : Components)
-		{
-			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-			if (InterfacePtr)
-			{
-				auto AUDPtr = Cast<UDatasmithAssetUserData>(
-				                                            InterfacePtr->GetAssetUserDataOfClass(
-					                                             UDatasmithAssetUserData::StaticClass()
-					                                            )
-				                                           );
-				if (!AUDPtr)
-				{
-					continue;
-				}
-				for (const auto& ThirdIter : AUDPtr->MetaData)
-				{
-					if (ThirdIter.Key == UAssetRefMap::GetInstance()->Datasmith_UniqueId)
-					{
-						SceneInteractionWorldSystemPtr->ItemRefMap.Add(FGuid(ThirdIter.Value), Iter);
-						continue;
-					}
-					else
-					{
-					}
-				}
-				break;
-			}
-		}
-		for (auto SecondIter : Components)
-		{
-			auto PrimitiveComponentPtr = Cast<UPrimitiveComponent>(SecondIter);
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				PrimitiveComponentPtr->SetCollisionObjectType(Device_Object);
-				PrimitiveComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-
-				break;
-			}
-		}
 	}
 
 	return true;
@@ -746,78 +623,8 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 		return false;
 	}
 
-	ON_SCOPE_EXIT
-	{
-		RelatedActorsIndex++;
-	};
-
 	auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
 	const auto SpaceInfo = UAssetRefMap::GetInstance()->SpaceInfo;
-	auto Iter = RelatedActors[RelatedActorsIndex];
-	if (Iter)
-	{
-		if (ReplacedActor(Iter))
-		{
-			return true;
-		}
-
-		auto Components = Iter->GetComponents();
-		for (auto SecondIter : Components)
-		{
-			auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-			if (!InterfacePtr)
-			{
-				continue;
-			}
-			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-			                                            InterfacePtr->GetAssetUserDataOfClass(
-				                                             UDatasmithAssetUserData::StaticClass()
-				                                            )
-			                                           );
-			if (!AUDPtr)
-			{
-				continue;
-			}
-
-			auto MetaDataIter = AUDPtr->MetaData.Find(*SpaceInfo.Key);
-			if (!MetaDataIter)
-			{
-				continue;
-			}
-			if (*MetaDataIter != SpaceInfo.Value)
-			{
-				continue;
-			}
-
-			auto SpaceNameValueIter = AUDPtr->MetaData.Find(*SpaceInfo.SpaceNameValue);
-			if (!SpaceNameValueIter)
-			{
-				continue;
-			}
-
-			auto HashCode = HashCombine(
-			                            GetTypeHash(*MetaDataIter),
-			                            GetTypeHash(*SpaceNameValueIter)
-			                           );
-
-			if (MergeActorsMap.Contains(HashCode))
-			{
-				MergeActorsMap[HashCode]->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
-			}
-			else
-			{
-				auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Space>(
-				                                                               UAssetRefMap::GetInstance()->
-				                                                               SceneElement_SpaceClass
-				                                                              );
-				NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
-
-				RelatedActors.Add(NewActorPtr);
-				MergeActorsMap.Add(HashCode, NewActorPtr);
-			}
-			break;
-		}
-	}
 
 	return true;
 }
@@ -839,68 +646,8 @@ bool UGT_InitializeSceneActors::NormalAdjust(
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
 	)
 {
-	if (RelatedActorsIndex < RelatedActors.Num())
-	{
-	}
-	else
-	{
-		Index++;
-
-		RelatedActorsIndex = 0;
-		RelatedActors.Empty();
-
-		if (Index < ItemSet.Num())
-		{
-			ApplyRelatedActors(ItemSet[Index]);
-
-			if (RelatedActorsIndex < RelatedActors.Num())
-			{
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool UGT_InitializeSceneActors::NormalAdjust(
-	int32& Index,
-	TArray<TSoftObjectPtr<AReplaceActorBase>>& ItemSet
-	)
-{
-	if (RelatedActorsIndex < RelatedActors.Num())
-	{
-	}
-	else
-	{
-		RelatedActorsIndex = 0;
-		Index++;
-
-		if (Index < ItemSet.Num())
-		{
-			ApplyRelatedActors(ItemSet[Index]);
-
-			if (RelatedActorsIndex < RelatedActors.Num())
-			{
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-
+	Index++;
+	
 	return true;
 }
 
@@ -982,6 +729,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 			{
 				continue;
 			}
+			
 			auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
 			if (!Datasmith_UniqueId)
 			{
@@ -1010,10 +758,8 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-					NewActorPtr->Replace(Iter,{*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 					NewActorPtr->DeviceID = *Datasmith_UniqueId;
-
-					RelatedActors.Add(NewActorPtr);
 				}
 				bIsSceneElement = true;
 				break;
@@ -1026,7 +772,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				{
 					continue;
 				}
-				
+
 				if (ThirdIter.Key.bOnlyKey)
 				{
 				}
@@ -1055,7 +801,6 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 					NewActorPtr->DeviceID = *Datasmith_UniqueId;
 
-					RelatedActors.Add(NewActorPtr);
 					MergeActorsMap.Add(HashCode, NewActorPtr);
 				}
 
@@ -1074,24 +819,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 		}
 		else
 		{
-			RelatedActors.Add(Iter);
+			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
+				);
+			NewActorPtr->Replace(Iter, {});
 		}
-	}
-}
-
-void UGT_InitializeSceneActors::ApplyRelatedActors(
-	const TSoftObjectPtr<AReplaceActorBase>& ItemSet
-	)
-{
-	RelatedActorsIndex = 0;
-	RelatedActors.Empty();
-
-	TArray<AActor*> OutActors;
-	ItemSet->GetAttachedActors(OutActors, true, true);
-
-	for (const auto& Iter : OutActors)
-	{
-		RelatedActors.Add(Iter);
 	}
 }
 
@@ -1273,7 +1004,7 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 		}
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (FloorIter.Value->FloorTag == FloorTag)
+			if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
 				TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;

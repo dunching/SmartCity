@@ -39,6 +39,10 @@ public:
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
 		) override;
+	
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
 
 	/**
 	 * 网格体

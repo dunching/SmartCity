@@ -3,6 +3,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "ActorSequenceComponent.h"
 #include "NiagaraComponent.h"
+#include "DatasmithAssetUserData.h"
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
@@ -45,6 +46,12 @@ void ASceneElement_HVAC::SwitchInteractionType(
 {
 	Super::SwitchInteractionType(ConditionalSet);
 	
+	if (ProcessJiaCengLogic(ConditionalSet))
+	{
+		SetActorHiddenInGame(true);
+		return;
+	}
+
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
@@ -126,4 +133,21 @@ void ASceneElement_HVAC::ReplaceImp(
 	)
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
+	
+	auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+	if (STPtr)
+	{
+		auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
+		if (!InterfacePtr)
+		{
+			return;
+		}
+		auto AUDPtr = Cast<UDatasmithAssetUserData>(
+													InterfacePtr->GetAssetUserDataOfClass(
+														 UDatasmithAssetUserData::StaticClass()
+														)
+												   );
+
+		CheckIsJiaCeng(AUDPtr);
+	}
 }

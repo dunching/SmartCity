@@ -8,6 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SceneElement_JiaCeng.h"
 
 #include "SceneElement_DeviceBase.generated.h"
 
@@ -19,13 +20,15 @@ class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
 class URouteMarker;
+class UDatasmithAssetUserData;
 
 /**
  * 门禁
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_DeviceBase :
-	public ASceneElementBase
+	public ASceneElementBase,
+	public ISceneElement_JiaCengInterface
 {
 	GENERATED_BODY()
 
@@ -47,9 +50,10 @@ public:
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
-
+	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;
 
 	bool bIsOpened = false;
+	
 };

@@ -1,8 +1,9 @@
 #include "SceneElement_DeviceBase.h"
 
 #include "ActorSequenceComponent.h"
-#include "AssetRefMap.h"
+#include "DatasmithAssetUserData.h"
 
+#include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
 #include "MessageBody.h"

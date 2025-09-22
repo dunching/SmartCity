@@ -59,7 +59,7 @@ public:
 protected:
 
 	TPair<FName, FString> UserData;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 

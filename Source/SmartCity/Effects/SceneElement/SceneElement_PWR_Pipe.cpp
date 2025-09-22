@@ -17,8 +17,8 @@
 
 ASceneElement_PWR_Pipe::ASceneElement_PWR_Pipe(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 }
 
@@ -42,12 +42,25 @@ void ASceneElement_PWR_Pipe::Merge(
 	Super::Merge(ActorRef, UserData);
 
 	UserData = InUserData;
-	
+
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
 		if (STPtr)
 		{
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
+			if (!InterfacePtr)
+			{
+				return;
+			}
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
+
+			CheckIsJiaCeng(AUDPtr);
+
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
@@ -57,6 +70,9 @@ void ASceneElement_PWR_Pipe::Merge(
 				                                                   false
 				                                                  )
 			                                                 );
+
+			NewComponentPtr->AddAssetUserData(AUDPtr);
+
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
@@ -97,15 +113,22 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 
+	if (ProcessJiaCengLogic(ConditionalSet))
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		SetActorHiddenInGame(true);
+		return;
+	}
+
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(true);
-			
+
 			for (auto Iter : StaticMeshComponentsAry)
 			{
 				if (Iter)
@@ -123,25 +146,26 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 					}
 				}
 			}
-			
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			if (
 				(UserData.Key == TEXT("Element*照明回路编号")) ||
-				(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+				(UserData.Key == TEXT("Element*空调和新风回路编号"))
 			)
 			{
 				SetActorHiddenInGame(false);
-			
+
 				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
@@ -167,20 +191,21 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			if (
 				(UserData.Key == TEXT("Element*照明回路编号")) ||
-				(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+				(UserData.Key == TEXT("Element*空调和新风回路编号"))
 			)
 			{
 				SetActorHiddenInGame(false);
-			
+
 				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
@@ -206,19 +231,20 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			if (
-				(UserData.Key == TEXT("Element*管线类型编号")) 
+				(UserData.Key == TEXT("Element*管线类型编号"))
 			)
 			{
 				SetActorHiddenInGame(false);
-			
+
 				auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 				auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
@@ -244,14 +270,15 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
-	
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-	
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
-			
+
 			for (auto Iter : StaticMeshComponentsAry)
 			{
 				if (Iter)
@@ -277,7 +304,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		{
 		}
 		SetActorHiddenInGame(true);
-		
+
 		return;
 	}
 }
@@ -286,13 +313,13 @@ FString ASceneElement_PWR_Pipe::GetID() const
 {
 	if (
 		(UserData.Key == TEXT("Element*照明回路编号")) ||
-		(UserData.Key == TEXT("Element*空调和新风回路编号")) 
+		(UserData.Key == TEXT("Element*空调和新风回路编号"))
 	)
 	{
 		return UserData.Value;
 	}
 	if (
-		(UserData.Key == TEXT("Element*管线类型编号")) 
+		(UserData.Key == TEXT("Element*管线类型编号"))
 	)
 	{
 		return UserData.Value;

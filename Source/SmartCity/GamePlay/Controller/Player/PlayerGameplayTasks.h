@@ -396,21 +396,12 @@ private:
 		TArray<TSoftObjectPtr<ADatasmithSceneActor>>& ItemSet
 		);
 
-	bool NormalAdjust(
-		int32& Index,
-		TArray<TSoftObjectPtr<AReplaceActorBase>>& ItemSet
-		);
-
 	void ApplyData(
 		int32 Index
 		);
 
 	void ApplyRelatedActors(
 		const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
-		);
-
-	void ApplyRelatedActors(
-		const TSoftObjectPtr<AReplaceActorBase>& ItemSet
 		);
 
 	int32 SceneActorMapIndex = 0;
@@ -447,10 +438,6 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
 
-
-	int32 RelatedActorsIndex = 0;
-
-	TArray<TObjectPtr<AActor>> RelatedActors;
 
 
 	TMap<int32, ASceneElementBase*> MergeActorsMap;

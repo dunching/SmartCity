@@ -2,6 +2,7 @@
 
 #include "Engine/StaticMeshActor.h"
 #include "ActorSequenceComponent.h"
+#include "DatasmithAssetUserData.h"
 
 #include "CollisionDataStruct.h"
 
@@ -32,7 +33,38 @@ void ASceneElement_Monitor::ReplaceImp(
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
+			if (!InterfacePtr)
+			{
+				return;
+			}
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+														InterfacePtr->GetAssetUserDataOfClass(
+															 UDatasmithAssetUserData::StaticClass()
+															)
+													   );
+
+			CheckIsJiaCeng(AUDPtr);
+
 			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+
+			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+			{
+				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+			}
 		}
+	}
+}
+
+void ASceneElement_Monitor::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	Super::SwitchInteractionType(ConditionalSet);
+	
+	if (ProcessJiaCengLogic(ConditionalSet))
+	{
+		SetActorHiddenInGame(true);
+		return;
 	}
 }

@@ -188,8 +188,8 @@ void FEmergencyMode_Decorator::Entry()
 		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
 		{
 			Iter.Value->NavagationPaths->SwitchDisplay(
-			                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
-				                                            Iter.Value->FloorTag
+			                                           Iter.Value->GameplayTagContainer.HasTag(
+				                                            AreaDecoratorSPtr->GetCurrentInteraction_Area()
 				                                           )
 			                                          );
 		}
@@ -232,10 +232,7 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
 				{
 					Iter.Value->NavagationPaths->SwitchDisplay(
-					                                           AreaDecoratorSPtr->GetCurrentInteraction_Area().
-					                                           MatchesTag(
-					                                                      Iter.Value->FloorTag
-					                                                     )
+					                                                     Iter.Value->GameplayTagContainer.HasTag( AreaDecoratorSPtr->GetCurrentInteraction_Area())
 					                                          );
 				}
 			}
@@ -366,7 +363,7 @@ void FEnergyMode_Decorator::OnUpdateFilterComplete(
 
 			continue;
 		}
-		
+
 		auto DevicePtr = Cast<ASceneElement_DeviceBase>(Iter);
 		if (DevicePtr)
 		{
@@ -393,7 +390,7 @@ void FEnergyMode_Decorator::OnUpdateFilterComplete(
 		if (Iter)
 		{
 			Iter->SwitchInteractionType(SceneActorConditional);
-			
+
 			IDMap.Add(Iter->GetID(), Iter);
 		}
 	}
@@ -620,7 +617,7 @@ FExternalWall_Decorator::FExternalWall_Decorator(
 void FExternalWall_Decorator::Entry()
 {
 	Super::Entry();
-	
+
 	ON_SCOPE_EXIT
 	{
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewBuildingProcessor>(
@@ -631,7 +628,7 @@ void FExternalWall_Decorator::Entry()
 			 }
 			);
 	};
-	
+
 	{
 		auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
 			 USmartCitySuiteTags::Interaction_Mode
@@ -963,8 +960,8 @@ void FSplitFloor_Decorator::Entry()
 	                                                                    )
 	                                                                    {
 	                                                                    }
-	                                                                    );
-	
+	                                                                   );
+
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSplitFloorProcessor>(
 		 [](
 		 auto NewProcessor
@@ -972,7 +969,6 @@ void FSplitFloor_Decorator::Entry()
 		 {
 		 }
 		);
-
 }
 
 void FSplitFloor_Decorator::Quit()
@@ -1075,17 +1071,17 @@ void FFloor_Decorator::Entry()
 				                                                         );
 
 				IncreaseWaitTaskCount();
-				
+
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
-																		[this](
-																		auto NewProcessor
-																		)
-																		{
-																			NewProcessor->Interaction_Area =
-																				GetBranchDecoratorType();
-																		}
-																	   );
+					                                          [this](
+					                                          auto NewProcessor
+					                                          )
+					                                          {
+						                                          NewProcessor->Interaction_Area =
+							                                          GetBranchDecoratorType();
+					                                          }
+					                                         );
 
 				return;
 			}
@@ -1142,17 +1138,17 @@ void FFloor_Decorator::Entry()
 				                                                         );
 
 				IncreaseWaitTaskCount();
-				
+
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
-																		[this](
-																		auto NewProcessor
-																		)
-																		{
-																			NewProcessor->Interaction_Area =
-																				GetBranchDecoratorType();
-																		}
-																	   );
+					                                          [this](
+					                                          auto NewProcessor
+					                                          )
+					                                          {
+						                                          NewProcessor->Interaction_Area =
+							                                          GetBranchDecoratorType();
+					                                          }
+					                                         );
 
 				return;
 			}
@@ -1182,17 +1178,17 @@ void FFloor_Decorator::Entry()
 				                                                         );
 
 				IncreaseWaitTaskCount();
-				
+
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
-																		[this](
-																		auto NewProcessor
-																		)
-																		{
-																			NewProcessor->Interaction_Area =
-																				GetBranchDecoratorType();
-																		}
-																	   );
+					                                                    [this](
+					                                                    auto NewProcessor
+					                                                    )
+					                                                    {
+						                                                    NewProcessor->Interaction_Area =
+							                                                    GetBranchDecoratorType();
+					                                                    }
+					                                                   );
 
 				return;
 			}
@@ -1237,6 +1233,7 @@ void FFloor_Decorator::Entry()
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElementState*
+
 		
 		)> MulticastDelegate;
 
@@ -1249,18 +1246,17 @@ void FFloor_Decorator::Entry()
 	                                                         );
 
 	IncreaseWaitTaskCount();
-	
+
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 		TourProcessor::FViewSingleFloorProcessor>(
-															[this](
-															auto NewProcessor
-															)
-															{
-																NewProcessor->Interaction_Area =
-																	GetBranchDecoratorType();
-															}
-														   );
-
+		                                          [this](
+		                                          auto NewProcessor
+		                                          )
+		                                          {
+			                                          NewProcessor->Interaction_Area =
+				                                          GetBranchDecoratorType();
+		                                          }
+		                                         );
 }
 
 void FFloor_Decorator::Quit()
@@ -1291,6 +1287,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&,
 				UGT_SwitchSceneElementState*
+
 				
 				)> MulticastDelegate;
 
@@ -1301,17 +1298,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 
 			IncreaseWaitTaskCount();
-			
+
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
-																	[this](
-																	auto NewProcessor
-																	)
-																	{
-																		NewProcessor->Interaction_Area =
-																			GetBranchDecoratorType();
-																	}
-																   );
+				                                          [this](
+				                                          auto NewProcessor
+				                                          )
+				                                          {
+					                                          NewProcessor->Interaction_Area =
+						                                          GetBranchDecoratorType();
+				                                          }
+				                                         );
 
 			return;
 		}
@@ -1327,6 +1324,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&,
 				UGT_SwitchSceneElementState*
+
 				
 				)> MulticastDelegate;
 
@@ -1350,6 +1348,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&,
 				UGT_SwitchSceneElementState*
+
 				
 				)> MulticastDelegate;
 
@@ -1360,17 +1359,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 
 			IncreaseWaitTaskCount();
-			
+
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
-																	[this](
-																	auto NewProcessor
-																	)
-																	{
-																		NewProcessor->Interaction_Area =
-																			GetBranchDecoratorType();
-																	}
-																   );
+				                                          [this](
+				                                          auto NewProcessor
+				                                          )
+				                                          {
+					                                          NewProcessor->Interaction_Area =
+						                                          GetBranchDecoratorType();
+				                                          }
+				                                         );
 
 			return;
 		}
@@ -1386,6 +1385,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&,
 				UGT_SwitchSceneElementState*
+
 				
 				)> MulticastDelegate;
 
@@ -1399,21 +1399,21 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 
 			IncreaseWaitTaskCount();
-			
+
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorViewEnergyProcessor>(
-																	[ this](
-																	auto NewProcessor
-																	)
-																	{
-																		NewProcessor->Interaction_Area =
-																			GetBranchDecoratorType();
-																	}
-																   );
+				                                                    [ this](
+				                                                    auto NewProcessor
+				                                                    )
+				                                                    {
+					                                                    NewProcessor->Interaction_Area =
+						                                                    GetBranchDecoratorType();
+				                                                    }
+				                                                   );
 
 			return;
 		}
-		
+
 		{
 			FSceneElementConditional SceneActorConditional;
 
@@ -1424,6 +1424,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				bool,
 				const TSet<AActor*>&,
 				UGT_SwitchSceneElementState*
+
 				
 				)> MulticastDelegate;
 
@@ -1436,17 +1437,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 
 			IncreaseWaitTaskCount();
-			
+
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
-																	[this](
-																	auto NewProcessor
-																	)
-																	{
-																		NewProcessor->Interaction_Area =
-																			GetBranchDecoratorType();
-																	}
-																   );
+				                                          [this](
+				                                          auto NewProcessor
+				                                          )
+				                                          {
+					                                          NewProcessor->Interaction_Area =
+						                                          GetBranchDecoratorType();
+				                                          }
+				                                         );
 
 			return;
 		}
@@ -1476,6 +1477,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			bool,
 			const TSet<AActor*>&,
 			UGT_SwitchSceneElementState*
+
 			
 			)> MulticastDelegate;
 
@@ -1486,17 +1488,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		                                                         );
 
 		IncreaseWaitTaskCount();
-		
+
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleFloorProcessor>(
-																[this](
-																auto NewProcessor
-																)
-																{
-																	NewProcessor->Interaction_Area =
-																		GetBranchDecoratorType();
-																}
-															   );
+			                                          [this](
+			                                          auto NewProcessor
+			                                          )
+			                                          {
+				                                          NewProcessor->Interaction_Area =
+					                                          GetBranchDecoratorType();
+			                                          }
+			                                         );
 
 		return;
 	}
@@ -1509,6 +1511,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElementState*
+
 		
 		)> MulticastDelegate;
 
@@ -1521,18 +1524,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 	                                                         );
 
 	IncreaseWaitTaskCount();
-	
+
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 		TourProcessor::FViewSingleFloorProcessor>(
-															[this](
-															auto NewProcessor
-															)
-															{
-																NewProcessor->Interaction_Area =
-																	GetBranchDecoratorType();
-															}
-														   );
-
+		                                          [this](
+		                                          auto NewProcessor
+		                                          )
+		                                          {
+			                                          NewProcessor->Interaction_Area =
+				                                          GetBranchDecoratorType();
+		                                          }
+		                                         );
 }
 
 bool FFloor_Decorator::Operation(

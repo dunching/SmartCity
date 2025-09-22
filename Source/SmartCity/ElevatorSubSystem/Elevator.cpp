@@ -71,7 +71,7 @@ void AElevator::ChangeTargetFloorIndex(
 
 		for (const auto &Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (Iter.Value->FloorIndex == FloorIndex)
+			if (!Iter.Value->bIsSup && (Iter.Value->FloorIndex == FloorIndex))
 			{
 				TargetFloorLocation = Iter.Value->GetActorLocation();
 			

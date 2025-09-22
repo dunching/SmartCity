@@ -36,10 +36,16 @@ public:
 	TSoftObjectPtr<ANavagationPaths> NavagationPaths = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FGameplayTag FloorTag;
+	FGameplayTagContainer GameplayTagContainer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 FloorIndex = 0;
+	
+	/**
+	 * 用作辅助，如夹层的公共区域
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bIsSup = false;
 	
 	/**
 	 * 该层的所有引用

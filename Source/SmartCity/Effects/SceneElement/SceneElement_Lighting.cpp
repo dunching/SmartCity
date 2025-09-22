@@ -53,6 +53,9 @@ void ASceneElement_Lighting::ReplaceImp(
 				{
 					continue;
 				}
+				
+				CheckIsJiaCeng(AUDPtr);
+
 				auto ID = AUDPtr->MetaData.Find(TEXT("Element*设备回路编号"));
 				if (!ID)
 				{
@@ -71,7 +74,7 @@ void ASceneElement_Lighting::ReplaceImp(
 				{
 					auto Transform = STPtr->GetStaticMeshComponent()->
 					                        GetComponentTransform();
-					Iter->SetRelativeLocation(Transform.GetLocation());
+					Iter->SetWorldLocation(Transform.GetLocation());
 					Iter->SetRelativeRotation(Transform.GetRotation().Rotator() + FRotator(-90, -90, 0));
 					Iter->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 				}
@@ -121,6 +124,12 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	)
 {
 	Super::SwitchInteractionType(ConditionalSet);
+
+	if (ProcessJiaCengLogic(ConditionalSet))
+	{
+		SetActorHiddenInGame(true);
+		return;
+	}
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
