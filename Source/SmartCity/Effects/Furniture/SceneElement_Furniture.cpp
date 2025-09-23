@@ -114,7 +114,7 @@ void ASceneElement_Furniture::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				SwitchState(DecoratorSPtr->bShowFurniture ? EState::kOriginal : EState::kHiden);
+				SwitchState(DecoratorSPtr->Config.bShowFurniture ? EState::kOriginal : EState::kHiden);
 
 				return;
 			}

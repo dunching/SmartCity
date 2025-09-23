@@ -52,7 +52,12 @@ public:
 
 	void SetInteractionOption(
 		const FGameplayTag& Interaction_Mode,
-		const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+		const std::function<void(
+			const TSharedPtr<FInteraction_Decorator>&
+
+
+			
+			)>& Func,
 		bool bImmediatelyUpdate
 		);
 
@@ -69,7 +74,13 @@ public:
 	 * @param Interaction_Area 
 	 */
 	void SwitchInteractionArea(
-		const FGameplayTag& Interaction_Area
+		const FGameplayTag& Interaction_Area,
+		const std::function<void(
+
+			const TSharedPtr<FDecoratorBase>&
+
+		
+			)>& Func = nullptr
 		);
 
 	void Operation(
@@ -83,6 +94,9 @@ public:
 			bool,
 			const TSet<AActor*>&,
 			UGT_SwitchSceneElementState*
+
+
+			
 			)>& OnEnd
 		);
 
@@ -115,11 +129,16 @@ public:
 
 	void ClearRouteMarker();
 
-	template <typename Decorator, typename... Args>
+	template <typename Decorator>
 	void SwitchDecoratorImp(
 		const FGameplayTag& MainTag,
 		const FGameplayTag& BranchTag,
-		Args... Param
+		const std::function<void(
+
+			const TSharedPtr<FDecoratorBase>&
+
+			
+			)>& Func = nullptr
 		);
 
 private:
@@ -148,11 +167,15 @@ private:
 	TMap<AActor*, URouteMarker*> RouteMarkers;
 };
 
-template <typename Decorator, typename... Args>
+template <typename Decorator>
 void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	const FGameplayTag& MainTag,
 	const FGameplayTag& BranchTag,
-	Args... Param
+	const std::function<void(
+		const TSharedPtr<FDecoratorBase>&
+
+		
+		)>& Func
 	)
 {
 	if (DecoratorLayerAssetMap.Contains(MainTag))
@@ -160,6 +183,13 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 		auto OldDecoratorSPtr = DecoratorLayerAssetMap[MainTag];
 		if (OldDecoratorSPtr->GetBranchDecoratorType() == BranchTag)
 		{
+			if (Func)
+			{
+				Func(OldDecoratorSPtr);
+			}
+			
+			OldDecoratorSPtr->ReEntry();
+			
 			return;
 		}
 
@@ -169,9 +199,9 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 			NotifyOtherDecoratorsWhenQuit(OldDecoratorSPtr);
 
 			OldDecoratorSPtr->OnAsyncQuitComplete.BindLambda(
-			                                                 [this, MainTag, Param...]()
+			                                                 [this, MainTag]()
 			                                                 {
-				                                                 auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+				                                                 auto DecoratorSPtr = MakeShared<Decorator>();
 
 				                                                 NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
 
@@ -186,7 +216,14 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 		}
 		else
 		{
-			auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+			auto DecoratorSPtr = MakeShared<Decorator>();
+
+			DecoratorSPtr->InitialType(MainTag, BranchTag);
+
+			if (Func)
+			{
+				Func(DecoratorSPtr);
+			}
 
 			NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
 
@@ -216,10 +253,16 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	}
 	else
 	{
-		auto DecoratorSPtr = MakeShared<Decorator>(Param...);
+		auto DecoratorSPtr = MakeShared<Decorator>();
+
+		DecoratorSPtr->InitialType(MainTag, BranchTag);
+
+		if (Func)
+		{
+			Func(DecoratorSPtr);
+		}
 
 		NotifyOtherDecoratorsWhenEntry(MainTag, DecoratorSPtr);
-
 
 		DecoratorLayerAssetMap.Add(
 		                           MainTag,

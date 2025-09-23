@@ -25,8 +25,7 @@ void TourProcessor::FViewSplitFloorProcessor::EnterAction()
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSplitFloor_Decorator>(
 		 USmartCitySuiteTags::Interaction_Area.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_Floor.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_SplitFloor.GetTag()
+		 USmartCitySuiteTags::Interaction_Area_Floor.GetTag()
 		);
 
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));

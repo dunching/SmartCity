@@ -78,7 +78,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 	{
 		auto DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             
+
 			                                             GetDecorator(
 			                                                          USmartCitySuiteTags::Interaction_Interaction
 			                                                         )
@@ -94,7 +94,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 
 		DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             
+
 			                                             GetDecorator(
 			                                                          USmartCitySuiteTags::Interaction_Interaction
 			                                                         )
@@ -125,7 +125,10 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 
 void USceneInteractionWorldSystem::SetInteractionOption(
 	const FGameplayTag& Interaction_Mode,
-	const std::function<void(const TSharedPtr<FInteraction_Decorator>&)>&Func,
+	const std::function<void(
+		const TSharedPtr<FInteraction_Decorator>&
+		
+		)>& Func,
 	bool bImmediatelyUpdate
 	)
 {
@@ -133,27 +136,27 @@ void USceneInteractionWorldSystem::SetInteractionOption(
 	{
 		auto DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             
-														 GetDecorator(
-																	  USmartCitySuiteTags::Interaction_Interaction
-																	 )
-														);
+
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
 
 		if (!DecoratorSPtr)
 		{
 			SwitchDecoratorImp<FInteraction_Decorator>(
-													   USmartCitySuiteTags::Interaction_Interaction,
-													   USmartCitySuiteTags::Interaction_Interaction
-													  );
+			                                           USmartCitySuiteTags::Interaction_Interaction,
+			                                           USmartCitySuiteTags::Interaction_Interaction
+			                                          );
 		}
 
 		DecoratorSPtr =
 			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             
-														 GetDecorator(
-																	  USmartCitySuiteTags::Interaction_Interaction
-																	 )
-														);
+
+			                                             GetDecorator(
+			                                                          USmartCitySuiteTags::Interaction_Interaction
+			                                                         )
+			                                            );
 
 		if (Func)
 		{
@@ -313,16 +316,16 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
 				{
 					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
-						USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
+					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
 					{
 						return;
 					}
 				}
 
 				SwitchDecoratorImp<FSunShadeMode_Decorator>(
-															USmartCitySuiteTags::Interaction_Mode,
-															USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow
-														   );
+				                                            USmartCitySuiteTags::Interaction_Mode,
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow
+				                                           );
 
 				return;
 			}
@@ -409,7 +412,14 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 }
 
 void USceneInteractionWorldSystem::SwitchInteractionArea(
-	const FGameplayTag& Interaction_Area
+	const FGameplayTag& Interaction_Area,
+	const std::function<void(
+
+		const TSharedPtr<FDecoratorBase>&
+
+
+		
+		)>& Func
 	)
 {
 	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall))
@@ -424,10 +434,10 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		}
 
 		SwitchDecoratorImp<FExternalWall_Decorator>(
-											 USmartCitySuiteTags::Interaction_Area,
-											 Interaction_Area,
-											 Interaction_Area
-											);
+		                                            USmartCitySuiteTags::Interaction_Area,
+		                                            Interaction_Area,
+		                                            Func
+		                                           );
 
 		return;
 	}
@@ -444,10 +454,10 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		}
 
 		SwitchDecoratorImp<FSplitFloor_Decorator>(
-											 USmartCitySuiteTags::Interaction_Area,
-											 Interaction_Area,
-											 Interaction_Area
-											);
+		                                          USmartCitySuiteTags::Interaction_Area,
+		                                          Interaction_Area,
+		                                          Func
+		                                         );
 
 		return;
 	}
@@ -464,10 +474,30 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		}
 
 		SwitchDecoratorImp<FFloor_Decorator>(
-											 USmartCitySuiteTags::Interaction_Area,
-											 Interaction_Area,
-											 Interaction_Area
-											);
+		                                     USmartCitySuiteTags::Interaction_Area,
+		                                     Interaction_Area,
+		                                     Func
+		                                    );
+
+		return;
+	}
+
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_ViewDevice))
+	{
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_ViewDevice)
+			{
+				// return;
+			}
+		}
+
+		SwitchDecoratorImp<FViewDevice_Decorator>(
+		                                          USmartCitySuiteTags::Interaction_Area,
+		                                          Interaction_Area,
+		                                          Func
+		                                         );
 
 		return;
 	}

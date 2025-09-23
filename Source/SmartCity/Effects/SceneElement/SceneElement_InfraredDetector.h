@@ -37,6 +37,11 @@ public:
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 	
+	virtual FBox GetComponentsBoundingBox(
+		bool bNonColliding = false,
+		bool bIncludeFromChildActors = false
+		) const override;
+
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData

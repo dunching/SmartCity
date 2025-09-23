@@ -109,7 +109,7 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 				                                            );
 			if (DecoratorSPtr)
 			{
-				SwitchState(DecoratorSPtr->bShowCurtainWall ? EState::kOriginal : EState::kHiden);
+				SwitchState(DecoratorSPtr->Config.bShowCurtainWall ? EState::kOriginal : EState::kHiden);
 
 				return;
 			}

@@ -29,8 +29,6 @@ namespace TourProcessor
 
 		FTourProcessor(FOwnerPawnType* CharacterPtr);
 
-		void UpdateCameraSetting(float InViewPitchMin,float InViewPitchMax);
-	
 	protected:
 
 		bool UpdateCameraArmLen(const FControlParam&ControlParam,float OffsetValue);

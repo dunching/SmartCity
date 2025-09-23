@@ -82,9 +82,9 @@ void APlanetPlayerCameraManager::UpdateCameraSetting()
 	if (DecoratorSPtr)
 	{
 		// 往下看的限制
-		ViewPitchMin = DecoratorSPtr->ViewPitchMin;
+		ViewPitchMin = DecoratorSPtr->Config.ViewPitchMin;
 
 		// 往上看的限制
-		ViewPitchMax = DecoratorSPtr->ViewPitchMax;
+		ViewPitchMax = DecoratorSPtr->Config.ViewPitchMax;
 	}
 }

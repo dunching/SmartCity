@@ -37,6 +37,36 @@ void ASceneElement_InfraredDetector::OnConstruction(
 	Super::OnConstruction(Transform);
 }
 
+FBox ASceneElement_InfraredDetector::GetComponentsBoundingBox(
+	bool bNonColliding,
+	bool bIncludeFromChildActors
+	) const
+{
+	FBox Box(ForceInit);
+
+	ForEachComponent<UPrimitiveComponent>(
+										  bIncludeFromChildActors,
+										  [&](
+										  const UPrimitiveComponent* InPrimComp
+										  )
+										  {
+											  if (InPrimComp == SweepEffectStaticMeshComponent)
+											  {
+												  return;
+											  }
+
+											  // Only use collidable components to find collision bounding box.
+											  if (InPrimComp->IsRegistered() && (
+													  bNonColliding || InPrimComp->IsCollisionEnabled()))
+											  {
+												  Box += InPrimComp->Bounds.GetBox();
+											  }
+										  }
+										 );
+
+	return Box;
+}
+
 void ASceneElement_InfraredDetector::ReplaceImp(
 	AActor* ActorPtr,
 	const TPair<FName, FString>& InUserData
@@ -58,7 +88,7 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -137,7 +167,26 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 			return;
 		}
 	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			return;
+		}
+	}
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{

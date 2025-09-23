@@ -42,17 +42,17 @@ void ABuilding_Wall::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->WallTranlucent <= 0)
+				if (DecoratorSPtr->Config.WallTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (DecoratorSPtr->WallTranlucent >= 100)
+				else if (DecoratorSPtr->Config.WallTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(DecoratorSPtr->WallTranlucent);
+					SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
 				}
 
 				return;
