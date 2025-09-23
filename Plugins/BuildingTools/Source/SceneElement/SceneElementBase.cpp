@@ -8,6 +8,10 @@ ASceneElementBase::ASceneElementBase(
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 }
 
+void ASceneElementBase::InitialSceneElement()
+{
+}
+
 void ASceneElementBase::Replace(
 	const TSoftObjectPtr<AActor>& ActorRef,
 	const TPair<FName, FString>& InUserData

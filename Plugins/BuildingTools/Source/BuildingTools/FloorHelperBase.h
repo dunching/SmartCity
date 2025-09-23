@@ -39,6 +39,9 @@ public:
 	FGameplayTagContainer GameplayTagContainer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FGameplayTag FloorTag;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 FloorIndex = 0;
 	
 	/**

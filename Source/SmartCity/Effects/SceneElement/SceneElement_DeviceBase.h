@@ -12,6 +12,7 @@
 
 #include "SceneElement_DeviceBase.generated.h"
 
+class AFloorHelper;
 class UPlayerComponent;
 class USphereComponent;
 class UFloatingPawnMovement;
@@ -45,6 +46,8 @@ public:
 
 	virtual void EndInteraction() override;
 
+	virtual void InitialSceneElement() override;
+
 	virtual TMap<FString,FString> GetStateDescription()const override;
 	
 	virtual void SwitchInteractionType(
@@ -55,6 +58,9 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
 	FGameplayTag DeviceType ;
+
+	UPROPERTY(BlueprintReadWrite,EditAnywhere )
+	TObjectPtr<AFloorHelper> BelongFloor ;
 
 	bool bIsOpened = false;
 	

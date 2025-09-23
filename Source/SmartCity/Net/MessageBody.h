@@ -191,6 +191,23 @@ public:
 	bool bImmediatelyUpdate = true;
 };
 
+USTRUCT()
+struct FMessageBody_Receive_LocaterDeviceByID : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+public:
+	FMessageBody_Receive_LocaterDeviceByID();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	FString DeviceID;
+};
+
 
 USTRUCT()
 struct FMessageBody_SelectedFloor : public FMessageBody_Send

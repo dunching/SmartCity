@@ -24,6 +24,8 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	virtual void InitialSceneElement();
+
 	void Replace(
 		const TSoftObjectPtr<AActor>& ActorRef,
 		const TPair<FName, FString>& InUserData

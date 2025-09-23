@@ -39,10 +39,8 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 
 	const auto ClampValue = FMath::Clamp(
 	                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - OffsetValue,
-	                                     GameOptionsPtr->
-	                                     ViewFloorEnergyControlParam.MinCameraSpringArm,
-	                                     GameOptionsPtr->
-	                                     ViewFloorEnergyControlParam.MaxCameraSpringArm
+	                                     ControlParam.MinCameraSpringArm,
+	                                     ControlParam.MaxCameraSpringArm
 	                                    );
 
 	OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
