@@ -67,7 +67,7 @@ public:
 	FRotator ViewRot = FRotator(-30, 10, 0);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
-	float CameraPitchMaxLimit = 50.f;
+	float CameraPitchMaxLimit = -10.f;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	float CameraPitchMinLimit = -70.f;

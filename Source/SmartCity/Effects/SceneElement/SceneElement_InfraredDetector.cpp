@@ -30,6 +30,7 @@ ASceneElement_InfraredDetector::ASceneElement_InfraredDetector(
 		 TEXT("SweepEffectStaticMeshComponent")
 		);
 	SweepEffectStaticMeshComponent->SetupAttachment(AnchorComponent);
+	SweepEffectStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASceneElement_InfraredDetector::OnConstruction(
@@ -53,6 +54,11 @@ FBox ASceneElement_InfraredDetector::GetComponentsBoundingBox(
 										  )
 										  {
 											  if (InPrimComp == SweepEffectStaticMeshComponent)
+											  {
+												  return;
+											  }
+
+											  if (InPrimComp == AnchorComponent)
 											  {
 												  return;
 											  }

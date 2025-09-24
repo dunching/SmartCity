@@ -1,8 +1,9 @@
 #include "SceneInteractionDecorator.h"
 
-#include "SceneElement_AccessControl.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/WebChannelWorldSystem.h"
+#include "Components/BoxComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -21,6 +22,7 @@
 #include "FloorHelperBase.h"
 #include "InputProcessorSubSystem_Imp.h"
 #include "NavagationPaths.h"
+#include "PersonMark.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
 #include "ViewSingleFloorProcessor.h"
@@ -30,6 +32,7 @@
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorViewEnergyProcessor.h"
 #include "ViewSplitFloorProcessor.h"
+#include "SceneElement_AccessControl.h"
 
 FDecoratorBase::FDecoratorBase(
 	)
@@ -186,29 +189,12 @@ void FEmergencyMode_Decorator::Entry()
 		return;
 	}
 
-	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
-		{
-			Iter.Value->NavagationPaths->SwitchDisplay(
-			                                           Iter.Value->GameplayTagContainer.HasTag(
-				                                            AreaDecoratorSPtr->GetCurrentInteraction_Area()
-				                                           )
-			                                          );
-		}
-	}
+	Spawn(AreaDecoratorSPtr);
 }
 
 void FEmergencyMode_Decorator::Quit()
 {
-	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
-		{
-			Iter.Value->NavagationPaths->SwitchDisplay(false);
-		}
-	}
-
+	Clear();
 	Super::Quit();
 }
 
@@ -225,32 +211,11 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 			auto AreaDecoratorSPtr =
 				DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
 
-			if (!AreaDecoratorSPtr)
-			{
-				return;
-			}
-
-			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-			{
-				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
-				{
-					Iter.Value->NavagationPaths->SwitchDisplay(
-					                                           Iter.Value->GameplayTagContainer.HasTag(
-						                                            AreaDecoratorSPtr->GetCurrentInteraction_Area()
-						                                           )
-					                                          );
-				}
-			}
+			Spawn(AreaDecoratorSPtr);
 		}
 		else
 		{
-			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-			{
-				if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
-				{
-					Iter.Value->NavagationPaths->SwitchDisplay(false);
-				}
-			}
+			Clear();
 		}
 	}
 }
@@ -271,33 +236,94 @@ void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 }
 
+void FEmergencyMode_Decorator::Spawn(
+	const TSharedPtr<FArea_Decorator>& AreaDecoratorSPtr
+	)
+{
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(
+			                                           Iter.Value->GameplayTagContainer.HasTag(
+				                                            AreaDecoratorSPtr->GetCurrentInteraction_Area()
+				                                           )
+			                                          );
+		}
+
+		if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetBranchDecoratorType())
+		{
+			auto FireMarkClass = UAssetRefMap::GetInstance()->FireMarkClass;
+
+			const auto Box = Iter.Value->BoxComponentPtr->GetLocalBounds();
+			const auto Location = Iter.Value->BoxComponentPtr->GetComponentLocation();
+			auto Center = Box.GetBox().GetCenter();
+			auto Extent = Box.GetBox().GetExtent();
+			Extent.Z = 0;
+
+			for (int32 Index = 0; Index < 3; Index++)
+			{
+				auto Pt = UKismetMathLibrary::RandomPointInBoundingBox(Location, Extent);
+
+				auto FireMarkPtr = GetWorldImp()->SpawnActor<AFireMark>(FireMarkClass, Pt, FRotator::ZeroRotator);
+				FireMarkSet.Add(FireMarkPtr);
+			}
+		}
+	}
+}
+
+void FEmergencyMode_Decorator::Clear()
+{
+	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (Iter.Value->NavagationPaths.ToSoftObjectPath().IsValid())
+		{
+			Iter.Value->NavagationPaths->SwitchDisplay(false);
+		}
+	}
+
+	for (const auto& Iter : FireMarkSet)
+	{
+		if (Iter)
+		{
+			Iter->Destroy();
+		}
+	}
+	FireMarkSet.Empty();
+}
+
 FEnvironmentalPerceptionMode_Decorator::FEnvironmentalPerceptionMode_Decorator() :
 	Super(
 	     )
 {
 }
 
-FELVRadarMode_Decorator::FELVRadarMode_Decorator() :
-                                                   Super(
-                                                        )
+FRadarMode_Decorator::FRadarMode_Decorator() :
+                                             Super(
+                                                  )
 {
 }
 
-FELVRadarMode_Decorator::~FELVRadarMode_Decorator()
+FRadarMode_Decorator::~FRadarMode_Decorator()
 {
 }
 
-void FELVRadarMode_Decorator::Entry()
+void FRadarMode_Decorator::Entry()
 {
 	Super::Entry();
 }
 
-void FELVRadarMode_Decorator::Quit()
+void FRadarMode_Decorator::Quit()
 {
 	Super::Quit();
 }
 
-bool FELVRadarMode_Decorator::Operation(
+bool FRadarMode_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
@@ -399,21 +425,21 @@ void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	}
 }
 
-FPWRHVACMode_Decorator::FPWRHVACMode_Decorator() :
-                                                 Super(
-                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
-                                                      )
+FHVACMode_Decorator::FHVACMode_Decorator() :
+                                           Super(
+                                                 USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
+                                                )
 {
 }
 
-FPWRLightingMode_Decorator::FPWRLightingMode_Decorator() :
-                                                         Super(
-                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
-                                                              )
+FLightingMode_Decorator::FLightingMode_Decorator() :
+                                                   Super(
+                                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+                                                        )
 {
 }
 
-void FPWRLightingMode_Decorator::Entry()
+void FLightingMode_Decorator::Entry()
 {
 	Super::Entry();
 
@@ -434,7 +460,7 @@ void FPWRLightingMode_Decorator::Entry()
 	}
 }
 
-void FPWRLightingMode_Decorator::Quit()
+void FLightingMode_Decorator::Quit()
 {
 	// 确认当前的模式
 	auto DecoratorSPtr =
@@ -455,7 +481,7 @@ void FPWRLightingMode_Decorator::Quit()
 	Super::Quit();
 }
 
-void FPWRLightingMode_Decorator::OnOtherDecoratorEntry(
+void FLightingMode_Decorator::OnOtherDecoratorEntry(
 	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 	)
 {
@@ -485,7 +511,7 @@ void FPWRLightingMode_Decorator::OnOtherDecoratorEntry(
 	}
 }
 
-void FPWRLightingMode_Decorator::OnOtherDecoratorQuit(
+void FLightingMode_Decorator::OnOtherDecoratorQuit(
 	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 	)
 {
@@ -575,6 +601,16 @@ void FArea_Decorator::OnOtherDecoratorQuit(
 	)
 {
 	Super::OnOtherDecoratorQuit(NewDecoratorSPtr);
+}
+
+void FArea_Decorator::InitialType(
+	FGameplayTag InMainDecoratorType,
+	FGameplayTag InBranchDecoratorType
+	)
+{
+	Super::InitialType(InMainDecoratorType, InBranchDecoratorType);
+
+	CurrentInteraction_Area = InBranchDecoratorType;
 }
 
 FGameplayTag FArea_Decorator::GetCurrentInteraction_Area() const
@@ -1945,6 +1981,7 @@ void FViewDevice_Decorator::Process()
 					const TSet<AActor*>&,
 					UGT_SwitchSceneElementState*
 
+
 					
 					)> MulticastDelegate;
 
@@ -2059,7 +2096,6 @@ void FSingleDeviceMode_Decorator::Entry()
 	if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(AreaTag))
 	{
 		auto FloorPtr = UAssetRefMap::GetInstance()->FloorHelpers[AreaTag];
-
 	}
 }
 

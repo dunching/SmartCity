@@ -211,7 +211,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 						}
 					}
 
-					SwitchDecoratorImp<FPWRHVACMode_Decorator>(
+					SwitchDecoratorImp<FHVACMode_Decorator>(
 					                                           USmartCitySuiteTags::Interaction_Mode,
 					                                           USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
 					                                          );
@@ -230,7 +230,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 						}
 					}
 
-					SwitchDecoratorImp<FPWRLightingMode_Decorator>(
+					SwitchDecoratorImp<FLightingMode_Decorator>(
 					                                               USmartCitySuiteTags::Interaction_Mode,
 					                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
 					                                              );
@@ -267,7 +267,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 						}
 					}
 
-					SwitchDecoratorImp<FELVRadarMode_Decorator>(
+					SwitchDecoratorImp<FRadarMode_Decorator>(
 					                                            USmartCitySuiteTags::Interaction_Mode,
 					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
 					                                           );

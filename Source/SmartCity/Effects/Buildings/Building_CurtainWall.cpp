@@ -51,7 +51,6 @@ void ABuilding_CurtainWall::ReplaceImp(
 				}
 				
 				StaticMeshComponentsAry.Add(NewComponentPtr);
-				break;
 			}
 		}
 
