@@ -7,11 +7,13 @@
 #include "AssetRefMap.h"
 #include "FloorHelper.h"
 #include "GameplayTagsLibrary.h"
+#include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "PersonMark.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "TemplateHelper.h"
+#include "WebChannelWorldSystem.h"
 
 ASceneElement_InfraredDetector::ASceneElement_InfraredDetector(
 	const FObjectInitializer& ObjectInitializer
@@ -122,6 +124,20 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
 
@@ -183,6 +199,32 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 				PrimitiveComponentPtr->SetRenderCustomDepth(true);
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+			MessageBodySPtr->DeviceID = DeviceID;
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			return;
 		}

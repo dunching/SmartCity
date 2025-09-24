@@ -9,7 +9,7 @@ void ABuilding_Stairs::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -29,8 +29,10 @@ void ABuilding_Stairs::SwitchInteractionType(
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		//  只要是楼层就显示
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+			// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+				//     EmptyContainer.Num())
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =

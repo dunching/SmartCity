@@ -117,7 +117,7 @@ void UWebChannelWorldSystem::NewConnectionNative(
 		                                       MessageTickTimerHandle,
 		                                       this,
 		                                       &ThisClass::MessageTickImp,
-		                                       1.f / 30,
+		                                       1.f,
 		                                       true
 		                                      );
 	}
@@ -167,5 +167,5 @@ void UWebChannelWorldSystem::MessageTickImp()
 
 	MessageBody_TestSPtr->Text = TEXT("UE PixelStreamer Test");
 	
-	SendMessage(MessageBody_TestSPtr);
+	// SendMessage(MessageBody_TestSPtr);
 }

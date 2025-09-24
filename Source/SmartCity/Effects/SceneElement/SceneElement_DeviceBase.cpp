@@ -103,12 +103,6 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 {
 	// Super::SwitchInteractionType(ConditionalSet);
 
-	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-	MessageBodySPtr->DeviceID = TEXT("");
-
-	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
@@ -123,26 +117,6 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 			if (PrimitiveComponentPtr)
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			}
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
 
 			return;
@@ -204,6 +178,12 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 				PrimitiveComponentPtr->SetRenderCustomDepth(true);
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
+
+			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+			MessageBodySPtr->DeviceID = DeviceID;
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			return;
 		}

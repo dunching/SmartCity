@@ -8,9 +8,11 @@
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
 #include "InputProcessorSubSystem_Imp.h"
+#include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "TourPawn.h"
+#include "WebChannelWorldSystem.h"
 
 ASceneElement_HVAC::ASceneElement_HVAC(
 	const FObjectInitializer& ObjectInitializer
@@ -44,7 +46,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 	
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
@@ -82,6 +84,20 @@ void ASceneElement_HVAC::SwitchInteractionType(
 		}
 	}
 	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			return;
+		}
+	}
+	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer ;
 	
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
@@ -111,6 +127,32 @@ void ASceneElement_HVAC::SwitchInteractionType(
 					 NewProcessor->TargetDevicePtr = this;
 				 }
 				);
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+			MessageBodySPtr->DeviceID = DeviceID;
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			return;
 		}

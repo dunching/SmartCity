@@ -127,6 +127,7 @@ void USceneInteractionWorldSystem::SetInteractionOption(
 	const FGameplayTag& Interaction_Mode,
 	const std::function<void(
 		const TSharedPtr<FInteraction_Decorator>&
+
 		
 		)>& Func,
 	bool bImmediatelyUpdate
@@ -174,7 +175,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode
 	)
 {
-	if (Interaction_Mode == FGameplayTag::EmptyTag)
+	if (Interaction_Mode == FGameplayTag::EmptyTag || Interaction_Mode == USmartCitySuiteTags::Interaction_Mode_Empty)
 	{
 		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
 		{

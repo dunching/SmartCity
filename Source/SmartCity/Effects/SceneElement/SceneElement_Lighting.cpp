@@ -9,12 +9,14 @@
 
 #include "TourPawn.h"
 #include "InputProcessorSubSystem_Imp.h"
+#include "MessageBody.h"
 #include "RouteMarker.h"
 #include "SceneElement_PWR_Pipe.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewSingleDeviceProcessor.h"
+#include "WebChannelWorldSystem.h"
 
 ASceneElement_Lighting::ASceneElement_Lighting(
 	const FObjectInitializer& ObjectInitializer
@@ -123,7 +125,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
@@ -160,6 +162,20 @@ void ASceneElement_Lighting::SwitchInteractionType(
 
 			RevertOnriginalMat();
 			
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
 			return;
 		}
 	}
@@ -231,33 +247,6 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			return;
 		}
 	}
-
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			// RouteMarkerPtr = CreateWidget<URouteMarker>(
-			// 											GEngine->GetFirstLocalPlayerController(GetWorld()),
-			// 											UAssetRefMap::GetInstance()->SpaceRouteMarkerClass
-			// 										   );
-			// if (RouteMarkerPtr)
-			// {
-			// 	RouteMarkerPtr->TextStr = TEXT("照明");
-			// 	RouteMarkerPtr->TargetActor = this;
-			// 	RouteMarkerPtr->AddToViewport();
-			// }
-			// if (DeviceType.MatchesTag(
-			// 						  USmartCitySuiteTags::SceneElement_FanCoil.GetTag()
-			// 						 ))
-			// {
-			// }
-			return;
-		}
-	}
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
@@ -274,6 +263,32 @@ void ASceneElement_Lighting::SwitchInteractionType(
 					 NewProcessor->TargetDevicePtr = this;
 				 }
 				);
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+			MessageBodySPtr->DeviceID = DeviceID;
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			return;
 		}
