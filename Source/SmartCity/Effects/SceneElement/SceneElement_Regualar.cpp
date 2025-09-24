@@ -14,7 +14,7 @@
 
 ASceneElement_Regualar::ASceneElement_Regualar(
 	const FObjectInitializer& ObjectInitializer
-	):
+	) :
 	  Super(ObjectInitializer)
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
@@ -26,13 +26,41 @@ void ASceneElement_Regualar::BeginPlay()
 	Super::BeginPlay();
 }
 
+FBox ASceneElement_Regualar::GetComponentsBoundingBox(
+	bool bNonColliding,
+	bool bIncludeFromChildActors
+	) const
+{
+	FBox Box(ForceInit);
+
+	ForEachComponent<UPrimitiveComponent>(
+	                                      bIncludeFromChildActors,
+	                                      [&](
+	                                      const UPrimitiveComponent* InPrimComp
+	                                      )
+	                                      {
+		                                      if (StaticMeshComponent->GetStaticMesh())
+		                                      {
+			                                      // Only use collidable components to find collision bounding box.
+			                                      if (InPrimComp->IsRegistered() && (
+				                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
+			                                      {
+				                                      Box += InPrimComp->Bounds.GetBox();
+			                                      }
+		                                      }
+	                                      }
+	                                     );
+
+	return Box;
+}
+
 void ASceneElement_Regualar::ReplaceImp(
 	AActor* ActorPtr,
 	const TPair<FName, FString>& InUserData
 	)
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
-	
+
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
@@ -44,10 +72,10 @@ void ASceneElement_Regualar::ReplaceImp(
 				return;
 			}
 			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-														InterfacePtr->GetAssetUserDataOfClass(
-															 UDatasmithAssetUserData::StaticClass()
-															)
-													   );
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
 
 			CheckIsJiaCeng(AUDPtr);
 
@@ -95,9 +123,8 @@ void ASceneElement_Regualar::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-
 	// Super::SwitchInteractionType(ConditionalSet);
-	
+
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
 		SetActorHiddenInGame(true);
@@ -149,7 +176,7 @@ void ASceneElement_Regualar::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -162,7 +189,7 @@ void ASceneElement_Regualar::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 

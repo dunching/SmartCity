@@ -191,13 +191,10 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR)
+			)
 		{
 			if (
 				(UserData.Key == TEXT("Element*照明回路编号")) ||
@@ -231,13 +228,10 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR)
+			)
 		{
 			if (
 				(UserData.Key == TEXT("Element*管线类型编号"))
@@ -270,13 +264,10 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+			)
 		{
 			SetActorHiddenInGame(false);
 

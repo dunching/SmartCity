@@ -15,6 +15,8 @@ class ASceneElement_PWR_Pipe;
 class APersonMark;
 class UGT_SwitchSceneElementState;
 class ASceneElement_DeviceBase;
+class AFireMark;
+class FArea_Decorator;
 
 class SMARTCITY_API FDecoratorBase
 {
@@ -28,7 +30,7 @@ public:
 
 	virtual ~FDecoratorBase();
 
-	void InitialType(
+	virtual void InitialType(
 		FGameplayTag InMainDecoratorType,
 		FGameplayTag InBranchDecoratorType);
 	
@@ -261,6 +263,14 @@ public:
 		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElementState* TaskPtr
 		) override;
+
+private:
+
+	void Spawn(const TSharedPtr<FArea_Decorator>& AreaDecoratorSPtr);
+	
+	void Clear();
+	
+	TSet<AFireMark*>FireMarkSet;
 };
 
 /**
@@ -307,17 +317,17 @@ public:
 /**
  * 选择“雷达控制”模式
  */
-class SMARTCITY_API FELVRadarMode_Decorator : public FDecoratorBase
+class SMARTCITY_API FRadarMode_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FELVRadarMode_Decorator,
+	                    FRadarMode_Decorator,
 	                    FDecoratorBase
 	                   );
 
-	FELVRadarMode_Decorator();
+	FRadarMode_Decorator();
 
-	virtual ~FELVRadarMode_Decorator();
+	virtual ~FRadarMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -369,29 +379,29 @@ private:
 /**
  * 选择暖通
  */
-class SMARTCITY_API FPWRHVACMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+class SMARTCITY_API FHVACMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FPWRHVACMode_Decorator,
+	                    FHVACMode_Decorator,
 	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
-	FPWRHVACMode_Decorator();
+	FHVACMode_Decorator();
 };
 
 /**
  * 选择照明
  */
-class SMARTCITY_API FPWRLightingMode_Decorator : public FDeviceManaggerPWRMode_Decorator
+class SMARTCITY_API FLightingMode_Decorator : public FDeviceManaggerPWRMode_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FPWRLightingMode_Decorator,
+	                    FLightingMode_Decorator,
 	                    FDeviceManaggerPWRMode_Decorator
 	                   );
 
-	FPWRLightingMode_Decorator();
+	FLightingMode_Decorator();
 
 	virtual void Entry() override;
 
@@ -513,6 +523,10 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
+	virtual void InitialType(
+		FGameplayTag InMainDecoratorType,
+		FGameplayTag InBranchDecoratorType) override;
+	
 	FGameplayTag GetCurrentInteraction_Area() const;
 
 protected:
