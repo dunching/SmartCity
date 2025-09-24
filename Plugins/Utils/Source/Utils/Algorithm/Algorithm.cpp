@@ -16,27 +16,27 @@ TPair<FTransform, float> UKismetAlgorithm::GetCameraSeat(
 		if (Iter)
 		{
 			const auto NewBox = Iter->GetComponentsBoundingBox();
-			DrawDebugBox(
-						 GetWorldImp(),
-						 NewBox.GetCenter(),
-						 NewBox.GetExtent(),
-						 FColor::Red,
-						 false,
-						 20
-						);
+			// DrawDebugBox(
+			// 			 GetWorldImp(),
+			// 			 NewBox.GetCenter(),
+			// 			 NewBox.GetExtent(),
+			// 			 FColor::Red,
+			// 			 false,
+			// 			 20
+			// 			);
 
 			Box += NewBox;
 		}
 	}
 
-	DrawDebugBox(
-	             GetWorldImp(),
-	             Box.GetCenter(),
-	             Box.GetExtent(),
-	             FColor::Green,
-	             false,
-	             10
-	            );
+	// DrawDebugBox(
+	//              GetWorldImp(),
+	//              Box.GetCenter(),
+	//              Box.GetExtent(),
+	//              FColor::Green,
+	//              false,
+	//              10
+	//             );
 
 	Result.Key.SetLocation(Box.GetCenter());
 	Result.Key.SetRotation(Rot.Quaternion());
@@ -58,27 +58,27 @@ FBox UKismetAlgorithm::GetActorBox(
 		if (Iter)
 		{
 			const auto NewBox = Iter->GetComponentsBoundingBox();
-			DrawDebugBox(
-						 GetWorldImp(),
-						 NewBox.GetCenter(),
-						 NewBox.GetExtent(),
-						 FColor::Green,
-						 false,
-						 10
-						);
+			// DrawDebugBox(
+			// 			 GetWorldImp(),
+			// 			 NewBox.GetCenter(),
+			// 			 NewBox.GetExtent(),
+			// 			 FColor::Green,
+			// 			 false,
+			// 			 10
+			// 			);
 
 			Box += NewBox;
 		}
 	}
 
-	DrawDebugBox(
-	             GetWorldImp(),
-	             Box.GetCenter(),
-	             Box.GetExtent(),
-	             FColor::Green,
-	             false,
-	             10
-	            );
+	// DrawDebugBox(
+	//              GetWorldImp(),
+	//              Box.GetCenter(),
+	//              Box.GetExtent(),
+	//              FColor::Green,
+	//              false,
+	//              10
+	//             );
 
 	return Box;
 }
