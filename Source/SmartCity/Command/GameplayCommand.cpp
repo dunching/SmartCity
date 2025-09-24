@@ -222,7 +222,7 @@ void SmartCityCommand::SetWallTranlucent(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->WallTranlucent =
+		                                                                  SPtr->Config.WallTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
@@ -246,7 +246,7 @@ void SmartCityCommand::SetPillarTranlucent(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->PillarTranlucent =
+		                                                                  SPtr->Config.PillarTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
@@ -270,7 +270,7 @@ void SmartCityCommand::SetStairsTranlucent(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->StairsTranlucent =
+		                                                                  SPtr->Config.StairsTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
@@ -294,7 +294,7 @@ void SmartCityCommand::SetShowCurtainWall(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->bShowCurtainWall =
+		                                                                  SPtr->Config.bShowCurtainWall =
 			                                                                  static_cast<bool>(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
@@ -319,7 +319,7 @@ void SmartCityCommand::SetShowFurniture(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->bShowFurniture =
+		                                                                  SPtr->Config.bShowFurniture =
 			                                                                  static_cast<bool>(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]

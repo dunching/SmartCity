@@ -4,6 +4,7 @@
 #include "FloorHelper.h"
 #include "GameOptions.h"
 #include "InputProcessorSubSystem_Imp.h"
+#include "PlanetPlayerCameraManager.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
@@ -274,11 +275,11 @@ void FMessageBody_Receive_InteractionOption::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->WallTranlucent = WallTranlucent;
-			                                                                  SPtr->PillarTranlucent = PillarTranlucent;
-			                                                                  SPtr->StairsTranlucent = StairsTranlucent;
-			                                                                  SPtr->bShowCurtainWall = bShowCurtainWall;
-			                                                                  SPtr->bShowFurniture = bShowFurniture;
+			                                                                  SPtr->Config.WallTranlucent = WallTranlucent;
+			                                                                  SPtr->Config.PillarTranlucent = PillarTranlucent;
+			                                                                  SPtr->Config.StairsTranlucent = StairsTranlucent;
+			                                                                  SPtr->Config.bShowCurtainWall = bShowCurtainWall;
+			                                                                  SPtr->Config.bShowFurniture = bShowFurniture;
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -318,10 +319,25 @@ void FMessageBody_Receive_LocaterDeviceByID::DoAction() const
 		auto DevicePtr = Cast<ASceneElement_DeviceBase>(SceneElementPtr.Get());
 		if (DevicePtr && DevicePtr->BelongFloor)
 		{
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
-			                                                                   USmartCitySuiteTags::Interaction_Mode_Empty
+			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
+			                                                                   USmartCitySuiteTags::Interaction_Area_ViewDevice,
+			                                                                   [DevicePtr](
+			                                                                   const TSharedPtr<FDecoratorBase>& DecoratorSPtr
+			                                                                   )
+			                                                                   {
+				                                                                   auto ActualDecoratorSPtr =
+					                                                                   DynamicCastSharedPtr<
+						                                                                   FViewDevice_Decorator>(
+						                                                                    DecoratorSPtr
+						                                                                   );
+				                                                                   if (ActualDecoratorSPtr)
+				                                                                   {
+					                                                                   ActualDecoratorSPtr->
+						                                                                   SceneElementPtr =
+						                                                                   DevicePtr;
+				                                                                   }
+			                                                                   }
 			                                                                  );
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(DevicePtr->BelongFloor->FloorTag);
 		}
 	}
 }
@@ -431,6 +447,9 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 
 void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 {
+
+	UGameOptions::GetInstance()->bAllowRotByYaw = bAllowRotByYaw;
+	
 	{
 		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
 			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
@@ -442,17 +461,12 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 		}
 	}
 	{
-		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewSingleFloorProcessor>(
-			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
-			);
-		if (ViewBuildingProcessorSPtr)
-		{
-			ViewBuildingProcessorSPtr->UpdateCameraSetting(MinPitch, MaxPitch);
-			return;
-		}
-	}
+		Cast<APlanetPlayerCameraManager>(
+										 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+										)->UpdateCameraSetting(MinPitch, MaxPitch);
 
-	UGameOptions::GetInstance()->bAllowRotByYaw = bAllowRotByYaw;
+		return;
+	}
 }
 
 FMessageBody_Test::FMessageBody_Test()

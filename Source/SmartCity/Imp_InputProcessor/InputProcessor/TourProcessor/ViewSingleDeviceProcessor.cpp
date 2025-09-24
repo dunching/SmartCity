@@ -25,8 +25,7 @@ void TourProcessor::FViewSingleDeviceProcessor::EnterAction()
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSingleDeviceMode_Decorator>(
 											  USmartCitySuiteTags::Interaction_Mode,
-											  USmartCitySuiteTags::Interaction_Mode_View,
-											  TargetDevicePtr
+											  USmartCitySuiteTags::Interaction_Mode_View
 											 );
 
 	SwitchShowCursor(true);

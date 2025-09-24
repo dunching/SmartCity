@@ -9,6 +9,7 @@
 
 #include "Tools.h"
 
+class AFloorHelper;
 class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
@@ -23,13 +24,17 @@ public:
 	GENERATIONCLASSINFOONLYTHIS(FDecoratorBase);
 
 	FDecoratorBase(
-		FGameplayTag InMainDecoratorType,
-		FGameplayTag InBranchDecoratorType
 		);
 
 	virtual ~FDecoratorBase();
 
+	void InitialType(
+		FGameplayTag InMainDecoratorType,
+		FGameplayTag InBranchDecoratorType);
+	
 	virtual void Entry();
+
+	virtual void ReEntry();
 
 	virtual void Quit();
 
@@ -78,6 +83,98 @@ protected:
 private:
 	int32 WaitTaskCount = 0;
 };
+
+#pragma region 操作方式
+
+/**
+ * 
+ */
+class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+						FInteraction_Decorator,
+						FDecoratorBase
+					   );
+
+	enum class EInteractionType:uint8
+	{
+		kDevice,
+		kSpace,
+	};
+
+	FInteraction_Decorator();
+
+	virtual void Entry() override;
+
+	void SwitchIteractionType(
+		EInteractionType NewInteractionType
+		);
+
+	EInteractionType GetInteractionType() const;
+
+	FGameplayTag GetCurrentWeather() const;
+
+	void SetCurrentWeather(
+		const FGameplayTag& WeatherTag
+		);
+
+	int32 GetCurrentHour() const;
+
+	void SetCurrentHour(
+		int32 Hour
+		);
+
+	struct FConfig
+	{
+
+		/**
+		 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+		 */
+		int32 WallTranlucent = 100;
+
+		/**
+		 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+		 */
+		int32 PillarTranlucent = 100;
+
+		/**
+		 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
+		 */
+		int32 StairsTranlucent = 100;
+
+		/**
+		 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
+		 */
+		bool bShowCurtainWall = true;
+
+		/**
+		 * 是否显示家具
+		 */
+		bool bShowFurniture = true;
+
+		float ViewPitchMin = 45;
+
+		float ViewPitchMax = 45;
+
+		EInteractionType InteractionType = EInteractionType::kDevice;
+
+		FGameplayTag CurrentWeather;
+
+		int32 CurrentHour;
+		
+	};
+
+	FConfig Config;
+
+	void Update(const FConfig &Config);
+	
+	FConfig GetCurrentConfig()const;
+	
+private:
+};
+
+#pragma endregion
 
 #pragma region 模式
 /**
@@ -381,7 +478,6 @@ public:
 	                   );
 
 	FSingleDeviceMode_Decorator(
-		const TObjectPtr<AActor>& TargetDevicePtr
 		);
 
 	virtual void Entry() override;
@@ -405,7 +501,6 @@ public:
 	                   );
 
 	FArea_Decorator(
-		const FGameplayTag& Interaction_Area
 		);
 
 	virtual void Entry() override;
@@ -446,7 +541,6 @@ public:
 	                   );
 
 	FExternalWall_Decorator(
-		const FGameplayTag& Interaction_Area
 		);
 
 	virtual void Entry() override;
@@ -478,7 +572,6 @@ public:
 	                   );
 
 	FSplitFloor_Decorator(
-		const FGameplayTag& Interaction_Area
 		);
 
 	virtual void Entry() override;
@@ -508,7 +601,6 @@ public:
 	                   );
 
 	FFloor_Decorator(
-		const FGameplayTag& Interaction_Area
 		);
 
 	virtual ~FFloor_Decorator();
@@ -536,84 +628,45 @@ private:
 	TSet<AActor*> PreviousActors;
 };
 
-#pragma endregion
-
-#pragma region 操作方式
-
 /**
- * 
+ * 选中“单楼”区域
  */
-class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
+class SMARTCITY_API FViewDevice_Decorator : public FArea_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FInteraction_Decorator,
-	                    FDecoratorBase
+	                    FViewDevice_Decorator,
+	                    FArea_Decorator
 	                   );
 
-	enum class EInteractionType:uint8
-	{
-		kDevice,
-		kSpace,
-	};
-
-	FInteraction_Decorator();
+	FViewDevice_Decorator(
+		);
 
 	virtual void Entry() override;
 
-	void SwitchIteractionType(
-		EInteractionType NewInteractionType
-		);
+	virtual void ReEntry() override;
 
-	EInteractionType GetInteractionType() const;
+	virtual void Quit() override;
 
-	FGameplayTag GetCurrentWeather() const;
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElementState* TaskPtr
+		) override;
 
-	void SetCurrentWeather(
-		const FGameplayTag& WeatherTag
-		);
-
-	int32 GetCurrentHour() const;
-
-	void SetCurrentHour(
-		int32 Hour
-		);
-
-	/**
-	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
-	 */
-	int32 WallTranlucent = 100;
-
-	/**
-	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
-	 */
-	int32 PillarTranlucent = 100;
-
-	/**
-	 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
-	 */
-	int32 StairsTranlucent = 100;
-
-	/**
-	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
-	 */
-	bool bShowCurtainWall = true;
-
-	/**
-	 * 是否显示家具
-	 */
-	bool bShowFurniture = true;
-
-	float ViewPitchMin = 45;
-
-	float ViewPitchMax = 45;
+	TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
 
 private:
-	EInteractionType InteractionType = EInteractionType::kDevice;
 
-	FGameplayTag CurrentWeather;
+	void Process();
+	
+	void AdjustCamera()const;
+	
+	TWeakObjectPtr<ASceneElement_DeviceBase>PreviousSceneElementPtr = nullptr;
 
-	int32 CurrentHour;
+	TObjectPtr<AFloorHelper>PreviousFloorHelper = nullptr;
+
+	FInteraction_Decorator::FConfig Config;
 };
 
 #pragma endregion

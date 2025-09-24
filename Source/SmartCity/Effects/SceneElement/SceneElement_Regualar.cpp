@@ -96,19 +96,13 @@ void ASceneElement_Regualar::SwitchInteractionType(
 	)
 {
 
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 	
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
 		SetActorHiddenInGame(true);
 		return;
 	}
-
-	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-	MessageBodySPtr->DeviceID = TEXT("");
-
-	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -144,6 +138,46 @@ void ASceneElement_Regualar::SwitchInteractionType(
 			{
 				PrimitiveComponentPtr->SetRenderCustomDepth(false);
 			}
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(true);
+				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+			}
+
+			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+			MessageBodySPtr->DeviceID = DeviceID;
+
+			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			return;
 		}

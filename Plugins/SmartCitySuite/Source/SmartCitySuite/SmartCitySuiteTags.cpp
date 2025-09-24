@@ -37,6 +37,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Space ,"Interaction.Area.Space");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_ViewDevice ,"Interaction.Area.ViewDevice");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SplitFloor,"Interaction.Area.SplitFloor");
 
 

@@ -33,7 +33,8 @@ void ASceneElement_AccessControl::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
+	
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
@@ -60,7 +61,20 @@ void ASceneElement_AccessControl::SwitchInteractionType(
 			return;
 		}
 	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
+
+			return;
+		}
+	}
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{

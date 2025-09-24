@@ -9,7 +9,7 @@ void ABuilding_Pillar::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -29,8 +29,10 @@ void ABuilding_Pillar::SwitchInteractionType(
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		//  只要是楼层就显示
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+			// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+				//     EmptyContainer.Num())
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -42,17 +44,17 @@ void ABuilding_Pillar::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->PillarTranlucent <= 0)
+				if (DecoratorSPtr->Config.PillarTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (DecoratorSPtr->PillarTranlucent >= 100)
+				else if (DecoratorSPtr->Config.PillarTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(DecoratorSPtr->PillarTranlucent);
+					SetTranslucent(DecoratorSPtr->Config.PillarTranlucent);
 				}
 
 				return;

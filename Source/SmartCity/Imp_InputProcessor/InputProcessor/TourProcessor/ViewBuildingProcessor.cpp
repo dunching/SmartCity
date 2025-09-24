@@ -29,7 +29,6 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
 		 USmartCitySuiteTags::Interaction_Area.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag(),
 		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
 		);
 

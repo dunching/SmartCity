@@ -13,17 +13,6 @@ TourProcessor::FTourProcessor::FTourProcessor(
 {
 }
 
-void TourProcessor::FTourProcessor::UpdateCameraSetting(
-	float InViewPitchMin,
-	float InViewPitchMax
-	)
-{
-	Cast<APlanetPlayerCameraManager>(
-									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-									)->UpdateCameraSetting(InViewPitchMin, InViewPitchMax);
-
-}
-
 bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	const FControlParam& ControlParam,
 	float OffsetValue
@@ -34,8 +23,6 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 	{
 		return false;
 	}
-
-	auto GameOptionsPtr = UGameOptions::GetInstance();
 
 	const auto ClampValue = FMath::Clamp(
 	                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - OffsetValue,

@@ -108,7 +108,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
+	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -150,6 +150,20 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			// 	RouteMarkerPtr->TargetActor = this;
 			// 	RouteMarkerPtr->AddToViewport();
 			// }
+
+			return;
+		}
+	}
+	{
+		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
+		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
+
+		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+			EmptyContainer.Num())
+		{
+			SetActorHiddenInGame(false);
 
 			return;
 		}
