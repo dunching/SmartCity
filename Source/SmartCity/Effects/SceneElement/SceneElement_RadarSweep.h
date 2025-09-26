@@ -38,6 +38,12 @@ public:
 		const FTransform& Transform
 		) override;
 
+	virtual void BeginPlay() override;
+	
+	virtual void Tick(
+		float DeltaTime
+		) override;
+
 	virtual FBox GetComponentsBoundingBox(
 		bool bNonColliding = false,
 		bool bIncludeFromChildActors = false
@@ -47,23 +53,17 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USceneComponent> AnchorComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> SweepEffectStaticMeshComponent = nullptr;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FVector MeshSize = {42, 42, 42};
+	TObjectPtr<UStaticMeshComponent>StaticMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Deepth = 120;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 Area = 90;
+	int32 Speed = 30;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 MeshNum = 5;
 
 private:
 	void EntryQuery();
@@ -74,7 +74,11 @@ private:
 
 	void QueryComplete();
 
-	FTimerHandle QueryTimerHadnle;
+	void UpdateMeshEffect();
+
+	FTimerHandle UpdateMeshTimerHandle;
+
+	FTimerHandle QueryTimerHandle;
 
 	TArray<APersonMark*> GeneratedMarkers;
 };

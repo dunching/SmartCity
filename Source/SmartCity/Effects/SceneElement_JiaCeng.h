@@ -22,8 +22,9 @@ class USceneElement_JiaCengInterface : public UInterface
 	GENERATED_BODY()
 };
 
+
 class SMARTCITY_API ISceneElement_JiaCengInterface
-{
+{ 
 	GENERATED_BODY()
 
 public:
@@ -44,4 +45,6 @@ protected:
 
 private:
 	bool bIsJiaCengg = false;
+	
+	bool bIsJiaCengg1 = false;
 };

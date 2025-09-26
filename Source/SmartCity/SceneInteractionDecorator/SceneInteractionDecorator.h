@@ -155,9 +155,11 @@ public:
 		 */
 		bool bShowFurniture = true;
 
-		float ViewPitchMin = 45;
+		bool bUseCustomPitchLimit = false;
 
-		float ViewPitchMax = 45;
+		float ViewPitchMin = -45;
+
+		float ViewPitchMax = -45;
 
 		EInteractionType InteractionType = EInteractionType::kDevice;
 
