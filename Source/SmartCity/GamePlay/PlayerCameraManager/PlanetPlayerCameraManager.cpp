@@ -63,6 +63,19 @@ void APlanetPlayerCameraManager::UpdateCameraSetting(
 	float InViewPitchMax
 	)
 {
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+													 USceneInteractionWorldSystem::GetInstance()->
+													 GetDecorator(
+																  USmartCitySuiteTags::Interaction_Interaction
+																 )
+													);
+	
+	if (DecoratorSPtr && DecoratorSPtr->Config.bUseCustomPitchLimit)
+	{
+		return;
+	}
+	
 	// 往下看的限制
 	ViewPitchMin = InViewPitchMin;
 
@@ -79,7 +92,8 @@ void APlanetPlayerCameraManager::UpdateCameraSetting()
 		                                                          USmartCitySuiteTags::Interaction_Interaction
 		                                                         )
 		                                            );
-	if (DecoratorSPtr)
+	
+	if (DecoratorSPtr && DecoratorSPtr->Config.bUseCustomPitchLimit)
 	{
 		// 往下看的限制
 		ViewPitchMin = DecoratorSPtr->Config.ViewPitchMin;

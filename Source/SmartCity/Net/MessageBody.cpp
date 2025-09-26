@@ -252,6 +252,10 @@ void FMessageBody_Receive_InteractionOption::Deserialize(
 	{
 	}
 
+	if (jsonObject->TryGetStringField(TEXT("InteractionType"), InteractionType))
+	{
+	}
+
 	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
 	{
 	}
@@ -275,11 +279,32 @@ void FMessageBody_Receive_InteractionOption::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->Config.WallTranlucent = WallTranlucent;
-			                                                                  SPtr->Config.PillarTranlucent = PillarTranlucent;
-			                                                                  SPtr->Config.StairsTranlucent = StairsTranlucent;
-			                                                                  SPtr->Config.bShowCurtainWall = bShowCurtainWall;
-			                                                                  SPtr->Config.bShowFurniture = bShowFurniture;
+			                                                                  SPtr->Config.WallTranlucent =
+				                                                                  WallTranlucent;
+			                                                                  SPtr->Config.PillarTranlucent =
+				                                                                  PillarTranlucent;
+			                                                                  SPtr->Config.StairsTranlucent =
+				                                                                  StairsTranlucent;
+			                                                                  SPtr->Config.bShowCurtainWall =
+				                                                                  bShowCurtainWall;
+			                                                                  SPtr->Config.bShowFurniture =
+				                                                                  bShowFurniture;
+
+			                                                                  if (InteractionType == TEXT("Device"))
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kDevice;
+			                                                                  }
+			                                                                  else if (InteractionType == TEXT("Space"))
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
+			                                                                  }
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -322,7 +347,8 @@ void FMessageBody_Receive_LocaterDeviceByID::DoAction() const
 			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
 			                                                                   USmartCitySuiteTags::Interaction_Area_ViewDevice,
 			                                                                   [DevicePtr](
-			                                                                   const TSharedPtr<FDecoratorBase>& DecoratorSPtr
+			                                                                   const TSharedPtr<FDecoratorBase>&
+			                                                                   DecoratorSPtr
 			                                                                   )
 			                                                                   {
 				                                                                   auto ActualDecoratorSPtr =
@@ -447,9 +473,8 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 
 void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 {
-
 	UGameOptions::GetInstance()->bAllowRotByYaw = bAllowRotByYaw;
-	
+
 	{
 		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
 			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
@@ -462,8 +487,8 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 	}
 	{
 		Cast<APlanetPlayerCameraManager>(
-										 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-										)->UpdateCameraSetting(MinPitch, MaxPitch);
+		                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+		                                )->UpdateCameraSetting(MinPitch, MaxPitch);
 
 		return;
 	}

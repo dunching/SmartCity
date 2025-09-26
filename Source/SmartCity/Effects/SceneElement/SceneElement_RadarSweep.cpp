@@ -19,14 +19,9 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
-
-	AnchorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnchorComponent"));
-	AnchorComponent->SetupAttachment(StaticMeshComponent);
-
-	SweepEffectStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(
-		 TEXT("SweepEffectStaticMeshComponent")
-		);
-	SweepEffectStaticMeshComponent->SetupAttachment(AnchorComponent);
+	
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 1.f / 30;
 }
 
 void ASceneElement_RadarSweep::OnConstruction(
@@ -34,14 +29,48 @@ void ASceneElement_RadarSweep::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+}
 
-	AnchorComponent->SetRelativeScale3D(
-	                                    FVector(
-	                                            Area / MeshSize.X,
-	                                            Area / MeshSize.Y,
-	                                            Deepth / MeshSize.Z
-	                                           )
-	                                   );
+void ASceneElement_RadarSweep::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// const auto Interval = Deepth / MeshNum;
+	// for (int32 Index = 0; Index < MeshNum; Index++)
+	// {
+	// 	FTransform Transform;
+	//
+	// 	const auto Distance = Index * Interval;
+	// 	FVector Location(Distance);
+	// 	Transform.SetTranslation(Location);
+	//
+	// 	auto NewComponentPtr = Cast<UStaticMeshComponent>(
+	// 	                                                  AddComponentByClass(
+	// 	                                                                      UStaticMeshComponent::StaticClass(),
+	// 	                                                                      true,
+	// 	                                                                      Transform,
+	// 	                                                                      false
+	// 	                                                                     )
+	// 	                                                 );
+	//
+	// 	NewComponentPtr->SetStaticMesh(Mesh.LoadSynchronous());
+	// 	NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+	//
+	// 	NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//
+	// 	NewComponentPtr->SetRenderCustomDepth(false);
+	//
+	// 	MeshAry.Add({NewComponentPtr, Distance});
+	// }
+}
+
+void ASceneElement_RadarSweep::Tick(
+	float DeltaTime
+	)
+{
+	Super::Tick(DeltaTime);
+
+	UpdateMeshEffect();
 }
 
 FBox ASceneElement_RadarSweep::GetComponentsBoundingBox(
@@ -51,25 +80,20 @@ FBox ASceneElement_RadarSweep::GetComponentsBoundingBox(
 {
 	FBox Box(ForceInit);
 
-	ForEachComponent<UPrimitiveComponent>(
-	                                      bIncludeFromChildActors,
-	                                      [&](
-	                                      const UPrimitiveComponent* InPrimComp
-	                                      )
-	                                      {
-		                                      if (InPrimComp == SweepEffectStaticMeshComponent)
-		                                      {
-			                                      return;
-		                                      }
-
-		                                      // Only use collidable components to find collision bounding box.
-		                                      if (InPrimComp->IsRegistered() && (
-			                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
-		                                      {
-			                                      Box += InPrimComp->Bounds.GetBox();
-		                                      }
-	                                      }
-	                                     );
+	// ForEachComponent<UPrimitiveComponent>(
+	//                                       bIncludeFromChildActors,
+	//                                       [&](
+	//                                       const UPrimitiveComponent* InPrimComp
+	//                                       )
+	//                                       {
+	// 	                                      // Only use collidable components to find collision bounding box.
+	// 	                                      if (InPrimComp->IsRegistered() && (
+	// 		                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
+	// 	                                      {
+	// 		                                      Box += InPrimComp->Bounds.GetBox();
+	// 	                                      }
+	//                                       }
+	//                                      );
 
 	return Box;
 }
@@ -106,7 +130,6 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			QuitQuery();
 
@@ -120,7 +143,7 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SetActorHiddenInGame(false);
 
@@ -138,7 +161,6 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			EntryQuery();
 
@@ -157,7 +179,6 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
 
 			EntryQuery();
 
@@ -174,7 +195,6 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		{
 			SetActorHiddenInGame(false);
 
-			SweepEffectStaticMeshComponent->SetHiddenInGame(true);
 
 			QuitQuery();
 
@@ -200,7 +220,7 @@ void ASceneElement_RadarSweep::EntryQuery()
 	RadarQuery();
 #else
 	GetWorld()->GetTimerManager().SetTimer(
-	                                       QueryTimerHadnle,
+	                                       QueryTimerHandle,
 	                                       std::bind(&ThisClass::RadarQuery, this),
 	                                       UGameOptions::GetInstance()->RadarQueryFrequency,
 	                                       true,
@@ -212,7 +232,7 @@ void ASceneElement_RadarSweep::EntryQuery()
 void ASceneElement_RadarSweep::QuitQuery()
 {
 	GetWorld()->GetTimerManager().ClearTimer(
-	                                         QueryTimerHadnle
+	                                         QueryTimerHandle
 	                                        );
 
 	for (auto Iter : GeneratedMarkers)
@@ -246,7 +266,7 @@ void ASceneElement_RadarSweep::QueryComplete()
 	{
 		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()) )
+			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()))
 			{
 				const auto FloorLocation = Iter.Value->GetActorLocation();
 
@@ -286,4 +306,12 @@ void ASceneElement_RadarSweep::QueryComplete()
 #else
 
 #endif
+}
+
+void ASceneElement_RadarSweep::UpdateMeshEffect()
+{
+	// for (auto& Iter : MeshAry)
+	// {
+	// 	Iter.Value += Speed;
+	// }
 }

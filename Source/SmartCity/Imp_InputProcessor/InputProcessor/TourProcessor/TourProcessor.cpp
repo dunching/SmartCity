@@ -32,10 +32,6 @@ bool TourProcessor::FTourProcessor::UpdateCameraArmLen(
 
 	OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
 
-	Cast<APlanetPlayerCameraManager>(
-	                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-	                                )->UpdateCameraSetting();
-
 	return true;
 }
 
@@ -52,6 +48,10 @@ bool TourProcessor::FTourProcessor::UpdateCameraClampPitch(
 	Cast<APlanetPlayerCameraManager>(
 									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
 									)->UpdateCameraSetting(ControlParam.CameraPitchMinLimit,ControlParam.CameraPitchMaxLimit);
+
+	Cast<APlanetPlayerCameraManager>(
+									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+									)->UpdateCameraSetting();
 
 	return true;
 }

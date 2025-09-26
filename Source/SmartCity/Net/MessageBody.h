@@ -188,6 +188,8 @@ public:
 	 */
 	bool bShowFurniture = true;
 
+	FString InteractionType;
+
 	bool bImmediatelyUpdate = true;
 };
 
