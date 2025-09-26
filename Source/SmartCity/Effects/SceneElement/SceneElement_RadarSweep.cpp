@@ -19,7 +19,7 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
-	
+
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1.f / 30;
 }
@@ -29,6 +29,9 @@ void ASceneElement_RadarSweep::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+
+	const auto Scale = Deepth / 10;
+	StaticMeshComponent->SetRelativeScale3D(FVector(Scale, Scale, 1));
 }
 
 void ASceneElement_RadarSweep::BeginPlay()
