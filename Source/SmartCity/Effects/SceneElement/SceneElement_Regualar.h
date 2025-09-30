@@ -8,7 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
-#include "SceneElement_JiaCeng.h"
+#include "SEJC.h"
 
 #include "SceneElement_Regualar.generated.h"
 
@@ -27,17 +27,16 @@ class UDatasmithAssetUserData;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_Regualar :
-public ASceneElementBase,
-public ISceneElement_JiaCengInterface
+	public ASceneElementBase,
+	public ISceneElement_JiaCengInterface
 {
 	GENERATED_BODY()
 
 public:
-
 	ASceneElement_Regualar(
 		const FObjectInitializer& ObjectInitializer
 		);
-	
+
 	virtual void BeginPlay() override;
 
 	virtual FBox GetComponentsBoundingBox(
@@ -54,18 +53,17 @@ public:
 
 	virtual void EndInteraction() override;
 
-	virtual TMap<FString,FString> GetStateDescription()const override;
-	
+	virtual TMap<FString, FString> GetStateDescription() const override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
-	
-	UPROPERTY(BlueprintReadWrite,EditAnywhere )
-	FGameplayTag DeviceType ;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGameplayTag DeviceType;
 
 	bool bIsOpened = false;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
 };

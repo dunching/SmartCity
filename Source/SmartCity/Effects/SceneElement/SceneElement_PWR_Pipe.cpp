@@ -275,6 +275,18 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		}
 	}
 	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_View)
+			)
+		{
+			SetActorHiddenInGame(false);
+			RevertOnriginalMat();
+			
+			return;
+		}
+	}
+	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);

@@ -3,7 +3,7 @@
 #include "AssetRefMap.h"
 #include "FloorHelper.h"
 #include "GameOptions.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "PlanetPlayerCameraManager.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneElement_Space.h"
@@ -12,7 +12,9 @@
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"
+#include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorProcessor.h"
+#include "TourPawn.h"
 
 FMessageBody::FMessageBody()
 {
@@ -252,10 +254,6 @@ void FMessageBody_Receive_InteractionOption::Deserialize(
 	{
 	}
 
-	if (jsonObject->TryGetStringField(TEXT("InteractionType"), InteractionType))
-	{
-	}
-
 	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
 	{
 	}
@@ -289,22 +287,6 @@ void FMessageBody_Receive_InteractionOption::DoAction() const
 				                                                                  bShowCurtainWall;
 			                                                                  SPtr->Config.bShowFurniture =
 				                                                                  bShowFurniture;
-
-			                                                                  if (InteractionType == TEXT("Device"))
-			                                                                  {
-				                                                                  SPtr->Config.InteractionType =
-					                                                                  FInteraction_Decorator::EInteractionType::kDevice;
-			                                                                  }
-			                                                                  else if (InteractionType == TEXT("Space"))
-			                                                                  {
-				                                                                  SPtr->Config.InteractionType =
-					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
-			                                                                  }
-			                                                                  else
-			                                                                  {
-				                                                                  SPtr->Config.InteractionType =
-					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
-			                                                                  }
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -344,27 +326,80 @@ void FMessageBody_Receive_LocaterDeviceByID::DoAction() const
 		auto DevicePtr = Cast<ASceneElement_DeviceBase>(SceneElementPtr.Get());
 		if (DevicePtr && DevicePtr->BelongFloor)
 		{
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
-			                                                                   USmartCitySuiteTags::Interaction_Area_ViewDevice,
-			                                                                   [DevicePtr](
-			                                                                   const TSharedPtr<FDecoratorBase>&
-			                                                                   DecoratorSPtr
-			                                                                   )
-			                                                                   {
-				                                                                   auto ActualDecoratorSPtr =
-					                                                                   DynamicCastSharedPtr<
-						                                                                   FViewDevice_Decorator>(
-						                                                                    DecoratorSPtr
-						                                                                   );
-				                                                                   if (ActualDecoratorSPtr)
-				                                                                   {
-					                                                                   ActualDecoratorSPtr->
-						                                                                   SceneElementPtr =
-						                                                                   DevicePtr;
-				                                                                   }
-			                                                                   }
-			                                                                  );
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+				 [this, DevicePtr](
+				 auto NewProcessor
+				 )
+				 {
+					 NewProcessor->TargetDevicePtr = DevicePtr;
+				 }
+				);
 		}
+	}
+}
+
+FMessageBody_Receive_SwitchInteractionType::FMessageBody_Receive_SwitchInteractionType()
+{
+	CMD_Name = TEXT("SwitchInteractionType");
+}
+
+void FMessageBody_Receive_SwitchInteractionType::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+								 JsonReader,
+								 jsonObject
+								);
+
+	if (jsonObject->TryGetStringField(TEXT("InteractionType"), InteractionType))
+	{
+	}
+
+}
+
+void FMessageBody_Receive_SwitchInteractionType::DoAction() const
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  if (InteractionType == TEXT("Device"))
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kDevice;
+			                                                                  }
+			                                                                  else if (InteractionType == TEXT("Space"))
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
+			                                                                  }
+		                                                                  },
+		                                                                  true
+		                                                                 );
 	}
 }
 

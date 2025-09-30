@@ -494,7 +494,7 @@ public:
 
 	virtual void Entry() override;
 
-	TObjectPtr<AActor> TargetDevicePtr = nullptr;
+	TWeakObjectPtr<ASceneElement_DeviceBase>TargetDevicePtr = nullptr;
 };
 
 #pragma endregion

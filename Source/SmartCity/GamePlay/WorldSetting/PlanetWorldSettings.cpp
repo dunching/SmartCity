@@ -5,7 +5,7 @@
 
 #include "DataTableCollection.h"
 #include "AssetRefMap.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "DataTableCollection.h"
 #include "AssetRefMap.h"
 

@@ -3,7 +3,7 @@
 #include "WidgetScreenLayer.h"
 
 #include "InputProcessorSubSystemBase.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 
 void UPlanetGameViewportClient::Init(
 	struct FWorldContext& WorldContext,

@@ -6,7 +6,7 @@
 #include "LogHelper/LogWriter.h"
 
 #include "InputProcessorSubSystemBase.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 
 void UPlanetGameInstance::Init()
 {

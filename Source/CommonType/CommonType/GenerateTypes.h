@@ -39,6 +39,9 @@ struct COMMONTYPE_API FSceneElementReplaceHelper
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	bool bSkip = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	bool bOnlyKey = false;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
