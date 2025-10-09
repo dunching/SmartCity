@@ -8,6 +8,7 @@
 #include "GenerateTypes.h"
 #include "TourProcessor.h"
 
+class ASceneElement_DeviceBase;
 class ATrackVehicleBase;
 class ATourPawn;
 class AHorseCharacter;
@@ -38,7 +39,8 @@ namespace TourProcessor
 			const FInputKeyEventArgs& EventArgs 
 			) override;
 
-		TObjectPtr<AActor>TargetDevicePtr = nullptr;
+		TWeakObjectPtr<ASceneElement_DeviceBase>TargetDevicePtr = nullptr;
+
 	private:
 
 		bool bHasRoted = false;

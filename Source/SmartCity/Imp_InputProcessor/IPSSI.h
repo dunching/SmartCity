@@ -8,7 +8,7 @@
 
 #include "HumanProcessor.h"
 
-#include "InputProcessorSubSystem_Imp.generated.h"
+#include "IPSSI.generated.h"
 
 /**
  */

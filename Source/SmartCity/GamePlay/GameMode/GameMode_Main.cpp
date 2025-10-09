@@ -11,7 +11,7 @@
 #include "SceneInteractionWorldSystem.h"
 #include "WeatherSystem.h"
 #include "DatasmithAssetUserData.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "ViewBuildingProcessor.h"
 #include "TourPawn.h"
 

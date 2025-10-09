@@ -20,7 +20,7 @@
 #include "SceneElement_PWR_Pipe.h"
 #include "TemplateHelper.h"
 #include "FloorHelperBase.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "NavagationPaths.h"
 #include "PersonMark.h"
 #include "SceneElement_Space.h"
@@ -716,6 +716,14 @@ void FExternalWall_Decorator::Entry()
 
 					return;
 				}
+				else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+				                                                            USmartCitySuiteTags::Interaction_Mode_View
+				                                                           ))
+				{
+					USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
+
+					return;
+				}
 				else if (DecoratorSPtr->GetBranchDecoratorType().
 				                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
 				{
@@ -851,7 +859,13 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 			                                                         );
 			return;
 		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_View))
+		{
+			// USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
 
+			// return;
+		}
 		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
 		                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
 		                                                              ))
@@ -1210,6 +1224,12 @@ void FFloor_Decorator::Entry()
 
 				return;
 			}
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                       USmartCitySuiteTags::Interaction_Mode_View
+			                                                      ))
+			{
+				// return;
+			}
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -1435,6 +1455,11 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				                                                   );
 
 			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_View))
+		{
+			// return;
 		}
 
 		{
@@ -1952,9 +1977,9 @@ void FViewDevice_Decorator::Process()
 		                                                                 );
 	}
 
-	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
-	                                                                   USmartCitySuiteTags::Interaction_Mode_Empty
-	                                                                  );
+	// USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
+	//                                                                    USmartCitySuiteTags::Interaction_Mode_Empty
+	//                                                                   );
 
 	if (SceneElementPtr.IsValid())
 	{

@@ -36,17 +36,7 @@ public:
 	FGuid Guid;
 };
 
-USTRUCT()
-struct FMessageBody_Send : public FMessageBody
-{
-	GENERATED_BODY()
-
-public:
-	FString GetJsonString() const;
-
-	virtual TSharedPtr<FJsonObject> SerializeBody() const;
-};
-
+#pragma region Receive
 USTRUCT()
 struct FMessageBody_Receive : public FMessageBody
 {
@@ -167,7 +157,7 @@ public:
 	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
 	 */
 	int32 WallTranlucent = 100;
-	
+
 	/**
 	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
 	 */
@@ -187,8 +177,6 @@ public:
 	 * 是否显示家具
 	 */
 	bool bShowFurniture = true;
-
-	FString InteractionType;
 
 	bool bImmediatelyUpdate = true;
 };
@@ -210,6 +198,36 @@ public:
 	FString DeviceID;
 };
 
+USTRUCT()
+struct FMessageBody_Receive_SwitchInteractionType : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+public:
+	FMessageBody_Receive_SwitchInteractionType();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	FString InteractionType;
+
+};
+#pragma endregion
+
+#pragma region Send
+USTRUCT()
+struct FMessageBody_Send : public FMessageBody
+{
+	GENERATED_BODY()
+
+public:
+	FString GetJsonString() const;
+
+	virtual TSharedPtr<FJsonObject> SerializeBody() const;
+};
 
 USTRUCT()
 struct FMessageBody_SelectedFloor : public FMessageBody_Send
@@ -263,3 +281,4 @@ struct FMessageBody_Test : public FMessageBody_Send
 
 protected:
 };
+#pragma endregion

@@ -8,7 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
-#include "SceneElement_JiaCeng.h"
+#include "SEJC.h"
 
 #include "SceneElement_DeviceBase.generated.h"
 
@@ -60,7 +60,7 @@ public:
 	FGameplayTag DeviceType ;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere )
-	TObjectPtr<AFloorHelper> BelongFloor ;
+	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
 	bool bIsOpened = false;
 	

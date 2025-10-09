@@ -19,9 +19,8 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
-	
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 1.f / 30;
+
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASceneElement_RadarSweep::OnConstruction(
@@ -29,39 +28,14 @@ void ASceneElement_RadarSweep::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+
+	const auto Scale = Deepth / 10;
+	StaticMeshComponent->SetRelativeScale3D(FVector(Scale, Scale, 1));
 }
 
 void ASceneElement_RadarSweep::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// const auto Interval = Deepth / MeshNum;
-	// for (int32 Index = 0; Index < MeshNum; Index++)
-	// {
-	// 	FTransform Transform;
-	//
-	// 	const auto Distance = Index * Interval;
-	// 	FVector Location(Distance);
-	// 	Transform.SetTranslation(Location);
-	//
-	// 	auto NewComponentPtr = Cast<UStaticMeshComponent>(
-	// 	                                                  AddComponentByClass(
-	// 	                                                                      UStaticMeshComponent::StaticClass(),
-	// 	                                                                      true,
-	// 	                                                                      Transform,
-	// 	                                                                      false
-	// 	                                                                     )
-	// 	                                                 );
-	//
-	// 	NewComponentPtr->SetStaticMesh(Mesh.LoadSynchronous());
-	// 	NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
-	//
-	// 	NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//
-	// 	NewComponentPtr->SetRenderCustomDepth(false);
-	//
-	// 	MeshAry.Add({NewComponentPtr, Distance});
-	// }
 }
 
 void ASceneElement_RadarSweep::Tick(
@@ -79,21 +53,6 @@ FBox ASceneElement_RadarSweep::GetComponentsBoundingBox(
 	) const
 {
 	FBox Box(ForceInit);
-
-	// ForEachComponent<UPrimitiveComponent>(
-	//                                       bIncludeFromChildActors,
-	//                                       [&](
-	//                                       const UPrimitiveComponent* InPrimComp
-	//                                       )
-	//                                       {
-	// 	                                      // Only use collidable components to find collision bounding box.
-	// 	                                      if (InPrimComp->IsRegistered() && (
-	// 		                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
-	// 	                                      {
-	// 		                                      Box += InPrimComp->Bounds.GetBox();
-	// 	                                      }
-	//                                       }
-	//                                      );
 
 	return Box;
 }
@@ -120,13 +79,10 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
+			)
 		{
 			SetActorHiddenInGame(false);
 
@@ -137,13 +93,10 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+			)
 		{
 			SetActorHiddenInGame(false);
 
@@ -151,13 +104,25 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+			)
+		{
+			SetActorHiddenInGame(false);
 
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
 
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+			EntryQuery();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+			)
 		{
 			SetActorHiddenInGame(false);
 
@@ -171,30 +136,11 @@ void ASceneElement_RadarSweep::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Interaction.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-
-			EntryQuery();
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
+			SetActorHiddenInGame(true);
 
 			QuitQuery();
 
@@ -254,7 +200,8 @@ void ASceneElement_RadarSweep::RadarQuery()
 void ASceneElement_RadarSweep::QueryComplete()
 {
 #if TEST_RADAR
-	int32 Num = FMath::RandRange(1, 5);
+	// int32 Num = FMath::RandRange(1, 5);
+	int32 Num = 5;
 
 	auto AreaDecoratorSPtr =
 		DynamicCastSharedPtr<FArea_Decorator>(
@@ -264,20 +211,28 @@ void ASceneElement_RadarSweep::QueryComplete()
 		                                     );
 	if (AreaDecoratorSPtr)
 	{
+		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(BelongFloor->BoxComponentPtr->GetComponentToWorld());
+		const auto Offset = FloorBox.GetBox().GetExtent().Z;
+		
 		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
 			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()))
 			{
 				const auto FloorLocation = Iter.Value->GetActorLocation();
 
+				auto Marks = MakeShared<TSet<APersonMark*>>();
+	
 				for (int32 Index = 0; Index < Num; Index++)
 				{
 					const auto Pt = FMath::RandPointInBox(
 					                                      FBox(
-					                                           FVector(0, -250, 0),
-					                                           FVector(800, 250, 0)
+					                                           FVector(-(Deepth * 10), -(Deepth * 10), -Offset),
+					                                           FVector(0, 0, -Offset)
 					                                          )
 					                                     );
+
+					
+					
 					if (GeneratedMarkers.IsValidIndex(Index))
 					{
 						GeneratedMarkers[Index]->Update(Pt);
@@ -287,9 +242,13 @@ void ASceneElement_RadarSweep::QueryComplete()
 						auto NewMarkPtr = GetWorldImp()->SpawnActor<APersonMark>(
 							 UAssetRefMap::GetInstance()->PersonMarkClass
 							);
-						NewMarkPtr->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+						NewMarkPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 						NewMarkPtr->Update(Pt);
+						
+						NewMarkPtr->Marks = Marks;
 
+						Marks->Add(NewMarkPtr);
+						
 						GeneratedMarkers.Add(NewMarkPtr);
 					}
 				}

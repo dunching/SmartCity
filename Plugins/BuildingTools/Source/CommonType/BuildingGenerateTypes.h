@@ -37,19 +37,7 @@ struct BUILDINGTOOLS_API FSceneElementFilter
 	 * 自定义的挂载
 	 */
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSet<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorSet;
-
-	/**
-	 * 通过用户数据过滤
-	 */
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TMap<FString, FString> DataSmithUserAssetDataMap;
-
-	/**
-	 * 通过类型过滤
-	 */
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSet<TSubclassOf<ASceneElementBase>> TypeSet;
+	TSet<TSoftObjectPtr<ASceneElementBase>> OtherItem;
 };
 
 USTRUCT(BlueprintType, Blueprintable)

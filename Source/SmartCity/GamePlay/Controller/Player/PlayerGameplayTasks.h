@@ -24,6 +24,8 @@ class ADatasmithSceneActor;
 class AReplaceActorBase;
 class UGT_RuntimeTask;
 class UGameplayTaskBase;
+class ASceneElementBase;
+class ASceneElement_DeviceBase;
 
 /*
  * PlayerController处理异步的组件
@@ -246,7 +248,7 @@ public:
 
 	FString ID;
 
-	TObjectPtr<AActor> TargetDevicePtr = nullptr;
+	TWeakObjectPtr<ASceneElementBase>TargetDevicePtr = nullptr;
 };
 
 /**
@@ -523,9 +525,7 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
 
-	int32 ReplaceActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<AReplaceActorBase>> ReplaceActorsSet;
+	TSet<TSoftObjectPtr<ASceneElementBase>> ReplaceActorsSet;
 
 	int32 DisplayAryIndex = 0;
 
@@ -536,9 +536,7 @@ private:
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
 
-	int32 HideRePlaceActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
+	TSet<TSoftObjectPtr<ASceneElementBase>> HideReplaceActorsSet;
 
 	int32 HideAryIndex = 0;
 
@@ -629,7 +627,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<ASceneElementBase>>> ReplaceActorsSet;
 
 
 	int32 HideDataSmithSceneActorsSetIndex = 0;
@@ -638,7 +636,7 @@ private:
 
 	int32 HideRePlaceActorsSetIndex = 0;
 
-	TArray<TSoftObjectPtr<AReplaceActorBase>> HideReplaceActorsSet;
+	TArray<TSoftObjectPtr<ASceneElementBase>> HideReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;
@@ -713,7 +711,7 @@ private:
 
 	int32 ReplaceActorsSetIndex = 0;
 
-	TMap<int32, TArray<TSoftObjectPtr<AReplaceActorBase>>> ReplaceActorsSet;
+	TMap<int32, TArray<TSoftObjectPtr<ASceneElementBase>>> ReplaceActorsSet;
 
 
 	float ConsumeTime = 0.f;

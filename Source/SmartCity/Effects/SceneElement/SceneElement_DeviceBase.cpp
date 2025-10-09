@@ -62,6 +62,11 @@ void ASceneElement_DeviceBase::EndInteraction()
 void ASceneElement_DeviceBase::InitialSceneElement()
 {
 	Super::InitialSceneElement();
+
+	if (BelongFloor)
+	{
+		return;
+	}
 	
 	auto ParentPtr = GetAttachParentActor();
 	AFloorHelper* FloorPtr = nullptr;

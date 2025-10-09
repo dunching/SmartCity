@@ -10,7 +10,7 @@
 
 #include "GameplayTagsLibrary.h"
 #include "HumanCharacter_AI.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 
 static TAutoConsoleVariable<int32> HumanRegularProcessor(
                                                          TEXT("Skill.DrawDebug.HumanRegularProcessor"),

@@ -7,7 +7,7 @@
 #include "UObject/ObjectMacros.h"
 #include "UObject/Interface.h"
 
-#include "SceneElement_JiaCeng.generated.h"
+#include "SEJC.generated.h"
 
 class ASceneActor;
 class ACharacterBase;

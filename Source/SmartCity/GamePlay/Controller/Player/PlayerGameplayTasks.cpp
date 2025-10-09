@@ -215,7 +215,7 @@ void UGT_CameraTransformLocaterByID::Activate()
 {
 	Super::Activate();
 
-	if (TargetDevicePtr)
+	if (TargetDevicePtr.IsValid())
 	{
 	}
 	else
@@ -223,13 +223,13 @@ void UGT_CameraTransformLocaterByID::Activate()
 		TargetDevicePtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(ID).Get();
 	}
 
-	if (!TargetDevicePtr)
+	if (!TargetDevicePtr.IsValid())
 	{
 		return;
 	}
 
 	auto Result = UKismetAlgorithm::GetCameraSeat(
-	                                              {TargetDevicePtr},
+	                                              {TargetDevicePtr.Get()},
 	                                              UGameOptions::GetInstance()->ViewDeviceRot,
 	                                              UGameOptions::GetInstance()->ViewDeviceControlParam.FOV
 	                                             );
@@ -767,6 +767,11 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				if (ThirdIter.Key.bOnlyKey)
 				{
 				}
+				else if (ThirdIter.Key.bSkip)
+				{
+					bIsSceneElement = true;
+					continue;
+				}
 				else
 				{
 					if (*MetaDataIter != ThirdIter.Key.Value)
@@ -971,9 +976,6 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
-			TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
-
-			const auto FloorIndex = FloorIter.Value->FloorIndex;
 
 			TempDataSmithSceneActorsSet.Append(
 			                                   FloorIter.Value->AllReference.StructItemSet.DatasmithSceneActorSet.
@@ -986,19 +988,14 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 
 			DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
 
-			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.
-			                                      Array()
+			ReplaceActorsSet.Append(
+			                            FloorIter.Value->AllReference.StructItemSet.OtherItem
 			                           );
-			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.
-			                                      Array()
+			ReplaceActorsSet.Append(
+			                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
 			                           );
-
-			ReplaceActorsSet.Append(TempReplaceActorsSet.Array());
 
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
-			TSet<TSoftObjectPtr<AReplaceActorBase>> TempHideReplaceActorsSet;
 
 			TempHideDataSmithSceneActorsSet.Append(
 			                                       FloorIter.Value->AllReference.SoftDecorationItem.
@@ -1012,10 +1009,8 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 
 			HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
 
-			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SoftDecorationItem.ReplaceActorSet.Array());
-			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.ReplaceActorSet.Array());
-
-			HideReplaceActorsSet.Append(TempHideReplaceActorsSet.Array());
+			HideReplaceActorsSet.Append(FloorIter.Value->AllReference.SoftDecorationItem.OtherItem);
+			HideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.OtherItem);
 		}
 	}
 	else if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
@@ -1034,7 +1029,6 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 			if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
-				TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
 
 				const auto FloorIndex = FloorIter.Value->FloorIndex;
 
@@ -1060,29 +1054,22 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 
 				DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
 
-				TempReplaceActorsSet.Append(
-				                            FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.
-				                                      Array()
+				ReplaceActorsSet.Append(
+				                            FloorIter.Value->AllReference.StructItemSet.OtherItem
 				                           );
-				TempReplaceActorsSet.Append(
-				                            FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.
-				                                      Array()
+				ReplaceActorsSet.Append(
+				                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
 				                           );
-				TempReplaceActorsSet.Append(
-				                            FloorIter.Value->AllReference.SoftDecorationItem.ReplaceActorSet.
-				                                      Array()
+				ReplaceActorsSet.Append(
+				                            FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
 				                           );
-				TempReplaceActorsSet.Append(
-				                            FloorIter.Value->AllReference.SpaceItemSet.ReplaceActorSet.
-				                                      Array()
+				ReplaceActorsSet.Append(
+				                            FloorIter.Value->AllReference.SpaceItemSet.OtherItem
 				                           );
-
-				ReplaceActorsSet.Append(TempReplaceActorsSet.Array());
 			}
 			else
 			{
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
-				TSet<TSoftObjectPtr<AReplaceActorBase>> TempHideReplaceActorsSet;
 
 				TempHideDataSmithSceneActorsSet.Append(
 				                                       FloorIter.Value->AllReference.StructItemSet.
@@ -1106,18 +1093,16 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 
 				HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
 
-				TempHideReplaceActorsSet.Append(
-				                                FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.Array()
+				HideReplaceActorsSet.Append(
+				                                FloorIter.Value->AllReference.StructItemSet.OtherItem
 				                               );
-				TempHideReplaceActorsSet.Append(
-				                                FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.Array()
+				HideReplaceActorsSet.Append(
+				                                FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
 				                               );
-				TempHideReplaceActorsSet.Append(
-				                                FloorIter.Value->AllReference.SoftDecorationItem.ReplaceActorSet.Array()
+				HideReplaceActorsSet.Append(
+				                                FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
 				                               );
-				TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.ReplaceActorSet.Array());
-
-				HideReplaceActorsSet.Append(TempHideReplaceActorsSet.Array());
+				HideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.OtherItem);
 			}
 		}
 	}
@@ -1142,21 +1127,18 @@ bool UGT_SwitchSceneElementState::ProcessTask_Hiden()
 		return true;
 	}
 
-	if (ReplaceActorsSetIndex < ReplaceActorsSet.Num())
+	if (!ReplaceActorsSet.IsEmpty())
 	{
-		ON_SCOPE_EXIT
+		for (auto Iter : ReplaceActorsSet)
 		{
-			ReplaceActorsSetIndex++;
-		};
+			DisplayAry.Add(Iter.LoadSynchronous());
+		}
 
-		TArray<AActor*> OutActors;
-		ReplaceActorsSet[ReplaceActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-
-		DisplayAry.Append(OutActors);
-
+		ReplaceActorsSet.Empty();
+		
 		return true;
 	}
-
+	
 	if (HideDataSmithSceneActorsSetIndex < HideDataSmithSceneActorsSet.Num())
 	{
 		ON_SCOPE_EXIT
@@ -1172,21 +1154,18 @@ bool UGT_SwitchSceneElementState::ProcessTask_Hiden()
 		return true;
 	}
 
-	if (HideRePlaceActorsSetIndex < HideReplaceActorsSet.Num())
+	if (!HideReplaceActorsSet.IsEmpty())
 	{
-		ON_SCOPE_EXIT
+		for (auto Iter : HideReplaceActorsSet)
 		{
-			HideRePlaceActorsSetIndex++;
-		};
-
-		TArray<AActor*> OutActors;
-		HideReplaceActorsSet[HideRePlaceActorsSetIndex]->GetAttachedActors(OutActors, true, true);
-
-		HideAry.Append(OutActors);
-
+			HideAry.Add(Iter.LoadSynchronous());
+		}
+		
+		HideReplaceActorsSet.Empty();
+		
 		return true;
 	}
-
+	
 	return false;
 }
 
@@ -1363,7 +1342,7 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
-			TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
+			TSet<TSoftObjectPtr<ASceneElementBase>> TempReplaceActorsSet;
 
 			const auto FloorIndex = FloorIter.Value->FloorIndex;
 
@@ -1379,18 +1358,18 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 			DataSmithSceneActorsSet.Add(FloorIndex, TempDataSmithSceneActorsSet.Array());
 
 			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.
+			                            FloorIter.Value->AllReference.StructItemSet.OtherItem.
 			                                      Array()
 			                           );
 			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.
+			                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem.
 			                                      Array()
 			                           );
 
 			ReplaceActorsSet.Add(FloorIndex, TempReplaceActorsSet.Array());
 
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
-			TSet<TSoftObjectPtr<AReplaceActorBase>> TempHideReplaceActorsSet;
+			TSet<TSoftObjectPtr<ASceneElementBase>> TempHideReplaceActorsSet;
 
 			TempDataSmithSceneActorsSet.Append(
 			                                   FloorIter.Value->AllReference.SoftDecorationItem.DatasmithSceneActorSet.
@@ -1402,8 +1381,8 @@ bool UGT_FloorSplit::ProcessTask_Sort()
 
 			HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
 
-			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SoftDecorationItem.ReplaceActorSet.Array());
-			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.ReplaceActorSet.Array());
+			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SoftDecorationItem.OtherItem.Array());
+			TempHideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.OtherItem.Array());
 
 			HideReplaceActorsSet.Append(TempHideReplaceActorsSet.Array());
 		}
@@ -1676,7 +1655,7 @@ bool UGT_QuitFloorSplit::ProcessTask_Sort()
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
-			TSet<TSoftObjectPtr<AReplaceActorBase>> TempReplaceActorsSet;
+			TSet<TSoftObjectPtr<ASceneElementBase>> TempReplaceActorsSet;
 
 			const auto FloorIndex = FloorIter.Value->FloorIndex;
 
@@ -1692,11 +1671,11 @@ bool UGT_QuitFloorSplit::ProcessTask_Sort()
 			DataSmithSceneActorsSet.Add(FloorIndex, TempDataSmithSceneActorsSet.Array());
 
 			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.StructItemSet.ReplaceActorSet.
+			                            FloorIter.Value->AllReference.StructItemSet.OtherItem.
 			                                      Array()
 			                           );
 			TempReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.InnerStructItemSet.ReplaceActorSet.
+			                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem.
 			                                      Array()
 			                           );
 

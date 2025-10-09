@@ -1,4 +1,4 @@
- // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,18 +21,42 @@ class SMARTCITY_API APersonMark : public AActor
 	GENERATED_BODY()
 
 public:
-	APersonMark(const FObjectInitializer& ObjectInitializer);
+	APersonMark(
+		const FObjectInitializer& ObjectInitializer
+		);
 
-	virtual void Tick(float DeltaTime) override;
-	
-	void Update(const FVector& NewLocation);
-	
+	virtual void BeginPlay() override;
+
+	virtual void Tick(
+		float DeltaTime
+		) override;
+
+	void Update(
+		const FVector& NewLocation
+		);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USceneComponent> AnchorComponent;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float RotSpeed = 10;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FColor Color1 = FColor::Green;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FColor Color2 = FColor::Red;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MinDistance = 50;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MaxDistance = 150;
+
+	TSharedPtr<TSet<APersonMark*>> Marks;
 };
 
 /*
@@ -44,11 +68,14 @@ class SMARTCITY_API AFireMark : public AActor
 	GENERATED_BODY()
 
 public:
-	AFireMark(const FObjectInitializer& ObjectInitializer);
+	AFireMark(
+		const FObjectInitializer& ObjectInitializer
+		);
 
-	void Update(const FVector& NewLocation);
-	
+	void Update(
+		const FVector& NewLocation
+		);
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<UNiagaraComponent> NiagaraComponent;
-
 };

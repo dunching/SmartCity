@@ -7,7 +7,7 @@
 #include "DatasmithAssetUserData.h"
 #include "ElevatorSubSystem.h"
 #include "GameplayTagsLibrary.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "LogWriter.h"
 #include "OpenWorldSystem.h"
 #include "PlanetPlayerController.h"
@@ -55,6 +55,32 @@ void SmartCityCommand::AdjustCameraSeat(
 		                                                               *Args[0]
 		                                                              )
 		                                              );
+		return;
+	}
+}
+
+void SmartCityCommand::SwitchInteractionType(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+													   FString::Printf(
+																	   TEXT(
+																			R"({
+    "CMD": "SwitchInteractionType",
+    "InteractionType": "%s"
+})"
+																		   ),
+																	   *Args[0]
+																	  )
+													  );
 		return;
 	}
 }

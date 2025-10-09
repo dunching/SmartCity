@@ -9,13 +9,14 @@
 #include "PlayerGameplayTasks.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "ViewerPawn.h"
 #include "TourPawn.h"
 
 TourProcessor::FViewSingleDeviceProcessor::FViewSingleDeviceProcessor(
 	FOwnerPawnType* CharacterPtr
-	):
-	 Super(CharacterPtr)
+	) :
+	  Super(CharacterPtr)
 {
 }
 
@@ -23,24 +24,59 @@ void TourProcessor::FViewSingleDeviceProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
+																	   USmartCitySuiteTags::Interaction_Area_ViewDevice,
+																	   [this](
+																	   const TSharedPtr<FDecoratorBase>&
+																	   DecoratorSPtr
+																	   )
+																	   {
+																		   auto ActualDecoratorSPtr =
+																			   DynamicCastSharedPtr<
+																				   FViewDevice_Decorator>(
+																					DecoratorSPtr
+																				   );
+																		   if (ActualDecoratorSPtr)
+																		   {
+																			   ActualDecoratorSPtr->
+																				   SceneElementPtr =
+																				   TargetDevicePtr;
+																		   }
+																	   }
+																	  );
+	
 	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FSingleDeviceMode_Decorator>(
-											  USmartCitySuiteTags::Interaction_Mode,
-											  USmartCitySuiteTags::Interaction_Mode_View
-											 );
+		 USmartCitySuiteTags::Interaction_Mode,
+		 USmartCitySuiteTags::Interaction_Mode_View,
+		 [this](
+		 const TSharedPtr<FDecoratorBase>& DecoratorSPtr
+		 )
+		 {
+			 auto SingleDeviceMode_DecoratorSPtr = DynamicCastSharedPtr<FSingleDeviceMode_Decorator>(DecoratorSPtr);
+			 if (SingleDeviceMode_DecoratorSPtr)
+			 {
+				 SingleDeviceMode_DecoratorSPtr->TargetDevicePtr = TargetDevicePtr;
+			 }
+		 }
+		);
 
 	SwitchShowCursor(true);
-	
+
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
-		UpdateCameraArmLen(GameOptionsPtr->
-						   ViewDeviceControlParam, 0);
+		UpdateCameraArmLen(
+		                   GameOptionsPtr->
+		                   ViewDeviceControlParam,
+		                   0
+		                  );
 
-		UpdateCameraClampPitch(GameOptionsPtr->
-						   ViewDeviceControlParam);
-					
+		UpdateCameraClampPitch(
+		                       GameOptionsPtr->
+		                       ViewDeviceControlParam
+		                      );
 	}
 }
 

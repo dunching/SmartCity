@@ -12,7 +12,7 @@
 #include "DatasmithAssetUserData.h"
 #include "GameplayCommand.h"
 #include "GameplayTagsLibrary.h"
-#include "InputProcessorSubSystem_Imp.h"
+#include "IPSSI.h"
 #include "LogWriter.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
@@ -710,139 +710,6 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 		if (SceneElementBasePtr)
 		{
 			SceneElementBasePtr->SwitchInteractionType(ConditionalSet);
-		}
-	}
-	else
-	{
-		{
-			if (ConditionalSet.ConditionalSet.IsEmpty())
-			{
-				if (!FocusActors.Contains(DevicePtr))
-				{
-					return;
-				}
-
-				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-				if (PrimitiveComponentPtr)
-				{
-					PrimitiveComponentPtr->SetRenderCustomDepth(false);
-				}
-
-				FocusActors.Remove(DevicePtr);
-
-				if (!RouteMarkers.Contains(DevicePtr))
-				{
-					return;
-				}
-
-				if (RouteMarkers[DevicePtr])
-				{
-					RouteMarkers[DevicePtr]->RemoveFromParent();
-				}
-
-				RouteMarkers.Remove(DevicePtr);
-
-				return;
-			}
-		}
-		{
-			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			    EmptyContainer.Num())
-			{
-				if (FocusActors.Contains(DevicePtr))
-				{
-					return;
-				}
-
-				FocusActors.Add(DevicePtr);
-
-				return;
-			}
-		}
-		{
-			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus);
-
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			    EmptyContainer.Num())
-			{
-				if (FocusActors.Contains(DevicePtr))
-				{
-					return;
-				}
-
-				FocusActors.Add(DevicePtr);
-
-				auto PrimitiveComponentPtr = DevicePtr->GetComponentByClass<UPrimitiveComponent>();
-				if (PrimitiveComponentPtr)
-				{
-					PrimitiveComponentPtr->SetRenderCustomDepth(true);
-					PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-				}
-
-				if (RouteMarkers.Contains(DevicePtr))
-				{
-					return;
-				}
-
-				const auto Name = GetName(DevicePtr);
-				if (Name.IsEmpty())
-				{
-					return;
-				}
-				auto RouteMarkerPtr = CreateWidget<URouteMarker>(
-				                                                 GEngine->GetFirstLocalPlayerController(GetWorld()),
-				                                                 UAssetRefMap::GetInstance()->RouteMarkerClass
-				                                                );
-				if (RouteMarkerPtr)
-				{
-					RouteMarkerPtr->TextStr = Name;
-					RouteMarkerPtr->TargetActor = DevicePtr;
-					RouteMarkerPtr->AddToViewport();
-				}
-
-				RouteMarkers.Add(DevicePtr, RouteMarkerPtr);
-
-
-				return;
-			}
-		}
-		{
-			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
-
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			    EmptyContainer.Num())
-			{
-				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-					TourProcessor::FViewSingleDeviceProcessor>(
-					                                           [DevicePtr](
-					                                           auto NewProcessor
-					                                           )
-					                                           {
-						                                           NewProcessor->TargetDevicePtr = DevicePtr;
-					                                           }
-					                                          );
-
-				return;
-			}
-		}
-		{
-			auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-			EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-			if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			    EmptyContainer.Num())
-			{
-				return;
-			}
 		}
 	}
 }
