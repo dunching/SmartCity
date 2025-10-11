@@ -48,6 +48,33 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void QuitFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void QuitViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void QuitShowDevice(
+		) override;
+	
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitShowDeviceEffect(
+		) override;
+	
+	virtual void QuitAllState(
+		) override;
+	
 protected:
 
 	void SwitchLight(int32 Intensity);

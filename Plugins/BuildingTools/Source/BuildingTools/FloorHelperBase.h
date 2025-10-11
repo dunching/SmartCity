@@ -29,6 +29,17 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
+	virtual void BeginPlay() override;
+	
+	virtual void OnConstruction(const FTransform& Transform) override;;
+	
+	virtual void PostActorCreated() override;
+	
+	virtual void PostInitializeComponents() override;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<USceneComponent> SceneComponentPtr;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<UBoxComponent> BoxComponentPtr;
 	

@@ -141,8 +141,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(true);
-
+			QuitAllState();
 			return;
 		}
 	}
@@ -155,12 +154,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			SetEmissiveValue(1);
-			SwitchLight(5);
-
-			RevertOnriginalMat();
+			EntryShoweviceEffect();
 			
 			return;
 		}
@@ -174,8 +168,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 			EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
+			EntryShoweviceEffect();
 			return;
 		}
 	}
@@ -237,12 +230,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			RevertOnriginalMat();
-			
-			SetEmissiveValue(0);
-			SwitchLight(0);
+			EntryShowevice();
 
 			return;
 		}
@@ -255,15 +243,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
-				 [this](
-				 auto NewProcessor
-				 )
-				 {
-					 NewProcessor->TargetDevicePtr = this;
-				 }
-				);
-
+			EntryViewDevice();
 			return;
 		}
 	}
@@ -275,21 +255,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 			EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
+			EntryFocusDevice();
 			return;
 		}
 	}
@@ -298,16 +264,100 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		{
 		}
 
-		SetActorHiddenInGame(true);
-
-		if (RouteMarkerPtr)
-		{
-			RouteMarkerPtr->RemoveFromParent();
-		}
-		RouteMarkerPtr = nullptr;
+		QuitAllState();
 
 		return;
 	}
+}
+
+void ASceneElement_Lighting::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+	SetActorHiddenInGame(false);
+
+	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(true);
+		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+
+	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+	MessageBodySPtr->DeviceID = DeviceID;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+
+}
+
+void ASceneElement_Lighting::QuitFocusDevice()
+{
+	Super::QuitFocusDevice();
+}
+
+void ASceneElement_Lighting::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+	
+	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+		 [this](
+		 auto NewProcessor
+		 )
+		 {
+			 NewProcessor->TargetDevicePtr = this;
+		 }
+		);
+
+}
+
+void ASceneElement_Lighting::QuitViewDevice()
+{
+	Super::QuitViewDevice();
+}
+
+void ASceneElement_Lighting::EntryShowevice()
+{
+	Super::EntryShowevice();
+	SetActorHiddenInGame(false);
+
+	RevertOnriginalMat();
+			
+	SetEmissiveValue(0);
+	SwitchLight(0);
+}
+
+void ASceneElement_Lighting::QuitShowDevice()
+{
+	Super::QuitShowDevice();
+}
+
+void ASceneElement_Lighting::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+	
+	SetActorHiddenInGame(false);
+
+	SetEmissiveValue(1);
+	SwitchLight(5);
+
+	RevertOnriginalMat();
+}
+
+void ASceneElement_Lighting::QuitShowDeviceEffect()
+{
+	Super::QuitShowDeviceEffect();
+}
+
+void ASceneElement_Lighting::QuitAllState()
+{
+	Super::QuitAllState();
+	SetActorHiddenInGame(true);
+
+	if (RouteMarkerPtr)
+	{
+		RouteMarkerPtr->RemoveFromParent();
+	}
+	RouteMarkerPtr = nullptr;
 }
 
 void ASceneElement_Lighting::SwitchLight(

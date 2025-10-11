@@ -31,13 +31,12 @@ class SMARTCITY_API ASceneElement_HVAC :
 	GENERATED_BODY()
 
 public:
-
 	ASceneElement_HVAC(
 		const FObjectInitializer& ObjectInitializer
 		);
 
 	virtual void BeginPlay() override;
-	
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -47,13 +46,39 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void QuitFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void QuitViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void QuitShowDevice(
+		) override;
+	
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitShowDeviceEffect(
+		) override;
+	
+	virtual void QuitAllState(
+		) override;
+	
 	/**
 	 * 网格体
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UNiagaraComponent> NiagaraComponentPtr = nullptr;
-	
 };

@@ -203,6 +203,42 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	}
 }
 
+void ASceneElement_DeviceBase::EntryFocusDevice()
+{
+}
+
+void ASceneElement_DeviceBase::QuitFocusDevice()
+{
+}
+
+void ASceneElement_DeviceBase::EntryViewDevice()
+{
+}
+
+void ASceneElement_DeviceBase::QuitViewDevice()
+{
+}
+
+void ASceneElement_DeviceBase::EntryShowevice()
+{
+}
+
+void ASceneElement_DeviceBase::QuitShowDevice()
+{
+}
+
+void ASceneElement_DeviceBase::EntryShoweviceEffect()
+{
+}
+
+void ASceneElement_DeviceBase::QuitShowDeviceEffect()
+{
+}
+
+void ASceneElement_DeviceBase::QuitAllState()
+{
+}
+
 TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 {
 	auto Result = Super::GetSceneElementData();
