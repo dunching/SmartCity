@@ -4,7 +4,9 @@
 #include "ActorSequencePlayer.h"
 
 #include "AssetRefMap.h"
+#include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
+#include "WebChannelWorldSystem.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ASceneElement_RollerBlind::ASceneElement_RollerBlind(
@@ -21,81 +23,64 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+		)
 		{
-			SetActorHiddenInGame(false);
-
-			PlayAnimation(0);
+			QuitAllState();
 			
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
+			)
 		{
-			SetActorHiddenInGame(false);
-
-			PlayAnimation(UKismetMathLibrary::RandomFloatInRange(0,1));
-			
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
+			EntryShoweviceEffect();
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+			)
 		{
-			SetActorHiddenInGame(false);
+			EntryShowevice();
 
-			PlayAnimation(0);
-			
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
+		)
 		{
-			SetActorHiddenInGame(false);
+			QuitAllState();
 
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+			)
+		{
+			EntryShowevice();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
+			)
+		{
+			EntryShowevice();
 
 			return;
 		}
@@ -106,10 +91,79 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 		}
 
 		//
-		SetActorHiddenInGame(true);
+		QuitAllState();
 
 		return;
 	}
+}
+
+void ASceneElement_RollerBlind::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+
+	TArray<UStaticMeshComponent*> OutComponents;
+	GetComponents<UStaticMeshComponent>(OutComponents);
+
+	for (auto Iter : OutComponents)
+	{
+		if (Iter)
+		{
+			Iter->SetRenderCustomDepth(true);
+			Iter->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+		}
+	}
+
+	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
+
+	MessageBodySPtr->DeviceID = DeviceID;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+}
+
+void ASceneElement_RollerBlind::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+	SetActorHiddenInGame(false);
+
+}
+
+void ASceneElement_RollerBlind::EntryShowevice()
+{
+	Super::EntryShowevice();
+	SetActorHiddenInGame(false);
+
+	PlayAnimation(0);
+			
+}
+
+void ASceneElement_RollerBlind::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+	SetActorHiddenInGame(false);
+
+	PlayAnimation(UKismetMathLibrary::RandomFloatInRange(0,1));
+			
+}
+
+void ASceneElement_RollerBlind::QuitAllState()
+{
+	Super::QuitAllState();
+	SetActorHiddenInGame(false);
+
+	TArray<UStaticMeshComponent*> OutComponents;
+	GetComponents<UStaticMeshComponent>(OutComponents);
+
+	for (auto Iter : OutComponents)
+	{
+		if (Iter)
+		{
+			Iter->SetRenderCustomDepth(false);
+		}
+	}
+
+	
+	PlayAnimation(0);
+			
 }
 
 void ASceneElement_RollerBlind::PlayAnimation(

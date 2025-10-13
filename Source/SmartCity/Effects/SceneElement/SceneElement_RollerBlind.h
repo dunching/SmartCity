@@ -35,6 +35,21 @@ public:
 
 protected:
 
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitAllState(
+		) override;
+	
 	/**
 	 * 0 ~ 1
 	 * 0: 完全关闭
