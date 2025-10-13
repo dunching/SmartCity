@@ -34,7 +34,6 @@ class SMARTCITY_API ASceneElement_DeviceBase :
 	GENERATED_BODY()
 
 public:
-
 	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
@@ -48,20 +47,62 @@ public:
 
 	virtual void InitialSceneElement() override;
 
-	virtual TMap<FString,FString> GetStateDescription()const override;
-	
+	virtual TMap<FString, FString> GetStateDescription() const override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
-	
-	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
-	
-	UPROPERTY(BlueprintReadWrite,EditAnywhere )
-	FGameplayTag DeviceType ;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere )
+	/**
+	 * 选中的状态
+	 */
+	virtual void EntryFocusDevice(
+		);
+
+	virtual void QuitFocusDevice(
+		);
+
+	/**
+	 * 查看设备
+	 */
+	virtual void EntryViewDevice(
+		);
+
+	virtual void QuitViewDevice(
+		);
+
+	/**
+	 * 展示设备
+	 */
+	virtual void EntryShowevice(
+		);
+
+	virtual void QuitShowDevice(
+		);
+
+	/**
+	 * 展示设备动态效果
+	 */
+	virtual void EntryShoweviceEffect(
+		);
+
+	virtual void QuitShowDeviceEffect(
+		);
+
+	
+	/**
+	 * 退出所有状态
+	 */
+	virtual void QuitAllState(
+		);
+
+	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FGameplayTag DeviceType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
 	bool bIsOpened = false;
-	
 };

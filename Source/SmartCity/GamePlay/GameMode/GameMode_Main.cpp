@@ -11,7 +11,9 @@
 #include "SceneInteractionWorldSystem.h"
 #include "WeatherSystem.h"
 #include "DatasmithAssetUserData.h"
+#include "FloorHelper.h"
 #include "IPSSI.h"
+#include "LogWriter.h"
 #include "ViewBuildingProcessor.h"
 #include "TourPawn.h"
 
@@ -54,6 +56,22 @@ void AGameMode_Main::BeginPlay()
 	// 区域
 	ProcessSpace();
 #pragma endregion
+
+	FOnActorSpawned::FDelegate Delegate_OnActorSpawned;
+
+	Delegate_OnActorSpawned.BindLambda(
+	                                   [](
+	                                   AActor* ActorPtr
+	                                   )
+	                                   {
+		                                   if (ActorPtr && ActorPtr->IsA(AFloorHelper::StaticClass()))
+		                                   {
+			                                   PRINTINVOKEINFO();
+		                                   }
+	                                   }
+	                                  );
+
+	GWorld->AddOnActorSpawnedHandler(Delegate_OnActorSpawned);
 }
 
 void AGameMode_Main::EndPlay(

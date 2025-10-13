@@ -10,6 +10,7 @@
 #include "Tools.h"
 #include "AssetRefMap.h"
 #include "DatasmithAssetUserData.h"
+#include "FloorHelper.h"
 #include "GameplayCommand.h"
 #include "GameplayTagsLibrary.h"
 #include "IPSSI.h"
@@ -128,6 +129,7 @@ void USceneInteractionWorldSystem::SetInteractionOption(
 	const std::function<void(
 		const TSharedPtr<FInteraction_Decorator>&
 
+
 		
 		)>& Func,
 	bool bImmediatelyUpdate
@@ -212,9 +214,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 					}
 
 					SwitchDecoratorImp<FHVACMode_Decorator>(
-					                                           USmartCitySuiteTags::Interaction_Mode,
-					                                           USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
-					                                          );
+					                                        USmartCitySuiteTags::Interaction_Mode,
+					                                        USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
+					                                       );
 
 					return;
 				}
@@ -231,9 +233,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 					}
 
 					SwitchDecoratorImp<FLightingMode_Decorator>(
-					                                               USmartCitySuiteTags::Interaction_Mode,
-					                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
-					                                              );
+					                                            USmartCitySuiteTags::Interaction_Mode,
+					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+					                                           );
 
 					return;
 				}
@@ -268,9 +270,9 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 					}
 
 					SwitchDecoratorImp<FRadarMode_Decorator>(
-					                                            USmartCitySuiteTags::Interaction_Mode,
-					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
-					                                           );
+					                                         USmartCitySuiteTags::Interaction_Mode,
+					                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
+					                                        );
 
 					return;
 				}
@@ -585,6 +587,14 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 						                         )
 						                         {
 						                         }
+						                        );
+
+
+					                        TArray<AActor*> OutActors;
+					                        UGameplayStatics::GetAllActorsOfClass(
+						                         this,
+						                         AFloorHelper::StaticClass(),
+						                         OutActors
 						                        );
 				                        }
 				                       );
