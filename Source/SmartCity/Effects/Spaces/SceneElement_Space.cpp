@@ -146,13 +146,7 @@ void ASceneElement_Space::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(true);
-
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->RemoveFromParent();
-				RouteMarkerPtr = nullptr;
-			}
+			QuitAllState();
 
 			return;
 		}
@@ -577,6 +571,18 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 	}
 
 	return Result;
+}
+
+void ASceneElement_Space::QuitAllState()
+{
+	Super::QuitAllState();
+	SetActorHiddenInGame(true);
+
+	if (RouteMarkerPtr)
+	{
+		RouteMarkerPtr->RemoveFromParent();
+		RouteMarkerPtr = nullptr;
+	}
 }
 
 void ASceneElement_Space::SwitchColor(

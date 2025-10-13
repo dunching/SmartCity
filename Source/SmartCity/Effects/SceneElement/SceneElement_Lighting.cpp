@@ -142,6 +142,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		    EmptyContainer.Num())
 		{
 			QuitAllState();
+			
 			return;
 		}
 	}
@@ -156,19 +157,6 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		{
 			EntryShoweviceEffect();
 			
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			EntryShoweviceEffect();
 			return;
 		}
 	}
@@ -218,6 +206,28 @@ void ASceneElement_Lighting::SwitchInteractionType(
 					}
 				}
 			}
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
+		{
+			EntryShoweviceEffect();
+			
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
+		)
+		{
+			QuitAllState();
 
 			return;
 		}
@@ -281,12 +291,6 @@ void ASceneElement_Lighting::EntryFocusDevice()
 		PrimitiveComponentPtr->SetRenderCustomDepth(true);
 		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 	}
-
-	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-	MessageBodySPtr->DeviceID = DeviceID;
-
-	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 }
 

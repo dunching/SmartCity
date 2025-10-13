@@ -1264,6 +1264,7 @@ void FFloor_Decorator::Entry()
 
 				return;
 			}
+			
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -1531,11 +1532,53 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			return;
 		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElementState*
+
+
+				
+				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+																	  SceneActorConditional,
+																	  true,
+																	  MulticastDelegate
+																	 );
+
+			IncreaseWaitTaskCount();
+
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+				TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+																	[ this](
+																	auto NewProcessor
+																	)
+																	{
+																		NewProcessor->Interaction_Area =
+																			GetBranchDecoratorType();
+																	}
+																   );
+
+			return;
+		}
 
 		{
 			FSceneElementConditional SceneActorConditional;
 
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
 			TMulticastDelegate<void(
 				bool,

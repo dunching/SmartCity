@@ -173,7 +173,7 @@ void ASceneElement_HVAC::EntryFocusDevice()
 		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 	}
 
-	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
+	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
 
 	MessageBodySPtr->DeviceID = DeviceID;
 

@@ -184,12 +184,6 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
 
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
 			return;
 		}
 	}
@@ -232,10 +226,6 @@ void ASceneElement_DeviceBase::EntryShoweviceEffect()
 }
 
 void ASceneElement_DeviceBase::QuitShowDeviceEffect()
-{
-}
-
-void ASceneElement_DeviceBase::QuitAllState()
 {
 }
 

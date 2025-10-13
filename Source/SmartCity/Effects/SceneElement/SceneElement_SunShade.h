@@ -48,6 +48,21 @@ public:
 	void UpdateAngle(int32 Angle);
 
 protected:
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitAllState(
+		) override;
+	
 	void UpdateAngleImp();
 
 	void RemoveRouteMarker();

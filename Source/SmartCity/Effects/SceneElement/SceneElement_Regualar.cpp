@@ -139,14 +139,8 @@ void ASceneElement_Regualar::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			}
-
+			QuitAllState();
+			
 			return;
 		}
 	}
@@ -200,12 +194,6 @@ void ASceneElement_Regualar::SwitchInteractionType(
 				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 			}
 
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
 			return;
 		}
 	}
@@ -213,8 +201,20 @@ void ASceneElement_Regualar::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 		}
-		SetActorHiddenInGame(true);
-
+		QuitAllState();
 		return;
+	}
+}
+
+void ASceneElement_Regualar::QuitAllState()
+{
+	Super::QuitAllState();
+	
+	SetActorHiddenInGame(true);
+
+	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(false);
 	}
 }

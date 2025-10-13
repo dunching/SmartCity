@@ -264,6 +264,19 @@ struct FMessageBody_SelectedDevice : public FMessageBody_Send
 
 	FMessageBody_SelectedDevice();
 
+	TArray<FString> DeviceIDAry;
+
+protected:
+	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
+};
+
+USTRUCT()
+struct FMessageBody_ViewDevice : public FMessageBody_Send
+{
+	GENERATED_BODY()
+
+	FMessageBody_ViewDevice();
+
 	FString DeviceID;
 
 protected:
@@ -281,4 +294,5 @@ struct FMessageBody_Test : public FMessageBody_Send
 
 protected:
 };
+
 #pragma endregion

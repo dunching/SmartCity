@@ -50,6 +50,12 @@ public:
 
 	virtual void EndInteraction();
 
+	/**
+	 * 退出所有状态
+	 */
+	virtual void QuitAllState(
+		);
+
 	virtual TMap<FString, FString> GetStateDescription() const;
 
 	virtual void SwitchInteractionType(

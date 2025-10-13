@@ -465,12 +465,24 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
-	RootJsonObj->SetStringField(
-	                            TEXT("DeviceID"),
-	                            DeviceID
+	TArray<TSharedPtr<FJsonValue>> Array;
+
+	for(const auto Iter : DeviceIDAry)
+	{
+		Array.Add(MakeShared<FJsonValueString>(Iter));
+	}
+	
+	RootJsonObj->SetArrayField(
+	                            TEXT("DeviceIDAry"),
+	                            Array
 	                           );
 
 	return RootJsonObj;
+}
+
+FMessageBody_ViewDevice::FMessageBody_ViewDevice()
+{
+	CMD_Name = TEXT("ViewDevice");
 }
 
 FMessageBody_Receive_AdjustCameraSeat::FMessageBody_Receive_AdjustCameraSeat()
@@ -527,6 +539,18 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 
 		return;
 	}
+}
+
+TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
+
+	RootJsonObj->SetStringField(
+								TEXT("DeviceID"),
+								DeviceID
+							   );
+
+	return RootJsonObj;
 }
 
 FMessageBody_Test::FMessageBody_Test()

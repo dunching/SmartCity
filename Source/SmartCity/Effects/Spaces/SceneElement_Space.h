@@ -62,6 +62,9 @@ public:
 	FString DataSmith_Key = TEXT("Element*空间划分");
 protected:
 
+	virtual void QuitAllState(
+		) override;
+	
 	void SwitchColor(const FColor& Color);
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

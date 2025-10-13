@@ -23,7 +23,7 @@ ASceneElement_InfraredDetector::ASceneElement_InfraredDetector(
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
 
-	AnchorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnchorComponent"));
+	AnchorComponent = CreateDefaultSubobject<USceneComponent>(TEXT("AnchorComponent"));
 	AnchorComponent->SetupAttachment(StaticMeshComponent);
 
 	SweepEffectStaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(
@@ -38,6 +38,13 @@ void ASceneElement_InfraredDetector::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+
+	FVector Min;
+	FVector Max;
+	SweepEffectStaticMeshComponent->GetLocalBounds(Min, Max);
+
+	const auto Scale = Deepth / (Max.Z - Min.Z);
+	AnchorComponent->SetRelativeScale3D(FVector(1, 1, Scale));
 }
 
 FBox ASceneElement_InfraredDetector::GetComponentsBoundingBox(
@@ -48,29 +55,29 @@ FBox ASceneElement_InfraredDetector::GetComponentsBoundingBox(
 	FBox Box(ForceInit);
 
 	ForEachComponent<UPrimitiveComponent>(
-										  bIncludeFromChildActors,
-										  [&](
-										  const UPrimitiveComponent* InPrimComp
-										  )
-										  {
-											  if (InPrimComp == SweepEffectStaticMeshComponent)
-											  {
-												  return;
-											  }
+	                                      bIncludeFromChildActors,
+	                                      [&](
+	                                      const UPrimitiveComponent* InPrimComp
+	                                      )
+	                                      {
+		                                      if (InPrimComp == SweepEffectStaticMeshComponent)
+		                                      {
+			                                      return;
+		                                      }
 
-											  if (InPrimComp == AnchorComponent)
-											  {
-												  return;
-											  }
+		                                      if (InPrimComp == AnchorComponent)
+		                                      {
+			                                      return;
+		                                      }
 
-											  // Only use collidable components to find collision bounding box.
-											  if (InPrimComp->IsRegistered() && (
-													  bNonColliding || InPrimComp->IsCollisionEnabled()))
-											  {
-												  Box += InPrimComp->Bounds.GetBox();
-											  }
-										  }
-										 );
+		                                      // Only use collidable components to find collision bounding box.
+		                                      if (InPrimComp->IsRegistered() && (
+			                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
+		                                      {
+			                                      Box += InPrimComp->Bounds.GetBox();
+		                                      }
+	                                      }
+	                                     );
 
 	return Box;
 }
@@ -81,7 +88,7 @@ void ASceneElement_InfraredDetector::ReplaceImp(
 	)
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
-	
+
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
@@ -99,30 +106,34 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 	// Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+		)
 		{
-			SetActorHiddenInGame(true);
-			
+			QuitAllState();
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+		)
 		{
-			SetActorHiddenInGame(false);
+			EntryShoweviceEffect();
 
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
+		)
+		{
+			EntryShoweviceEffect();
 
 			return;
 		}
@@ -134,119 +145,90 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+			EntryShowevice();
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Interaction.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
-			SetActorHiddenInGame(false);
-
-			SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+			EntryShowevice();
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
+		)
 		{
-			SetActorHiddenInGame(false);
-
-			SweepEffectStaticMeshComponent->SetHiddenInGame(true);
-			
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+			EntryFocusDevice();
 
 			return;
 		}
 	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
-			return;
-		}
-	}
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 		}
-		SetActorHiddenInGame(true);
-		
+
+		QuitAllState();
+
 		return;
+	}
+}
+
+void ASceneElement_InfraredDetector::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+
+	SetActorHiddenInGame(false);
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(true);
+		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+}
+
+void ASceneElement_InfraredDetector::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+}
+
+void ASceneElement_InfraredDetector::EntryShowevice()
+{
+	Super::EntryShowevice();
+
+
+	SetActorHiddenInGame(false);
+
+
+	SweepEffectStaticMeshComponent->SetHiddenInGame(true);
+}
+
+void ASceneElement_InfraredDetector::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+	SetActorHiddenInGame(false);
+
+	SweepEffectStaticMeshComponent->SetHiddenInGame(false);
+}
+
+void ASceneElement_InfraredDetector::QuitAllState()
+{
+	Super::QuitAllState();
+
+	SetActorHiddenInGame(true);
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(false);
 	}
 }

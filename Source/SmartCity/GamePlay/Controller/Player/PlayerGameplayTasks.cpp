@@ -27,7 +27,6 @@
 #include "SceneElementBase.h"
 #include "TemplateHelper.h"
 #include "CollisionDataStruct.h"
-#include "SceneElement_RadarSweep.h"
 #include "SceneElement_Regualar.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"

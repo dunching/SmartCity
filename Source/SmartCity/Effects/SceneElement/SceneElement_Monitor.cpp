@@ -5,12 +5,14 @@
 #include "DatasmithAssetUserData.h"
 
 #include "CollisionDataStruct.h"
+#include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
+#include "WebChannelWorldSystem.h"
 
 ASceneElement_Monitor::ASceneElement_Monitor(
 	const FObjectInitializer& ObjectInitializer
-	):
-	 Super(ObjectInitializer)
+	) :
+	  Super(ObjectInitializer)
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
@@ -28,7 +30,7 @@ void ASceneElement_Monitor::ReplaceImp(
 	)
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
-	
+
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
@@ -40,10 +42,10 @@ void ASceneElement_Monitor::ReplaceImp(
 				return;
 			}
 			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-														InterfacePtr->GetAssetUserDataOfClass(
-															 UDatasmithAssetUserData::StaticClass()
-															)
-													   );
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
 
 			CheckIsJiaCeng(AUDPtr);
 
@@ -61,26 +63,109 @@ void ASceneElement_Monitor::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	Super::SwitchInteractionType(ConditionalSet);
-	
+	// Super::SwitchInteractionType(ConditionalSet);
+
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall))
 		{
-			SetActorHiddenInGame(false);
+			QuitAllState();
+			
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+			)
+		{
+			EntryShowevice();
 
 			return;
 		}
 	}
-	
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
+		)
+		{
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+			)
+		{
+			EntryShowevice();
+
+			return;
+		}
+	}
+
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
-		SetActorHiddenInGame(true);
+		QuitAllState();
 		return;
+	}
+
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		QuitAllState();
+
+		return;
+	}
+}
+
+void ASceneElement_Monitor::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(true);
+		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+
+	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
+
+	MessageBodySPtr->DeviceID = DeviceID;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+}
+
+void ASceneElement_Monitor::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Monitor::EntryShowevice()
+{
+	Super::EntryShowevice();
+	
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Monitor::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Monitor::QuitAllState()
+{
+	Super::QuitAllState();
+	SetActorHiddenInGame(true);
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(false);
 	}
 }

@@ -61,7 +61,22 @@ public:
 	TObjectPtr<UStaticMeshComponent> SweepEffectStaticMeshComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 Deepth = 120;
+	int32 Deepth = 20;
 	
 private:
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitAllState(
+		) override;
+	
 };

@@ -44,6 +44,21 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitAllState(
+		) override;
+	
 	/**
 	 * 网格体
 	 */

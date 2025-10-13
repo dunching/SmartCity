@@ -118,12 +118,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			UpdateAngle(0);
-
-			RemoveRouteMarker();
-
+			QuitAllState();
 			return;
 		}
 	}
@@ -136,9 +131,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			UpdateAngle(0);
+			EntryShoweviceEffect();
 
 			// RouteMarkerPtr = CreateWidget<URouteMarker>(
 			//                                             GEngine->GetFirstLocalPlayerController(GetWorld()),
@@ -161,9 +154,9 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
+			EntryShowevice();
 
 			return;
 		}
@@ -176,11 +169,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			UpdateAngle(-90);
-
-			RemoveRouteMarker();
+			EntryShowevice();
 
 			return;
 		}
@@ -191,23 +180,9 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedDevice>();
-
-			MessageBodySPtr->DeviceID = DeviceID;
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
+			EntryFocusDevice();
 			return;
 		}
 	}
@@ -216,15 +191,47 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		{
 		}
 
-		//
-		SetActorHiddenInGame(true);
 
-		UpdateAngle(0);
-
-		RemoveRouteMarker();
-
+		QuitAllState();
 		return;
 	}
+}
+
+void ASceneElement_SunShade::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+
+	SetActorHiddenInGame(false);
+
+	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(true);
+		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+}
+
+void ASceneElement_SunShade::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+}
+
+void ASceneElement_SunShade::EntryShowevice()
+{
+	Super::EntryShowevice();
+
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_SunShade::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+
+	SetActorHiddenInGame(false);
+
+	UpdateAngle(-90);
+
+	RemoveRouteMarker();
 }
 
 void ASceneElement_SunShade::UpdateAngle(
@@ -237,6 +244,24 @@ void ASceneElement_SunShade::UpdateAngle(
 
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateAngleImp, Frequency, true);
 	}
+}
+
+void ASceneElement_SunShade::QuitAllState()
+{
+	Super::QuitAllState();
+
+	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	}
+	
+	//
+	SetActorHiddenInGame(true);
+
+	UpdateAngle(0);
+
+	RemoveRouteMarker();
 }
 
 void ASceneElement_SunShade::UpdateAngleImp()

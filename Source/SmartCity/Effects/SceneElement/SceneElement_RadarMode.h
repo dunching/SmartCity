@@ -44,6 +44,11 @@ public:
 		float DeltaTime
 		) override;
 
+	virtual FBox GetComponentsBoundingBox(
+		bool bNonColliding = false,
+		bool bIncludeFromChildActors = false
+		) const override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -56,5 +61,48 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent>StaticMeshComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UStaticMesh>SweepMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UMaterialInstance>SweepMatInst;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AStaticMeshActor>SweepActor = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 Deepth = 120;
+
+private:
+	virtual void EntryFocusDevice(
+		) override;
+
+	virtual void EntryViewDevice(
+		) override;
+
+	virtual void EntryShowevice(
+		) override;
+
+	virtual void EntryShoweviceEffect(
+		) override;
+
+	virtual void QuitAllState(
+		) override;
+	
+	void EntryQuery();
+
+	void QuitQuery();
+
+	void RadarQuery();
+
+	void QueryComplete();
+
+	void UpdateMeshEffect();
+
+	FTimerHandle UpdateMeshTimerHandle;
+
+	FTimerHandle QueryTimerHandle;
+
+	TArray<APersonMark*> GeneratedMarkers;
 private:
 };

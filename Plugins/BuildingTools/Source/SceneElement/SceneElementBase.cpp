@@ -85,6 +85,10 @@ void ASceneElementBase::EndInteraction()
 {
 }
 
+void ASceneElementBase::QuitAllState()
+{
+}
+
 TMap<FString, FString> ASceneElementBase::GetStateDescription() const
 {
 	return {};
