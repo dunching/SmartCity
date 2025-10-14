@@ -123,7 +123,7 @@ void ASceneElement_Regualar::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{

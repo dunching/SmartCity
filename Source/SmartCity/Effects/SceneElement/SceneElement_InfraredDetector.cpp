@@ -103,7 +103,7 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		if (

@@ -125,7 +125,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{

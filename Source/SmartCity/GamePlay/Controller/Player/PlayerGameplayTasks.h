@@ -503,12 +503,15 @@ private:
 
 	bool ProcessTask_SwitchState();
 
+	bool ProcessTask_SwitchState_Elevator();
+
 	enum class EStep
 	{
 		kDisplay,
 		kHiden,
 		kConfirmConditional,
 		kSwitchState,
+		kSwitchState_Elevator,
 		kComplete,
 	};
 

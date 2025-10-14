@@ -33,7 +33,7 @@ void ASceneElement_AccessControl::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 	
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;

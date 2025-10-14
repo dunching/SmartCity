@@ -9,7 +9,7 @@ void ABuilding_Stairs::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
