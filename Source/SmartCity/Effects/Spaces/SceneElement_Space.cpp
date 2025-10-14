@@ -184,7 +184,12 @@ void ASceneElement_Space::SwitchInteractionType(
 			{
 				if (DeviceIter)
 				{
-					MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
+					FMessageBody_SelectedSpace::FDeviceInfo DeviceInfo;
+
+					DeviceInfo.DeviceID = DeviceIter->SceneElementID;
+					DeviceInfo.Type = DeviceIter->DeviceTypeStr;
+
+					MessageBodySPtr->DeviceIDAry.Add(DeviceInfo);
 				}
 			}
 

@@ -24,6 +24,8 @@ void ASceneElement_DeviceBase::ReplaceImp(
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
 
+	DeviceTypeStr = InUserData.Value;
+	
 	TArray<UStaticMeshComponent*> Components;
 	GetComponents<UStaticMeshComponent>(Components);
 	for (auto Iter : Components)

@@ -127,7 +127,8 @@ void ASceneElement_RollerBlind::EntryFocusDevice()
 
 	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
 
-	MessageBodySPtr->DeviceID = DeviceID;
+	MessageBodySPtr->DeviceID = SceneElementID;
+	MessageBodySPtr->Type = DeviceTypeStr;
 
 	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 }
@@ -160,7 +161,8 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 void ASceneElement_RollerBlind::QuitAllState()
 {
 	Super::QuitAllState();
-	SetActorHiddenInGame(false);
+	
+	SetActorHiddenInGame(true);
 
 	TArray<UStaticMeshComponent*> OutComponents;
 	GetComponents<UStaticMeshComponent>(OutComponents);

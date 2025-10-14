@@ -135,7 +135,8 @@ void ASceneElement_Monitor::EntryFocusDevice()
 
 	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
 
-	MessageBodySPtr->DeviceID = DeviceID;
+	MessageBodySPtr->DeviceID = SceneElementID;
+	MessageBodySPtr->Type = DeviceTypeStr;
 
 	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 }

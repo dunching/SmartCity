@@ -92,10 +92,13 @@ public:
 	
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString DeviceTypeStr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
 	bool bIsOpened = false;

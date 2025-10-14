@@ -72,8 +72,8 @@ public:
 	FString SceneElementName;
 #endif
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString DeviceID;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString SceneElementID;
 
 	FSceneElementConditional CurrentConditionalSet;
 	

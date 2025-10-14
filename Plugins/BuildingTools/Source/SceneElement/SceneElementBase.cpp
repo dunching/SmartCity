@@ -109,7 +109,7 @@ TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
 
 	RootJsonObj->SetStringField(
 								TEXT("ID"),
-								DeviceID
+								SceneElementID
 							   );
 
 	RootJsonObj->SetStringField(

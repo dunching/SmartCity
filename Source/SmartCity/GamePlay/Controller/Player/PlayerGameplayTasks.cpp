@@ -786,10 +786,10 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						);
 					NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 					NewActorPtr->InitialSceneElement();
-					NewActorPtr->DeviceID = *Datasmith_UniqueId;
+					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
 					USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
-					                                             Add(NewActorPtr->DeviceID, NewActorPtr);
+					                                             Add(NewActorPtr->SceneElementID, NewActorPtr);
 				}
 				bIsSceneElement = true;
 				break;
@@ -830,11 +830,11 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 						);
 					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
 					NewActorPtr->InitialSceneElement();
-					NewActorPtr->DeviceID = *Datasmith_UniqueId;
+					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
 					MergeActorsMap.Add(HashCode, NewActorPtr);
 					USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
-					                                             Add(NewActorPtr->DeviceID, NewActorPtr);
+					                                             Add(NewActorPtr->SceneElementID, NewActorPtr);
 				}
 
 				bIsSceneElement = true;
