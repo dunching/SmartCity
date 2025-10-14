@@ -313,7 +313,7 @@ void FMessageBody_Receive_LocaterDeviceByID::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
+	if (jsonObject->TryGetStringField(TEXT("SceneElementID"), DeviceID))
 	{
 	}
 }
@@ -448,10 +448,31 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
-	RootJsonObj->SetStringField(
-	                            TEXT("SpaceName"),
-	                            SpaceName
-	                           );
+	TArray<TSharedPtr<FJsonValue>> Array;
+
+	for(const auto Iter : DeviceIDAry)
+	{
+		TSharedPtr<FJsonObject>  JsonObj = MakeShareable<FJsonObject>(new FJsonObject);
+
+		JsonObj->SetStringField(
+									TEXT("Type"),
+									Iter.Type
+								   );
+
+		JsonObj->SetStringField(
+									TEXT("ID"),
+									Iter.DeviceID
+								   );
+
+		auto DeviceObjSPtr = MakeShared<FJsonValueObject>(JsonObj);
+		
+		Array.Add(DeviceObjSPtr);
+	}
+	
+	RootJsonObj->SetArrayField(
+								TEXT("DeviceIDAry"),
+								Array
+							   );
 
 	return RootJsonObj;
 }
@@ -546,7 +567,12 @@ TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
 	RootJsonObj->SetStringField(
-								TEXT("DeviceID"),
+								TEXT("Type"),
+								Type
+							   );
+
+	RootJsonObj->SetStringField(
+								TEXT("SceneElementID"),
 								DeviceID
 							   );
 

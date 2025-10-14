@@ -251,7 +251,15 @@ struct FMessageBody_SelectedSpace : public FMessageBody_Send
 
 	FString SpaceName;
 
-	TArray<FString> DeviceIDAry;
+	struct FDeviceInfo
+	{
+		FString Type;
+
+		FString DeviceID;
+
+	};
+	
+	TArray<FDeviceInfo> DeviceIDAry;
 
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
@@ -276,6 +284,8 @@ struct FMessageBody_ViewDevice : public FMessageBody_Send
 	GENERATED_BODY()
 
 	FMessageBody_ViewDevice();
+  
+	FString Type;
 
 	FString DeviceID;
 

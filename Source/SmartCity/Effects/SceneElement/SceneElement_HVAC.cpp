@@ -50,17 +50,15 @@ void ASceneElement_HVAC::SwitchInteractionType(
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
-		SetActorHiddenInGame(true);
+		QuitAllState();
+
 		return;
 	}
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			 )
 		{
 			QuitAllState();
 
@@ -84,42 +82,33 @@ void ASceneElement_HVAC::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect();
+			EntryShowevice();
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+			)
 		{
 			EntryShowevice();
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_View.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
+			)
 		{
 			EntryViewDevice();
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
+			)
 		{
 			EntryFocusDevice();
 			return;
@@ -157,6 +146,13 @@ void ASceneElement_HVAC::ReplaceImp(
 		                                           );
 
 		CheckIsJiaCeng(AUDPtr);
+
+		StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+
+		for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+		{
+			StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+		}
 	}
 }
 
@@ -175,7 +171,8 @@ void ASceneElement_HVAC::EntryFocusDevice()
 
 	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
 
-	MessageBodySPtr->DeviceID = DeviceID;
+	MessageBodySPtr->DeviceID = SceneElementID;
+	MessageBodySPtr->Type = DeviceTypeStr;
 
 	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 }
