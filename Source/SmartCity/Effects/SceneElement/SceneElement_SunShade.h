@@ -71,7 +71,10 @@ protected:
 	 * 固定的网格体
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> ChestMeshComponent = nullptr;
+	TObjectPtr<USceneComponent> BaseComponent = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> SceneComponent = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> FanAncherMeshComponent = nullptr;

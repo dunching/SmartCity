@@ -28,8 +28,6 @@ ASceneElement_Space::ASceneElement_Space(
 void ASceneElement_Space::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void ASceneElement_Space::ReplaceImp(
@@ -83,8 +81,8 @@ void ASceneElement_Space::Merge(
 
 			auto SpaceMaterialInstance = UAssetRefMap::GetInstance()->SpaceMaterialInstance;
 
-			auto MatInst  = UMaterialInstanceDynamic::Create(SpaceMaterialInstance.LoadSynchronous(), this);
-			
+			auto MatInst = UMaterialInstanceDynamic::Create(SpaceMaterialInstance.LoadSynchronous(), this);
+
 			for (int32 Index = 0; Index < NewComponentPtr->GetNumMaterials(); Index++)
 			{
 				NewComponentPtr->SetMaterial(Index, MatInst);
@@ -139,12 +137,9 @@ void ASceneElement_Space::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+		)
 		{
 			QuitAllState();
 
@@ -152,17 +147,14 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
+		)
 		{
 			SetActorHiddenInGame(false);
-			
+
 			SwitchColor(FColor::Red);
-			
+
 			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 			if (PrimitiveComponentPtr)
 			{
@@ -173,7 +165,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 			MessageBodySPtr->SpaceName = Category;
-			
+
 			TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
 
 			for (const auto& Iter : ActorsAry)
@@ -195,7 +187,7 @@ void ASceneElement_Space::SwitchInteractionType(
 					MessageBodySPtr->DeviceIDAry.Add(DeviceIter->DeviceID);
 				}
 			}
-			
+
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
 
 			auto HUDPtr = Cast<AMainHUD>(
@@ -225,12 +217,11 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -260,7 +251,7 @@ void ASceneElement_Space::SwitchInteractionType(
 						SetActorHiddenInGame(false);
 
 						SwitchColor(FColor::White);
-			
+
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -287,13 +278,10 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -323,7 +311,7 @@ void ASceneElement_Space::SwitchInteractionType(
 						SetActorHiddenInGame(false);
 
 						SwitchColor(FColor::White);
-			
+
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -350,14 +338,9 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Interaction);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -387,7 +370,7 @@ void ASceneElement_Space::SwitchInteractionType(
 						SetActorHiddenInGame(false);
 
 						SwitchColor(FColor::White);
-			
+
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -414,13 +397,10 @@ void ASceneElement_Space::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Interaction);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Interaction)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -450,7 +430,7 @@ void ASceneElement_Space::SwitchInteractionType(
 						SetActorHiddenInGame(false);
 
 						SwitchColor(FColor::White);
-			
+
 						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 						if (HUDPtr)
 						{
@@ -481,25 +461,7 @@ void ASceneElement_Space::SwitchInteractionType(
 		{
 		}
 
-		SetActorHiddenInGame(true);
-
-		auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-		if (HUDPtr)
-		{
-			HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-		}
-
-		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-		if (PrimitiveComponentPtr)
-		{
-			PrimitiveComponentPtr->SetRenderCustomDepth(false);
-		}
-
-		if (RouteMarkerPtr)
-		{
-			RouteMarkerPtr->RemoveFromParent();
-			RouteMarkerPtr = nullptr;
-		}
+		QuitAllState();
 
 		return;
 	}
@@ -512,14 +474,14 @@ TSharedPtr<FJsonValue> ASceneElement_Space::GetSceneElementData() const
 	auto RootJsonObj = Result->AsObject();
 
 	RootJsonObj->SetStringField(
-								TEXT("DataSmith_Key"),
-								DataSmith_Key
-							   );
+	                            TEXT("DataSmith_Key"),
+	                            DataSmith_Key
+	                           );
 
 	RootJsonObj->SetStringField(
-								TEXT("Category"),
-								Category
-							   );
+	                            TEXT("Category"),
+	                            Category
+	                           );
 
 	return Result;
 }
@@ -533,7 +495,7 @@ void ASceneElement_Space::SetFeatures(
 
 TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 {
-	TSet<ASceneElement_DeviceBase*>Result;
+	TSet<ASceneElement_DeviceBase*> Result;
 
 	TArray<FOverlapResult> OutOverlap;
 
@@ -551,15 +513,15 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 	for (auto MeshIter : StaticMeshComponentsAry)
 	{
 		GetWorld()->ComponentOverlapMulti(
-										  OutOverlap,
-										  MeshIter,
-										  FVector::ZeroVector,
-										  FRotator::ZeroRotator,
-										  // StaticMeshComponent->GetComponentLocation(),
-										  // StaticMeshComponent->GetComponentRotation(),
-										  Params,
-										  ObjectQueryParams
-										 );
+		                                  OutOverlap,
+		                                  MeshIter,
+		                                  FVector::ZeroVector,
+		                                  FRotator::ZeroRotator,
+		                                  // StaticMeshComponent->GetComponentLocation(),
+		                                  // StaticMeshComponent->GetComponentRotation(),
+		                                  Params,
+		                                  ObjectQueryParams
+		                                 );
 
 		for (const auto& Iter : OutOverlap)
 		{
@@ -576,7 +538,20 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 void ASceneElement_Space::QuitAllState()
 {
 	Super::QuitAllState();
+
 	SetActorHiddenInGame(true);
+
+	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
+	if (HUDPtr)
+	{
+		HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+	}
+
+	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	if (PrimitiveComponentPtr)
+	{
+		PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	}
 
 	if (RouteMarkerPtr)
 	{
@@ -594,7 +569,7 @@ void ASceneElement_Space::SwitchColor(
 		const auto Mats = MeshIter->GetMaterials();
 		for (auto MatIter : Mats)
 		{
-			auto MatInst =Cast<UMaterialInstanceDynamic>(MatIter);
+			auto MatInst = Cast<UMaterialInstanceDynamic>(MatIter);
 			if (MatInst)
 			{
 				MatInst->SetVectorParameterValue(UAssetRefMap::GetInstance()->SpaceMaterialColorName, Color);

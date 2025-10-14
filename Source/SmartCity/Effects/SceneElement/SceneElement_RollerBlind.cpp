@@ -16,11 +16,23 @@ ASceneElement_RollerBlind::ASceneElement_RollerBlind(
 {
 }
 
+void ASceneElement_RollerBlind::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void ASceneElement_RollerBlind::EndPlay(
+	const EEndPlayReason::Type EndPlayReason
+	)
+{
+	Super::EndPlay(EndPlayReason);
+}
+
 void ASceneElement_RollerBlind::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		if (

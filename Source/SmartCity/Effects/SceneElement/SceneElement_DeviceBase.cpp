@@ -106,95 +106,95 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(true);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			}
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(false);
-			}
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
-		{
-			SetActorHiddenInGame(false);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			return;
-		}
-	}
-	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-		}
-		SetActorHiddenInGame(true);
-
-		return;
-	}
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	    EmptyContainer.Num())
+	// 	{
+	// 		SetActorHiddenInGame(true);
+	//
+	// 		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	// 		if (PrimitiveComponentPtr)
+	// 		{
+	// 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	// 		}
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar.GetTag());
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	    EmptyContainer.Num())
+	// 	{
+	// 		SetActorHiddenInGame(false);
+	//
+	// 		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	// 		if (PrimitiveComponentPtr)
+	// 		{
+	// 			PrimitiveComponentPtr->SetRenderCustomDepth(true);
+	// 			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	// 		}
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	    EmptyContainer.Num())
+	// 	{
+	// 		SetActorHiddenInGame(false);
+	//
+	// 		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	// 		if (PrimitiveComponentPtr)
+	// 		{
+	// 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+	// 		}
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 		EmptyContainer.Num())
+	// 	{
+	// 		SetActorHiddenInGame(false);
+	//
+	// 		auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+	// 		if (PrimitiveComponentPtr)
+	// 		{
+	// 			PrimitiveComponentPtr->SetRenderCustomDepth(true);
+	// 			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	// 		}
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	if (ConditionalSet.ConditionalSet.IsEmpty())
+	// 	{
+	// 	}
+	// 	SetActorHiddenInGame(true);
+	//
+	// 	return;
+	// }
 }
 
 void ASceneElement_DeviceBase::EntryFocusDevice()

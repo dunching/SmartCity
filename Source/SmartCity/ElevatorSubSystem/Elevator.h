@@ -42,6 +42,12 @@ public:
 	
 protected:
 
+	/**
+	 * 退出所有状态
+	 */
+	virtual void QuitAllState(
+		) override;
+
 	UFUNCTION()
 	void MoveElevator();
 

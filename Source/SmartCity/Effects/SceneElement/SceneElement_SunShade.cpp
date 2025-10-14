@@ -17,15 +17,14 @@ ASceneElement_SunShade::ASceneElement_SunShade(
 	) :
 	  Super(ObjectInitializer)
 {
-	ChestMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestMeshComponent"));
-	ChestMeshComponent->SetupAttachment(RootComponent);
+	BaseComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestMeshComponent"));
+	BaseComponent->SetupAttachment(RootComponent);
 
-	ChestMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	ChestMeshComponent->SetCollisionObjectType(Device_Object);
-	ChestMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
+	SceneComponent->SetupAttachment(BaseComponent);
 
 	FanAncherMeshComponent = CreateDefaultSubobject<USceneComponent>(TEXT("FanAncherMeshComponent"));
-	FanAncherMeshComponent->SetupAttachment(RootComponent);
+	FanAncherMeshComponent->SetupAttachment(SceneComponent);
 
 	FanMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FanMeshComponent"));
 	FanMeshComponent->SetupAttachment(FanAncherMeshComponent);
@@ -62,33 +61,11 @@ void ASceneElement_SunShade::ReplaceImp(
 			return;
 		}
 
-		const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(FloorPtr->BoxComponentPtr->GetComponentToWorld())
-		                                 .GetBox().GetCenter();
-		const auto Dir = FloorCenter - GetActorLocation();
-
-		const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
-
-		// DrawDebugSphere(GetWorld(), FloorCenter, 20, 20, FColor::Red, true);
-		// DrawDebugLine(
-		//               GetWorld(),
-		//               GetActorLocation(),
-		//               GetActorLocation() + (GetActorRightVector() * 100),
-		//               FColor::Red,
-		//               true
-		//              );
-
-		if (Dot > 0)
-		{
-			SetActorRotation(GetActorRotation() + FRotator(0, 180, 0));
-		}
-		else
-		{
-		}
-
 		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
 		if (STPtr)
 		{
-			ChestMeshComponent->SetRelativeTransform(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			const auto Transient = STPtr->GetStaticMeshComponent()->GetRelativeTransform();
+			// BaseComponent->SetRelativeTransform(Transient);
 
 			FanMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
@@ -100,6 +77,39 @@ void ASceneElement_SunShade::ReplaceImp(
 
 			FanAncherMeshComponent->SetRelativeLocation(FVector(0, 0, Box.GetSize().Z));
 			FanMeshComponent->SetRelativeLocation(FVector(0, 0, -Box.GetSize().Z));
+			
+			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(FloorPtr->BoxComponentPtr->GetComponentToWorld())
+											 .GetBox().GetCenter();
+			const auto Dir = FloorCenter - GetActorLocation();
+
+			const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
+
+			if (Dot > 0)
+			{
+				// DrawDebugSphere(GetWorld(), FloorCenter, 20, 20, FColor::Red, true);
+				// DrawDebugLine(
+				//               GetWorld(),
+				//               GetActorLocation(),
+				//               GetActorLocation() + (GetActorRightVector() * 100),
+				//               FColor::Red,
+				//               true
+				//              );
+
+				SceneComponent->SetRelativeRotation(FRotator(0, 180, 0));
+			}
+			else
+			{
+				// DrawDebugSphere(GetWorld(), FloorCenter, 20, 20, FColor::Yellow, true);
+				// DrawDebugLine(
+				//               GetWorld(),
+				//               GetActorLocation(),
+				//               GetActorLocation() + (GetActorRightVector() * 100),
+				//               FColor::Yellow,
+				//               true
+				//              );
+
+			}
+
 		}
 	}
 }
@@ -108,7 +118,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	// Super::SwitchInteractionType(ConditionalSet);
+	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;

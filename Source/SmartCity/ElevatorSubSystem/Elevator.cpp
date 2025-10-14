@@ -22,28 +22,10 @@ void AElevator::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 	
 	{
-		if (ConditionalSet.ConditionalSet.IsEmpty())
-		{
-			SetActorHiddenInGame(true);
-
-			TArray<UStaticMeshComponent*> StaticMeshComponents;
-			GetComponents<UStaticMeshComponent>(StaticMeshComponents);
-
-			for (auto Iter : StaticMeshComponents)
-			{
-				Iter->SetRenderCustomDepth(false);
-			}
-			
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() == EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)&&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator)
+			)
 		{
 			SetActorHiddenInGame(false);
 
@@ -58,6 +40,16 @@ void AElevator::SwitchInteractionType(
 			
 			return;
 		}
+	}
+
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		
+		QuitAllState();
+
+		return;
 	}
 }
 
@@ -85,6 +77,22 @@ void AElevator::ChangeTargetFloorIndex(
 			}
 		}
 	}
+}
+
+void AElevator::QuitAllState()
+{
+	Super::QuitAllState();
+	
+	SetActorHiddenInGame(true);
+
+	TArray<UStaticMeshComponent*> StaticMeshComponents;
+	GetComponents<UStaticMeshComponent>(StaticMeshComponents);
+
+	for (auto Iter : StaticMeshComponents)
+	{
+		Iter->SetRenderCustomDepth(false);
+	}
+			
 }
 
 void AElevator::MoveElevator()
