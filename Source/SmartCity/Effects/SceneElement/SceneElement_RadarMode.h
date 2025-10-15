@@ -19,6 +19,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class APersonMark;
+class AStaticMeshActor;
 
 /**
  * 雷达扫描效果
@@ -58,6 +59,8 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
+	void UpdatePositions(const TArray<FVector>& Pts);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent>StaticMeshComponent;
 
@@ -89,16 +92,6 @@ private:
 	virtual void QuitAllState(
 		) override;
 	
-	void EntryQuery();
-
-	void QuitQuery();
-
-	void RadarQuery();
-
-	void QueryComplete();
-
-	void UpdateMeshEffect();
-
 	FTimerHandle UpdateMeshTimerHandle;
 
 	FTimerHandle QueryTimerHandle;

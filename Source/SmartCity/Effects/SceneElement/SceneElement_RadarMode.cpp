@@ -68,8 +68,6 @@ void ASceneElement_RadarMode::Tick(
 	)
 {
 	Super::Tick(DeltaTime);
-
-	UpdateMeshEffect();
 }
 
 FBox ASceneElement_RadarMode::GetComponentsBoundingBox(
@@ -79,14 +77,20 @@ FBox ASceneElement_RadarMode::GetComponentsBoundingBox(
 {
 	FBox Box(ForceInit);
 
-	ForEachComponent<UPrimitiveComponent>(bIncludeFromChildActors, [&](const UPrimitiveComponent* InPrimComp)
-	{
-		// Only use collidable components to find collision bounding box.
-		if (InPrimComp->IsRegistered() && (bNonColliding || InPrimComp->IsCollisionEnabled()))
-		{
-			Box += InPrimComp->Bounds.GetBox();
-		}
-	});
+	ForEachComponent<UPrimitiveComponent>(
+	                                      bIncludeFromChildActors,
+	                                      [&](
+	                                      const UPrimitiveComponent* InPrimComp
+	                                      )
+	                                      {
+		                                      // Only use collidable components to find collision bounding box.
+		                                      if (InPrimComp->IsRegistered() && (
+			                                          bNonColliding || InPrimComp->IsCollisionEnabled()))
+		                                      {
+			                                      Box += InPrimComp->Bounds.GetBox();
+		                                      }
+	                                      }
+	                                     );
 
 	return Box;
 }
@@ -95,15 +99,15 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
-			)
+		)
 		{
 			QuitAllState();
-			
+
 			return;
 		}
 	}
@@ -111,7 +115,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
-			)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -122,7 +126,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
-			)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -134,7 +138,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction)
-			)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -145,7 +149,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
-			)
+		)
 		{
 			EntryShowevice();
 
@@ -166,7 +170,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-			)
+		)
 		{
 			EntryShowevice();
 
@@ -175,8 +179,18 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
+		)
+		{
+			EntryViewDevice();
+
+			return;
+		}
+	}
+	{
+		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
-			)
+		)
 		{
 			EntryShowevice();
 
@@ -214,7 +228,7 @@ void ASceneElement_RadarMode::EntryFocusDevice()
 void ASceneElement_RadarMode::EntryViewDevice()
 {
 	Super::EntryViewDevice();
-	
+
 	SetActorHiddenInGame(false);
 
 	SweepActor->SetActorHiddenInGame(true);
@@ -223,7 +237,7 @@ void ASceneElement_RadarMode::EntryViewDevice()
 void ASceneElement_RadarMode::EntryShowevice()
 {
 	Super::EntryShowevice();
-	
+
 	SetActorHiddenInGame(false);
 
 	SweepActor->SetActorHiddenInGame(true);
@@ -236,24 +250,29 @@ void ASceneElement_RadarMode::EntryShoweviceEffect()
 	SetActorHiddenInGame(false);
 
 	SweepActor->SetActorHiddenInGame(false);
-	
-	EntryQuery();
 }
 
 void ASceneElement_RadarMode::QuitAllState()
 {
 	Super::QuitAllState();
-	
+
 	SetActorHiddenInGame(true);
 
 	SweepActor->SetActorHiddenInGame(true);
-	
+
 	if (StaticMeshComponent)
 	{
 		StaticMeshComponent->SetRenderCustomDepth(false);
 	}
-	
-	QuitQuery();
+
+	for (auto Iter : GeneratedMarkers)
+	{
+		if (Iter)
+		{
+			Iter->Destroy();
+		}
+	}
+	GeneratedMarkers.Empty();
 }
 
 void ASceneElement_RadarMode::ReplaceImp(
@@ -274,10 +293,10 @@ void ASceneElement_RadarMode::ReplaceImp(
 				return;
 			}
 			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-														InterfacePtr->GetAssetUserDataOfClass(
-															 UDatasmithAssetUserData::StaticClass()
-															)
-													   );
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
 
 			CheckIsJiaCeng(AUDPtr);
 
@@ -287,67 +306,50 @@ void ASceneElement_RadarMode::ReplaceImp(
 			{
 				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 			}
-			
+
 			SweepActor = GetWorld()->SpawnActor<AStaticMeshActor>(GetActorLocation(), GetActorRotation());
 			SweepActor->SetMobility(EComponentMobility::Movable);
 			SweepActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SweepActor->GetStaticMeshComponent()->SetStaticMesh(SweepMesh.LoadSynchronous());
 			const auto MatsNum = SweepActor->GetStaticMeshComponent()->GetNumMaterials();
-			for (int32 Index = 0;Index < MatsNum;Index++)
+			for (int32 Index = 0; Index < MatsNum; Index++)
 			{
 				SweepActor->GetStaticMeshComponent()->SetMaterial(Index, SweepMatInst.LoadSynchronous());
 			}
-	
+
 			const auto Scale = Deepth / 10;
 			SweepActor->GetStaticMeshComponent()->SetRelativeScale3D(FVector(Scale, Scale, 1));
-	
 		}
 	}
 }
 
-void ASceneElement_RadarMode::EntryQuery()
+void ASceneElement_RadarMode::UpdatePositions(
+	const TArray<FVector>& Pts
+	)
 {
-#if TEST_RADAR
-	RadarQuery();
-#else
-	GetWorld()->GetTimerManager().SetTimer(
-	                                       QueryTimerHandle,
-	                                       std::bind(&ThisClass::RadarQuery, this),
-	                                       UGameOptions::GetInstance()->RadarQueryFrequency,
-	                                       true,
-	                                       0
-	                                      );
-#endif
-}
-
-void ASceneElement_RadarMode::QuitQuery()
-{
-	GetWorld()->GetTimerManager().ClearTimer(
-	                                         QueryTimerHandle
-	                                        );
-
-	for (auto Iter : GeneratedMarkers)
 	{
-		Iter->Destroy();
+		if (
+			CurrentConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			CurrentConditionalSet.ConditionalSet.HasTagExact(
+			                                                 USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
+			                                                )
+		)
+		{
+		}
+		else if (
+			CurrentConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			CurrentConditionalSet.ConditionalSet.HasTagExact(
+															 USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
+															)
+		)
+		{
+		}
+		else
+		{
+			return;
+		}
 	}
-	GeneratedMarkers.Empty();
-}
-
-void ASceneElement_RadarMode::RadarQuery()
-{
-#if TEST_RADAR
-	QueryComplete();
-#else
-
-#endif
-}
-
-void ASceneElement_RadarMode::QueryComplete()
-{
-#if TEST_RADAR
-	// int32 Num = FMath::RandRange(1, 5);
-	int32 Num = 5;
-
+	
 	auto AreaDecoratorSPtr =
 		DynamicCastSharedPtr<FArea_Decorator>(
 		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
@@ -356,9 +358,12 @@ void ASceneElement_RadarMode::QueryComplete()
 		                                     );
 	if (AreaDecoratorSPtr)
 	{
-		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(BelongFloor->BoxComponentPtr->GetComponentToWorld());
+		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(
+		                                                               BelongFloor->BoxComponentPtr->
+		                                                               GetComponentToWorld()
+		                                                              );
 		const auto Offset = FloorBox.GetBox().GetExtent().Z;
-		
+
 		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
 			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()))
@@ -366,16 +371,13 @@ void ASceneElement_RadarMode::QueryComplete()
 				const auto FloorLocation = Iter.Value->GetActorLocation();
 
 				auto Marks = MakeShared<TSet<APersonMark*>>();
-	
-				for (int32 Index = 0; Index < Num; Index++)
-				{
-					const auto Pt = FMath::RandPointInBox(
-					                                      FBox(
-					                                           FVector(-(Deepth * 10), -(Deepth * 10), -Offset),
-					                                           FVector(0, 0, -Offset)
-					                                          )
-					                                     );
 
+				for (int32 Index = 0; Index < Pts.Num(); Index++)
+				{
+					auto Pt = Pts[Index];
+
+					Pt.Z = -Offset + 50;
+					
 					if (GeneratedMarkers.IsValidIndex(Index))
 					{
 						GeneratedMarkers[Index]->Update(Pt);
@@ -387,33 +389,23 @@ void ASceneElement_RadarMode::QueryComplete()
 							);
 						NewMarkPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 						NewMarkPtr->Update(Pt);
-						
+
 						NewMarkPtr->Marks = Marks;
 
 						Marks->Add(NewMarkPtr);
-						
+
 						GeneratedMarkers.Add(NewMarkPtr);
 					}
 				}
 
-				break;
+				for (int32 Index = GeneratedMarkers.Num() - 1; Index >= Pts.Num(); Index--)
+				{
+					GeneratedMarkers[Index]->Destroy();
+					GeneratedMarkers.RemoveAt(Index);
+				}
+				
+				return;
 			}
 		}
-		for (int32 Index = GeneratedMarkers.Num() - 1; Index >= Num; Index--)
-		{
-			GeneratedMarkers[Index]->Destroy();
-			GeneratedMarkers.RemoveAt(Index);
-		}
 	}
-#else
-
-#endif
-}
-
-void ASceneElement_RadarMode::UpdateMeshEffect()
-{
-	// for (auto& Iter : MeshAry)
-	// {
-	// 	Iter.Value += Speed;
-	// }
 }

@@ -38,7 +38,7 @@ void ASceneElement_Lighting::ReplaceImp(
 		if (STPtr)
 		{
 			auto Components
-			= STPtr->GetComponents();
+				= STPtr->GetComponents();
 			for (auto SecondIter : Components)
 			{
 				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
@@ -47,15 +47,15 @@ void ASceneElement_Lighting::ReplaceImp(
 					continue;
 				}
 				auto AUDPtr = Cast<UDatasmithAssetUserData>(
-															InterfacePtr->GetAssetUserDataOfClass(
-																 UDatasmithAssetUserData::StaticClass()
-																)
-														   );
+				                                            InterfacePtr->GetAssetUserDataOfClass(
+					                                             UDatasmithAssetUserData::StaticClass()
+					                                            )
+				                                           );
 				if (!AUDPtr)
 				{
 					continue;
 				}
-				
+
 				CheckIsJiaCeng(AUDPtr);
 
 				auto ID = AUDPtr->MetaData.Find(TEXT("Element*设备回路编号"));
@@ -66,7 +66,7 @@ void ASceneElement_Lighting::ReplaceImp(
 
 				PWR_ID = *ID;
 			}
-			
+
 			TArray<ULocalLightComponent*> LocalLightComponents;
 			GetComponents<ULocalLightComponent>(LocalLightComponents);
 
@@ -125,7 +125,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
@@ -134,40 +134,31 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	}
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			)
 		{
 			QuitAllState();
-			
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
+			)
 		{
 			EntryShoweviceEffect();
-			
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
+			)
 		{
 			SetActorHiddenInGame(false);
 
@@ -176,11 +167,11 @@ void ASceneElement_Lighting::SwitchInteractionType(
 
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FEnergyMode_Decorator>(
-															USceneInteractionWorldSystem::GetInstance()->
-															GetDecorator(
-																		 USmartCitySuiteTags::Interaction_Mode
-																		)
-														   );
+				                                            USceneInteractionWorldSystem::GetInstance()->
+				                                            GetDecorator(
+				                                                         USmartCitySuiteTags::Interaction_Mode
+				                                                        )
+				                                           );
 			if (!DecoratorSPtr)
 			{
 				return;
@@ -189,7 +180,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			{
 				return;
 			}
-			
+
 			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
 
 			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
@@ -216,8 +207,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect();
-			
+			EntryShowevice();
+
 			return;
 		}
 	}
@@ -233,12 +224,9 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+			)
 		{
 			EntryShowevice();
 
@@ -246,29 +234,26 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_View.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
+			)
 		{
 			EntryViewDevice();
+
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Mode_Focus.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
+			)
 		{
-			EntryFocusDevice();
+			EntryShowevice();
+
 			return;
 		}
 	}
+	
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
@@ -291,7 +276,6 @@ void ASceneElement_Lighting::EntryFocusDevice()
 		PrimitiveComponentPtr->SetRenderCustomDepth(true);
 		PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 	}
-
 }
 
 void ASceneElement_Lighting::QuitFocusDevice()
@@ -302,7 +286,7 @@ void ASceneElement_Lighting::QuitFocusDevice()
 void ASceneElement_Lighting::EntryViewDevice()
 {
 	Super::EntryViewDevice();
-	
+
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
 		 [this](
 		 auto NewProcessor
@@ -311,7 +295,6 @@ void ASceneElement_Lighting::EntryViewDevice()
 			 NewProcessor->TargetDevicePtr = this;
 		 }
 		);
-
 }
 
 void ASceneElement_Lighting::QuitViewDevice()
@@ -322,12 +305,13 @@ void ASceneElement_Lighting::QuitViewDevice()
 void ASceneElement_Lighting::EntryShowevice()
 {
 	Super::EntryShowevice();
+
 	SetActorHiddenInGame(false);
 
-	RevertOnriginalMat();
-			
 	SetEmissiveValue(0);
 	SwitchLight(0);
+
+	RevertOnriginalMat();
 }
 
 void ASceneElement_Lighting::QuitShowDevice()
@@ -338,13 +322,11 @@ void ASceneElement_Lighting::QuitShowDevice()
 void ASceneElement_Lighting::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
-	
+
 	SetActorHiddenInGame(false);
 
 	SetEmissiveValue(1);
 	SwitchLight(5);
-
-	RevertOnriginalMat();
 }
 
 void ASceneElement_Lighting::QuitShowDeviceEffect()
@@ -355,7 +337,11 @@ void ASceneElement_Lighting::QuitShowDeviceEffect()
 void ASceneElement_Lighting::QuitAllState()
 {
 	Super::QuitAllState();
+
 	SetActorHiddenInGame(true);
+
+
+	RevertOnriginalMat();
 
 	if (RouteMarkerPtr)
 	{
@@ -392,22 +378,22 @@ void ASceneElement_Lighting::SetEmissiveValue(
 	int32 Value
 	)
 {
-	for (auto MeshIter : StaticMeshComponentsAry)
-	{
-		const auto Num = MeshIter->GetNumMaterials();
-		for (int32 Index = 0; Index < Num; Index++)
-		{
-			auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
-			MeshIter->SetMaterial(Index, MaterialPtr);
-		}
-
-		for (int32 Index = 0; Index < Num; Index++)
-		{
-			auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
-			if (MaterialPtr)
-			{
-				MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
-			}
-		}
-	}
+	// for (auto MeshIter : StaticMeshComponentsAry)
+	// {
+	// 	const auto Num = MeshIter->GetNumMaterials();
+	// 	for (int32 Index = 0; Index < Num; Index++)
+	// 	{
+	// 		auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
+	// 		MeshIter->SetMaterial(Index, MaterialPtr);
+	// 	}
+	//
+	// 	for (int32 Index = 0; Index < Num; Index++)
+	// 	{
+	// 		auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
+	// 		if (MaterialPtr)
+	// 		{
+	// 			MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
+	// 		}
+	// 	}
+	// }
 }

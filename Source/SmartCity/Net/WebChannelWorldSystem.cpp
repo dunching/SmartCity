@@ -86,6 +86,10 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_SwitchInteractionType>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateRadarInfo>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
 }
 
 void UWebChannelWorldSystem::SendMessage(

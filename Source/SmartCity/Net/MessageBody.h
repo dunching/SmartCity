@@ -213,8 +213,44 @@ public:
 	virtual void DoAction() const override;
 
 	FString InteractionType;
-
 };
+
+USTRUCT()
+struct FMessageBody_Receive_UpdateRadarInfo : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+public:
+	FMessageBody_Receive_UpdateRadarInfo();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	FString DeviceID;
+
+	struct FUpdateRadarInfo
+	{
+		FVector2D Acceleration;
+		
+		FVector2D Position;
+		
+		FVector2D Velocity;
+		
+		FString TID;
+		
+		int32 EC = 0;
+		
+		int32 G = 0;
+		
+		int32 NumberOfTargets = 0;
+	};
+
+	TArray<FUpdateRadarInfo> Value;
+};
+
 #pragma endregion
 
 #pragma region Send
@@ -256,9 +292,8 @@ struct FMessageBody_SelectedSpace : public FMessageBody_Send
 		FString Type;
 
 		FString DeviceID;
-
 	};
-	
+
 	TArray<FDeviceInfo> DeviceIDAry;
 
 protected:
@@ -284,7 +319,7 @@ struct FMessageBody_ViewDevice : public FMessageBody_Send
 	GENERATED_BODY()
 
 	FMessageBody_ViewDevice();
-  
+
 	FString Type;
 
 	FString DeviceID;

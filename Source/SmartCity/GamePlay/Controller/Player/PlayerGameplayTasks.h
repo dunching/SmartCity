@@ -313,7 +313,6 @@ protected:
 	int32 PerTickProcessNum = 100;
 
 private:
-	int32 CurrentTickProcessNum = 0;
 };
 
 #pragma endregion
@@ -430,9 +429,6 @@ private:
 	int32 SpaceItemSetIndex = 0;
 
 	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
-
-
-	TMap<int32, ASceneElementBase*> MergeActorsMap;
 };
 
 #pragma endregion

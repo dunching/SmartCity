@@ -1141,7 +1141,17 @@ void FFloor_Decorator::Entry()
 				                                                          MulticastDelegate
 				                                                         );
 
-				IncreaseWaitTaskCount();
+				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+																		[this](
+																		auto NewProcessor
+																		)
+																		{
+																			NewProcessor->Interaction_Area =
+																				GetBranchDecoratorType();
+																		}
+																	   );
+
 				return;
 			}
 			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
@@ -1249,8 +1259,6 @@ void FFloor_Decorator::Entry()
 																		  MulticastDelegate
 																		 );
 
-				IncreaseWaitTaskCount();
-
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
 																		[this](
@@ -1289,7 +1297,17 @@ void FFloor_Decorator::Entry()
 				                                                          MulticastDelegate
 				                                                         );
 
-				IncreaseWaitTaskCount();
+				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+																		[this](
+																		auto NewProcessor
+																		)
+																		{
+																			NewProcessor->Interaction_Area =
+																				GetBranchDecoratorType();
+																		}
+																	   );
+
 				return;
 			}
 		}
@@ -1318,8 +1336,6 @@ void FFloor_Decorator::Entry()
 	                                                          true,
 	                                                          MulticastDelegate
 	                                                         );
-
-	IncreaseWaitTaskCount();
 
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 		TourProcessor::FViewSingleFloorProcessor>(
@@ -1410,7 +1426,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			                                                          MulticastDelegate
 			                                                         );
 
-			IncreaseWaitTaskCount();
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+				TourProcessor::FViewSingleFloorProcessor>(
+														  [this](
+														  auto NewProcessor
+														  )
+														  {
+															  NewProcessor->Interaction_Area =
+																  GetBranchDecoratorType();
+														  }
+														 );
+
 			return;
 		}
 		if (NewDecoratorSPtr->GetBranchDecoratorType().
@@ -1468,7 +1494,6 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				)> MulticastDelegate;
 
 			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
-			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 			                                                          SceneActorConditional,
@@ -1509,7 +1534,6 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				)> MulticastDelegate;
 
 			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
-			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 																	  SceneActorConditional,
@@ -1520,7 +1544,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			IncreaseWaitTaskCount();
 
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-				TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+				TourProcessor::FViewSingleFloorProcessor>(
 																	[ this](
 																	auto NewProcessor
 																	)
@@ -1550,7 +1574,6 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				)> MulticastDelegate;
 
 			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
-			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
 																	  SceneActorConditional,
@@ -1561,7 +1584,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			IncreaseWaitTaskCount();
 
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-				TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+				TourProcessor::FViewSingleFloorProcessor>(
 																	[ this](
 																	auto NewProcessor
 																	)

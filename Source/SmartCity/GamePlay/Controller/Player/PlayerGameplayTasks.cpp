@@ -276,39 +276,58 @@ void UGT_BatchBase::TickTask(
 	{
 	case EUseScopeType::kTime:
 		{
-			double InScopeSeconds = 0.;
+			double TotalTime = 0.;
 			for (;;)
 			{
-				FSimpleScopeSecondsCounter SimpleScopeSecondsCounter(InScopeSeconds);
-				if (InScopeSeconds > ScopeTime)
+				double InScopeSeconds = 0.;
 				{
-					InScopeSeconds = 0;
+					FSimpleScopeSecondsCounter SimpleScopeSecondsCounter(InScopeSeconds);
+
+					if (ProcessTask(DeltaTime))
+					{
+					}
+					else
+					{
+						break;
+					}
+					
+				}
+				TotalTime += InScopeSeconds;
+
+				// PRINTINVOKEWITHSTR(FString::Printf(TEXT("InScopeSeconds %.2lf"), InScopeSeconds));
+				// PRINTINVOKEWITHSTR(FString::Printf(TEXT("TotalTime %.2lf"), TotalTime));
+				
+				if (TotalTime > ScopeTime)
+				{
 					return;
 				}
 
-				if (ProcessTask(DeltaTime))
+				if (UseScopeType != EUseScopeType::kTime)
 				{
-				}
-				else
-				{
-					break;
+					return;
 				}
 			}
 		}
 		break;
 	case EUseScopeType::kCount:
 		{
+			int32 CurrentTickProcessNum = 0;
 			for (;;)
 			{
 				if (ProcessTask(DeltaTime))
 				{
 					CurrentTickProcessNum++;
-					if (CurrentTickProcessNum < PerTickProcessNum)
+					if (CurrentTickProcessNum < PerTickProcessNum )
 					{
 					}
 					else
 					{
 						CurrentTickProcessNum = 0;
+						return;
+					}
+
+					if (UseScopeType != EUseScopeType::kCount)
+					{
 						return;
 					}
 				}
@@ -601,6 +620,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 	TArray<AActor*> OutActors;
 	SpaceItemSet[SpaceItemSetIndex]->GetAttachedActors(OutActors, true, true);
 
+	TMap<int32, ASceneElementBase*> MergeActorsMap;
 	for (auto Iter : OutActors)
 	{
 		if (Iter)
@@ -619,6 +639,12 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 					                                            )
 				                                           );
 				if (!AUDPtr)
+				{
+					continue;
+				}
+
+				auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
+				if (!Datasmith_UniqueId)
 				{
 					continue;
 				}
@@ -655,6 +681,8 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 						 SceneElement_SpaceClass
 						);
 					NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
+					NewActorPtr->InitialSceneElement();
+					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
 					MergeActorsMap.Add(HashCode, NewActorPtr);
 				}
@@ -724,6 +752,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 	TArray<AActor*> OutActors;
 	ItemSet->GetAttachedActors(OutActors, true, true);
 
+	TMap<int32, ASceneElementBase*> MergeActorsMap;
 	for (auto& Iter : OutActors)
 	{
 		if (!IsValid(Iter))
@@ -942,7 +971,8 @@ bool UGT_SwitchSceneElementState::ProcessTask(
 			}
 
 			UseScopeType = EUseScopeType::kCount;
-
+			PerTickProcessNum = 500;
+			
 			Step = EStep::kSwitchState;
 			return true;
 		}
@@ -972,6 +1002,10 @@ bool UGT_SwitchSceneElementState::ProcessTask(
 
 			Step = EStep::kComplete;
 			return true;
+		}
+	case EStep::kComplete:
+	default:
+		{
 		}
 	}
 

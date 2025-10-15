@@ -27,6 +27,24 @@ void ASceneElement_PWR_Pipe::BeginPlay()
 	Super::BeginPlay();
 }
 
+FBox ASceneElement_PWR_Pipe::GetComponentsBoundingBox(
+	bool bNonColliding,
+	bool bIncludeFromChildActors
+	) const
+{
+	FBox Box(ForceInit);
+
+	for (auto Iter : StaticMeshComponentsAry)
+	{
+		if (Iter->IsRegistered() && (bNonColliding || Iter->IsCollisionEnabled()))
+		{
+			Box += Iter->Bounds.GetBox();
+		}
+	}
+	
+	return Box;
+}
+
 void ASceneElement_PWR_Pipe::ReplaceImp(
 	AActor* ActorPtr,
 	const TPair<FName, FString>& InUserData
@@ -61,12 +79,15 @@ void ASceneElement_PWR_Pipe::Merge(
 
 			CheckIsJiaCeng(AUDPtr);
 
+			auto Transform =
+				STPtr->GetStaticMeshComponent()->
+				       GetComponentTransform();
+			
 			auto NewComponentPtr = Cast<UStaticMeshComponent>(
 			                                                  AddComponentByClass(
 				                                                   UStaticMeshComponent::StaticClass(),
 				                                                   true,
-				                                                   STPtr->GetStaticMeshComponent()->
-				                                                          GetComponentTransform(),
+				                                                   Transform,
 				                                                   false
 				                                                  )
 			                                                 );
@@ -322,7 +343,7 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 void ASceneElement_PWR_Pipe::QuitAllState()
 {
 	Super::QuitAllState();
-	
+
 	SetActorHiddenInGame(true);
 
 	for (auto Iter : StaticMeshComponentsAry)

@@ -30,6 +30,24 @@ void ASceneElement_Space::BeginPlay()
 	Super::BeginPlay();
 }
 
+FBox ASceneElement_Space::GetComponentsBoundingBox(
+	bool bNonColliding,
+	bool bIncludeFromChildActors
+	) const
+{
+	FBox Box(ForceInit);
+
+	for (auto Iter : StaticMeshComponentsAry)
+	{
+		if (Iter->IsRegistered() && (bNonColliding || Iter->IsCollisionEnabled()))
+		{
+			Box += Iter->Bounds.GetBox();
+		}
+	}
+	
+	return Box;
+}
+
 void ASceneElement_Space::ReplaceImp(
 	AActor* ActorPtr,
 	const TPair<FName, FString>& InUserData

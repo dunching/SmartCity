@@ -65,7 +65,8 @@ void ASceneElementBase::Merge(
 		if (ParentPtr && !GetAttachParentActor())
 		{
 			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
-			SetActorTransform(ActorRef.LoadSynchronous()->GetTransform());
+			// SetActorTransform(ActorRef.LoadSynchronous()->GetTransform());
+			SetActorTransform(FTransform::Identity);
 		}
 
 		TArray<AActor*> OutActors;

@@ -6,6 +6,7 @@
 #include "IPSSI.h"
 #include "PlanetPlayerCameraManager.h"
 #include "SceneElement_DeviceBase.h"
+#include "SceneElement_RadarMode.h"
 #include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
@@ -15,6 +16,7 @@
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
+#include "GameFramework/InputSettings.h"
 
 FMessageBody::FMessageBody()
 {
@@ -354,14 +356,13 @@ void FMessageBody_Receive_SwitchInteractionType::Deserialize(
 	TSharedPtr<FJsonObject> jsonObject;
 
 	FJsonSerializer::Deserialize(
-								 JsonReader,
-								 jsonObject
-								);
+	                             JsonReader,
+	                             jsonObject
+	                            );
 
 	if (jsonObject->TryGetStringField(TEXT("InteractionType"), InteractionType))
 	{
 	}
-
 }
 
 void FMessageBody_Receive_SwitchInteractionType::DoAction() const
@@ -400,6 +401,85 @@ void FMessageBody_Receive_SwitchInteractionType::DoAction() const
 		                                                                  },
 		                                                                  true
 		                                                                 );
+	}
+}
+
+FMessageBody_Receive_UpdateRadarInfo::FMessageBody_Receive_UpdateRadarInfo()
+{
+	CMD_Name = TEXT("UpdateRadarInfo");
+}
+
+void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
+	{
+	}
+
+	Value.Empty();
+	
+	const TArray<TSharedPtr<FJsonValue>>* OutArray;
+	if (jsonObject->TryGetArrayField(TEXT("value"), OutArray))
+	{
+		for (const auto& JsonValueIter : *OutArray)
+		{
+			auto ObjSPtr = JsonValueIter->AsObject();
+
+			FUpdateRadarInfo UpdateRadarInfo;
+
+			ObjSPtr->TryGetNumberField(TEXT("accelerationX"), UpdateRadarInfo.Acceleration.X);
+			ObjSPtr->TryGetNumberField(TEXT("accelerationY"), UpdateRadarInfo.Acceleration.Y);
+
+			ObjSPtr->TryGetNumberField(TEXT("positionX"), UpdateRadarInfo.Position.X);
+			ObjSPtr->TryGetNumberField(TEXT("positionX"), UpdateRadarInfo.Position.Y);
+
+			ObjSPtr->TryGetNumberField(TEXT("velocityX"), UpdateRadarInfo.Velocity.X);
+			ObjSPtr->TryGetNumberField(TEXT("velocityX"), UpdateRadarInfo.Velocity.Y);
+
+			ObjSPtr->TryGetNumberField(TEXT("ec"), UpdateRadarInfo.EC);
+			ObjSPtr->TryGetNumberField(TEXT("g"), UpdateRadarInfo.G);
+
+			ObjSPtr->TryGetNumberField(TEXT("numberOfTargets"), UpdateRadarInfo.NumberOfTargets);
+
+			ObjSPtr->TryGetStringField(TEXT("tid"), UpdateRadarInfo.TID);
+
+			Value.Add(UpdateRadarInfo);
+		}
+	}
+}
+
+void FMessageBody_Receive_UpdateRadarInfo::DoAction() const
+{
+	Super::DoAction();
+
+	auto SceneElement_RadarModePtr = Cast<ASceneElement_RadarMode>(
+	                                                               USceneInteractionWorldSystem::GetInstance()->
+	                                                               FindSceneActor(DeviceID)
+	                                                              );
+
+	if (SceneElement_RadarModePtr)
+	{
+		TArray<FVector> Pts;
+
+		for (const auto &Iter : Value)
+		{
+			// 单位转换 
+			Pts.Add(FVector(Iter.Position.X, Iter.Position.Y, 0) * 100);
+		}
+		
+		SceneElement_RadarModePtr->UpdatePositions( Pts);
 	}
 }
 
@@ -450,29 +530,29 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 
 	TArray<TSharedPtr<FJsonValue>> Array;
 
-	for(const auto Iter : DeviceIDAry)
+	for (const auto Iter : DeviceIDAry)
 	{
-		TSharedPtr<FJsonObject>  JsonObj = MakeShareable<FJsonObject>(new FJsonObject);
+		TSharedPtr<FJsonObject> JsonObj = MakeShareable<FJsonObject>(new FJsonObject);
 
 		JsonObj->SetStringField(
-									TEXT("Type"),
-									Iter.Type
-								   );
+		                        TEXT("Type"),
+		                        Iter.Type
+		                       );
 
 		JsonObj->SetStringField(
-									TEXT("ID"),
-									Iter.DeviceID
-								   );
+		                        TEXT("ID"),
+		                        Iter.DeviceID
+		                       );
 
 		auto DeviceObjSPtr = MakeShared<FJsonValueObject>(JsonObj);
-		
+
 		Array.Add(DeviceObjSPtr);
 	}
-	
+
 	RootJsonObj->SetArrayField(
-								TEXT("DeviceIDAry"),
-								Array
-							   );
+	                           TEXT("DeviceIDAry"),
+	                           Array
+	                          );
 
 	return RootJsonObj;
 }
@@ -488,15 +568,15 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedDevice::SerializeBody() const
 
 	TArray<TSharedPtr<FJsonValue>> Array;
 
-	for(const auto Iter : DeviceIDAry)
+	for (const auto Iter : DeviceIDAry)
 	{
 		Array.Add(MakeShared<FJsonValueString>(Iter));
 	}
-	
+
 	RootJsonObj->SetArrayField(
-	                            TEXT("DeviceIDAry"),
-	                            Array
-	                           );
+	                           TEXT("DeviceIDAry"),
+	                           Array
+	                          );
 
 	return RootJsonObj;
 }
@@ -567,14 +647,14 @@ TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
 	RootJsonObj->SetStringField(
-								TEXT("Type"),
-								Type
-							   );
+	                            TEXT("Type"),
+	                            Type
+	                           );
 
 	RootJsonObj->SetStringField(
-								TEXT("SceneElementID"),
-								DeviceID
-							   );
+	                            TEXT("SceneElementID"),
+	                            DeviceID
+	                           );
 
 	return RootJsonObj;
 }

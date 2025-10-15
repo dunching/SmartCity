@@ -38,6 +38,11 @@ public:
 
 	virtual void BeginPlay() override;
 	
+	virtual FBox GetComponentsBoundingBox(
+		bool bNonColliding = false,
+		bool bIncludeFromChildActors = false
+		) const override;
+
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
