@@ -17,6 +17,7 @@ class ADatasmithSceneActor;
 class URouteMarker;
 class AFloorHelper;
 class ABuildingHelperBase;
+class ALandScapeBase;
 class AElevator;
 class APostProcessVolume;
 class ASceneElementBase;
@@ -79,6 +80,9 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<ABuildingHelperBase>> BuildingHelpers;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, TSoftObjectPtr<ALandScapeBase>> LandScapeHelper;
 #pragma endregion
 
 #pragma region 电梯
