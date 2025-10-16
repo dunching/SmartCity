@@ -19,6 +19,7 @@
 #include "PlayerGameplayTasks.h"
 #include "RouteMarker.h"
 #include "SceneElementBase.h"
+#include "SceneElement_DeviceBase.h"
 #include "SceneInteractionDecorator.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
@@ -708,7 +709,6 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 		return;
 	}
 
-
 	if (FocusActors.Contains(DevicePtr))
 	{
 		return;
@@ -720,6 +720,27 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 		if (SceneElementBasePtr)
 		{
 			SceneElementBasePtr->SwitchInteractionType(ConditionalSet);
+		}
+	}
+}
+
+void USceneInteractionWorldSystem::SwitchInteractionType(
+	const TSet<ASceneElement_DeviceBase*>& FocusActorsAry,
+	const FSceneElementConditional& FilterTags
+	)
+{
+	for (auto Iter : FocusActorsAry)
+	{
+		if (FocusActors.Contains(Iter))
+		{
+			return;
+		}
+
+		if (Iter)
+		{
+			Iter->SwitchInteractionType(FilterTags);
+
+			FocusActors.Add(Iter);
 		}
 	}
 }

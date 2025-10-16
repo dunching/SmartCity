@@ -76,71 +76,71 @@ void ABuilding_ItemBase::SwitchInteractionType(
 {
 	Super::SwitchInteractionType(ConditionalSet);
 
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SwitchState(EState::kOriginal);
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		//  只要是楼层就显示
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
-		// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		//     EmptyContainer.Num())
-		{
-			// 确认当前的模式
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FInteraction_Decorator>(
-				                                             USceneInteractionWorldSystem::GetInstance()->
-				                                             GetDecorator(
-				                                                          USmartCitySuiteTags::Interaction_Interaction
-				                                                         )
-				                                            );
-			if (DecoratorSPtr)
-			{
-				if (DecoratorSPtr->Config.WallTranlucent <= 0)
-				{
-					SwitchState(EState::kHiden);
-				}
-				else if (DecoratorSPtr->Config.WallTranlucent >= 100)
-				{
-					SwitchState(EState::kOriginal);
-				}
-				else
-				{
-					SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
-				}
-
-				return;
-			}
-
-			SwitchState(EState::kOriginal);
-
-			return;
-		}
-	}
-	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
-		{
-			SwitchState(EState::kHiden);
-
-			return;
-		}
-	}
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	    EmptyContainer.Num())
+	// 	{
+	// 		SwitchState(EState::kOriginal);
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
+	//
+	// 	//  只要是楼层就显示
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
+	// 	// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	//     EmptyContainer.Num())
+	// 	{
+	// 		// 确认当前的模式
+	// 		auto DecoratorSPtr =
+	// 			DynamicCastSharedPtr<FInteraction_Decorator>(
+	// 			                                             USceneInteractionWorldSystem::GetInstance()->
+	// 			                                             GetDecorator(
+	// 			                                                          USmartCitySuiteTags::Interaction_Interaction
+	// 			                                                         )
+	// 			                                            );
+	// 		if (DecoratorSPtr)
+	// 		{
+	// 			if (DecoratorSPtr->Config.WallTranlucent <= 0)
+	// 			{
+	// 				SwitchState(EState::kHiden);
+	// 			}
+	// 			else if (DecoratorSPtr->Config.WallTranlucent >= 100)
+	// 			{
+	// 				SwitchState(EState::kOriginal);
+	// 			}
+	// 			else
+	// 			{
+	// 				SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
+	// 			}
+	//
+	// 			return;
+	// 		}
+	//
+	// 		SwitchState(EState::kOriginal);
+	//
+	// 		return;
+	// 	}
+	// }
+	// {
+	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	//
+	// 	if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
+	// 	    EmptyContainer.Num())
+	// 	{
+	// 		SwitchState(EState::kHiden);
+	//
+	// 		return;
+	// 	}
+	// }
 }
 
 void ABuilding_ItemBase::SwitchState(

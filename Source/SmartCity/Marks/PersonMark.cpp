@@ -50,6 +50,11 @@ void APersonMark::Tick(
 
 	auto Dist = -1;
 
+	if (!Marks)
+	{
+		return;
+	}
+	
 	for (auto Iter : *Marks)
 	{
 		if (Iter == this)

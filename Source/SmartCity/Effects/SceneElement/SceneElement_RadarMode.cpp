@@ -101,6 +101,34 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 {
 	Super::SwitchInteractionType(ConditionalSet);
 
+	TArray<FVector> Pts;
+	
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+											  USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+												   USmartCitySuiteTags::Interaction_Area
+												  )
+											 );
+	if (AreaDecoratorSPtr)
+	{
+		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(BelongFloor->BoxComponentPtr->GetComponentToWorld());
+		const auto Offset = FloorBox.GetBox().GetExtent().Z;
+		for (int i = 0; i < 5; ++i)
+		{
+		
+			const auto Pt = FMath::RandPointInBox(
+												  FBox(
+													   FVector((Deepth * 2), -(Deepth * 8), 0),
+													   FVector((Deepth * 8),-(Deepth * 2),  0)
+													  )
+												 );
+			Pts.Add(Pt);
+		}
+		
+		UpdatePositions( Pts);
+	
+	}
+	
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)

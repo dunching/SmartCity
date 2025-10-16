@@ -207,6 +207,8 @@ void ASceneElement_HVAC::ReplaceImp(
 		{
 			StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 		}
+
+		RecordOnriginalMat();
 	}
 }
 

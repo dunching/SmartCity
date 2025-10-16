@@ -79,4 +79,6 @@ protected:
 	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
 	
 	TArray<FString> FeaturesAry;
+
+	;
 };

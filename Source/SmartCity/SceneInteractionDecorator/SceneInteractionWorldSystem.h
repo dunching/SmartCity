@@ -121,6 +121,11 @@ public:
 		const FSceneElementConditional& FilterTags
 		);
 
+	void SwitchInteractionType(
+		const TSet<ASceneElement_DeviceBase*>& FocusActorsAry,
+		const FSceneElementConditional& FilterTags
+		);
+
 	void AddFocusActor(
 		AActor* ActorPtr
 		);

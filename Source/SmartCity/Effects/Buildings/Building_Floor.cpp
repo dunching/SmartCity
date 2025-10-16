@@ -44,18 +44,20 @@ void ABuilding_Floor::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->Config.WallTranlucent <= 0)
-				{
-					SwitchState(EState::kHiden);
-				}
-				else if (DecoratorSPtr->Config.WallTranlucent >= 100)
-				{
-					SwitchState(EState::kOriginal);
-				}
-				else
-				{
-					SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
-				}
+				// if (DecoratorSPtr->Config.WallTranlucent <= 0)
+				// {
+				// 	SwitchState(EState::kHiden);
+				// }
+				// else if (DecoratorSPtr->Config.WallTranlucent >= 100)
+				// {
+				// 	SwitchState(EState::kOriginal);
+				// }
+				// else
+				// {
+				// 	SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
+				// }
+
+				SwitchState(EState::kOriginal);
 
 				return;
 			}

@@ -216,6 +216,9 @@ void ASceneElement_SunShade::EntryShowevice()
 	Super::EntryShowevice();
 
 	SetActorHiddenInGame(false);
+	
+	UpdateAngle(0);
+
 }
 
 void ASceneElement_SunShade::EntryShoweviceEffect()

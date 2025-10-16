@@ -44,7 +44,7 @@ FBox ASceneElement_Space::GetComponentsBoundingBox(
 			Box += Iter->Bounds.GetBox();
 		}
 	}
-	
+
 	return Box;
 }
 
@@ -184,19 +184,11 @@ void ASceneElement_Space::SwitchInteractionType(
 
 			MessageBodySPtr->SpaceName = Category;
 
+			USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+
 			TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
 
-			for (const auto& Iter : ActorsAry)
-			{
-				auto SceneElementPtr = Cast<ASceneElement_DeviceBase>(Iter);
-				if (SceneElementPtr)
-				{
-					SceneElementPtr->SwitchInteractionType(ConditionalSet);
-				}
-				else
-				{
-				}
-			}
+			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(ActorsAry, ConditionalSet);
 
 			for (auto DeviceIter : ActorsAry)
 			{
@@ -362,7 +354,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 		)
 		{
 			// 确认当前的模式
@@ -421,8 +413,8 @@ void ASceneElement_Space::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor) &&
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Interaction)
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction)
 		)
 		{
 			// 确认当前的模式
@@ -563,6 +555,9 @@ void ASceneElement_Space::QuitAllState()
 	Super::QuitAllState();
 
 	SetActorHiddenInGame(true);
+
+
+	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
 	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
 	if (HUDPtr)
