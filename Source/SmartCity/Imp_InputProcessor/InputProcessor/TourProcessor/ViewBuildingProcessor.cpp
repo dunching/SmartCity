@@ -200,10 +200,10 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                   ViewBuildingControlParam.MoveSpeed;
 
-						OnwerActorPtr->AddMovementInput(
-						                                Direction,
-						                                Value
-						                               );
+						// OnwerActorPtr->AddMovementInput(
+						//                                 Direction,
+						//                                 Value
+						//                                );
 
 						return true;
 					}
@@ -238,10 +238,10 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                   ViewBuildingControlParam.MoveSpeed;
 
-						OnwerActorPtr->AddMovementInput(
-						                                Direction,
-						                                Value
-						                               );
+						// OnwerActorPtr->AddMovementInput(
+						//                                 Direction,
+						//                                 Value
+						//                                );
 
 						return true;
 					}
