@@ -81,4 +81,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UNiagaraComponent> NiagaraComponentPtr = nullptr;
+
+	FString PWR_ID ;
+	
 };

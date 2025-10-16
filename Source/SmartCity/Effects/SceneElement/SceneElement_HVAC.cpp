@@ -2,6 +2,7 @@
 
 #include "Engine/StaticMeshActor.h"
 #include "ActorSequenceComponent.h"
+#include "AssetRefMap.h"
 #include "NiagaraComponent.h"
 #include "DatasmithAssetUserData.h"
 
@@ -9,7 +10,10 @@
 #include "GameplayTagsLibrary.h"
 #include "IPSSI.h"
 #include "MessageBody.h"
+#include "SceneElement_PWR_Pipe.h"
+#include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "TourPawn.h"
 #include "WebChannelWorldSystem.h"
@@ -75,6 +79,50 @@ void ASceneElement_HVAC::SwitchInteractionType(
 
 			return;
 		}
+	}
+	{
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
+			 )
+	 	{
+	 		SetActorHiddenInGame(false);
+
+	 		NiagaraComponentPtr->SetActive(false);
+	 		
+	 		auto DecoratorSPtr =
+				 DynamicCastSharedPtr<FEnergyMode_Decorator>(
+															 USceneInteractionWorldSystem::GetInstance()->
+															 GetDecorator(
+																		  USmartCitySuiteTags::Interaction_Mode
+																		 )
+															);
+	 		if (!DecoratorSPtr)
+	 		{
+	 			return;
+	 		}
+	 		if (!DecoratorSPtr->IDMap.Contains(PWR_ID))
+	 		{
+	 			return;
+	 		}
+
+	 		auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
+
+	 		auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+
+	 		const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
+	 		MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+	 		
+	 		if (StaticMeshComponent)
+	 		{
+	 			for (int32 Index = 0; Index < StaticMeshComponent->GetNumMaterials(); Index++)
+	 			{
+	 				StaticMeshComponent->SetMaterial(Index, MaterialInstanceDynamic);
+	 			}
+	 		}
+
+	 		return;
+	 	}
 	}
 	{
 		if (
@@ -147,6 +195,12 @@ void ASceneElement_HVAC::ReplaceImp(
 
 		CheckIsJiaCeng(AUDPtr);
 
+		auto ID = AUDPtr->MetaData.Find(TEXT("Element*设备回路编号"));
+		if (ID)
+		{
+			PWR_ID = *ID;
+		}
+
 		StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
 		for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
@@ -161,6 +215,8 @@ void ASceneElement_HVAC::EntryFocusDevice()
 	Super::EntryFocusDevice();
 
 	SetActorHiddenInGame(false);
+
+	RevertOnriginalMat();
 
 	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 	if (PrimitiveComponentPtr)
@@ -186,6 +242,8 @@ void ASceneElement_HVAC::EntryViewDevice()
 {
 	Super::EntryViewDevice();
 
+	RevertOnriginalMat();
+
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
 		 [this](
 		 auto NewProcessor
@@ -206,6 +264,8 @@ void ASceneElement_HVAC::EntryShowevice()
 	Super::EntryShowevice();
 
 	SetActorHiddenInGame(false);
+
+	RevertOnriginalMat();
 
 	NiagaraComponentPtr->SetActive(false);
 }
@@ -236,6 +296,8 @@ void ASceneElement_HVAC::QuitAllState()
 	Super::QuitAllState();
 
 	SetActorHiddenInGame(true);
+
+	RevertOnriginalMat();
 
 	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
 	if (PrimitiveComponentPtr)

@@ -1827,7 +1827,7 @@ bool FFloor_Decorator::Operation(
 							}
 
 							// 取消选择
-							USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
+							// USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
 							// UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 							// 	TourProcessor::FViewSingleFloorProcessor>(
 							// 	                                          [this](
