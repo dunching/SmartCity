@@ -348,6 +348,9 @@ void ASceneElement_RadarMode::ReplaceImp(
 
 			const auto Scale = Deepth / 10;
 			SweepActor->GetStaticMeshComponent()->SetRelativeScale3D(FVector(Scale, Scale, 1));
+			
+			SweepActor->GetStaticMeshComponent()->SetCastShadow(false);
+			SweepActor->GetStaticMeshComponent()->SetReceivesDecals(false);
 		}
 	}
 }

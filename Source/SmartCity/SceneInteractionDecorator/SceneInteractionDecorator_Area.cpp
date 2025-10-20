@@ -644,6 +644,7 @@ void FFloor_Decorator::Entry()
 				FSceneElementConditional SceneActorConditional;
 
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
 
 				TMulticastDelegate<void(
 					bool,
@@ -684,6 +685,7 @@ void FFloor_Decorator::Entry()
 				FSceneElementConditional SceneActorConditional;
 
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
 
 				TMulticastDelegate<void(
 					bool,
@@ -724,6 +726,7 @@ void FFloor_Decorator::Entry()
 				FSceneElementConditional SceneActorConditional;
 
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
 
 				TMulticastDelegate<void(
 					bool,
@@ -807,6 +810,7 @@ void FFloor_Decorator::Entry()
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElementState*
+
 
 		
 		)> MulticastDelegate;
@@ -933,6 +937,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			FSceneElementConditional SceneActorConditional;
 
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
 			TMulticastDelegate<void(
 				bool,
@@ -1386,17 +1391,18 @@ bool FFloor_Decorator::Operation(
 										SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 										SceneActorConditional.ConditionalSet.AddTag(
 											 DecoratorSPtr->GetBranchDecoratorType()
-											 );
-										auto ModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-											 USmartCitySuiteTags::Interaction_Mode
 											);
+										auto ModeDecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->
+											GetDecorator(
+											             USmartCitySuiteTags::Interaction_Mode
+											            );
 										if (
-										ModeDecoratorSPtr
+											ModeDecoratorSPtr
 										)
 										{
 											SceneActorConditional.ConditionalSet.AddTag(
 												 ModeDecoratorSPtr->GetBranchDecoratorType()
-												 );
+												);
 										}
 
 										for (auto PreviousActorsIter : PreviousActors)

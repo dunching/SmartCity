@@ -59,7 +59,7 @@ void ASceneElement_Space_PolygonHelper::BeginPlay()
 
 		SplineMeshPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		const auto Dir = Transform1.GetLocation() - 	Transform1.GetLocation();
+		const auto Dir = (Transform1.GetLocation() - 	Transform1.GetLocation()).GetSafeNormal();
 		
 		SplineMeshPtr->SetStartPosition(Transform1.GetLocation());
 		SplineMeshPtr->SetStartTangent(Dir);

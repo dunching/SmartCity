@@ -31,6 +31,9 @@ ASceneElement_InfraredDetector::ASceneElement_InfraredDetector(
 		);
 	SweepEffectStaticMeshComponent->SetupAttachment(AnchorComponent);
 	SweepEffectStaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			
+	SweepEffectStaticMeshComponent->SetCastShadow(false);
+	SweepEffectStaticMeshComponent->SetReceivesDecals(false);
 }
 
 void ASceneElement_InfraredDetector::OnConstruction(
