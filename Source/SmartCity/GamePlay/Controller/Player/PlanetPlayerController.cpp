@@ -30,5 +30,5 @@ void APlanetPlayerController::OnPossess(APawn* InPawn)
 	UWebChannelWorldSystem::GetInstance()->BindEvent();
 	UWebChannelWorldSystem::GetInstance()->InitializeDeserializeStrategies();
 
-	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionOption(USmartCitySuiteTags::Interaction_Interaction_Device);
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionOption(USmartCitySuiteTags::Interaction_Interaction_Space);
 }

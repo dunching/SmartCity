@@ -7,6 +7,8 @@
 #include "GameplayTagsLibrary.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
+#include "SceneInteractionDecorator_Area.h"
+#include "SceneInteractionDecorator_Mode.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"

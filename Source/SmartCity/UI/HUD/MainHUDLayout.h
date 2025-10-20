@@ -35,12 +35,6 @@ public:
 
 	void RemoveFeatures();
 	
-	UPROPERTY(
-		BlueprintReadWrite,
-		EditAnywhere
-	)
-	TSubclassOf<UFeatureWheel> FeatureWheelClass;
-
 	ASceneElement_Space * SceneElement_SpacePtr = nullptr;
 	
 	UFeatureWheel* FeatureWheelPtr = nullptr;

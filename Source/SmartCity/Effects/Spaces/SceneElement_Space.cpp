@@ -169,65 +169,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
 		)
 		{
-			SetActorHiddenInGame(false);
-
-			SwitchColor(FColor::Red);
-
-			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-			if (PrimitiveComponentPtr)
-			{
-				PrimitiveComponentPtr->SetRenderCustomDepth(true);
-				PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-			}
-
-			auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
-
-			MessageBodySPtr->SpaceName = Category;
-
-			USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-
-			TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
-
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(ActorsAry, ConditionalSet);
-
-			for (auto DeviceIter : ActorsAry)
-			{
-				if (DeviceIter)
-				{
-					FMessageBody_SelectedSpace::FDeviceInfo DeviceInfo;
-
-					DeviceInfo.DeviceID = DeviceIter->SceneElementID;
-					DeviceInfo.Type = DeviceIter->DeviceTypeStr;
-
-					MessageBodySPtr->DeviceIDAry.Add(DeviceInfo);
-				}
-			}
-
-			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
-			auto HUDPtr = Cast<AMainHUD>(
-			                             GEngine->GetFirstLocalPlayerController(GetWorldImp())->
-			                                      GetHUD()
-			                            );
-			if (HUDPtr)
-			{
-				HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-
-				TArray<FFeaturesItem> Features;
-				for (const auto& Iter : FeaturesAry)
-				{
-					Features.Add({Iter, nullptr});
-				}
-
-				HUDPtr->GetMainHUDLayout()->InitalFeaturesItem(this, Category, Features);
-			}
-			if (RouteMarkerPtr)
-			{
-				RouteMarkerPtr->TextStr = Category;
-				RouteMarkerPtr->TargetActor = this;
-				RouteMarkerPtr->AddToViewport();
-			}
-
+			EntryFocusDevice(ConditionalSet);
 			return;
 		}
 	}
@@ -238,57 +180,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			// 确认当前的模式
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FInteraction_Decorator>(
-				                                             USceneInteractionWorldSystem::GetInstance()->
-				                                             GetDecorator(
-				                                                          USmartCitySuiteTags::Interaction_Interaction
-				                                                         )
-				                                            );
-			if (DecoratorSPtr)
-			{
-				switch (DecoratorSPtr->GetInteractionType())
-				{
-				case FInteraction_Decorator::EInteractionType::kDevice:
-					{
-						SetActorHiddenInGame(true);
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				case FInteraction_Decorator::EInteractionType::kSpace:
-					{
-						SetActorHiddenInGame(false);
-
-						SwitchColor(FColor::White);
-
-						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-						if (HUDPtr)
-						{
-							HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-						}
-
-						auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-						if (PrimitiveComponentPtr)
-						{
-							PrimitiveComponentPtr->SetRenderCustomDepth(false);
-						}
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				}
-			}
-
+			EntryShoweviceEffect(ConditionalSet);
 			return;
 		}
 	}
@@ -298,57 +190,8 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			// 确认当前的模式
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FInteraction_Decorator>(
-				                                             USceneInteractionWorldSystem::GetInstance()->
-				                                             GetDecorator(
-				                                                          USmartCitySuiteTags::Interaction_Interaction
-				                                                         )
-				                                            );
-			if (DecoratorSPtr)
-			{
-				switch (DecoratorSPtr->GetInteractionType())
-				{
-				case FInteraction_Decorator::EInteractionType::kDevice:
-					{
-						SetActorHiddenInGame(true);
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				case FInteraction_Decorator::EInteractionType::kSpace:
-					{
-						SetActorHiddenInGame(false);
-
-						SwitchColor(FColor::White);
-
-						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-						if (HUDPtr)
-						{
-							HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-						}
-
-						auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-						if (PrimitiveComponentPtr)
-						{
-							PrimitiveComponentPtr->SetRenderCustomDepth(false);
-						}
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				}
-			}
-
+			EntryShoweviceEffect(ConditionalSet);
+			
 			return;
 		}
 	}
@@ -357,56 +200,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 		)
 		{
-			// 确认当前的模式
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FInteraction_Decorator>(
-				                                             USceneInteractionWorldSystem::GetInstance()->
-				                                             GetDecorator(
-				                                                          USmartCitySuiteTags::Interaction_Interaction
-				                                                         )
-				                                            );
-			if (DecoratorSPtr)
-			{
-				switch (DecoratorSPtr->GetInteractionType())
-				{
-				case FInteraction_Decorator::EInteractionType::kDevice:
-					{
-						SetActorHiddenInGame(true);
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				case FInteraction_Decorator::EInteractionType::kSpace:
-					{
-						SetActorHiddenInGame(false);
-
-						SwitchColor(FColor::White);
-
-						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-						if (HUDPtr)
-						{
-							HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-						}
-
-						auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-						if (PrimitiveComponentPtr)
-						{
-							PrimitiveComponentPtr->SetRenderCustomDepth(false);
-						}
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				}
-			}
+			QuitAllState();
 
 			return;
 		}
@@ -417,56 +211,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction)
 		)
 		{
-			// 确认当前的模式
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FInteraction_Decorator>(
-				                                             USceneInteractionWorldSystem::GetInstance()->
-				                                             GetDecorator(
-				                                                          USmartCitySuiteTags::Interaction_Interaction
-				                                                         )
-				                                            );
-			if (DecoratorSPtr)
-			{
-				switch (DecoratorSPtr->GetInteractionType())
-				{
-				case FInteraction_Decorator::EInteractionType::kDevice:
-					{
-						SetActorHiddenInGame(true);
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				case FInteraction_Decorator::EInteractionType::kSpace:
-					{
-						SetActorHiddenInGame(false);
-
-						SwitchColor(FColor::White);
-
-						auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-						if (HUDPtr)
-						{
-							HUDPtr->GetMainHUDLayout()->RemoveFeatures();
-						}
-
-						auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-						if (PrimitiveComponentPtr)
-						{
-							PrimitiveComponentPtr->SetRenderCustomDepth(false);
-						}
-
-						if (RouteMarkerPtr)
-						{
-							RouteMarkerPtr->RemoveFromParent();
-							RouteMarkerPtr = nullptr;
-						}
-					}
-					break;
-				}
-			}
+			QuitAllState();
 
 			return;
 		}
@@ -550,31 +295,235 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 	return Result;
 }
 
+void ASceneElement_Space::EntryFocusDevice(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		switch (DecoratorSPtr->GetInteractionType())
+		{
+		case FInteraction_Decorator::EInteractionType::kDevice:
+			{
+				SetActorHiddenInGame(true);
+
+				for (auto Iter : FeatureWheelAry)
+				{
+					if (Iter)
+					{
+						Iter->RemoveFromParent();
+					}
+				}
+				FeatureWheelAry.Empty();
+			}
+			break;
+		case FInteraction_Decorator::EInteractionType::kSpace:
+			{
+				SetActorHiddenInGame(false);
+
+				SwitchColor(FColor::Red);
+
+				auto FeatureWheelPtr = CreateWidget<UFeatureWheel>(
+				                                                   GetWorld(),
+				                                                   UAssetRefMap::GetInstance()->FeatureWheelClass
+				                                                  );
+				if (FeatureWheelPtr)
+				{
+					auto TargetPt = UKismetAlgorithm::GetActorBox(
+					                                              {this}
+					                                             );
+
+					TArray<FFeaturesItem> Features;
+					for (const auto& Iter : FeaturesAry)
+					{
+						Features.Add({Iter, nullptr});
+					}
+
+					FeatureWheelPtr->TargetPt = TargetPt.GetCenter();
+					FeatureWheelPtr->InitalFeaturesItem(Category, Features);
+
+					FeatureWheelPtr->AddToViewport();
+
+					FeatureWheelAry.Add(FeatureWheelPtr);
+				}
+
+				for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
+				{
+					if (PrimitiveComponentPtr)
+					{
+						PrimitiveComponentPtr->SetHiddenInGame(false);
+						PrimitiveComponentPtr->SetRenderInMainPass(true);
+						PrimitiveComponentPtr->SetRenderCustomDepth(true);
+						PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
+void ASceneElement_Space::EntryShowevice(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	SetActorHiddenInGame(false);
+
+	SwitchColor(FColor::Red);
+
+	for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
+	{
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetHiddenInGame(true);
+			PrimitiveComponentPtr->SetRenderInMainPass(true);
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+		}
+	}
+
+	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
+
+	MessageBodySPtr->SpaceName = Category;
+
+	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
+
+	TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
+
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(ActorsAry, ConditionalSet);
+
+	for (auto DeviceIter : ActorsAry)
+	{
+		if (DeviceIter)
+		{
+			FMessageBody_SelectedSpace::FDeviceInfo DeviceInfo;
+
+			DeviceInfo.DeviceID = DeviceIter->SceneElementID;
+			DeviceInfo.Type = DeviceIter->DeviceTypeStr;
+
+			MessageBodySPtr->DeviceIDAry.Add(DeviceInfo);
+		}
+	}
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+
+	for (auto Iter : FeatureWheelAry)
+	{
+		if (Iter)
+		{
+			Iter->RemoveFromParent();
+		}
+	}
+	FeatureWheelAry.Empty();
+}
+
+void ASceneElement_Space::EntryShoweviceEffect(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		switch (DecoratorSPtr->GetInteractionType())
+		{
+		case FInteraction_Decorator::EInteractionType::kDevice:
+			{
+				SetActorHiddenInGame(true);
+
+				for (auto Iter : FeatureWheelAry)
+				{
+					if (Iter)
+					{
+						Iter->RemoveFromParent();
+					}
+				}
+				FeatureWheelAry.Empty();
+			}
+			break;
+		case FInteraction_Decorator::EInteractionType::kSpace:
+			{
+				SetActorHiddenInGame(false);
+
+				SwitchColor(FColor::White);
+
+				auto FeatureWheelPtr = CreateWidget<UFeatureWheel>(
+				                                                   GetWorld(),
+				                                                   UAssetRefMap::GetInstance()->FeatureWheelClass
+				                                                  );
+				if (FeatureWheelPtr)
+				{
+					auto TargetPt = UKismetAlgorithm::GetActorBox(
+					                                              {this}
+					                                             );
+
+					TArray<FFeaturesItem> Features;
+					for (const auto& Iter : FeaturesAry)
+					{
+						Features.Add({Iter, nullptr});
+					}
+
+					FeatureWheelPtr->TargetPt = TargetPt.GetCenter();
+					FeatureWheelPtr->InitalFeaturesItem(Category, Features);
+
+					FeatureWheelPtr->AddToViewport();
+
+					FeatureWheelAry.Add(FeatureWheelPtr);
+				}
+
+				for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
+				{
+					if (PrimitiveComponentPtr)
+					{
+						PrimitiveComponentPtr->SetHiddenInGame(false);
+						PrimitiveComponentPtr->SetRenderInMainPass(true);
+						PrimitiveComponentPtr->SetRenderCustomDepth(false);
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
 void ASceneElement_Space::QuitAllState()
 {
 	Super::QuitAllState();
 
 	SetActorHiddenInGame(true);
 
-
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
-	auto HUDPtr = Cast<AMainHUD>(GEngine->GetFirstLocalPlayerController(GetWorldImp())->GetHUD());
-	if (HUDPtr)
+	for (auto Iter : FeatureWheelAry)
 	{
-		HUDPtr->GetMainHUDLayout()->RemoveFeatures();
+		if (Iter)
+		{
+			Iter->RemoveFromParent();
+		}
 	}
+	FeatureWheelAry.Empty();
 
-	auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
-	if (PrimitiveComponentPtr)
+	for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
 	{
-		PrimitiveComponentPtr->SetRenderCustomDepth(false);
-	}
-
-	if (RouteMarkerPtr)
-	{
-		RouteMarkerPtr->RemoveFromParent();
-		RouteMarkerPtr = nullptr;
+		if (PrimitiveComponentPtr)
+		{
+			PrimitiveComponentPtr->SetHiddenInGame(true);
+			PrimitiveComponentPtr->SetRenderInMainPass(false);
+			PrimitiveComponentPtr->SetRenderCustomDepth(false);
+		}
 	}
 }
 

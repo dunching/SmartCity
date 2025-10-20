@@ -31,3 +31,21 @@ class SMARTCITY_API AFloorHelper :
 public:
 
 };
+
+UCLASS()
+class SMARTCITY_API ABuilding_Floor_Mask :
+	public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ABuilding_Floor_Mask(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	void SetFloor(AFloorHelper*FloorPtr);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+
+};

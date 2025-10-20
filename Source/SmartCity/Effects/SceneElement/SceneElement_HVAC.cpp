@@ -11,6 +11,7 @@
 #include "IPSSI.h"
 #include "MessageBody.h"
 #include "SceneElement_PWR_Pipe.h"
+#include "SceneInteractionDecorator_Mode.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"

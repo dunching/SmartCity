@@ -24,6 +24,8 @@ class ASceneElementBase;
 class APersonMark;
 class AFireMark;
 class ASceneElement_Space;
+class UFeatureWheel;
+class ABuilding_Floor_Mask;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -81,8 +83,18 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<ABuildingHelperBase>> BuildingHelpers;
 	
+	/**
+	 * 外景
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FGameplayTag, TSoftObjectPtr<ALandScapeBase>> LandScapeHelper;
+	
+	/**
+	 * 需要单独处理的资源集
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FGameplayTag, FSceneElementMap> SpecialDatasmith;
+	
 #pragma endregion
 
 #pragma region 电梯
@@ -134,5 +146,20 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> WallTranslucentMatInst;
+	
+	UPROPERTY(
+		
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	TSubclassOf<UFeatureWheel> FeatureWheelClass;
+
+	UPROPERTY(
+		
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	TSubclassOf<ABuilding_Floor_Mask> Building_Floor_MaskClass;
+
 #pragma endregion
 };
