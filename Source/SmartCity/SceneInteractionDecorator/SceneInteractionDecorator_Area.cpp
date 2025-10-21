@@ -551,6 +551,17 @@ void FFloor_Decorator::Entry()
 		}
 	};
 
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+																	  [](
+																	  const TSharedPtr<FInteraction_Decorator>& SPtr
+																	  )
+																	  {
+																		  SPtr->Config.WallTranlucent = 30;
+																	  },
+																	  false
+																	 );
+	
 	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
 		 USmartCitySuiteTags::Interaction_Mode
 		);

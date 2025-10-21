@@ -30,6 +30,12 @@ class SMARTCITY_API AFloorHelper :
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FString FloorDescription;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FString FloorIndexDescription;
+	
 };
 
 UCLASS()

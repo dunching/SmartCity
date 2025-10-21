@@ -29,17 +29,17 @@ void ASceneElement_Space_PolygonHelper::BeginPlay()
 		)
 	{
 		const auto Transform1 = SplineComponentPtr->GetTransformAtSplinePoint(
-			 Start,
-			 ESplineCoordinateSpace::World,
-			 true
-			);
+		                                                                      Start,
+		                                                                      ESplineCoordinateSpace::World,
+		                                                                      true
+		                                                                     );
 		const auto Tangent1 = SplineComponentPtr->GetTangentAtSplinePoint(Start, ESplineCoordinateSpace::World);
 
 		const auto Transform2 = SplineComponentPtr->GetTransformAtSplinePoint(
-			 End,
-			 ESplineCoordinateSpace::World,
-			 true
-			);
+		                                                                      End,
+		                                                                      ESplineCoordinateSpace::World,
+		                                                                      true
+		                                                                     );
 		const auto Tangent2 = SplineComponentPtr->GetTangentAtSplinePoint(End, ESplineCoordinateSpace::World);
 
 		auto SplineMeshPtr = Cast<USplineMeshComponent>(
@@ -59,8 +59,8 @@ void ASceneElement_Space_PolygonHelper::BeginPlay()
 
 		SplineMeshPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		const auto Dir = (Transform1.GetLocation() - 	Transform1.GetLocation()).GetSafeNormal();
-		
+		const auto Dir = (Transform1.GetLocation() - Transform2.GetLocation()).GetSafeNormal();
+
 		SplineMeshPtr->SetStartPosition(Transform1.GetLocation());
 		SplineMeshPtr->SetStartTangent(Dir);
 		SplineMeshPtr->SetStartScale(Scale);
@@ -75,7 +75,6 @@ void ASceneElement_Space_PolygonHelper::BeginPlay()
 	{
 		for (int32 Index = 0; Index < Num - 1; Index++)
 		{
-
 			Lambda(SplineComponentPtr, Index, Index + 1);
 		}
 
