@@ -19,6 +19,10 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area ,"Interaction.Area");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SpacialDataSmithActor_JF1 ,"Interaction.Area.SpacialDataSmithActor.JF1");
+
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SpacialDataSmithActor_JF2 ,"Interaction.Area.SpacialDataSmithActor.JF2");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_LandScape ,"Interaction.Area.LandScape");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_ExternalWall ,"Interaction.Area.ExternalWall");

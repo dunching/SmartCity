@@ -19,6 +19,7 @@ class UCameraComponent;
 class AViewerPawn;
 class URouteMarker;
 class ASceneElement_DeviceBase;
+class UFeatureWheel;
 
 /**
  * 雷达扫描效果
@@ -67,6 +68,18 @@ public:
 	FString DataSmith_Key = TEXT("Element*空间划分");
 protected:
 
+	virtual void EntryFocusDevice(
+		const FSceneElementConditional& ConditionalSet
+		) ;
+
+	virtual void EntryShowevice(
+		const FSceneElementConditional& ConditionalSet
+		) ;
+
+	virtual void EntryShoweviceEffect(
+		const FSceneElementConditional& ConditionalSet
+		) ;
+
 	virtual void QuitAllState(
 		) override;
 	
@@ -76,7 +89,7 @@ protected:
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
+	TArray<TObjectPtr<UFeatureWheel>> FeatureWheelAry;
 	
 	TArray<FString> FeaturesAry;
 

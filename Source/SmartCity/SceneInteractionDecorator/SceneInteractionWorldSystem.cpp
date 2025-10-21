@@ -21,6 +21,8 @@
 #include "SceneElementBase.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneInteractionDecorator.h"
+#include "SceneInteractionDecorator_Area.h"
+#include "SceneInteractionDecorator_Mode.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewBuildingProcessor.h"

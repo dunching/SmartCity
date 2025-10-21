@@ -9,6 +9,7 @@
 #include "FloorHelper.h"
 #include "MessageBody.h"
 #include "SceneInteractionDecorator.h"
+#include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
@@ -125,7 +126,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			Pts.Add(Pt);
 		}
 		
-		UpdatePositions( Pts);
+		// UpdatePositions( Pts);
 	
 	}
 	
@@ -347,6 +348,9 @@ void ASceneElement_RadarMode::ReplaceImp(
 
 			const auto Scale = Deepth / 10;
 			SweepActor->GetStaticMeshComponent()->SetRelativeScale3D(FVector(Scale, Scale, 1));
+			
+			SweepActor->GetStaticMeshComponent()->SetCastShadow(false);
+			SweepActor->GetStaticMeshComponent()->SetReceivesDecals(false);
 		}
 	}
 }

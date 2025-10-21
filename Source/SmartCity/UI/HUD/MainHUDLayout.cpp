@@ -49,25 +49,6 @@ void UMainHUDLayout::InitalFeaturesItem(
 		FeatureWheelPtr->RemoveFromParent();
 	}
 	
-	FeatureWheelPtr = CreateWidget<UFeatureWheel>(this, FeatureWheelClass);
-	if (FeatureWheelPtr)
-	{
-		auto TargetPt = UKismetAlgorithm::GetActorBox(
-		                                              {SceneElement_SpacePtr}
-		                                             );
-
-		FeatureWheelPtr->TargetPt = TargetPt.GetCenter();
-		FeatureWheelPtr->InitalFeaturesItem(FeatureName, Features);
-
-		FeatureWheelPtr->AddToViewport();
-
-		// auto SlotPtr = OverlapPtr->AddChildToOverlay(FeatureWheelPtr);
-		// if (SlotPtr)
-		// {
-		// 	SlotPtr->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-		// 	SlotPtr->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-		// }
-	}
 }
 
 void UMainHUDLayout::RemoveFeatures()

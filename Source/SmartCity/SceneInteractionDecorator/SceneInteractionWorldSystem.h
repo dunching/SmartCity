@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 
 #include "SceneInteractionDecorator.h"
+#include "SceneInteractionDecorator_Option.h"
 #include "SceneElementBase.h"
 
 #include "SceneInteractionWorldSystem.generated.h"
