@@ -31,6 +31,13 @@ AFloorHelper_Description::AFloorHelper_Description(
 	PrimaryActorTick.TickInterval = 1.f / 30;
 }
 
+void AFloorHelper_Description::BeginPlay()
+{
+	Super::BeginPlay();
+
+	BorderAddScenePtr->SetRelativeRotation(OffsetRot);
+}
+
 void AFloorHelper_Description::Tick(
 	float DeltaTime
 	)

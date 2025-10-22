@@ -27,10 +27,16 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void Tick(float DeltaTime) override;
+	virtual  void BeginPlay() override;
 	
-	void SetFloor(AFloorHelper*FloorPtr);
-	
+	virtual void Tick(
+		float DeltaTime
+		) override;
+
+	void SetFloor(
+		AFloorHelper* FloorPtr
+		);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> ArmMeshPtr = nullptr;
 
@@ -58,4 +64,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FRotator RotSpeed = FRotator(90);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FRotator OffsetRot = FRotator(0.000000, 90.000000, 180.000000);
 };
