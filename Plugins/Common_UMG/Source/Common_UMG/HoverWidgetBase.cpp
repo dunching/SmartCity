@@ -1,10 +1,11 @@
-
 #include "HoverWidgetBase.h"
 
- FVector2D UHoverWidgetBase::ModifyProjectedLocalPosition(
+#include "LogWriter.h"
+
+FVector2D UHoverWidgetBase::ModifyProjectedLocalPosition(
 	const FGeometry& ViewportGeometry,
 	const FVector2D& LocalPosition
-)
+	)
 {
 	return LocalPosition;
 }
@@ -27,15 +28,29 @@ void UHoverWidgetReBase::NativeConstruct()
 void UHoverWidgetReBase::NativeDestruct()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-	
+
 	Super::NativeDestruct();
 }
 
 void UHoverWidgetReBase::UpdatePosition()
 {
 	FVector2D ScreenLocation;
-	GEngine->GetFirstLocalPlayerController(GetWorld())->ProjectWorldLocationToScreen(GetHoverPosition(),ScreenLocation);
-	SetPositionInViewport(ScreenLocation);
+	auto Result = GEngine->GetFirstLocalPlayerController(GetWorld())->ProjectWorldLocationToScreen(
+		 GetHoverPosition(),
+		 ScreenLocation
+		);
+	if (Result)
+	{
+		int32 SizeX;
+		int32 SizeY;
+
+		GEngine->GetFirstLocalPlayerController(GetWorld())->GetViewportSize(SizeX, SizeY);
+		SetPositionInViewport(ScreenLocation);
+	}
+	else
+	{
+		PRINTINVOKEINFO();
+	}
 }
 
 FVector UHoverWidgetReBase::GetHoverPosition()

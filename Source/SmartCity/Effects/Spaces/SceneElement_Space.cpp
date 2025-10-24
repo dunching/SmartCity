@@ -327,7 +327,7 @@ void ASceneElement_Space::EntryFocusDevice(
 			break;
 		case FInteraction_Decorator::EInteractionType::kSpace:
 			{
-				SetActorHiddenInGame(false);
+				SetActorHiddenInGame(true);
 
 				SwitchColor(FColor::Red);
 
@@ -375,7 +375,7 @@ void ASceneElement_Space::EntryShowevice(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	SetActorHiddenInGame(false);
+	SetActorHiddenInGame(true);
 
 	SwitchColor(FColor::Red);
 
@@ -384,7 +384,7 @@ void ASceneElement_Space::EntryShowevice(
 		if (PrimitiveComponentPtr)
 		{
 			PrimitiveComponentPtr->SetHiddenInGame(true);
-			PrimitiveComponentPtr->SetRenderInMainPass(true);
+			PrimitiveComponentPtr->SetRenderInMainPass(false);
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
@@ -456,7 +456,7 @@ void ASceneElement_Space::EntryShoweviceEffect(
 			break;
 		case FInteraction_Decorator::EInteractionType::kSpace:
 			{
-				SetActorHiddenInGame(false);
+				SetActorHiddenInGame(true);
 
 				SwitchColor(FColor::White);
 
@@ -488,8 +488,8 @@ void ASceneElement_Space::EntryShoweviceEffect(
 				{
 					if (PrimitiveComponentPtr)
 					{
-						PrimitiveComponentPtr->SetHiddenInGame(false);
-						PrimitiveComponentPtr->SetRenderInMainPass(true);
+						PrimitiveComponentPtr->SetHiddenInGame(true);
+						PrimitiveComponentPtr->SetRenderInMainPass(false);
 						PrimitiveComponentPtr->SetRenderCustomDepth(false);
 					}
 				}
