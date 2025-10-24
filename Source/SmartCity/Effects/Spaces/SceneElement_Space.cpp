@@ -476,7 +476,7 @@ void ASceneElement_Space::EntryShoweviceEffect(
 						Features.Add({Iter, nullptr});
 					}
 
-					FeatureWheelPtr->TargetPt = TargetPt.GetCenter();
+					FeatureWheelPtr->TargetPt = TargetPt.GetCenter() + FVector(0,0, TargetPt.GetExtent().Z);
 					FeatureWheelPtr->InitalFeaturesItem(Category, Features);
 
 					FeatureWheelPtr->AddToViewport();

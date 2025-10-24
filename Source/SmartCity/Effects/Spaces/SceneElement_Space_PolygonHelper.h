@@ -19,39 +19,30 @@ class USplineMeshComponent;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_Space_PolygonHelper :
-	public AActor
+	public ASceneElementBase
 {
 	GENERATED_BODY()
 
 public:
-	ASceneElement_Space_PolygonHelper(
-		const FObjectInitializer& ObjectInitializer
-		);
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
 
-	virtual void BeginPlay() override;
+protected:
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<USplineComponent>SplineComponentPtr = nullptr;
+	virtual void EntryFocusDevice(
+		const FSceneElementConditional& ConditionalSet
+		) ;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TSoftObjectPtr<UStaticMesh>StaticMeshRef = nullptr;
+	virtual void EntryShowevice(
+		const FSceneElementConditional& ConditionalSet
+		) ;
 
-	UPROPERTY(
-		EditAnywhere,
-		BlueprintReadOnly
-	)
-	TSoftObjectPtr<UMaterialInstance> MaterialRef;
+	virtual void EntryShoweviceEffect(
+		const FSceneElementConditional& ConditionalSet
+		) ;
+
+	virtual void QuitAllState(
+		) override;
 	
-	UPROPERTY(
-		VisibleAnywhere,
-		BlueprintReadOnly
-	)
-	TArray<USplineMeshComponent*> SplineMeshComponentsAry;
-
-	UPROPERTY(
-		VisibleAnywhere,
-		BlueprintReadOnly
-	)
-	FVector2D Scale = FVector2D(.2f,.2f);
-
 };

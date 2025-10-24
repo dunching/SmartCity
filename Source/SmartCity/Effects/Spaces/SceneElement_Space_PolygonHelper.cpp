@@ -1,83 +1,162 @@
 #include "SceneElement_Space_PolygonHelper.h"
 
+#include "SceneInteractionDecorator_Option.h"
+#include "SceneInteractionWorldSystem.h"
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 
-ASceneElement_Space_PolygonHelper::ASceneElement_Space_PolygonHelper(
-	const FObjectInitializer& ObjectInitializer
-	) :
-	  Super(ObjectInitializer)
+#include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
+
+void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	Super::SwitchInteractionType(ConditionalSet);
 
-	SplineComponentPtr = CreateDefaultSubobject<USplineComponent>(TEXT("SplineComponent"));
-	SplineComponentPtr->SetupAttachment(RootComponent);
-
-	SplineComponentPtr->SetClosedLoop(true);
-}
-
-void ASceneElement_Space_PolygonHelper::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SplineMeshComponentsAry.Empty();
-
-	auto Lambda = [this](
-		USplineComponent* SplineComponentPtr,
-		int32 Start,
-		int32 End
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
 		)
-	{
-		const auto Transform1 = SplineComponentPtr->GetTransformAtSplinePoint(
-		                                                                      Start,
-		                                                                      ESplineCoordinateSpace::World,
-		                                                                      true
-		                                                                     );
-		const auto Tangent1 = SplineComponentPtr->GetTangentAtSplinePoint(Start, ESplineCoordinateSpace::World);
-
-		const auto Transform2 = SplineComponentPtr->GetTransformAtSplinePoint(
-		                                                                      End,
-		                                                                      ESplineCoordinateSpace::World,
-		                                                                      true
-		                                                                     );
-		const auto Tangent2 = SplineComponentPtr->GetTangentAtSplinePoint(End, ESplineCoordinateSpace::World);
-
-		auto SplineMeshPtr = Cast<USplineMeshComponent>(
-		                                                AddComponentByClass(
-		                                                                    USplineMeshComponent::StaticClass(),
-		                                                                    true,
-		                                                                    FTransform::Identity,
-		                                                                    false
-		                                                                   )
-		                                               );
-
-		SplineMeshComponentsAry.Add(SplineMeshPtr);
-
-		SplineMeshPtr->SetStaticMesh(StaticMeshRef.LoadSynchronous());
-		SplineMeshPtr->SetForwardAxis(ESplineMeshAxis::Z);
-		SplineMeshPtr->SetMaterial(0, MaterialRef.LoadSynchronous());
-
-		SplineMeshPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		const auto Dir = (Transform1.GetLocation() - Transform2.GetLocation()).GetSafeNormal();
-
-		SplineMeshPtr->SetStartPosition(Transform1.GetLocation());
-		SplineMeshPtr->SetStartTangent(Dir);
-		SplineMeshPtr->SetStartScale(Scale);
-
-		SplineMeshPtr->SetEndPosition(Transform2.GetLocation());
-		SplineMeshPtr->SetEndTangent(-Dir);
-		SplineMeshPtr->SetEndScale(Scale);
-	};
-
-	const auto Num = SplineComponentPtr->GetNumberOfSplinePoints();
-	if (Num > 1)
-	{
-		for (int32 Index = 0; Index < Num - 1; Index++)
 		{
-			Lambda(SplineComponentPtr, Index, Index + 1);
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
+		)
+		{
+			EntryFocusDevice(ConditionalSet);
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
+		{
+			EntryShoweviceEffect(ConditionalSet);
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
+		{
+			EntryShoweviceEffect(ConditionalSet);
+			
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
+		{
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction)
+		)
+		{
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
 		}
 
-		Lambda(SplineComponentPtr, Num - 1, 0);
+		QuitAllState();
+
+		return;
 	}
+}
+
+void ASceneElement_Space_PolygonHelper::EntryFocusDevice(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		switch (DecoratorSPtr->GetInteractionType())
+		{
+		case FInteraction_Decorator::EInteractionType::kDevice:
+			{
+				SetActorHiddenInGame(true);
+			}
+			break;
+		case FInteraction_Decorator::EInteractionType::kSpace:
+			{
+				SetActorHiddenInGame(false);
+			}
+			break;
+		}
+	}
+}
+
+void ASceneElement_Space_PolygonHelper::EntryShowevice(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	SetActorHiddenInGame(false);
+
+}
+
+void ASceneElement_Space_PolygonHelper::EntryShoweviceEffect(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	// 确认当前的模式
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+													 USceneInteractionWorldSystem::GetInstance()->
+													 GetDecorator(
+																  USmartCitySuiteTags::Interaction_Interaction
+																 )
+													);
+	if (DecoratorSPtr)
+	{
+		switch (DecoratorSPtr->GetInteractionType())
+		{
+		case FInteraction_Decorator::EInteractionType::kDevice:
+			{
+				SetActorHiddenInGame(true);
+			}
+			break;
+		case FInteraction_Decorator::EInteractionType::kSpace:
+			{
+				SetActorHiddenInGame(false);
+			}
+		}
+	}
+}
+
+void ASceneElement_Space_PolygonHelper::QuitAllState()
+{
+	Super::QuitAllState();
+	SetActorHiddenInGame(true);
+
 }
