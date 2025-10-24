@@ -887,10 +887,17 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 				continue;
 			}
 
-			auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
-			                                                                 );
-			NewActorPtr->Replace(Iter, {});
-			NewActorPtr->InitialSceneElement();
+			if (Iter->IsA(AStaticMeshActor::StaticClass()))
+			{
+				auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
+																				 );
+				NewActorPtr->Replace(Iter, {});
+				NewActorPtr->InitialSceneElement();
+			}
+			else
+			{
+				continue;
+			}
 		}
 	}
 }

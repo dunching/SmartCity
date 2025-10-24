@@ -36,6 +36,11 @@ public:
 	virtual void PostActorCreated() override;
 	
 	virtual void PostInitializeComponents() override;
+
+	virtual TPair<FTransform, float> GetCameraSeat(
+			const FRotator& Rot,
+			float FOV
+			)const;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USceneComponent> SceneComponentPtr;
@@ -46,9 +51,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<ANavagationPaths> NavagationPaths = nullptr;
 	
+	/**
+	 * 显示这些指定层时，此楼显示
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTagContainer GameplayTagContainer;
 	
+	/**
+	 * 这个楼层是那一层
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTag FloorTag;
 	

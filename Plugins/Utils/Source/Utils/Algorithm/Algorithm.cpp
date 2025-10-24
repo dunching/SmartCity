@@ -11,12 +11,12 @@ TPair<FTransform, float> UKismetAlgorithm::GetCameraSeat(
 	TPair<FTransform, float> Result;
 
 	FBox Box;
-
-	// FBox BigBox;
-	// AActor* BigActor = nullptr;
-	//
-	// FBox zBigBox;
-	// AActor* zBigActor = nullptr;
+	
+	FBox BigBox;
+	AActor* BigActor = nullptr;
+	
+	FBox zBigBox;
+	AActor* zBigActor = nullptr;
 	
 	for (auto Iter : Actors)
 	{
@@ -31,39 +31,39 @@ TPair<FTransform, float> UKismetAlgorithm::GetCameraSeat(
 			// 			 false,
 			// 			 20
 			// 			);
-
+	
 			Box += NewBox;
-
-			// if (BigActor)
-			// {
-			// 	if (NewBox .GetSize().Size() > BigBox.GetSize().Size())
-			// 	{
-			// 		BigActor = Iter;
-			// 		BigBox = NewBox;
-			// 	}
-			// }
-			// else
-			// {
-			// 	BigActor = Iter;
-			// 	BigBox = NewBox;
-			// }
-			//
-			// if (zBigActor)
-			// {
-			// 	if (NewBox .GetCenter().Z > zBigBox.GetCenter().Z)
-			// 	{
-			// 		zBigActor = Iter;
-			// 		zBigBox = NewBox;
-			// 	}
-			// }
-			// else
-			// {
-			// 	zBigActor = Iter;
-			// 	zBigBox = NewBox;
-			// }
+	
+			if (BigActor)
+			{
+				if (NewBox .GetSize().Size() > BigBox.GetSize().Size())
+				{
+					BigActor = Iter;
+					BigBox = NewBox;
+				}
+			}
+			else
+			{
+				BigActor = Iter;
+				BigBox = NewBox;
+			}
+			
+			if (zBigActor)
+			{
+				if (NewBox .GetCenter().Z < zBigBox.GetCenter().Z)
+				{
+					zBigActor = Iter;
+					zBigBox = NewBox;
+				}
+			}
+			else
+			{
+				zBigActor = Iter;
+				zBigBox = NewBox;
+			}
 		}
 	}
-
+	
 	// DrawDebugBox(
 	//              GetWorldImp(),
 	//              Box.GetCenter(),

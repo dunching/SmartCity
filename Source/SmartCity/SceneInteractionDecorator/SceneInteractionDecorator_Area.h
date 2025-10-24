@@ -162,6 +162,8 @@ protected:
 		UGT_SwitchSceneElementState* TaskPtr
 		) override;
 
+	void AdjustCamera()const;
+	
 private:
 	TSet<AActor*> PreviousActors;
 

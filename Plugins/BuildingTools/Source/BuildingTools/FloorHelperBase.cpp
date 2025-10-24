@@ -39,3 +39,31 @@ void AFloorHelperBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 }
+
+TPair<FTransform, float> AFloorHelperBase::GetCameraSeat(
+	const FRotator& Rot,
+	float FOV
+	) const
+{
+	TPair<FTransform, float> Result;
+
+	auto Box = BoxComponentPtr->GetLocalBounds();
+	
+	Result.Key.SetLocation(BoxComponentPtr->GetComponentLocation());
+	Result.Key.SetRotation(Rot.Quaternion());
+
+	const auto Radians = FMath::DegreesToRadians(45.0f);
+	const auto Value = FMath::Cos(Radians);
+	Result.Value = Box.BoxExtent.Size() / Value;
+
+	DrawDebugBox(
+	             GetWorld(),
+	             BoxComponentPtr->GetComponentLocation(),
+	             Box.BoxExtent,
+	             FColor::Green,
+	             false,
+	             10
+	            );
+
+	return Result;
+}

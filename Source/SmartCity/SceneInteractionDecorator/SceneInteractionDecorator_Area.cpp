@@ -526,42 +526,23 @@ void FFloor_Decorator::Entry()
 	FDateTime Time(1, 1, 1, 12);
 	UWeatherSystem::GetInstance()->AdjustTime(Time);
 
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->Config.WallTranlucent = 30;
+		                                                                  SPtr->Config.PillarTranlucent = 30;
+	                                                                  },
+	                                                                  false
+	                                                                 );
+
 	ON_SCOPE_EXIT
 	{
-		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
-		{
-			if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
-			{
-				if (Building_Floor_Mask)
-				{
-				}
-				else
-				{
-					Building_Floor_Mask = GetWorldImp()->SpawnActor<ABuilding_Floor_Mask>(
-						 UAssetRefMap::GetInstance()->Building_Floor_MaskClass
-						);
-				}
-				if (Building_Floor_Mask)
-				{
-					Building_Floor_Mask->SetFloor(FloorIter.Value.LoadSynchronous());
-				}
-
-				break;
-			}
-		}
+		AdjustCamera();
 	};
 
-	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-																	  [](
-																	  const TSharedPtr<FInteraction_Decorator>& SPtr
-																	  )
-																	  {
-																		  SPtr->Config.WallTranlucent = 30;
-																	  },
-																	  false
-																	 );
-	
 	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
 		 USmartCitySuiteTags::Interaction_Mode
 		);
@@ -1485,29 +1466,27 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 
-	DecreaseWaitTaskCount();
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
+		{
+			if (Building_Floor_Mask)
+			{
+			}
+			else
+			{
+				Building_Floor_Mask = GetWorldImp()->SpawnActor<ABuilding_Floor_Mask>(
+					 UAssetRefMap::GetInstance()->Building_Floor_MaskClass
+					);
+			}
+			if (Building_Floor_Mask)
+			{
+				Building_Floor_Mask->SetFloor(FloorIter.Value.LoadSynchronous());
+			}
 
-	auto Result = UKismetAlgorithm::GetCameraSeat(
-	                                              InActors,
-	                                              UGameOptions::GetInstance()->ViewFloorControlParam.ViewRot,
-	                                              UGameOptions::GetInstance()->ViewFloorControlParam.FOV
-	                                             );
-
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
-		 false,
-		 [Result](
-		 UGT_ModifyCameraTransform* GTPtr
-		 )
-		 {
-			 if (GTPtr)
-			 {
-				 GTPtr->TargetLocation = Result.Key.GetLocation();
-				 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
-				 GTPtr->TargetTargetArmLength = Result.Value;
-			 }
-		 }
-		);
+			break;
+		}
+	}
 
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
@@ -1533,6 +1512,36 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 
 			return;
+		}
+	}
+}
+
+void FFloor_Decorator::AdjustCamera() const
+{
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
+		{
+			auto Result = FloorIter.Value->GetCameraSeat(
+			                                             UGameOptions::GetInstance()->ViewFloorControlParam.ViewRot,
+			                                             UGameOptions::GetInstance()->ViewFloorControlParam.FOV
+			                                            );
+
+			auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+			PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
+				 false,
+				 [Result](
+				 UGT_ModifyCameraTransform* GTPtr
+				 )
+				 {
+					 if (GTPtr)
+					 {
+						 GTPtr->TargetLocation = Result.Key.GetLocation();
+						 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
+						 GTPtr->TargetTargetArmLength = Result.Value;
+					 }
+				 }
+				);
 		}
 	}
 }
