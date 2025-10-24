@@ -1076,6 +1076,7 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 		};
 		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
+			FloorIter.Value->SwitchInteractionType(FilterTags);
 			Lambda(FloorIter.Value->AllReference);
 		}
 		for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
@@ -1099,6 +1100,8 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 		{
 			if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
 			{
+				FloorIter.Value->SwitchInteractionType(FilterTags);
+				
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
 
 				const auto FloorIndex = FloorIter.Value->FloorIndex;
@@ -1140,6 +1143,8 @@ bool UGT_SwitchSceneElementState::ProcessTask_Display()
 			}
 			else
 			{
+				FloorIter.Value->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				
 				TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
 
 				TempHideDataSmithSceneActorsSet.Append(

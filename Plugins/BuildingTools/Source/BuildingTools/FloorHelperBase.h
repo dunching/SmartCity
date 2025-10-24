@@ -37,6 +37,10 @@ public:
 	
 	virtual void PostInitializeComponents() override;
 
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		);
+	
 	virtual TPair<FTransform, float> GetCameraSeat(
 			const FRotator& Rot,
 			float FOV

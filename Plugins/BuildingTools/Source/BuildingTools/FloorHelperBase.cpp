@@ -40,6 +40,12 @@ void AFloorHelperBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 }
 
+void AFloorHelperBase::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+}
+
 TPair<FTransform, float> AFloorHelperBase::GetCameraSeat(
 	const FRotator& Rot,
 	float FOV
