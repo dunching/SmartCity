@@ -46,7 +46,29 @@ void APersonMark::Tick(
 
 	AnchorComponent->AddRelativeRotation(FRotator(0, DeltaTime * RotSpeed, 0));
 
-	const auto Pt = GetActorLocation();
+	auto Pt = GetActorLocation();
+
+	TObjectPtr<AActor> OwnerActor = GetAttachParentActor();
+	if (OwnerActor)
+	{
+		const auto Transform = OwnerActor->GetActorTransform();
+		const auto RelativePt = Transform.InverseTransformPosition(Pt);
+		if (FVector::Distance(RelativePt, TargetLocation) < 1.f)
+		{
+		}
+		else
+		{
+			const auto Offset = TargetLocation - RelativePt;
+			const auto Dir = Offset.GetSafeNormal();
+
+			const auto Len = Offset.Length();
+
+			const auto DeltaScale = DeltaTime * MoveSpeed;
+			const auto MoveOffset = Dir * (DeltaScale > Len ? Len : DeltaScale);
+
+			SetActorRelativeLocation(RelativePt + MoveOffset, false);
+		}
+	}
 
 	auto Dist = -1;
 
@@ -54,7 +76,9 @@ void APersonMark::Tick(
 	{
 		return;
 	}
-	
+
+	Pt = GetActorLocation();
+
 	for (auto Iter : *Marks)
 	{
 		if (Iter == this)
@@ -77,7 +101,11 @@ void APersonMark::Tick(
 	const auto Color = UKismetMathLibrary::LinearColorLerp(
 	                                                       Color2,
 	                                                       Color1,
-	                                                       FMath::Clamp(Dist - MinDistance, 0, MaxDistance - MinDistance) /
+	                                                       FMath::Clamp(
+	                                                                    Dist - MinDistance,
+	                                                                    0,
+	                                                                    MaxDistance - MinDistance
+	                                                                   ) /
 	                                                       (MaxDistance - MinDistance)
 	                                                      );
 
@@ -96,7 +124,14 @@ void APersonMark::Update(
 	const FVector& NewLocation
 	)
 {
-	SetActorRelativeLocation(NewLocation);
+	TargetLocation = NewLocation;
+
+	TObjectPtr<AActor> OwnerActor = GetAttachParentActor();
+	if (OwnerActor)
+	{
+		const auto Transform = OwnerActor->GetActorTransform();
+		DrawDebugSphere(GetWorld(), Transform.TransformPosition(TargetLocation), 10.0f, 12, FColor::Red, false, 1);
+	}
 }
 
 AFireMark::AFireMark(

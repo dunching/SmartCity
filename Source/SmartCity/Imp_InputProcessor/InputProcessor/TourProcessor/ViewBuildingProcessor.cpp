@@ -221,7 +221,7 @@ bool TourProcessor::FViewBuildingProcessor::InputAxis(
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                 ViewBuildingControlParam.RotPitchSpeed;
-						OnwerActorPtr->AddControllerPitchInput(Rot);
+						OnwerActorPtr->AddControllerPitchInput(-Rot);
 
 						return true;
 					}

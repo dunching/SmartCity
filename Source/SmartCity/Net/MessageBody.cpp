@@ -429,7 +429,7 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 	}
 
 	Value.Empty();
-	
+
 	const TArray<TSharedPtr<FJsonValue>>* OutArray;
 	if (jsonObject->TryGetArrayField(TEXT("value"), OutArray))
 	{
@@ -439,14 +439,14 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 
 			FUpdateRadarInfo UpdateRadarInfo;
 
-			ObjSPtr->TryGetNumberField(TEXT("accelerationX"), UpdateRadarInfo.Acceleration.X);
-			ObjSPtr->TryGetNumberField(TEXT("accelerationY"), UpdateRadarInfo.Acceleration.Y);
+			ObjSPtr->TryGetNumberField(TEXT("accX"), UpdateRadarInfo.Acceleration.X);
+			ObjSPtr->TryGetNumberField(TEXT("accY"), UpdateRadarInfo.Acceleration.Y);
 
-			ObjSPtr->TryGetNumberField(TEXT("positionX"), UpdateRadarInfo.Position.X);
-			ObjSPtr->TryGetNumberField(TEXT("positionX"), UpdateRadarInfo.Position.Y);
+			ObjSPtr->TryGetNumberField(TEXT("posX"), UpdateRadarInfo.Position.X);
+			ObjSPtr->TryGetNumberField(TEXT("posY"), UpdateRadarInfo.Position.Y);
 
-			ObjSPtr->TryGetNumberField(TEXT("velocityX"), UpdateRadarInfo.Velocity.X);
-			ObjSPtr->TryGetNumberField(TEXT("velocityX"), UpdateRadarInfo.Velocity.Y);
+			ObjSPtr->TryGetNumberField(TEXT("velX"), UpdateRadarInfo.Velocity.X);
+			ObjSPtr->TryGetNumberField(TEXT("velY"), UpdateRadarInfo.Velocity.Y);
 
 			ObjSPtr->TryGetNumberField(TEXT("ec"), UpdateRadarInfo.EC);
 			ObjSPtr->TryGetNumberField(TEXT("g"), UpdateRadarInfo.G);
@@ -471,15 +471,15 @@ void FMessageBody_Receive_UpdateRadarInfo::DoAction() const
 
 	if (SceneElement_RadarModePtr)
 	{
-		TArray<FVector> Pts;
+		TMap<FString, FVector> Pts;
 
-		for (const auto &Iter : Value)
+		for (const auto& Iter : Value)
 		{
 			// 单位转换 
-			Pts.Add(FVector(Iter.Position.X, Iter.Position.Y, 0) * 100);
+			Pts.Add(Iter.TID, FVector(Iter.Position.X, Iter.Position.Y, 0) * 100);
 		}
-		
-		SceneElement_RadarModePtr->UpdatePositions( Pts);
+
+		SceneElement_RadarModePtr->UpdatePositions(Pts);
 	}
 }
 

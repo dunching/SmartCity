@@ -173,7 +173,7 @@ bool TourProcessor::FViewSingleFloorProcessor::InputAxis(
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                 ViewFloorControlParam.RotPitchSpeed;
-						OnwerActorPtr->AddControllerPitchInput(Rot);
+						OnwerActorPtr->AddControllerPitchInput(-Rot);
 
 						return true;
 					}
