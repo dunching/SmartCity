@@ -40,7 +40,7 @@ public:
 		) override;
 
 	virtual void BeginPlay() override;
-	
+
 	virtual void Tick(
 		float DeltaTime
 		) override;
@@ -59,19 +59,21 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
-	void UpdatePositions(const TArray<FVector>& Pts);
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent>StaticMeshComponent;
+	void UpdatePositions(
+		const TMap<FString, FVector>& Pts
+		);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TSoftObjectPtr<UStaticMesh>SweepMesh;
+	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TSoftObjectPtr<UMaterialInstance>SweepMatInst;
+	TSoftObjectPtr<UStaticMesh> SweepMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UMaterialInstance> SweepMatInst;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AStaticMeshActor>SweepActor = nullptr;
+	TObjectPtr<AStaticMeshActor> SweepActor = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Deepth = 120;
@@ -91,11 +93,12 @@ private:
 
 	virtual void QuitAllState(
 		) override;
-	
+
 	FTimerHandle UpdateMeshTimerHandle;
 
 	FTimerHandle QueryTimerHandle;
 
-	TArray<APersonMark*> GeneratedMarkers;
+	 TMap<FString,APersonMark*> GeneratedMarkers;
+
 private:
 };

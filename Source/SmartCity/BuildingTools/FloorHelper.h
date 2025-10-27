@@ -18,6 +18,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
+class AFloorHelper_Description;
 
 /**
  * 门禁
@@ -30,12 +31,29 @@ class SMARTCITY_API AFloorHelper :
 
 public:
 
+	AFloorHelper(
+		const FObjectInitializer& ObjectInitializer
+		);
+
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<USceneComponent> FloorHelper_DescriptionAttachTransform;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorDescription;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorIndexDescription;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bDisplayDescritpion = true;
+
+	TObjectPtr<AFloorHelper_Description>FloorHelper_DescriptionPtr = nullptr;
 };
 
 UCLASS()

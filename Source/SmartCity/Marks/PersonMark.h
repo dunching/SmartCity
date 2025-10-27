@@ -45,6 +45,9 @@ public:
 	float RotSpeed = 10;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MoveSpeed = 200;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FColor Color1 = FColor::Green;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
@@ -57,6 +60,8 @@ public:
 	float MaxDistance = 150;
 
 	TSharedPtr<TSet<APersonMark*>> Marks;
+
+	FVector TargetLocation;
 };
 
 /*

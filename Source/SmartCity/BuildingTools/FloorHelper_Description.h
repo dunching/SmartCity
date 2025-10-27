@@ -5,16 +5,35 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Pawn.h"
+#include "Blueprint/UserWidget.h"
 
 #include "GameOptions.h"
 #include "FloorHelperBase.h"
 
 #include "FloorHelper_Description.generated.h"
 
+class UWidgetComponent;
 class UTextRenderComponent;
 class UStaticMeshComponent;
 class AFloorHelper;
 class USceneComponent;
+class UTextBlock;
+
+
+UCLASS()
+class SMARTCITY_API UFloorDescriptionHelper : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* FloorIndexText = nullptr;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* FloorDecriptionText = nullptr;
+
+};
 
 UCLASS()
 class SMARTCITY_API AFloorHelper_Description :
@@ -34,7 +53,7 @@ public:
 		) override;
 
 	void SetFloor(
-		AFloorHelper* FloorPtr
+		AFloorHelper* InFloorPtr
 		);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -47,23 +66,13 @@ public:
 	TObjectPtr<USceneComponent> BorderAddScenePtr = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> LeftBorderMeshPtr = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> MidBorderMeshPtr = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> RightBorderMeshPtr = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UTextRenderComponent> FloorIndexText = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UTextRenderComponent> FloorDecriptionText = nullptr;
+	TObjectPtr<UWidgetComponent> FloorDecriptionText = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FRotator RotSpeed = FRotator(90);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FRotator OffsetRot = FRotator(0.000000, 90.000000, 180.000000);
+
+	TObjectPtr<AFloorHelper> FloorPtr = nullptr;
 };

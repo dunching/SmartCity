@@ -103,33 +103,34 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	Super::SwitchInteractionType(ConditionalSet);
 
 	TArray<FVector> Pts;
-	
+
 	auto AreaDecoratorSPtr =
 		DynamicCastSharedPtr<FArea_Decorator>(
-											  USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-												   USmartCitySuiteTags::Interaction_Area
-												  )
-											 );
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
 	if (AreaDecoratorSPtr)
 	{
-		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(BelongFloor->BoxComponentPtr->GetComponentToWorld());
+		const auto FloorBox = BelongFloor->BoxComponentPtr->CalcBounds(
+		                                                               BelongFloor->BoxComponentPtr->
+		                                                               GetComponentToWorld()
+		                                                              );
 		const auto Offset = FloorBox.GetBox().GetExtent().Z;
 		for (int i = 0; i < 5; ++i)
 		{
-		
 			const auto Pt = FMath::RandPointInBox(
-												  FBox(
-													   FVector((Deepth * 2), -(Deepth * 8), 0),
-													   FVector((Deepth * 8),-(Deepth * 2),  0)
-													  )
-												 );
+			                                      FBox(
+			                                           FVector((Deepth * 2), -(Deepth * 8), 0),
+			                                           FVector((Deepth * 8), -(Deepth * 2), 0)
+			                                          )
+			                                     );
 			Pts.Add(Pt);
 		}
-		
+
 		// UpdatePositions( Pts);
-	
 	}
-	
+
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
@@ -296,9 +297,9 @@ void ASceneElement_RadarMode::QuitAllState()
 
 	for (auto Iter : GeneratedMarkers)
 	{
-		if (Iter)
+		if (Iter.Value)
 		{
-			Iter->Destroy();
+			Iter.Value->Destroy();
 		}
 	}
 	GeneratedMarkers.Empty();
@@ -348,7 +349,7 @@ void ASceneElement_RadarMode::ReplaceImp(
 
 			const auto Scale = Deepth / 10;
 			SweepActor->GetStaticMeshComponent()->SetRelativeScale3D(FVector(Scale, Scale, 1));
-			
+
 			SweepActor->GetStaticMeshComponent()->SetCastShadow(false);
 			SweepActor->GetStaticMeshComponent()->SetReceivesDecals(false);
 		}
@@ -356,7 +357,7 @@ void ASceneElement_RadarMode::ReplaceImp(
 }
 
 void ASceneElement_RadarMode::UpdatePositions(
-	const TArray<FVector>& Pts
+	const TMap<FString, FVector>& Pts
 	)
 {
 	{
@@ -371,8 +372,8 @@ void ASceneElement_RadarMode::UpdatePositions(
 		else if (
 			CurrentConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			CurrentConditionalSet.ConditionalSet.HasTagExact(
-															 USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
-															)
+			                                                 USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
+			                                                )
 		)
 		{
 		}
@@ -381,7 +382,7 @@ void ASceneElement_RadarMode::UpdatePositions(
 			return;
 		}
 	}
-	
+
 	auto AreaDecoratorSPtr =
 		DynamicCastSharedPtr<FArea_Decorator>(
 		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
@@ -404,15 +405,20 @@ void ASceneElement_RadarMode::UpdatePositions(
 
 				auto Marks = MakeShared<TSet<APersonMark*>>();
 
-				for (int32 Index = 0; Index < Pts.Num(); Index++)
+
+				for (const auto& PtIter : Pts)
 				{
-					auto Pt = Pts[Index];
+					auto Pt = PtIter.Value;
 
 					Pt.Z = -Offset + 50;
-					
-					if (GeneratedMarkers.IsValidIndex(Index))
+
+					if (GeneratedMarkers.Contains(PtIter.Key))
 					{
-						GeneratedMarkers[Index]->Update(Pt);
+						GeneratedMarkers[PtIter.Key]->Update(Pt);
+
+						GeneratedMarkers[PtIter.Key]->Marks = Marks;
+
+						Marks->Add(GeneratedMarkers[PtIter.Key]);
 					}
 					else
 					{
@@ -426,16 +432,22 @@ void ASceneElement_RadarMode::UpdatePositions(
 
 						Marks->Add(NewMarkPtr);
 
-						GeneratedMarkers.Add(NewMarkPtr);
+						GeneratedMarkers.Add(PtIter.Key, NewMarkPtr);
 					}
 				}
 
-				for (int32 Index = GeneratedMarkers.Num() - 1; Index >= Pts.Num(); Index--)
+				for (auto PtIter = GeneratedMarkers.CreateIterator(); PtIter; ++PtIter)
 				{
-					GeneratedMarkers[Index]->Destroy();
-					GeneratedMarkers.RemoveAt(Index);
+					if (Pts.Contains(PtIter->Key))
+					{
+					}
+					else
+					{
+						PtIter->Value->Destroy();
+						PtIter.RemoveCurrent();
+					}
 				}
-				
+
 				return;
 			}
 		}

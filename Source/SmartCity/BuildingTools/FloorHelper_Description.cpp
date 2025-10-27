@@ -1,7 +1,9 @@
 #include "FloorHelper_Description.h"
 
 #include "FloorHelper.h"
+#include "Components/TextBlock.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/WidgetComponent.h"
 
 AFloorHelper_Description::AFloorHelper_Description(
 	const FObjectInitializer& ObjectInitializer
@@ -18,14 +20,8 @@ AFloorHelper_Description::AFloorHelper_Description(
 	BorderAddScenePtr = CreateDefaultSubobject<USceneComponent>(TEXT("BorderAddScenePtr"));
 	BorderAddScenePtr->SetupAttachment(BorderScenePtr);
 
-	LeftBorderMeshPtr = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftBorderMeshPtr"));
-	LeftBorderMeshPtr->SetupAttachment(BorderAddScenePtr);
-
-	MidBorderMeshPtr = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MidBorderMeshPtr"));
-	MidBorderMeshPtr->SetupAttachment(BorderAddScenePtr);
-
-	RightBorderMeshPtr = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightBorderMeshPtr"));
-	RightBorderMeshPtr->SetupAttachment(BorderAddScenePtr);
+	FloorDecriptionText = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	FloorDecriptionText->SetupAttachment(BorderAddScenePtr);
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1.f / 30;
@@ -36,6 +32,18 @@ void AFloorHelper_Description::BeginPlay()
 	Super::BeginPlay();
 
 	BorderAddScenePtr->SetRelativeRotation(OffsetRot);
+
+	if (FloorPtr)
+	{
+		auto UIPtr = Cast<UFloorDescriptionHelper>(FloorDecriptionText->GetUserWidgetObject());
+		if ( UIPtr)
+		{
+			UIPtr->FloorIndexText->SetText(FText::FromString(FloorPtr->FloorIndexDescription));
+			UIPtr->FloorDecriptionText->SetText(FText::FromString(FloorPtr->FloorDescription));
+		}
+		
+		SetActorTransform(FloorPtr->FloorHelper_DescriptionAttachTransform->GetComponentTransform());
+	}
 }
 
 void AFloorHelper_Description::Tick(
@@ -51,12 +59,11 @@ void AFloorHelper_Description::Tick(
 }
 
 void AFloorHelper_Description::SetFloor(
-	AFloorHelper* FloorPtr
+	AFloorHelper* InFloorPtr
 	)
 {
-	if (FloorPtr)
+	if (InFloorPtr)
 	{
-		FloorIndexText->SetText(FText::FromString(FloorPtr->FloorIndexDescription));
-		FloorDecriptionText->SetText(FText::FromString(FloorPtr->FloorDescription));
+		FloorPtr = InFloorPtr;
 	}
 }
