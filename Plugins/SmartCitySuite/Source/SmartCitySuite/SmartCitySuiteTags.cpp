@@ -41,6 +41,10 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F13MultFunctionHall ,"Interaction.Area.Floor.F13MultFunctionHall");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F12 ,"Interaction.Area.Floor.F12");
+
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F12JF ,"Interaction.Area.Floor.F12JF");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F2 ,"Interaction.Area.Floor.F2");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Floor_F1J ,"Interaction.Area.Floor.F1J");
