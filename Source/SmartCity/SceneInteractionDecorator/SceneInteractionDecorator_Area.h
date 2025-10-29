@@ -6,11 +6,14 @@
 #include "GameplayTagContainer.h"
 
 #include "GenerateTypes.h"
+#include "SceneElement_AccessControl.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionDecorator_Option.h"
+#include "GameOptions.h"
 
 #include "Tools.h"
 
+class AViewerPawnBase;
 class ASceneElement_Space;
 class ABuilding_Floor_Mask;
 class AFloorHelper;
@@ -187,12 +190,6 @@ public:
 
 	virtual void Quit() override;
 
-	virtual void OnUpdateFilterComplete(
-		bool bIsOK,
-		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElement_Base* TaskPtr
-		) override;
-
 	TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
 
 private:
@@ -252,6 +249,19 @@ public:
 						FArea_Decorator
 					   );
 
+	virtual void Entry() override;
+
+	virtual void ReEntry() override;
+	
+	TWeakObjectPtr<AViewerPawnBase>ViewerPawnBasePtr = nullptr;
+
+	FControlParam ControlParam;
+	
+private:
+
+	void Process();
+	
+	void AdjustCamera()const;
 	
 };
 

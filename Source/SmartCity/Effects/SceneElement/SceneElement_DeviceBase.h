@@ -34,6 +34,10 @@ class SMARTCITY_API ASceneElement_DeviceBase :
 	GENERATED_BODY()
 
 public:
+	ASceneElement_DeviceBase(
+		const FObjectInitializer& ObjectInitializer
+		);
+
 	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
@@ -41,6 +45,8 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
+	void UpdateReletiveTransform(const FTransform& NewRelativeTransform);
+	
 	virtual void BeginInteraction() override;
 
 	virtual void EndInteraction() override;
@@ -91,6 +97,9 @@ public:
 
 	
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;

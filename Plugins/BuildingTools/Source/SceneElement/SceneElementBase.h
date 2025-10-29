@@ -10,6 +10,8 @@
 
 #include "SceneElementBase.generated.h"
 
+class USceneComponent;
+
 /**
  * 门禁
  */

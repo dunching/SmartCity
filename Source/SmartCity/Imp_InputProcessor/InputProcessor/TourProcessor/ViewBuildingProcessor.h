@@ -40,6 +40,8 @@ namespace TourProcessor
 			) override;
 
 		void AdjustCameraSeat(const FRotator&CameraSeat);
+
+		void AdjustCamera();
 		
 	private:
 

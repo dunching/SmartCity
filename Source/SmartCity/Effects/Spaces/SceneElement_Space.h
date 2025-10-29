@@ -16,7 +16,7 @@ class USphereComponent;
 class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
-class AViewerPawn;
+class AViewerPawnBase;
 class URouteMarker;
 class ASceneElement_DeviceBase;
 class UFeatureWheel;

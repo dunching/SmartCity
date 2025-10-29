@@ -1,5 +1,7 @@
 #include "MessageBody.h"
 
+#include "GameFramework/InputSettings.h"
+
 #include "AssetRefMap.h"
 #include "FloorHelper.h"
 #include "GameOptions.h"
@@ -16,7 +18,6 @@
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
-#include "GameFramework/InputSettings.h"
 
 FMessageBody::FMessageBody()
 {
@@ -661,6 +662,74 @@ TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
 
 FMessageBody_Test::FMessageBody_Test()
 {
+}
+
+FMessageBody_Receive_SetRelativeTransoform::FMessageBody_Receive_SetRelativeTransoform()
+{
+	CMD_Name = TEXT("SetRelativeTransoform");
+}
+
+void FMessageBody_Receive_SetRelativeTransoform::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	FRotator Rotator;
+
+	if (jsonObject->TryGetNumberField(TEXT("Rotation_Pitch"), Rotator.Pitch))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("Rotation_Yaw"), Rotator.Yaw))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("Rotation_Roll"), Rotator.Roll))
+	{
+	}
+
+	Transform.SetRotation(Rotator.Quaternion());
+
+	FVector Location;
+
+	if (jsonObject->TryGetNumberField(TEXT("Translation_X"), Location.X))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("Translation_Y"), Location.Y))
+	{
+	}
+
+	if (jsonObject->TryGetNumberField(TEXT("Translation_Z"), Location.Z))
+	{
+	}
+
+	Transform.SetTranslation(Location);
+}
+
+void FMessageBody_Receive_SetRelativeTransoform::DoAction() const
+{
+	Super::DoAction();
+
+	auto SceneElementPtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(DeviceID);
+	if (SceneElementPtr.IsValid())
+	{
+		auto DevicePtr = Cast<ASceneElement_DeviceBase>(SceneElementPtr);
+		if (DevicePtr)
+		{
+			DevicePtr->UpdateReletiveTransform(Transform);
+		}
+	}
 }
 
 FString FMessageBody_Send::GetJsonString() const

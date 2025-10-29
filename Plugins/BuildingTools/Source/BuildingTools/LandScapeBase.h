@@ -16,7 +16,7 @@
  */
 UCLASS()
 class BUILDINGTOOLS_API ALandScapeBase :
-	public AActor
+	public ABuildingHelperBase
 {
 	GENERATED_BODY()
 

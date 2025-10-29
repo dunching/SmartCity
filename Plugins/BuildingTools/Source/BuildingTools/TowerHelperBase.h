@@ -8,8 +8,9 @@
 #include "GameplayTagContainer.h"
 
 #include "BuildingGenerateTypes.h"
+#include "BuildingHelperBase.h"
 
-#include "BuildingHelperBase.generated.h"
+#include "TowerHelperBase.generated.h"
 
 class ANavagationPaths;
 class UBoxComponent;
@@ -18,14 +19,14 @@ class UBoxComponent;
  * 门禁
  */
 UCLASS()
-class BUILDINGTOOLS_API ABuildingHelperBase :
-	public AActor
+class BUILDINGTOOLS_API ATowerHelperBase :
+	public ABuildingHelperBase
 {
 	GENERATED_BODY()
 
 public:
 
-	ABuildingHelperBase(
+	ATowerHelperBase(
 		const FObjectInitializer& ObjectInitializer
 		);
 

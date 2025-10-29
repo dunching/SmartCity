@@ -19,6 +19,7 @@
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
 #include "SceneElement_Space.h"
+#include "SceneInteractionDecorator_Area.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
 #include "Kismet/KismetStringLibrary.h"
@@ -71,16 +72,16 @@ void SmartCityCommand::SwitchInteractionType(
 	for (auto Iter : Args)
 	{
 		UWebChannelWorldSystem::GetInstance()->OnInput(
-													   FString::Printf(
-																	   TEXT(
-																			R"({
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "SwitchInteractionType",
     "InteractionType": "%s"
 })"
-																		   ),
-																	   *Args[0]
-																	  )
-													  );
+		                                                                   ),
+		                                                               *Args[0]
+		                                                              )
+		                                              );
 		return;
 	}
 }
@@ -173,19 +174,31 @@ void SmartCityCommand::LocaterByID(
 		return;
 	}
 
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformLocaterByID>(
-		 false,
-		 [&Args](
-		 UGT_CameraTransformLocaterByID* GTPtr
-		 )
-		 {
-			 if (GTPtr)
-			 {
-				 GTPtr->ID = Args[0];
-			 }
-		 }
-		);
+	auto DevicePtr = Cast<ASceneElement_DeviceBase>(
+	                                                USceneInteractionWorldSystem::GetInstance()->FindSceneActor(Args[0])
+	                                               );
+	if (DevicePtr)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
+		                                                                   USmartCitySuiteTags::Interaction_Area_ViewDevice,
+		                                                                   [DevicePtr](
+		                                                                   const TSharedPtr<FDecoratorBase>&
+		                                                                   AreaDecoratorSPtr
+		                                                                   )
+		                                                                   {
+			                                                                   auto SpaceAreaDecoratorSPtr =
+				                                                                   DynamicCastSharedPtr<
+					                                                                   FViewDevice_Decorator>(
+					                                                                    AreaDecoratorSPtr
+					                                                                   );
+			                                                                   if (SpaceAreaDecoratorSPtr)
+			                                                                   {
+				                                                                   SpaceAreaDecoratorSPtr->
+					                                                                   SceneElementPtr = DevicePtr;
+			                                                                   }
+		                                                                   }
+		                                                                  );
+	}
 }
 
 void SmartCityCommand::ElevatorMoveToFloor(
@@ -359,7 +372,6 @@ void SmartCityCommand::SetCameraPitch(
 	const TArray<FString>& Args
 	)
 {
-	
 }
 
 void SmartCityCommand::LocaterDeviceByID(
@@ -374,16 +386,54 @@ void SmartCityCommand::LocaterDeviceByID(
 	for (auto Iter : Args)
 	{
 		UWebChannelWorldSystem::GetInstance()->OnInput(
-													   FString::Printf(
-																	   TEXT(
-																			R"({
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "LocaterDeviceByID",
     "DeviceID": "%s"
 })"
-																		   ),
-																	   *Args[0]
-																	  )
-													  );
+		                                                                   ),
+		                                                               *Args[0]
+		                                                              )
+		                                              );
+		return;
+	}
+}
+
+void SmartCityCommand::SetRelativeTransoform(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(0))
+	{
+		return;
+	}
+
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
+    "CMD": "SetRelativeTransoform",
+    "DeviceID": "%s",
+    "Rotation_Pitch": "%s",
+    "Rotation_Yaw": "%s",
+    "Rotation_Roll": "%s",
+    "Translation_X": "%s",
+    "Translation_Y": "%s",
+    "Translation_Z": "%s"
+})"
+		                                                                   ),
+		                                                               *Args[0],
+		                                                               *Args[1],
+		                                                               *Args[2],
+		                                                               *Args[3],
+		                                                               *Args[4],
+		                                                               *Args[5],
+		                                                               *Args[6]
+		                                                              )
+		                                              );
 		return;
 	}
 }

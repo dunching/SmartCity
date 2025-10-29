@@ -1,9 +1,9 @@
 
-#include "BuildingHelperBase.h"
+#include "TowerHelperBase.h"
 
 #include "Components/BoxComponent.h"
 
-ABuildingHelperBase::ABuildingHelperBase(
+ATowerHelperBase::ATowerHelperBase(
 	const FObjectInitializer& ObjectInitializer
 	):Super(ObjectInitializer)
 {

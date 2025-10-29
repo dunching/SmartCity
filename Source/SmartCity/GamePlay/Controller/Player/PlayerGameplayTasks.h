@@ -18,7 +18,7 @@
 #include "PlayerGameplayTasks.generated.h"
 
 class UGT_CameraTransform;
-class AViewerPawn;
+class AViewerPawnBase;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
 class AReplaceActorBase;
@@ -198,10 +198,6 @@ public:
 		bool
 		)>;
 
-	UGT_ReplyCameraTransform(
-		const FObjectInitializer& ObjectInitializer
-		);
-
 	virtual void Activate() override;
 
 	virtual void OnDestroy(
@@ -209,6 +205,25 @@ public:
 		) override;
 
 	FGameplayTag SeatTag;
+};
+
+UCLASS()
+class SMARTCITY_API UGT_CameraTransformByPawnViewer : public UGT_CameraTransform
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	virtual void Activate() override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	TObjectPtr<AViewerPawnBase>ViewerPawnPtr = nullptr;
 };
 
 /**
@@ -490,7 +505,6 @@ protected:
 		float DeltaTime
 		) override;
 
-private:
 	virtual bool ProcessTask_Display();
 
 	virtual bool ProcessTask_Hiden();
@@ -568,7 +582,7 @@ private:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SwitchSceneElementSpace : public UGT_SwitchSceneElement_Base
+class SMARTCITY_API UGT_SwitchSceneElement_Space : public UGT_SwitchSceneElement_Base
 {
 	GENERATED_BODY()
 
@@ -576,6 +590,25 @@ public:
 	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
 
 	virtual bool ProcessTask_Display() override;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Device : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
+
+	FGameplayTag Floor;
+	
+	virtual bool ProcessTask_Display() override;
+	
+	virtual bool ProcessTask_SwitchState() override;
+
 };
 
 /**

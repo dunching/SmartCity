@@ -12,6 +12,23 @@
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
 
+	
+ASceneElement_DeviceBase::ASceneElement_DeviceBase(
+	const FObjectInitializer& ObjectInitializer
+	) :
+	  Super(ObjectInitializer)
+{
+	RelativeTransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RelativeTransformComponent"));
+	RelativeTransformComponent->SetupAttachment(RootComponent);
+}
+
+void ASceneElement_DeviceBase::UpdateReletiveTransform(
+	const FTransform& NewRelativeTransform
+	)
+{
+	RelativeTransformComponent->SetRelativeTransform(NewRelativeTransform);
+}
+
 void ASceneElement_DeviceBase::BeginPlay()
 {
 	Super::BeginPlay();

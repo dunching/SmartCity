@@ -17,7 +17,7 @@ class USphereComponent;
 class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
-class AViewerPawn;
+class AViewerPawnBase;
 class APersonMark;
 
 /**

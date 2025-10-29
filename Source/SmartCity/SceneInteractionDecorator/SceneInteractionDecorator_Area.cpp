@@ -34,6 +34,8 @@
 #include "ViewSingleFloorViewEnergyProcessor.h"
 #include "ViewSplitFloorProcessor.h"
 #include "SceneElement_AccessControl.h"
+#include "ViewSingleSpaceProcessor.h"
+#include "ViewSpecialAreaProcessor.h"
 
 FArea_Decorator::FArea_Decorator(
 	) :
@@ -1517,23 +1519,6 @@ void FViewDevice_Decorator::Quit()
 	Super::Quit();
 }
 
-void FViewDevice_Decorator::OnUpdateFilterComplete(
-	bool bIsOK,
-	const TSet<AActor*>& InActors,
-	UGT_SwitchSceneElement_Base* TaskPtr
-	)
-{
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
-
-	FSceneElementConditional FilterTags;
-
-	FilterTags.ConditionalSet.AddTag(
-	                                 USmartCitySuiteTags::Interaction_Mode_Focus
-	                                );
-
-	AdjustCamera();
-}
-
 void FViewDevice_Decorator::Process()
 {
 	// 确认当前的模式
@@ -1564,10 +1549,6 @@ void FViewDevice_Decorator::Process()
 		                                                                 );
 	}
 
-	// USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
-	//                                                                    USmartCitySuiteTags::Interaction_Mode_Empty
-	//                                                                   );
-
 	if (SceneElementPtr.IsValid())
 	{
 		if (PreviousSceneElementPtr == SceneElementPtr)
@@ -1597,35 +1578,16 @@ void FViewDevice_Decorator::Process()
 					
 					)> MulticastDelegate;
 
-				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
 				                                                          SceneActorConditional,
 				                                                          true,
-				                                                          MulticastDelegate
+				                                                          MulticastDelegate,
+				                                                          SceneElementPtr
 				                                                         );
 
-				// UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-				// 	TourProcessor::FViewSingleDeviceProcessor>(
-				// 	                                           [this](
-				// 	                                           auto NewProcessor
-				// 	                                           )
-				// 	                                           {
-				// 		                                           NewProcessor->TargetDevicePtr =
-				// 			                                           SceneElementPtr.Get();
-				// 	                                           }
-				// 	                                          );
-
+				AdjustCamera();
 				return;
 			}
-
-			FSceneElementConditional FilterTags;
-
-			FilterTags.ConditionalSet.AddTag(
-			                                 USmartCitySuiteTags::Interaction_Mode_Focus
-			                                );
-
-			AdjustCamera();
 		}
 	}
 }
@@ -1656,6 +1618,16 @@ FViewSpace_Decorator::FViewSpace_Decorator():
 void FViewSpace_Decorator::Entry()
 {
 	Super::Entry();
+
+	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+		TourProcessor::FViewSingleSpaceProcessor>(
+												  [this](
+												  auto NewProcessor
+												  )
+												  {
+													  NewProcessor->SceneElementPtr =SceneElementPtr;
+												  }
+												 );
 
 	Process();
 }
@@ -1751,4 +1723,30 @@ void FViewSpace_Decorator::AdjustCamera() const
 											   }
 										   }
 										  );
+}
+
+void FViewSpecialArea_Decorator::Entry()
+{
+	Super::Entry();
+
+	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSpecialAreaProcessor>(
+		 [](
+		 auto NewProcessor
+		 )
+		 {
+		 }
+		);
+}
+
+void FViewSpecialArea_Decorator::ReEntry()
+{
+	Super::ReEntry();
+}
+
+void FViewSpecialArea_Decorator::Process()
+{
+}
+
+void FViewSpecialArea_Decorator::AdjustCamera() const
+{
 }

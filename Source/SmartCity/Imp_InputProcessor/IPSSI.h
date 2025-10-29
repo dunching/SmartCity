@@ -20,9 +20,17 @@ class SMARTCITY_API UInputProcessorSubSystem_Imp : public UInputProcessorSubSyst
 public:
 	static UInputProcessorSubSystem_Imp* GetInstance();
 
+	/**
+	 * 注意：仅可从Decorator调用 
+	 * @tparam ProcessorType 
+	 */
 	template <typename ProcessorType>
 	void SwitchToProcessor();
 
+	/**
+	 * 注意：仅可从Decorator调用 
+	 * @tparam ProcessorType 
+	 */
 	template <typename ProcessorType>
 	void SwitchToProcessor(
 		const FInitSwitchFunc<ProcessorType>& InitSwitchFunc,

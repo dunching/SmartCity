@@ -18,7 +18,7 @@
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
 class UGT_SwitchSceneElement_Generic;
-class UGT_SwitchSceneElementSpace;
+class UGT_SwitchSceneElement_Space;
 class URouteMarker;
 class ASceneElementBase;
 class ASceneElement_Space;
@@ -119,6 +119,17 @@ public:
 			UGT_SwitchSceneElement_Base*
 			)>& OnEnd,
 			TWeakObjectPtr<ASceneElement_Space>SceneElementPtr
+		);
+
+	UGT_SwitchSceneElement_Base* UpdateFilter_Device(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElement_Base*
+			)>& OnEnd,
+			TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr
 		);
 
 	void InitializeSceneActors();

@@ -14,11 +14,10 @@
 #include "Algorithm.h"
 #include "AssetRefMap.h"
 #include "TourPawn.h"
-#include "ViewerPawn.h"
 #include "Tools.h"
 #include "GameplayTagsLibrary.h"
 #include "AssetRefMap.h"
-#include "BuildingHelperBase.h"
+#include "TowerHelperBase.h"
 #include "DatasmithSceneActor.h"
 #include "FloorHelper.h"
 #include "GenerateTypes.h"
@@ -32,6 +31,7 @@
 #include "SceneElement_Regualar.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
+#include "ViewerPawnBase.h"
 
 struct FPrefix : public TStructVariable<FPrefix>
 {
@@ -40,15 +40,6 @@ struct FPrefix : public TStructVariable<FPrefix>
 
 FName UPlayerControllerGameplayTasksComponent::ComponentName = TEXT("PlayerControllerGameplayTasksComponent");
 
-UGT_ReplyCameraTransform::UGT_ReplyCameraTransform(
-	const FObjectInitializer& ObjectInitializer
-	) :
-	  Super(ObjectInitializer)
-{
-	bTickingTask = true;
-	bIsPausable = true;
-}
-
 void UGT_ReplyCameraTransform::Activate()
 {
 	Super::Activate();
@@ -56,13 +47,13 @@ void UGT_ReplyCameraTransform::Activate()
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(
 	                                      this,
-	                                      AViewerPawn::StaticClass(),
+	                                      AViewerPawnBase::StaticClass(),
 	                                      OutActors
 	                                     );
 
 	for (auto ActorIter : OutActors)
 	{
-		auto ViewerPawnPtr = Cast<AViewerPawn>(ActorIter);
+		auto ViewerPawnPtr = Cast<AViewerPawnBase>(ActorIter);
 		if (ViewerPawnPtr)
 		{
 			if (ViewerPawnPtr->SeatTag == SeatTag)
@@ -80,6 +71,29 @@ void UGT_ReplyCameraTransform::Activate()
 }
 
 void UGT_ReplyCameraTransform::OnDestroy(
+	bool bInOwnerFinished
+	)
+{
+	Super::OnDestroy(bInOwnerFinished);
+}
+
+void UGT_CameraTransformByPawnViewer::Activate()
+{
+	Super::Activate();
+
+	if (ViewerPawnPtr)
+	{
+		TargetLocation = ViewerPawnPtr->GetActorLocation();
+		TargetRotation = ViewerPawnPtr->GetActorRotation();
+		TargetTargetArmLength = ViewerPawnPtr->SpringArmComponent->TargetArmLength;
+
+		return;
+	}
+
+	EndTask();
+}
+
+void UGT_CameraTransformByPawnViewer::OnDestroy(
 	bool bInOwnerFinished
 	)
 {
@@ -1837,7 +1851,7 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_SwitchState_Elevator()
 	return false;
 }
 
-bool UGT_SwitchSceneElementSpace::ProcessTask_Display()
+bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 {
 	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
 	for (const auto Iter : FilterTags.ConditionalSet)
@@ -1978,6 +1992,157 @@ bool UGT_SwitchSceneElementSpace::ProcessTask_Display()
 		ReplaceActorsSet.Add(
 		                     Iter
 		                    );
+	}
+
+	return false;
+}
+
+bool UGT_SwitchSceneElement_Device::ProcessTask_Display()
+{
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->GameplayTagContainer.HasTag(Floor))
+		{
+			FloorIter.Value->SwitchInteractionType(FilterTags);
+
+			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
+
+			const auto FloorIndex = FloorIter.Value->FloorIndex;
+
+			TempDataSmithSceneActorsSet.Append(
+			                                   FloorIter.Value->AllReference.StructItemSet.DatasmithSceneActorSet.
+			                                             Array()
+			                                  );
+			TempDataSmithSceneActorsSet.Append(
+			                                   FloorIter.Value->AllReference.InnerStructItemSet.
+			                                             DatasmithSceneActorSet.
+			                                             Array()
+			                                  );
+			TempDataSmithSceneActorsSet.Append(
+			                                   FloorIter.Value->AllReference.SoftDecorationItem.
+			                                             DatasmithSceneActorSet.
+			                                             Array()
+			                                  );
+			TempDataSmithSceneActorsSet.Append(
+			                                   FloorIter.Value->AllReference.SpaceItemSet.
+			                                             DatasmithSceneActorSet.
+			                                             Array()
+			                                  );
+
+			DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
+
+			ReplaceActorsSet.Append(
+			                        FloorIter.Value->AllReference.StructItemSet.OtherItem
+			                       );
+			ReplaceActorsSet.Append(
+			                        FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
+			                       );
+			ReplaceActorsSet.Append(
+			                        FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
+			                       );
+			ReplaceActorsSet.Append(
+			                        FloorIter.Value->AllReference.SpaceItemSet.OtherItem
+			                       );
+		}
+		else
+		{
+			FloorIter.Value->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+
+			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
+
+			TempHideDataSmithSceneActorsSet.Append(
+			                                       FloorIter.Value->AllReference.StructItemSet.
+			                                                 DatasmithSceneActorSet.
+			                                                 Array()
+			                                      );
+			TempHideDataSmithSceneActorsSet.Append(
+			                                       FloorIter.Value->AllReference.InnerStructItemSet.
+			                                                 DatasmithSceneActorSet
+			                                                 .Array()
+			                                      );
+			TempHideDataSmithSceneActorsSet.Append(
+			                                       FloorIter.Value->AllReference.SoftDecorationItem.
+			                                                 DatasmithSceneActorSet.
+			                                                 Array()
+			                                      );
+			TempHideDataSmithSceneActorsSet.Append(
+			                                       FloorIter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet
+			                                                .Array()
+			                                      );
+
+			HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
+
+			HideReplaceActorsSet.Append(
+			                            FloorIter.Value->AllReference.StructItemSet.OtherItem
+			                           );
+			HideReplaceActorsSet.Append(
+			                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
+			                           );
+			HideReplaceActorsSet.Append(
+			                            FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
+			                           );
+			HideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.OtherItem);
+		}
+	}
+
+	for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
+	{
+		TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
+
+		TempHideDataSmithSceneActorsSet.Append(
+		                                       Iter.Value->AllReference.StructItemSet.
+		                                            DatasmithSceneActorSet.
+		                                            Array()
+		                                      );
+		TempHideDataSmithSceneActorsSet.Append(
+		                                       Iter.Value->AllReference.InnerStructItemSet.
+		                                            DatasmithSceneActorSet
+		                                            .Array()
+		                                      );
+		TempHideDataSmithSceneActorsSet.Append(
+		                                       Iter.Value->AllReference.SoftDecorationItem.
+		                                            DatasmithSceneActorSet.
+		                                            Array()
+		                                      );
+		TempHideDataSmithSceneActorsSet.Append(
+		                                       Iter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet
+		                                           .Array()
+		                                      );
+
+		HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
+
+		HideReplaceActorsSet.Append(
+		                            Iter.Value->AllReference.StructItemSet.OtherItem
+		                           );
+		HideReplaceActorsSet.Append(
+		                            Iter.Value->AllReference.InnerStructItemSet.OtherItem
+		                           );
+		HideReplaceActorsSet.Append(
+		                            Iter.Value->AllReference.SoftDecorationItem.OtherItem
+		                           );
+		HideReplaceActorsSet.Append(Iter.Value->AllReference.SpaceItemSet.OtherItem);
+	}
+
+	for (auto Iter : SceneElementSet)
+	{
+		ReplaceActorsSet.Add(
+		                     Iter
+		                    );
+	}
+
+	return false;
+}
+
+bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
+{
+	if (Super::ProcessTask_SwitchState())
+	{
+		return true;
+	}
+
+	for (auto Iter : SceneElementSet)
+	{
+		Iter->SwitchInteractionType(FilterTags);
 	}
 
 	return false;

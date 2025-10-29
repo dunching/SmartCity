@@ -7,7 +7,6 @@
 #include "GameplayTagsLibrary.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
-#include "ViewerPawn.h"
 #include "TourPawn.h"
 
 TourProcessor::FViewSingleFloorViewEnergyProcessor::FViewSingleFloorViewEnergyProcessor(

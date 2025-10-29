@@ -31,10 +31,10 @@ struct GAMEOPTIONS_API FControlParam
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotYawSpeed = 30;
+	int32 RotYawSpeed = 8;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	int32 RotPitchSpeed = 30;
+	int32 RotPitchSpeed = 8;
 
 	/**
 	 * 移动输入的倍数

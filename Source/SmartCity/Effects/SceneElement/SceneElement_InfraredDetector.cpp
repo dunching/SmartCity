@@ -21,7 +21,7 @@ ASceneElement_InfraredDetector::ASceneElement_InfraredDetector(
 	  Super(ObjectInitializer)
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	AnchorComponent = CreateDefaultSubobject<USceneComponent>(TEXT("AnchorComponent"));
 	AnchorComponent->SetupAttachment(StaticMeshComponent);

@@ -24,17 +24,15 @@ ASceneElement_HVAC::ASceneElement_HVAC(
 	) :
 	  Super(ObjectInitializer)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	StaticMeshComponent->SetCollisionObjectType(Device_Object);
 	StaticMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 	NiagaraComponentPtr = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
-	NiagaraComponentPtr->SetupAttachment(RootComponent);
+	NiagaraComponentPtr->SetupAttachment(RelativeTransformComponent);
 
 	NiagaraComponentPtr->SetAutoActivate(false);
 }

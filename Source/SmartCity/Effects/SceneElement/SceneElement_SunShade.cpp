@@ -18,7 +18,7 @@ ASceneElement_SunShade::ASceneElement_SunShade(
 	  Super(ObjectInitializer)
 {
 	BaseComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestMeshComponent"));
-	BaseComponent->SetupAttachment(RootComponent);
+	BaseComponent->SetupAttachment(RelativeTransformComponent);
 
 	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 	SceneComponent->SetupAttachment(BaseComponent);

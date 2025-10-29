@@ -13,8 +13,9 @@
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
-#include "ViewerPawn.h"
 #include "TourPawn.h"
+#include "TowerHelperBase.h"
+#include "ViewerPawnBase.h"
 #include "WeatherSystem.h"
 
 TourProcessor::FViewBuildingProcessor::FViewBuildingProcessor(
@@ -28,24 +29,12 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
-	USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
-		 USmartCitySuiteTags::Interaction_Area.GetTag(),
-		 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
-		);
+	// USceneInteractionWorldSystem::GetInstance()->SwitchDecoratorImp<FExternalWall_Decorator>(
+	// 	 USmartCitySuiteTags::Interaction_Area.GetTag(),
+	// 	 USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag()
+	// 	);
 
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
-		 false,
-		 [](
-		 UGT_ReplyCameraTransform* GTPtr
-		 )
-		 {
-			 if (GTPtr)
-			 {
-				 GTPtr->SeatTag = USmartCitySuiteTags::Seat_Default;
-			 }
-		 }
-		);
+	AdjustCamera();
 
 	{
 		// 确认当前的模式
@@ -293,14 +282,16 @@ void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
 			                                                                         TArray<AActor*> OutActors;
 			                                                                         UGameplayStatics::GetAllActorsOfClass(
 				                                                                          GTPtr,
-				                                                                          AViewerPawn::StaticClass(),
+				                                                                          AViewerPawnBase::StaticClass(),
 				                                                                          OutActors
 				                                                                         );
 
 			                                                                         for (auto ActorIter : OutActors)
 			                                                                         {
 				                                                                         auto ViewerPawnPtr = Cast<
-					                                                                         AViewerPawn>(ActorIter);
+					                                                                         AViewerPawnBase>(
+					                                                                          ActorIter
+					                                                                         );
 				                                                                         if (ViewerPawnPtr)
 				                                                                         {
 					                                                                         if (ViewerPawnPtr->SeatTag
@@ -335,4 +326,42 @@ void TourProcessor::FViewBuildingProcessor::AdjustCameraSeat(
 		                                                                         }
 	                                                                         }
 	                                                                        );
+}
+
+void TourProcessor::FViewBuildingProcessor::AdjustCamera()
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformByPawnViewer>(
+		 false,
+		 [PCPtr](
+		 UGT_CameraTransformByPawnViewer* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 TArray<AActor*> OutActors;
+				 UGameplayStatics::GetAllActorsOfClass(
+				                                       GTPtr,
+				                                       ATowerHelperBase::StaticClass(),
+				                                       OutActors
+				                                      );
+
+				 for (auto ActorIter : OutActors)
+				 {
+					 auto TowerHelperPtr = Cast<
+						 ATowerHelperBase>(ActorIter);
+					 if (TowerHelperPtr)
+					 {
+						 if (TowerHelperPtr->DefaultBuildingCameraSeat.ToSoftObjectPath().IsValid())
+						 {
+							 GTPtr->
+								 ViewerPawnPtr
+								 = TowerHelperPtr->DefaultBuildingCameraSeat.LoadSynchronous();
+							 return;
+						 }
+					 }
+				 }
+			 }
+		 }
+		);
 }
