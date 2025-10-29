@@ -1,4 +1,3 @@
-
 #include "SceneInteractionDecorator_Mode.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -145,7 +144,7 @@ void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
 void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	const TSet<AActor*>& InActors,
-	UGT_SwitchSceneElementState* TaskPtr
+	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
@@ -285,7 +284,7 @@ FEnergyMode_Decorator::FEnergyMode_Decorator() :
 void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	const TSet<AActor*>& InActors,
-	UGT_SwitchSceneElementState* TaskPtr
+	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
@@ -454,10 +453,17 @@ void FAccessControlMode_Decorator::Entry()
 
 	SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode);
 
+	TSet<ASceneElementBase*> FocusActorsAry;
+
 	for (auto Iter : OutActors)
 	{
-		USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(Iter, SceneActorConditional);
+		auto SceneElementActorPtr = Cast<ASceneElementBase>(Iter);
+		if (SceneElementActorPtr)
+		{
+			FocusActorsAry.Add(SceneElementActorPtr);
+		}
 	}
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(FocusActorsAry, SceneActorConditional);
 }
 
 FElevatorMode_Decorator::FElevatorMode_Decorator() :
@@ -479,7 +485,7 @@ void FElevatorMode_Decorator::Quit()
 void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	const TSet<AActor*>& InActors,
-	UGT_SwitchSceneElementState* TaskPtr
+	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);

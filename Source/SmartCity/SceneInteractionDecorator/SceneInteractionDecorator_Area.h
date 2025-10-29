@@ -11,17 +11,16 @@
 
 #include "Tools.h"
 
+class ASceneElement_Space;
 class ABuilding_Floor_Mask;
 class AFloorHelper;
 class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
-class UGT_SwitchSceneElementState;
+class UGT_SwitchSceneElement_Generic;
 class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
-
-#pragma region 区域
 
 /**
  * 
@@ -59,12 +58,12 @@ protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	FGameplayTag CurrentInteraction_Area;
 
-	TArray<UGT_SwitchSceneElementState*> SwitchSceneElementStateAry;
+	TArray<UGT_SwitchSceneElement_Generic*> SwitchSceneElementStateAry;
 };
 
 /**
@@ -94,7 +93,7 @@ public:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 };
 
@@ -159,14 +158,12 @@ protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	void AdjustCamera()const;
 	
 private:
-	TSet<AActor*> PreviousActors;
-
 	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
 };
 
@@ -193,7 +190,7 @@ public:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
@@ -211,6 +208,42 @@ private:
 	FInteraction_Decorator::FConfig Config;
 };
 
+class SMARTCITY_API FViewSpace_Decorator : public FArea_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FViewSpace_Decorator,
+	                    FArea_Decorator
+	                   );
+
+	FViewSpace_Decorator(
+		);
+
+	virtual void Entry() override;
+
+	virtual void ReEntry() override;
+
+	virtual void Quit() override;
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
+
+	FGameplayTag Floor;
+
+	TWeakObjectPtr<ASceneElement_Space>SceneElementPtr = nullptr;
+
+private:
+
+	void Process();
+	
+	void AdjustCamera()const;
+
+	FInteraction_Decorator::FConfig Config;
+};
+
 class SMARTCITY_API FViewSpecialArea_Decorator : public FArea_Decorator
 {
 public:
@@ -222,4 +255,3 @@ public:
 	
 };
 
-#pragma endregion

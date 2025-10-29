@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "HoverWidgetBase.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+
+#include "HoverWidgetBase.h"
 
 #include "FeatureWheel.generated.h"
 
@@ -72,10 +74,16 @@ public:
 		const TArray<FFeaturesItem>& Features
 		);
 
+	void SetOncliced(const FOnButtonClickedEvent&OnClicked);
+	
 	FVector TargetPt = FVector::ZeroVector;
+
 private:
 
 protected:
+	UPROPERTY(meta = (BindWidget))
+	UButton* Button = nullptr;
+
 	UPROPERTY(meta = (BindWidget))
 	UVerticalBox* VerticalBoxPtr = nullptr;
 

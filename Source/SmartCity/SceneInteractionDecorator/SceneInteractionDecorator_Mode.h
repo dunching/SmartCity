@@ -14,7 +14,7 @@ class AFloorHelper;
 class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
-class UGT_SwitchSceneElementState;
+class UGT_SwitchSceneElement_Generic;
 class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
@@ -102,7 +102,7 @@ public:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 private:
@@ -130,7 +130,7 @@ public:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	TMap<FString, ASceneElement_PWR_Pipe*>IDMap;
@@ -311,7 +311,7 @@ public:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		const TSet<AActor*>& InActors,
-		UGT_SwitchSceneElementState* TaskPtr
+		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 private:

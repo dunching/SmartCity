@@ -30,6 +30,7 @@
 #include "TourPawn.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSplitFloorProcessor.h"
+#include "SceneElement_Space.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 {
@@ -470,6 +471,26 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 
 	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
 	{
+		if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+					USmartCitySuiteTags::Interaction_Area_Floor)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FViewSpecialArea_Decorator>(
+												 USmartCitySuiteTags::Interaction_Area,
+												 Interaction_Area,
+												 Func
+												);
+
+			return;
+		}
+
 		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
 			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
@@ -507,6 +528,26 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 
 		return;
 	}
+
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Space))
+	{
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_ViewDevice)
+			{
+				// return;
+			}
+		}
+
+		SwitchDecoratorImp<FViewSpace_Decorator>(
+		                                          USmartCitySuiteTags::Interaction_Area,
+		                                          Interaction_Area,
+		                                          Func
+		                                         );
+
+		return;
+	}
 }
 
 void USceneInteractionWorldSystem::Operation(
@@ -530,24 +571,21 @@ void USceneInteractionWorldSystem::Operation(
 	}
 }
 
-UGT_SwitchSceneElementState* USceneInteractionWorldSystem::UpdateFilter(
+UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter(
 	const FSceneElementConditional& FilterTags,
 	bool bBreakRuntimeTask,
 	const TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&,
-		UGT_SwitchSceneElementState*
-
-
-		
+		UGT_SwitchSceneElement_Base*
 		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementState>(
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Base>(
 		 bBreakRuntimeTask,
 		 [this, OnEnd, &FilterTags](
-		 UGT_SwitchSceneElementState* GTPtr
+		 UGT_SwitchSceneElement_Base* GTPtr
 		 )
 		 {
 			 if (GTPtr)
@@ -556,6 +594,33 @@ UGT_SwitchSceneElementState* USceneInteractionWorldSystem::UpdateFilter(
 					 SceneInteractionWorldSystemPtr =
 					 this;
 				 GTPtr->FilterTags = FilterTags;
+				 GTPtr->OnEnd = OnEnd;
+			 }
+		 }
+		);
+}
+
+UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
+	const FSceneElementConditional& FilterTags,
+	bool bBreakRuntimeTask,
+	const TMulticastDelegate<void(bool, const TSet<AActor*>&, UGT_SwitchSceneElement_Base*)>& OnEnd,
+			TWeakObjectPtr<ASceneElement_Space>SceneElementPtr
+	)
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElementSpace>(
+		 bBreakRuntimeTask,
+		 [this, OnEnd, &FilterTags, SceneElementPtr](
+		 UGT_SwitchSceneElementSpace* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->
+					 SceneInteractionWorldSystemPtr =
+					 this;
+				 GTPtr->FilterTags = FilterTags;
+				 GTPtr->SceneElementSet.Add( SceneElementPtr.Get());
 				 GTPtr->OnEnd = OnEnd;
 			 }
 		 }
@@ -702,32 +767,7 @@ void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenQuit(
 }
 
 void USceneInteractionWorldSystem::SwitchInteractionType(
-	AActor* DevicePtr,
-	const FSceneElementConditional& ConditionalSet
-	)
-{
-	if (!DevicePtr)
-	{
-		return;
-	}
-
-	if (FocusActors.Contains(DevicePtr))
-	{
-		return;
-	}
-
-	if (DevicePtr->IsA(ASceneElementBase::StaticClass()))
-	{
-		auto SceneElementBasePtr = Cast<ASceneElementBase>(DevicePtr);
-		if (SceneElementBasePtr)
-		{
-			SceneElementBasePtr->SwitchInteractionType(ConditionalSet);
-		}
-	}
-}
-
-void USceneInteractionWorldSystem::SwitchInteractionType(
-	const TSet<ASceneElement_DeviceBase*>& FocusActorsAry,
+	const TSet<ASceneElementBase*>& FocusActorsAry,
 	const FSceneElementConditional& FilterTags
 	)
 {
