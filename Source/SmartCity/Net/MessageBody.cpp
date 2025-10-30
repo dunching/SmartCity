@@ -3,9 +3,7 @@
 #include "GameFramework/InputSettings.h"
 
 #include "AssetRefMap.h"
-#include "DatasmithSceneActor.h"
 #include "FloorHelper.h"
-#include "FloorHelper_Description.h"
 #include "GameOptions.h"
 #include "IPSSI.h"
 #include "PlanetPlayerCameraManager.h"
@@ -13,7 +11,6 @@
 #include "SceneElement_RadarMode.h"
 #include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
-#include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
@@ -21,7 +18,6 @@
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
-#include "ViewerPawnBase.h"
 
 FMessageBody::FMessageBody()
 {
@@ -221,12 +217,12 @@ void FMessageBody_Receive_AdjustWeather::DoAction() const
 	}
 }
 
-FMessageBody_Receive_UpdateViewConfig::FMessageBody_Receive_UpdateViewConfig()
+FMessageBody_Receive_InteractionOption::FMessageBody_Receive_InteractionOption()
 {
-	CMD_Name = TEXT("UpdateViewConfig");
+	CMD_Name = TEXT("InteractionOption");
 }
 
-void FMessageBody_Receive_UpdateViewConfig::Deserialize(
+void FMessageBody_Receive_InteractionOption::Deserialize(
 	const FString& JsonStr
 	)
 {
@@ -241,23 +237,23 @@ void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetNumberField(TEXT("WallTranlucent"), ViewConfig.WallTranlucent))
+	if (jsonObject->TryGetNumberField(TEXT("WallTranlucent"), WallTranlucent))
 	{
 	}
 
-	if (jsonObject->TryGetNumberField(TEXT("PillarTranlucent"), ViewConfig.PillarTranlucent))
+	if (jsonObject->TryGetNumberField(TEXT("PillarTranlucent"), PillarTranlucent))
 	{
 	}
 
-	if (jsonObject->TryGetNumberField(TEXT("StairsTranlucent"), ViewConfig.StairsTranlucent))
+	if (jsonObject->TryGetNumberField(TEXT("StairsTranlucent"), StairsTranlucent))
 	{
 	}
 
-	if (jsonObject->TryGetBoolField(TEXT("ShowCurtainWall"), ViewConfig.bShowCurtainWall))
+	if (jsonObject->TryGetBoolField(TEXT("ShowCurtainWall"), bShowCurtainWall))
 	{
 	}
 
-	if (jsonObject->TryGetBoolField(TEXT("ShowFurniture"), ViewConfig.bShowFurniture))
+	if (jsonObject->TryGetBoolField(TEXT("ShowFurniture"), bShowFurniture))
 	{
 	}
 
@@ -266,7 +262,7 @@ void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	}
 }
 
-void FMessageBody_Receive_UpdateViewConfig::DoAction() const
+void FMessageBody_Receive_InteractionOption::DoAction() const
 {
 	// 确认当前的模式
 	auto DecoratorSPtr =
@@ -284,7 +280,16 @@ void FMessageBody_Receive_UpdateViewConfig::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->UpdateViewConfig(ViewConfig);
+			                                                                  SPtr->Config.WallTranlucent =
+				                                                                  WallTranlucent;
+			                                                                  SPtr->Config.PillarTranlucent =
+				                                                                  PillarTranlucent;
+			                                                                  SPtr->Config.StairsTranlucent =
+				                                                                  StairsTranlucent;
+			                                                                  SPtr->Config.bShowCurtainWall =
+				                                                                  bShowCurtainWall;
+			                                                                  SPtr->Config.bShowFurniture =
+				                                                                  bShowFurniture;
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -311,7 +316,7 @@ void FMessageBody_Receive_LocaterDeviceByID::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
+	if (jsonObject->TryGetStringField(TEXT("SceneElementID"), DeviceID))
 	{
 	}
 }
@@ -324,98 +329,14 @@ void FMessageBody_Receive_LocaterDeviceByID::DoAction() const
 		auto DevicePtr = Cast<ASceneElement_DeviceBase>(SceneElementPtr.Get());
 		if (DevicePtr && DevicePtr->BelongFloor)
 		{
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
-			                                                                   USmartCitySuiteTags::Interaction_Area_ViewDevice,
-			                                                                   [DevicePtr, this](
-			                                                                   const TSharedPtr<FDecoratorBase>&
-			                                                                   AreaDecoratorSPtr
-			                                                                   )
-			                                                                   {
-				                                                                   auto SpaceAreaDecoratorSPtr =
-					                                                                   DynamicCastSharedPtr<
-						                                                                   FViewDevice_Decorator>(
-						                                                                    AreaDecoratorSPtr
-						                                                                   );
-				                                                                   if (SpaceAreaDecoratorSPtr)
-				                                                                   {
-					                                                                   SpaceAreaDecoratorSPtr->
-						                                                                   SceneElementPtr = DevicePtr;
-				                                                                   }
-			                                                                   }
-			                                                                  );
-		}
-	}
-}
-
-FMessageBody_Receive_LocaterSpaceByID::FMessageBody_Receive_LocaterSpaceByID()
-{
-	CMD_Name = TEXT("LocaterSpaceByID");
-}
-
-void FMessageBody_Receive_LocaterSpaceByID::Deserialize(
-	const FString& JsonStr
-	)
-{
-	Super::Deserialize(JsonStr);
-
-	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
-
-	TSharedPtr<FJsonObject> jsonObject;
-
-	FJsonSerializer::Deserialize(
-	                             JsonReader,
-	                             jsonObject
-	                            );
-
-	if (jsonObject->TryGetStringField(TEXT("SpaceID"), SpaceID))
-	{
-	}
-
-	FString FloorStr;
-	if (jsonObject->TryGetStringField(TEXT("FloorSet"), FloorStr))
-	{
-		Floor = FGameplayTag::RequestGameplayTag(*FloorStr);
-	}
-}
-
-void FMessageBody_Receive_LocaterSpaceByID::DoAction() const
-{
-	Super::DoAction();
-
-	if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(Floor))
-	{
-		auto FloorRef = UAssetRefMap::GetInstance()->FloorHelpers[Floor];
-		auto FloorPtr = FloorRef.LoadSynchronous();
-
-		for (auto Iter : FloorPtr->AllReference.SpaceItemSet.DatasmithSceneActorSet)
-		{
-			TArray<AActor*> OutActors;
-			Iter->GetAttachedActors(OutActors, true, true);
-
-			for (auto SpaceIter : OutActors)
-			{
-				auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
-				if (SpacePtr && SpacePtr->Category == SpaceID)
-				{
-					USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
-						 USmartCitySuiteTags::Interaction_Area_Space,
-						 [SpacePtr, this](
-						 const TSharedPtr<FDecoratorBase>& AreaDecoratorSPtr
-						 )
-						 {
-							 auto SpaceAreaDecoratorSPtr = DynamicCastSharedPtr<
-								 FViewSpace_Decorator>(AreaDecoratorSPtr);
-							 if (SpaceAreaDecoratorSPtr)
-							 {
-								 SpaceAreaDecoratorSPtr->Floor = Floor;
-								 SpaceAreaDecoratorSPtr->SceneElementPtr = SpacePtr;
-							 }
-						 }
-						);
-
-					return;
-				}
-			}
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+				 [this, DevicePtr](
+				 auto NewProcessor
+				 )
+				 {
+					 NewProcessor->TargetDevicePtr = DevicePtr;
+				 }
+				);
 		}
 	}
 }
@@ -460,30 +381,24 @@ void FMessageBody_Receive_SwitchInteractionType::DoAction() const
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
 		                                                                  [this](
-		                                                                  const TSharedPtr<FInteraction_Decorator>&
-		                                                                  DecoratorSPtr
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto ControllConfig = DecoratorSPtr->
-				                                                                  GetConfigControlConfig();
 			                                                                  if (InteractionType == TEXT("Device"))
 			                                                                  {
-				                                                                  ControllConfig.InteractionType =
-					                                                                  EInteractionType::kDevice;
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kDevice;
 			                                                                  }
 			                                                                  else if (InteractionType == TEXT("Space"))
 			                                                                  {
-				                                                                  ControllConfig.InteractionType =
-					                                                                  EInteractionType::kSpace;
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
 			                                                                  }
 			                                                                  else
 			                                                                  {
-				                                                                  ControllConfig.InteractionType =
-					                                                                  EInteractionType::kSpace;
+				                                                                  SPtr->Config.InteractionType =
+					                                                                  FInteraction_Decorator::EInteractionType::kSpace;
 			                                                                  }
-			                                                                  DecoratorSPtr->UpdateControlConfig(
-				                                                                   ControllConfig
-				                                                                  );
 		                                                                  },
 		                                                                  true
 		                                                                 );
@@ -510,7 +425,7 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetStringField(TEXT("SpaceID"), DeviceID))
+	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
 	{
 	}
 
@@ -602,31 +517,6 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 	                           Array
 	                          );
 
-	if (FloorHelper)
-	{
-		RootJsonObj->SetStringField(
-								   TEXT("FloorTag"),
-								   FloorHelper->FloorTag.ToString()
-								  );
-
-		RootJsonObj->SetStringField(
-								   TEXT("Floor"),
-								   FloorHelper->FloorIndexDescription
-								  );
-
-		for (const auto& Iter : FloorHelper->PresetBuildingCameraSeat)
-		{
-			auto PresetValueSPtr = MakeShared<FJsonValueString>(Iter.Key);
-
-			Array.Add(PresetValueSPtr);
-		}
-
-		RootJsonObj->SetArrayField(
-								   TEXT("Spaces"),
-								   Array
-								  );
-	}
-	
 	return RootJsonObj;
 }
 
@@ -770,182 +660,6 @@ TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
 	return RootJsonObj;
 }
 
-FMessageBody_ViewConfigChanged::FMessageBody_ViewConfigChanged()
-{
-	CMD_Name = TEXT("ViewConfigChanged");
-}
-
-TSharedPtr<FJsonObject> FMessageBody_ViewConfigChanged::SerializeBody() const
-{
-	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
-
-	RootJsonObj->SetNumberField(
-	                            TEXT("WallTranlucent"),
-	                            ViewConfig.WallTranlucent
-	                           );
-
-	RootJsonObj->SetNumberField(
-	                            TEXT("PillarTranlucent"),
-	                            ViewConfig.PillarTranlucent
-	                           );
-
-	RootJsonObj->SetNumberField(
-	                            TEXT("StairsTranlucent"),
-	                            ViewConfig.StairsTranlucent
-	                           );
-
-	RootJsonObj->SetBoolField(
-	                          TEXT("ShowCurtainWall"),
-	                          ViewConfig.bShowCurtainWall
-	                         );
-
-	RootJsonObj->SetBoolField(
-	                          TEXT("ShowFurniture"),
-	                          ViewConfig.bShowFurniture
-	                         );
-
-	return RootJsonObj;
-}
-
-FMessageBody_Receive_UpdateFloorDescription::FMessageBody_Receive_UpdateFloorDescription()
-{
-	CMD_Name = TEXT("UpdateFloorDescription");
-}
-
-void FMessageBody_Receive_UpdateFloorDescription::Deserialize(
-	const FString& JsonStr
-	)
-{
-	Super::Deserialize(JsonStr);
-
-	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
-
-	TSharedPtr<FJsonObject> jsonObject;
-
-	FJsonSerializer::Deserialize(
-	                             JsonReader,
-	                             jsonObject
-	                            );
-
-
-	FString FloorStr;
-	if (jsonObject->TryGetStringField(TEXT("FloorSet"), FloorStr))
-	{
-		Floor = FGameplayTag::RequestGameplayTag(*FloorStr);
-	}
-
-	if (jsonObject->TryGetStringField(TEXT("FloorDescription"), FloorDescription))
-	{
-	}
-}
-
-void FMessageBody_Receive_UpdateFloorDescription::DoAction() const
-{
-	Super::DoAction();
-
-	if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(Floor))
-	{
-		auto FloorRef = UAssetRefMap::GetInstance()->FloorHelpers[Floor];
-		auto FloorPtr = FloorRef.LoadSynchronous();
-
-		FloorPtr->FloorHelper_DescriptionPtr->UpdateFloorDescription(FloorDescription);
-	}
-}
-
-FMessageBody_Receive_ViewSpeacialArea::FMessageBody_Receive_ViewSpeacialArea()
-{
-	CMD_Name = TEXT("ViewSpeacialArea");
-}
-
-void FMessageBody_Receive_ViewSpeacialArea::Deserialize(
-	const FString& JsonStr
-	)
-{
-	Super::Deserialize(JsonStr);
-
-	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
-
-	TSharedPtr<FJsonObject> jsonObject;
-
-	FJsonSerializer::Deserialize(
-	                             JsonReader,
-	                             jsonObject
-	                            );
-
-	FloorSet.Empty();
-	const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
-	if (jsonObject->TryGetArrayField(TEXT("FloorSet"), OutArray))
-	{
-		FString FloorStr;
-		for (const auto JsonValue : *OutArray)
-		{
-			FloorStr = JsonValue->AsString();
-			FloorSet.Add(FGameplayTag::RequestGameplayTag(*FloorStr));
-		}
-	}
-
-	if (jsonObject->TryGetStringField(TEXT("Seat"), Seat))
-	{
-	}
-}
-
-void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
-{
-	Super::DoAction();
-
-	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		if (Iter.Value->PresetBuildingCameraSeat.Contains(Seat))
-		{
-			auto ViewerPawnBasePtr = Iter.Value->PresetBuildingCameraSeat[
-				Seat];
-			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
-			                                                                   USmartCitySuiteTags::Interaction_Area_SpecialArea,
-			                                                                   [this, ViewerPawnBasePtr](
-			                                                                   const TSharedPtr<FDecoratorBase>&
-			                                                                   AreaDecoratorSPtr
-			                                                                   )
-			                                                                   {
-				                                                                   auto SpaceAreaDecoratorSPtr =
-					                                                                   DynamicCastSharedPtr<
-						                                                                   FViewSpecialArea_Decorator>(
-						                                                                    AreaDecoratorSPtr
-						                                                                   );
-				                                                                   if (SpaceAreaDecoratorSPtr)
-				                                                                   {
-					                                                                   SpaceAreaDecoratorSPtr->
-						                                                                   ViewerPawnBasePtr =
-						                                                                   ViewerPawnBasePtr.
-						                                                                   LoadSynchronous();
-
-					                                                                   SpaceAreaDecoratorSPtr->
-						                                                                   FloorSet = FloorSet;
-				                                                                   }
-			                                                                   }
-			                                                                  );
-
-			return;
-		}
-	}
-}
-
-FMessageBody_UE_Initialized::FMessageBody_UE_Initialized()
-{
-	CMD_Name = TEXT("UE_Initialized");
-}
-
-TSharedPtr<FJsonObject> FMessageBody_UE_Initialized::SerializeBody() const
-{
-	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
-
-	RootJsonObj->SetBoolField(
-	                          TEXT("IsOK"),
-	                          true
-	                         );
-
-	return RootJsonObj;
-}
-
 FMessageBody_Test::FMessageBody_Test()
 {
 }
@@ -969,10 +683,6 @@ void FMessageBody_Receive_SetRelativeTransoform::Deserialize(
 	                             JsonReader,
 	                             jsonObject
 	                            );
-
-	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
-	{
-	}
 
 	FRotator Rotator;
 

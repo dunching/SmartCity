@@ -110,8 +110,7 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 				                                            );
 			if (DecoratorSPtr)
 			{
-				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
-				SwitchState(ViewConfig.bShowCurtainWall ? EState::kOriginal : EState::kHiden);
+				SwitchState(DecoratorSPtr->Config.bShowCurtainWall ? EState::kOriginal : EState::kHiden);
 
 				return;
 			}

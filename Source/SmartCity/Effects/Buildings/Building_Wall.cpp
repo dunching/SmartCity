@@ -44,18 +44,17 @@ void ABuilding_Wall::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
-				if (ViewConfig.WallTranlucent <= 0)
+				if (DecoratorSPtr->Config.WallTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (ViewConfig.WallTranlucent >= 100)
+				else if (DecoratorSPtr->Config.WallTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.WallTranlucent);
+					SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
 				}
 
 				return;

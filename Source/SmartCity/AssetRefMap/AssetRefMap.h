@@ -27,7 +27,6 @@ class ASceneElement_Space;
 class UFeatureWheel;
 class ABuilding_Floor_Mask;
 class AFloorHelper_Description;
-class AViewerPawnBase;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase

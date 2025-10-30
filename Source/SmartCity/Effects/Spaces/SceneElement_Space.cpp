@@ -339,7 +339,7 @@ void ASceneElement_Space::EntryViewDevice(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	SetActorHiddenInGame(false);
+	SetActorHiddenInGame(true);
 	
 	for (auto Iter : FeatureWheelAry)
 	{
@@ -348,19 +348,7 @@ void ASceneElement_Space::EntryViewDevice(
 			Iter->RemoveFromParent();
 		}
 	}
-	
 	FeatureWheelAry.Empty();
-
-	for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
-	{
-		if (PrimitiveComponentPtr)
-		{
-			PrimitiveComponentPtr->SetHiddenInGame(false);
-			PrimitiveComponentPtr->SetRenderInMainPass(false);
-			PrimitiveComponentPtr->SetRenderCustomDepth(true);
-			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-		}
-	}
 }
 
 void ASceneElement_Space::EntryFocusDevice(
@@ -379,7 +367,7 @@ void ASceneElement_Space::EntryFocusDevice(
 	{
 		switch (DecoratorSPtr->GetInteractionType())
 		{
-		case EInteractionType::kDevice:
+		case FInteraction_Decorator::EInteractionType::kDevice:
 			{
 				SetActorHiddenInGame(true);
 
@@ -393,7 +381,7 @@ void ASceneElement_Space::EntryFocusDevice(
 				FeatureWheelAry.Empty();
 			}
 			break;
-		case EInteractionType::kSpace:
+		case FInteraction_Decorator::EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(true);
 
@@ -508,7 +496,7 @@ void ASceneElement_Space::EntryShowEffect(
 	{
 		switch (DecoratorSPtr->GetInteractionType())
 		{
-		case EInteractionType::kDevice:
+		case FInteraction_Decorator::EInteractionType::kDevice:
 			{
 				SetActorHiddenInGame(true);
 
@@ -522,7 +510,7 @@ void ASceneElement_Space::EntryShowEffect(
 				FeatureWheelAry.Empty();
 			}
 			break;
-		case EInteractionType::kSpace:
+		case FInteraction_Decorator::EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(false);
 

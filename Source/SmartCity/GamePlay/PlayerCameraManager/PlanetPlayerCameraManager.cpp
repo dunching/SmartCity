@@ -71,7 +71,7 @@ void APlanetPlayerCameraManager::UpdateCameraSetting(
 																 )
 													);
 	
-	if (DecoratorSPtr && DecoratorSPtr->GetConfigControlConfig().bUseCustomPitchLimit)
+	if (DecoratorSPtr && DecoratorSPtr->Config.bUseCustomPitchLimit)
 	{
 		return;
 	}
@@ -93,13 +93,12 @@ void APlanetPlayerCameraManager::UpdateCameraSetting()
 		                                                         )
 		                                            );
 	
-	const auto ControllConfig = DecoratorSPtr->GetConfigControlConfig();
-	if (DecoratorSPtr && ControllConfig.bUseCustomPitchLimit)
+	if (DecoratorSPtr && DecoratorSPtr->Config.bUseCustomPitchLimit)
 	{
 		// 往下看的限制
-		ViewPitchMin = ControllConfig.ViewPitchMin;
+		ViewPitchMin = DecoratorSPtr->Config.ViewPitchMin;
 
 		// 往上看的限制
-		ViewPitchMax = ControllConfig.ViewPitchMax;
+		ViewPitchMax = DecoratorSPtr->Config.ViewPitchMax;
 	}
 }

@@ -287,6 +287,15 @@ void ASceneElement_Lighting::QuitFocusDevice()
 void ASceneElement_Lighting::EntryViewDevice()
 {
 	Super::EntryViewDevice();
+
+	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
+		 [this](
+		 auto NewProcessor
+		 )
+		 {
+			 NewProcessor->TargetDevicePtr = this;
+		 }
+		);
 }
 
 void ASceneElement_Lighting::QuitViewDevice()

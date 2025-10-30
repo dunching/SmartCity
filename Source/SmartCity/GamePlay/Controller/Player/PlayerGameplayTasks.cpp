@@ -1851,23 +1851,21 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_SwitchState_Elevator()
 	return false;
 }
 
-void UGT_SwitchSceneElement_Space::Activate()
-{
-	Super::Activate();
-
-	if (SceneElementPtr.IsValid())
-	{
-		Floor = SceneElementPtr->BelongFloor->FloorTag;
-	}
-
-	FilterTags.ConditionalSet = FGameplayTagContainer{Floor};
-}
-
 bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 {
+	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
+	for (const auto Iter : FilterTags.ConditionalSet)
+	{
+		if (Iter.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+		{
+			FloorTag = Iter;
+			break;
+		}
+	}
+
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorIter.Value->GameplayTagContainer.HasTag(Floor))
+		if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
 		{
 			FloorIter.Value->SwitchInteractionType(FilterTags);
 
@@ -1989,33 +1987,14 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 		HideReplaceActorsSet.Append(Iter.Value->AllReference.SpaceItemSet.OtherItem);
 	}
 
-	return false;
-}
-
-bool UGT_SwitchSceneElement_Space::ProcessTask_SwitchState()
-{
-	if (Super::ProcessTask_SwitchState())
+	for (auto Iter : SceneElementSet)
 	{
-		return true;
-	}
-
-	FSceneElementConditional TempFilterTags;
-
-	TempFilterTags.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
-
-	if (SceneElementPtr.IsValid())
-	{
-		SceneElementPtr->SwitchInteractionType(TempFilterTags);
+		ReplaceActorsSet.Add(
+		                     Iter
+		                    );
 	}
 
 	return false;
-}
-
-void UGT_SwitchSceneElement_Device::Activate()
-{
-	Super::Activate();
-
-	FilterTags.ConditionalSet = FGameplayTagContainer{Floor};
 }
 
 bool UGT_SwitchSceneElement_Device::ProcessTask_Display()
@@ -2144,6 +2123,13 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_Display()
 		HideReplaceActorsSet.Append(Iter.Value->AllReference.SpaceItemSet.OtherItem);
 	}
 
+	for (auto Iter : SceneElementSet)
+	{
+		ReplaceActorsSet.Add(
+		                     Iter
+		                    );
+	}
+
 	return false;
 }
 
@@ -2154,142 +2140,9 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
 		return true;
 	}
 
-	FSceneElementConditional TempFilterTags;
-
-	TempFilterTags.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
-
 	for (auto Iter : SceneElementSet)
 	{
-		Iter->SwitchInteractionType(TempFilterTags);
-	}
-
-	return false;
-}
-
-bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Display()
-{
-	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		if (FloorSet.Contains( FloorIter.Value->FloorTag))
-		{
-			FloorIter.Value->SwitchInteractionType(FilterTags);
-
-			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
-
-			const auto FloorIndex = FloorIter.Value->FloorIndex;
-
-			TempDataSmithSceneActorsSet.Append(
-			                                   FloorIter.Value->AllReference.StructItemSet.DatasmithSceneActorSet.
-			                                             Array()
-			                                  );
-			TempDataSmithSceneActorsSet.Append(
-			                                   FloorIter.Value->AllReference.InnerStructItemSet.
-			                                             DatasmithSceneActorSet.
-			                                             Array()
-			                                  );
-			TempDataSmithSceneActorsSet.Append(
-			                                   FloorIter.Value->AllReference.SoftDecorationItem.
-			                                             DatasmithSceneActorSet.
-			                                             Array()
-			                                  );
-			TempDataSmithSceneActorsSet.Append(
-			                                   FloorIter.Value->AllReference.SpaceItemSet.
-			                                             DatasmithSceneActorSet.
-			                                             Array()
-			                                  );
-
-			DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
-
-			ReplaceActorsSet.Append(
-			                        FloorIter.Value->AllReference.StructItemSet.OtherItem
-			                       );
-			ReplaceActorsSet.Append(
-			                        FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
-			                       );
-			ReplaceActorsSet.Append(
-			                        FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
-			                       );
-			ReplaceActorsSet.Append(
-			                        FloorIter.Value->AllReference.SpaceItemSet.OtherItem
-			                       );
-		}
-		else
-		{
-			FloorIter.Value->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
-
-			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
-
-			TempHideDataSmithSceneActorsSet.Append(
-			                                       FloorIter.Value->AllReference.StructItemSet.
-			                                                 DatasmithSceneActorSet.
-			                                                 Array()
-			                                      );
-			TempHideDataSmithSceneActorsSet.Append(
-			                                       FloorIter.Value->AllReference.InnerStructItemSet.
-			                                                 DatasmithSceneActorSet
-			                                                 .Array()
-			                                      );
-			TempHideDataSmithSceneActorsSet.Append(
-			                                       FloorIter.Value->AllReference.SoftDecorationItem.
-			                                                 DatasmithSceneActorSet.
-			                                                 Array()
-			                                      );
-			TempHideDataSmithSceneActorsSet.Append(
-			                                       FloorIter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet
-			                                                .Array()
-			                                      );
-
-			HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
-
-			HideReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.StructItemSet.OtherItem
-			                           );
-			HideReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.InnerStructItemSet.OtherItem
-			                           );
-			HideReplaceActorsSet.Append(
-			                            FloorIter.Value->AllReference.SoftDecorationItem.OtherItem
-			                           );
-			HideReplaceActorsSet.Append(FloorIter.Value->AllReference.SpaceItemSet.OtherItem);
-		}
-	}
-
-	for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
-	{
-		TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
-
-		TempHideDataSmithSceneActorsSet.Append(
-		                                       Iter.Value->AllReference.StructItemSet.
-		                                            DatasmithSceneActorSet.
-		                                            Array()
-		                                      );
-		TempHideDataSmithSceneActorsSet.Append(
-		                                       Iter.Value->AllReference.InnerStructItemSet.
-		                                            DatasmithSceneActorSet
-		                                            .Array()
-		                                      );
-		TempHideDataSmithSceneActorsSet.Append(
-		                                       Iter.Value->AllReference.SoftDecorationItem.
-		                                            DatasmithSceneActorSet.
-		                                            Array()
-		                                      );
-		TempHideDataSmithSceneActorsSet.Append(
-		                                       Iter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet
-		                                           .Array()
-		                                      );
-
-		HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
-
-		HideReplaceActorsSet.Append(
-		                            Iter.Value->AllReference.StructItemSet.OtherItem
-		                           );
-		HideReplaceActorsSet.Append(
-		                            Iter.Value->AllReference.InnerStructItemSet.OtherItem
-		                           );
-		HideReplaceActorsSet.Append(
-		                            Iter.Value->AllReference.SoftDecorationItem.OtherItem
-		                           );
-		HideReplaceActorsSet.Append(Iter.Value->AllReference.SpaceItemSet.OtherItem);
+		Iter->SwitchInteractionType(FilterTags);
 	}
 
 	return false;

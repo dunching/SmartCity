@@ -502,9 +502,9 @@ FInteraction_Decorator::FInteraction_Decorator() :
                                                  Super(
                                                       )
 {
-	ControllConfig.CurrentWeather = WeatherSettings::Clear_Skies;
+	Config.CurrentWeather = WeatherSettings::Clear_Skies;
 
-	ControllConfig.CurrentHour = 12;
+	Config.CurrentHour = 12;
 }
 
 void FInteraction_Decorator::Entry()

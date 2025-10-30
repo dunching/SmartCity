@@ -41,19 +41,23 @@ void SmartCityCommand::AdjustCameraSeat(
 		return;
 	}
 
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "AdjustCameraSeat",
     "MinPitch": %s,
     "MaxPitch": %s
 })"
-																	   ),
-																   *Args[0],
-																   *Args[0]
-																  )
-												  );
+		                                                                   ),
+		                                                               *Args[0],
+		                                                               *Args[0]
+		                                                              )
+		                                              );
+		return;
+	}
 }
 
 void SmartCityCommand::SwitchInteractionType(
@@ -65,17 +69,21 @@ void SmartCityCommand::SwitchInteractionType(
 		return;
 	}
 
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "SwitchInteractionType",
     "InteractionType": "%s"
 })"
-																	   ),
-																   *Args[0]
-																  )
-												  );
+		                                                                   ),
+		                                                               *Args[0]
+		                                                              )
+		                                              );
+		return;
+	}
 }
 
 void SmartCityCommand::SwitchViewArea(
@@ -250,17 +258,13 @@ void SmartCityCommand::SetWallTranlucent(
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
 	                                                                  [&Args](
-	                                                                  const TSharedPtr<FInteraction_Decorator>&
-	                                                                  DecoratorSPtr
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  auto ViewConfig = DecoratorSPtr->
-			                                                                  GetViewConfig();
-		                                                                  ViewConfig.WallTranlucent =
+		                                                                  SPtr->Config.WallTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  DecoratorSPtr->UpdateViewConfig(ViewConfig);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -281,13 +285,10 @@ void SmartCityCommand::SetPillarTranlucent(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  auto ViewConfig = SPtr->
-			                                                                  GetViewConfig();
-		                                                                  ViewConfig.PillarTranlucent =
+		                                                                  SPtr->Config.PillarTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -308,13 +309,10 @@ void SmartCityCommand::SetStairsTranlucent(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  auto ViewConfig = SPtr->
-			                                                                  GetViewConfig();
-		                                                                  ViewConfig.StairsTranlucent =
+		                                                                  SPtr->Config.StairsTranlucent =
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -335,14 +333,11 @@ void SmartCityCommand::SetShowCurtainWall(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  auto ViewConfig = SPtr->
-			                                                                  GetViewConfig();
-		                                                                  ViewConfig.bShowCurtainWall =
+		                                                                  SPtr->Config.bShowCurtainWall =
 			                                                                  static_cast<bool>(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
 					                                                                  ));
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -363,14 +358,11 @@ void SmartCityCommand::SetShowFurniture(
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  auto ViewConfig = SPtr->
-			                                                                  GetViewConfig();
-		                                                                  ViewConfig.bShowFurniture =
+		                                                                  SPtr->Config.bShowFurniture =
 			                                                                  static_cast<bool>(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
 					                                                                  ));
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -391,56 +383,38 @@ void SmartCityCommand::LocaterDeviceByID(
 		return;
 	}
 
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "LocaterDeviceByID",
     "DeviceID": "%s"
 })"
-																	   ),
-																   *Args[0]
-																  )
-												  );
-}
-
-void SmartCityCommand::LocaterSpaceByID(
-	const TArray<FString>& Args
-	)
-{
-	if (!Args.IsValidIndex(1))
-	{
+		                                                                   ),
+		                                                               *Args[0]
+		                                                              )
+		                                              );
 		return;
 	}
-
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
-    "CMD": "LocaterSpaceByID",
-    "Floor": "%s",
-    "SpaceID": "%s"
-})"
-																	   ),
-																   *Args[0],
-																   *Args[1]
-																  )
-												  );
 }
 
 void SmartCityCommand::SetRelativeTransoform(
 	const TArray<FString>& Args
 	)
 {
-	if (!Args.IsValidIndex(6))
+	if (!Args.IsValidIndex(0))
 	{
 		return;
 	}
 
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
+	for (auto Iter : Args)
+	{
+		UWebChannelWorldSystem::GetInstance()->OnInput(
+		                                               FString::Printf(
+		                                                               TEXT(
+		                                                                    R"({
     "CMD": "SetRelativeTransoform",
     "DeviceID": "%s",
     "Rotation_Pitch": "%s",
@@ -450,80 +424,16 @@ void SmartCityCommand::SetRelativeTransoform(
     "Translation_Y": "%s",
     "Translation_Z": "%s"
 })"
-																	   ),
-																   *Args[0],
-																   *Args[1],
-																   *Args[2],
-																   *Args[3],
-																   *Args[4],
-																   *Args[5],
-																   *Args[6]
-																  )
-												  );
-}
-
-void SmartCityCommand::UpdateFloorDescription(
-	const TArray<FString>& Args
-	)
-{
-	if (!Args.IsValidIndex(1))
-	{
+		                                                                   ),
+		                                                               *Args[0],
+		                                                               *Args[1],
+		                                                               *Args[2],
+		                                                               *Args[3],
+		                                                               *Args[4],
+		                                                               *Args[5],
+		                                                               *Args[6]
+		                                                              )
+		                                              );
 		return;
 	}
-
-	UWebChannelWorldSystem::GetInstance()->OnInput(
-												   FString::Printf(
-																   TEXT(
-																		R"({
-    "CMD": "UpdateFloorDescription",
-    "Floor": "%s",
-    "FloorDescription": "%s"
-})"
-																	   ),
-																   *Args[0],
-																   *Args[1]
-																  )
-												  );
-}
-
-void SmartCityCommand::ViewSpeacialArea(
-	const TArray<FString>& Args
-	)
-{
-	if (!Args.IsValidIndex(1))
-	{
-		return;
-	}
-
-	auto Str = FString::Printf(
-					TEXT(
-						 R"({
-    "CMD": "ViewSpeacialArea",
-    "Seat": "%s",
-)"
-						),
-					*Args[0]);
-					
-					
-	Str.Append(TEXT("\"FloorSet\":["));
-
-	int32 Index = 1;
-	for (; Index < Args.Num() - 1; Index++)
-	{
-		Str.Append(TEXT("\""));	
-		Str.Append(Args[Index]);	
-		Str.Append(TEXT("\""));	
-		Str.Append(TEXT(","));	
-	}
-	if (Index < Args.Num())
-	{
-		Str.Append(TEXT("\""));	
-		Str.Append(Args[Index]);	
-		Str.Append(TEXT("\""));	
-	}
-	
-	Str.Append(TEXT("]}"));			
-	
-	UWebChannelWorldSystem::GetInstance()->OnInput(Str
-													  );
 }

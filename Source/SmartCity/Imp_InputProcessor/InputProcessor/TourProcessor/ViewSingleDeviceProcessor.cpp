@@ -211,16 +211,7 @@ bool TourProcessor::FViewSingleDeviceProcessor::InputAxis(
 
 			if (EventArgs.Key == GameOptionsPtr->MouseWheelAxis)
 			{
-				if (OnwerActorPtr->Controller != nullptr)
-				{
-					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-									   ViewDeviceControlParam.CameraSpringArmSpeed;
-
-					UpdateCameraArmLen(GameOptionsPtr->
-									   ViewDeviceControlParam, Value);
-					
-					return true;
-				}
+				// 这个状态下不进行此操作
 			}
 		}
 		break;

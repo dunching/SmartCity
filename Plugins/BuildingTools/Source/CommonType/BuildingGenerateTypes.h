@@ -30,13 +30,13 @@ struct BUILDINGTOOLS_API FSceneElementFilter
 	/**
 	 * Datasmith的挂载
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSet<TSoftObjectPtr<ADatasmithSceneActor>> DatasmithSceneActorSet;
 
 	/**
 	 * 自定义的挂载
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSet<TSoftObjectPtr<ASceneElementBase>> OtherItem;
 };
 
@@ -48,25 +48,25 @@ struct BUILDINGTOOLS_API FSceneElementMap
 	/**
 	 * 硬装，结构
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FSceneElementFilter StructItemSet;
 
 	/**
 	 * 硬装，内饰
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FSceneElementFilter InnerStructItemSet;
 
 	/**
 	 * 软装，如电气
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FSceneElementFilter SoftDecorationItem;
 
 	/**
 	 * 空间区域
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FSceneElementFilter SpaceItemSet;
 };
 
@@ -86,17 +86,12 @@ struct BUILDINGTOOLS_API FSceneElementConditional
 
 
 	// 重载 == 操作符
-	bool operator==(
-		const FSceneElementConditional& Other
-		) const
+	bool operator==(const FSceneElementConditional& Other) const
 	{
 		return ConditionalSet == Other.ConditionalSet;
 	}
-
 	// 声明 GetTypeHash 为 friend 函数
-	friend uint32 GetTypeHash(
-		const FSceneElementConditional& CustomStruct
-		)
+	friend uint32 GetTypeHash(const FSceneElementConditional& CustomStruct)
 	{
 		uint32 HashCode = 0;
 		for (const auto& Iter : CustomStruct.ConditionalSet)
@@ -105,9 +100,9 @@ struct BUILDINGTOOLS_API FSceneElementConditional
 		}
 		return HashCode;
 	}
-
+	
 	static FSceneElementConditional EmptyConditional;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FGameplayTagContainer ConditionalSet;
 };

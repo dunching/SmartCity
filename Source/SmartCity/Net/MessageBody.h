@@ -10,14 +10,12 @@
 #include "Engine/World.h"
 
 #include "SceneInteractionDecorator.h"
-#include "GameOptions.h"
 
 #include "MessageBody.generated.h"
 
 class FDecoratorBase;
 class ASceneElement_Space;
 class ASceneElement_DeviceBase;
-class AFloorHelper;
 
 USTRUCT()
 struct FMessageBody
@@ -142,12 +140,12 @@ public:
 };
 
 USTRUCT()
-struct FMessageBody_Receive_UpdateViewConfig : public FMessageBody_Receive
+struct FMessageBody_Receive_InteractionOption : public FMessageBody_Receive
 {
 	GENERATED_BODY()
 
 public:
-	FMessageBody_Receive_UpdateViewConfig();
+	FMessageBody_Receive_InteractionOption();
 
 	virtual void Deserialize(
 		const FString& JsonStr
@@ -155,8 +153,31 @@ public:
 
 	virtual void DoAction() const override;
 
-	FViewConfig ViewConfig;
-	
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 WallTranlucent = 100;
+
+	/**
+	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 PillarTranlucent = 100;
+
+	/**
+	 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	int32 StairsTranlucent = 100;
+
+	/**
+	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 */
+	bool bShowCurtainWall = true;
+
+	/**
+	 * 是否显示家具
+	 */
+	bool bShowFurniture = true;
+
 	bool bImmediatelyUpdate = true;
 };
 
@@ -175,25 +196,6 @@ public:
 	virtual void DoAction() const override;
 
 	FString DeviceID;
-};
-
-USTRUCT()
-struct FMessageBody_Receive_LocaterSpaceByID : public FMessageBody_Receive
-{
-	GENERATED_BODY()
-
-public:
-	FMessageBody_Receive_LocaterSpaceByID();
-
-	virtual void Deserialize(
-		const FString& JsonStr
-		) override;
-
-	virtual void DoAction() const override;
-
-	FGameplayTag Floor;
-
-	FString SpaceID;
 };
 
 USTRUCT()
@@ -268,42 +270,6 @@ public:
 	FTransform Transform;
 };
 
-USTRUCT()
-struct FMessageBody_Receive_UpdateFloorDescription : public FMessageBody_Receive
-{
-	GENERATED_BODY()
-
-	FMessageBody_Receive_UpdateFloorDescription();
-
-	virtual void Deserialize(
-		const FString& JsonStr
-		) override;
-
-	virtual void DoAction() const override;
-
-	FGameplayTag Floor;
-
-	FString FloorDescription;
-};
-
-USTRUCT()
-struct FMessageBody_Receive_ViewSpeacialArea : public FMessageBody_Receive
-{
-	GENERATED_BODY()
-
-	FMessageBody_Receive_ViewSpeacialArea();
-
-	virtual void Deserialize(
-		const FString& JsonStr
-		) override;
-
-	virtual void DoAction() const override;
-	
-	TSet<FGameplayTag> FloorSet;
-	
-	FString Seat;
-};
-
 #pragma endregion
 
 #pragma region Send
@@ -327,7 +293,6 @@ struct FMessageBody_SelectedFloor : public FMessageBody_Send
 
 	TMap<ASceneElement_Space*, TSet<ASceneElement_DeviceBase*>> SpacesMap;
 
-	TObjectPtr<AFloorHelper>FloorHelper = nullptr;
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };
@@ -377,30 +342,6 @@ struct FMessageBody_ViewDevice : public FMessageBody_Send
 	FString Type;
 
 	FString DeviceID;
-
-protected:
-	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
-};
-
-USTRUCT()
-struct FMessageBody_ViewConfigChanged : public FMessageBody_Send
-{
-	GENERATED_BODY()
-
-	FMessageBody_ViewConfigChanged();
-
-	FViewConfig ViewConfig;
-	
-protected:
-	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
-};
-
-USTRUCT()
-struct FMessageBody_UE_Initialized : public FMessageBody_Send
-{
-	GENERATED_BODY()
-
-	FMessageBody_UE_Initialized();
 
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
