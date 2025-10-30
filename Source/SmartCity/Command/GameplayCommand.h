@@ -242,6 +242,19 @@ namespace SmartCityCommand
 		EConsoleVariableFlags::ECVF_Default
 	);
 	
+	void LocaterSpaceByID(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand LocaterSpaceByIDCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("LocaterSpaceByID"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(LocaterSpaceByID),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
 	void SetRelativeTransoform(const TArray< FString >& Args);
 
 	static FAutoConsoleCommand SetRelativeTransoformCMD(
@@ -251,6 +264,32 @@ namespace SmartCityCommand
 		TEXT("this is a CMD test."),
 		//创建静态委托，输入上面的命令后会调用到后面的函数
 		FConsoleCommandWithArgsDelegate::CreateStatic(SetRelativeTransoform),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void UpdateFloorDescription(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand UpdateFloorDescriptionCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("UpdateFloorDescription"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(UpdateFloorDescription),
+		//可选标志位掩码
+		EConsoleVariableFlags::ECVF_Default
+	);
+	
+	void ViewSpeacialArea(const TArray< FString >& Args);
+
+	static FAutoConsoleCommand ViewSpeacialAreaCMD(
+		//CMD 名字，在控制台输入这个调用
+		TEXT("ViewSpeacialArea"),
+		//控制台帮助信息，选择这个命令的时候会看到
+		TEXT("this is a CMD test."),
+		//创建静态委托，输入上面的命令后会调用到后面的函数
+		FConsoleCommandWithArgsDelegate::CreateStatic(ViewSpeacialArea),
 		//可选标志位掩码
 		EConsoleVariableFlags::ECVF_Default
 	);

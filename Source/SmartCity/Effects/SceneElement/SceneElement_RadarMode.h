@@ -59,6 +59,10 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
+	virtual void UpdateReletiveTransform(
+		const FTransform& NewRelativeTransform
+		) override;
+
 	void UpdatePositions(
 		const TMap<FString, FVector>& Pts
 		);
@@ -98,7 +102,7 @@ private:
 
 	FTimerHandle QueryTimerHandle;
 
-	 TMap<FString,APersonMark*> GeneratedMarkers;
+	TMap<FString, APersonMark*> GeneratedMarkers;
 
 private:
 };

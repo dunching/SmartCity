@@ -7,6 +7,7 @@
 
 #include "GenerateTypes.h"
 #include "SceneInteractionDecorator.h"
+#include "GameOptions.h"
 
 #include "Tools.h"
 
@@ -32,12 +33,6 @@ public:
 						FDecoratorBase
 					   );
 
-	enum class EInteractionType:uint8
-	{
-		kDevice,
-		kSpace,
-	};
-
 	FInteraction_Decorator();
 
 	virtual void Entry() override;
@@ -60,55 +55,19 @@ public:
 		int32 Hour
 		);
 
-	struct FConfig
-	{
-
-		/**
-		 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
-		 */
-		int32 WallTranlucent = 100;
-
-		/**
-		 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
-		 */
-		int32 PillarTranlucent = 100;
-
-		/**
-		 * 楼梯透明度 0 完全透明（隐藏） 100 完全不透明
-		 */
-		int32 StairsTranlucent = 100;
-
-		/**
-		 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
-		 */
-		bool bShowCurtainWall = true;
-
-		/**
-		 * 是否显示家具
-		 */
-		bool bShowFurniture = true;
-
-		bool bUseCustomPitchLimit = false;
-
-		float ViewPitchMin = -45;
-
-		float ViewPitchMax = -45;
-
-		EInteractionType InteractionType = EInteractionType::kSpace;
-
-		FGameplayTag CurrentWeather;
-
-		int32 CurrentHour;
-		
-	};
-
-	FConfig Config;
-
-	void Update(const FConfig &Config);
+	void UpdateViewConfig(const FViewConfig &Config);
 	
-	FConfig GetCurrentConfig()const;
+	FViewConfig GetViewConfig()const;
+	
+	void UpdateControlConfig(const FControlConfig &Config);
+	
+	FControlConfig GetConfigControlConfig()const;
 	
 private:
+	FViewConfig ViewConfig;
+
+	FControlConfig ControllConfig;
+
 };
 
 #pragma endregion

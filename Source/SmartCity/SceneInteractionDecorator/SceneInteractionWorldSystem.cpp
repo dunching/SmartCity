@@ -6,6 +6,7 @@
 #include "Engine/Light.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "GameFramework/SpringArmComponent.h"
 
 #include "Tools.h"
 #include "AssetRefMap.h"
@@ -15,6 +16,7 @@
 #include "GameplayTagsLibrary.h"
 #include "IPSSI.h"
 #include "LogWriter.h"
+#include "MessageBody.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"
 #include "RouteMarker.h"
@@ -32,7 +34,7 @@
 #include "ViewSplitFloorProcessor.h"
 #include "SceneElement_Space.h"
 #include "ViewerPawnBase.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "WebChannelWorldSystem.h"
 
 USceneInteractionWorldSystem* USceneInteractionWorldSystem::GetInstance()
 {
@@ -111,7 +113,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 		{
 			if (DecoratorSPtr)
 			{
-				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kDevice);
+				DecoratorSPtr->SwitchIteractionType(EInteractionType::kDevice);
 
 				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 			}
@@ -121,7 +123,7 @@ void USceneInteractionWorldSystem::SwitchInteractionOption(
 		{
 			if (DecoratorSPtr)
 			{
-				DecoratorSPtr->SwitchIteractionType(FInteraction_Decorator::EInteractionType::kSpace);
+				DecoratorSPtr->SwitchIteractionType(EInteractionType::kSpace);
 
 				NotifyOtherDecoratorsWhenEntry(Interaction_Mode, DecoratorSPtr);
 			}
@@ -473,74 +475,6 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 
 	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
 	{
-		if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
-		{
-			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
-			{
-				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
-				    USmartCitySuiteTags::Interaction_Area_Floor)
-				{
-					return;
-				}
-			}
-
-			SwitchDecoratorImp<FViewSpecialArea_Decorator>(
-			                                               USmartCitySuiteTags::Interaction_Area,
-			                                               Interaction_Area,
-			                                               [Func](
-			                                               const TSharedPtr<FDecoratorBase>& DecoratorSPtr
-			                                               )
-			                                               {
-				                                               auto SplitFloor_DecoratorSPtr = DynamicCastSharedPtr<
-					                                               FViewSpecialArea_Decorator>(DecoratorSPtr);
-				                                               if (SplitFloor_DecoratorSPtr)
-				                                               {
-					                                               TArray<AActor*> OutActors;
-					                                               UGameplayStatics::GetAllActorsOfClass(
-						                                                GetWorldImp(),
-						                                                AFloorHelper::StaticClass(),
-						                                                OutActors
-						                                               );
-
-					                                               for (auto ActorIter : OutActors)
-					                                               {
-						                                               auto BuildingPtr = Cast<
-							                                               AFloorHelper>(ActorIter);
-						                                               if (BuildingPtr)
-						                                               {
-							                                               if (BuildingPtr->DefaultBuildingCameraSeat.
-								                                               ToSoftObjectPath().IsValid())
-							                                               {
-								                                               SplitFloor_DecoratorSPtr->
-									                                               ViewerPawnBasePtr = BuildingPtr->
-									                                               DefaultBuildingCameraSeat.
-									                                               LoadSynchronous();
-
-								                                               SplitFloor_DecoratorSPtr->ControlParam.
-									                                               MinCameraSpringArm =
-									                                               SplitFloor_DecoratorSPtr->
-									                                               ViewerPawnBasePtr->SpringArmComponent
-									                                               ->TargetArmLength;
-
-								                                               SplitFloor_DecoratorSPtr->ControlParam.
-									                                               MaxCameraSpringArm =
-									                                               SplitFloor_DecoratorSPtr->
-									                                               ViewerPawnBasePtr->SpringArmComponent
-									                                               ->TargetArmLength;
-
-								                                               break;
-							                                               }
-						                                               }
-					                                               }
-				                                               }
-
-				                                               Func(DecoratorSPtr);
-			                                               }
-			                                              );
-
-			return;
-		}
-
 		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
 			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
@@ -584,7 +518,7 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
 		{
 			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
-			    USmartCitySuiteTags::Interaction_Area_ViewDevice)
+			    USmartCitySuiteTags::Interaction_Area_Space)
 			{
 				// return;
 			}
@@ -595,6 +529,26 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		                                         Interaction_Area,
 		                                         Func
 		                                        );
+
+		return;
+	}
+
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_SpecialArea))
+	{
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_SpecialArea)
+			{
+				// return;
+			}
+		}
+
+		SwitchDecoratorImp<FViewSpecialArea_Decorator>(
+		                                               USmartCitySuiteTags::Interaction_Area,
+		                                               Interaction_Area,
+		                                               Func
+		                                              );
 
 		return;
 	}
@@ -629,15 +583,16 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter(
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
 
+
 		
 		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Base>(
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Generic>(
 		 bBreakRuntimeTask,
 		 [this, OnEnd, &FilterTags](
-		 UGT_SwitchSceneElement_Base* GTPtr
+		 UGT_SwitchSceneElement_Generic* GTPtr
 		 )
 		 {
 			 if (GTPtr)
@@ -659,6 +614,8 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
+
+
 		
 		)>& OnEnd,
 	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr
@@ -677,7 +634,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
 					 SceneInteractionWorldSystemPtr =
 					 this;
 				 GTPtr->FilterTags = FilterTags;
-				 GTPtr->SceneElementSet.Add(SceneElementPtr.Get());
+				 GTPtr->SceneElementPtr = SceneElementPtr;
 				 GTPtr->OnEnd = OnEnd;
 			 }
 		 }
@@ -691,6 +648,9 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Device(
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
+
+
+		
 		)>& OnEnd,
 	TWeakObjectPtr<ASceneElement_DeviceBase> SceneElementPtr
 	)
@@ -719,6 +679,40 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Device(
 		);
 }
 
+UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_SpeacialArea(
+	const FSceneElementConditional& FilterTags,
+	bool bBreakRuntimeTask,
+	const TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElement_Base*
+		)>& OnEnd,
+
+	const TSet<FGameplayTag>& FloorSet
+
+	)
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_SpecialArea>(
+		 bBreakRuntimeTask,
+		 [this, OnEnd, &FilterTags, FloorSet](
+		 UGT_SwitchSceneElement_SpecialArea* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->
+					 SceneInteractionWorldSystemPtr =
+					 this;
+				 GTPtr->FilterTags = FilterTags;
+				 GTPtr->OnEnd = OnEnd;
+
+				 GTPtr->FloorSet = FloorSet;
+			 }
+		 }
+		);
+}
+
 void USceneInteractionWorldSystem::InitializeSceneActors()
 {
 	SCOPE_LOG_TIME_FUNC();
@@ -741,6 +735,10 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 					                        USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
 						                         USmartCitySuiteTags::Interaction_Area_ExternalWall
 						                        );
+
+					                        auto MessageSPtr = MakeShared<FMessageBody_UE_Initialized>();
+
+					                        UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 				                        }
 				                       );
 			 }

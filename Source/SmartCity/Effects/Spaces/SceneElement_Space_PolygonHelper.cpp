@@ -103,12 +103,12 @@ void ASceneElement_Space_PolygonHelper::EntryFocusDevice(
 	{
 		switch (DecoratorSPtr->GetInteractionType())
 		{
-		case FInteraction_Decorator::EInteractionType::kDevice:
+		case EInteractionType::kDevice:
 			{
 				SetActorHiddenInGame(true);
 			}
 			break;
-		case FInteraction_Decorator::EInteractionType::kSpace:
+		case EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(false);
 			}
@@ -141,12 +141,12 @@ void ASceneElement_Space_PolygonHelper::EntryShoweviceEffect(
 	{
 		switch (DecoratorSPtr->GetInteractionType())
 		{
-		case FInteraction_Decorator::EInteractionType::kDevice:
+		case EInteractionType::kDevice:
 			{
 				SetActorHiddenInGame(true);
 			}
 			break;
-		case FInteraction_Decorator::EInteractionType::kSpace:
+		case EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(false);
 			}

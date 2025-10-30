@@ -39,7 +39,7 @@ namespace TourProcessor
 			const FInputKeyEventArgs& EventArgs 
 			) override;
 
-		TWeakObjectPtr<ASceneElement_DeviceBase>TargetDevicePtr = nullptr;
+		TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
 
 	private:
 

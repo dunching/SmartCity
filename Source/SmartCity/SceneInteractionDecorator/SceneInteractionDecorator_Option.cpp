@@ -38,52 +38,72 @@ void FInteraction_Decorator::SwitchIteractionType(
 	EInteractionType NewInteractionType
 	)
 {
-	Config.InteractionType = NewInteractionType;
+	ControllConfig.InteractionType = NewInteractionType;
 }
 
-FInteraction_Decorator::EInteractionType FInteraction_Decorator::GetInteractionType() const
+EInteractionType FInteraction_Decorator::GetInteractionType() const
 {
-	return Config.InteractionType;
+	return ControllConfig.InteractionType;
 }
 
 FGameplayTag FInteraction_Decorator::GetCurrentWeather() const
 {
-	return Config.CurrentWeather;
+	return ControllConfig.CurrentWeather;
 }
 
 void FInteraction_Decorator::SetCurrentWeather(
 	const FGameplayTag& WeatherTag
 	)
 {
-	Config.CurrentWeather = WeatherTag;
+	ControllConfig.CurrentWeather = WeatherTag;
 
-	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(Config.CurrentWeather);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(ControllConfig.CurrentWeather);
 }
 
 int32 FInteraction_Decorator::GetCurrentHour() const
 {
-	return Config.CurrentHour;
+	return ControllConfig.CurrentHour;
 }
 
 void FInteraction_Decorator::SetCurrentHour(
 	int32 Hour
 	)
 {
-	Config.CurrentHour = Hour;
+	ControllConfig.CurrentHour = Hour;
 
 	FDateTime Time(1, 1, 1, Hour);
 
 	UWeatherSystem::GetInstance()->AdjustTime(Time);
 }
 
-void FInteraction_Decorator::Update(
-	const FConfig& InConfig
+void FInteraction_Decorator::UpdateViewConfig(
+	const FViewConfig& InConfig
 	)
 {
-	Config = InConfig;
+	ViewConfig = InConfig;
+
+	auto MessageSPtr = MakeShared<
+		FMessageBody_ViewConfigChanged>();
+
+	MessageSPtr->ViewConfig = ViewConfig;
+
+	UWebChannelWorldSystem::GetInstance()->
+		SendMessage(MessageSPtr);
 }
 
-FInteraction_Decorator::FConfig FInteraction_Decorator::GetCurrentConfig() const
+FViewConfig FInteraction_Decorator::GetViewConfig() const
 {
-	return Config;
+	return ViewConfig;
+}
+
+void FInteraction_Decorator::UpdateControlConfig(
+	const FControlConfig& InConfig
+	)
+{
+	ControllConfig = InConfig;
+}
+
+FControlConfig FInteraction_Decorator::GetConfigControlConfig() const
+{
+	return ControllConfig;
 }

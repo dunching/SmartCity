@@ -45,7 +45,7 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 
-	void UpdateReletiveTransform(const FTransform& NewRelativeTransform);
+	virtual void UpdateReletiveTransform(const FTransform& NewRelativeTransform);
 	
 	virtual void BeginInteraction() override;
 
@@ -98,7 +98,7 @@ public:
 	
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

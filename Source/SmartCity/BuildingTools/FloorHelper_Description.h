@@ -56,6 +56,8 @@ public:
 		AFloorHelper* InFloorPtr
 		);
 
+	void UpdateFloorDescription(const FString& NewFloorDescription);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> ArmMeshPtr = nullptr;
 

@@ -36,6 +36,7 @@
 #include "SceneElement_AccessControl.h"
 #include "ViewSingleSpaceProcessor.h"
 #include "ViewSpecialAreaProcessor.h"
+#include "ViewerPawnBase.h"
 
 FArea_Decorator::FArea_Decorator(
 	) :
@@ -530,12 +531,17 @@ void FFloor_Decorator::Entry()
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-	                                                                  [](
+	                                                                  [this](
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->Config.WallTranlucent = 30;
-		                                                                  SPtr->Config.PillarTranlucent = 30;
+		                                                                  Config = SPtr->GetViewConfig();
+		                                                                  auto TempConfig = Config;
+
+		                                                                  TempConfig.WallTranlucent = 30;
+		                                                                  TempConfig.PillarTranlucent = 30;
+
+		                                                                  SPtr->UpdateViewConfig(TempConfig);
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -840,6 +846,16 @@ void FFloor_Decorator::Quit()
 	}
 	Building_Floor_Mask = nullptr;
 
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->UpdateViewConfig(Config);
+	                                                                  },
+	                                                                  false
+	                                                                 );
 	Super::Quit();
 }
 
@@ -1233,7 +1249,7 @@ bool FFloor_Decorator::Operation(
 			{
 				switch (DecoratorSPtr->GetInteractionType())
 				{
-				case FInteraction_Decorator::EInteractionType::kDevice:
+				case EInteractionType::kDevice:
 					{
 						TArray<struct FHitResult> OutHits;
 
@@ -1299,7 +1315,7 @@ bool FFloor_Decorator::Operation(
 						}
 					}
 					break;
-				case FInteraction_Decorator::EInteractionType::kSpace:
+				case EInteractionType::kSpace:
 					{
 						TArray<struct FHitResult> OutHits;
 
@@ -1330,7 +1346,7 @@ bool FFloor_Decorator::Operation(
 							FCollisionQueryParams Params;
 
 							Params.bTraceComplex = true;
-							
+
 							GetWorldImp()->LineTraceMultiByObjectType(
 							                                          OutHits,
 							                                          WorldLocation,
@@ -1358,9 +1374,13 @@ bool FFloor_Decorator::Operation(
 
 									USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
 										 USmartCitySuiteTags::Interaction_Area_Space,
-										 [this, SpaceElementPtr](const TSharedPtr<FDecoratorBase>& AreaDecoratorSPtr)
+										 [this, SpaceElementPtr](
+										 const TSharedPtr<FDecoratorBase>& AreaDecoratorSPtr
+										 )
 										 {
-											 auto SpaceAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
+											 auto SpaceAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(
+												  AreaDecoratorSPtr
+												 );
 											 if (SpaceAreaDecoratorSPtr)
 											 {
 												 SpaceAreaDecoratorSPtr->Floor = SpaceElementPtr->BelongFloor->FloorTag;
@@ -1368,7 +1388,7 @@ bool FFloor_Decorator::Operation(
 											 }
 										 }
 										);
-									
+
 									return true;
 								}
 							}
@@ -1456,26 +1476,47 @@ void FFloor_Decorator::AdjustCamera() const
 	{
 		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
 		{
-			auto Result = FloorIter.Value->GetCameraSeat(
-			                                             UGameOptions::GetInstance()->ViewFloorControlParam.ViewRot,
-			                                             UGameOptions::GetInstance()->ViewFloorControlParam.FOV
-			                                            );
-
-			auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-			PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
-				 false,
-				 [Result](
-				 UGT_ModifyCameraTransform* GTPtr
-				 )
-				 {
-					 if (GTPtr)
+			if (FloorIter.Value->DefaultBuildingCameraSeat.IsValid())
+			{
+				auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+				PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_CameraTransformByPawnViewer>(
+					 false,
+					 [FloorIter](
+					 UGT_CameraTransformByPawnViewer* GTPtr
+					 )
 					 {
-						 GTPtr->TargetLocation = Result.Key.GetLocation();
-						 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
-						 GTPtr->TargetTargetArmLength = Result.Value;
+						 if (GTPtr)
+						 {
+							 GTPtr->
+								 ViewerPawnPtr
+								 = FloorIter.Value->DefaultBuildingCameraSeat.LoadSynchronous();
+						 }
 					 }
-				 }
-				);
+					);
+			}
+			else
+			{
+				auto Result = FloorIter.Value->GetCameraSeat(
+				                                             UGameOptions::GetInstance()->ViewFloorControlParam.ViewRot,
+				                                             UGameOptions::GetInstance()->ViewFloorControlParam.FOV
+				                                            );
+
+				auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+				PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ModifyCameraTransform>(
+					 false,
+					 [Result](
+					 UGT_ModifyCameraTransform* GTPtr
+					 )
+					 {
+						 if (GTPtr)
+						 {
+							 GTPtr->TargetLocation = Result.Key.GetLocation();
+							 GTPtr->TargetRotation = Result.Key.GetRotation().Rotator();
+							 GTPtr->TargetTargetArmLength = Result.Value;
+						 }
+					 }
+					);
+			}
 		}
 	}
 }
@@ -1491,6 +1532,46 @@ void FViewDevice_Decorator::Entry()
 {
 	Super::Entry();
 
+	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+		TourProcessor::FViewSingleDeviceProcessor>(
+		                                           [this](
+		                                           auto NewProcessor
+		                                           )
+		                                           {
+			                                           NewProcessor->SceneElementPtr = SceneElementPtr;
+		                                           }
+		                                          );
+
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		Config = DecoratorSPtr->GetViewConfig();
+
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  auto TempConfig = Config;
+			                                                                  TempConfig.WallTranlucent = 10;
+			                                                                  TempConfig.PillarTranlucent = 10;
+			                                                                  TempConfig.StairsTranlucent = 10;
+			                                                                  TempConfig.bShowCurtainWall = false;
+			                                                                  TempConfig.bShowFurniture = false;
+
+			                                                                  SPtr->UpdateViewConfig(TempConfig);
+		                                                                  },
+		                                                                  false
+		                                                                 );
+	}
+
 	Process();
 }
 
@@ -1503,52 +1584,21 @@ void FViewDevice_Decorator::ReEntry()
 
 void FViewDevice_Decorator::Quit()
 {
-	// 确认当前的模式
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	if (DecoratorSPtr)
-	{
-		DecoratorSPtr->Update(Config);
-	}
-
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->UpdateViewConfig(Config);
+	                                                                  },
+	                                                                  false
+	                                                                 );
 	Super::Quit();
 }
 
 void FViewDevice_Decorator::Process()
 {
-	// 确认当前的模式
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	if (DecoratorSPtr)
-	{
-		Config = DecoratorSPtr->GetCurrentConfig();
-
-		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this](
-		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-		                                                                  )
-		                                                                  {
-			                                                                  SPtr->Config.WallTranlucent = 10;
-			                                                                  SPtr->Config.PillarTranlucent = 10;
-			                                                                  SPtr->Config.StairsTranlucent = 10;
-			                                                                  SPtr->Config.bShowCurtainWall = false;
-			                                                                  SPtr->Config.bShowFurniture = false;
-		                                                                  },
-		                                                                  false
-		                                                                 );
-	}
-
 	if (SceneElementPtr.IsValid())
 	{
 		if (PreviousSceneElementPtr == SceneElementPtr)
@@ -1579,11 +1629,11 @@ void FViewDevice_Decorator::Process()
 					)> MulticastDelegate;
 
 				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
-				                                                          SceneActorConditional,
-				                                                          true,
-				                                                          MulticastDelegate,
-				                                                          SceneElementPtr
-				                                                         );
+					 SceneActorConditional,
+					 true,
+					 MulticastDelegate,
+					 SceneElementPtr
+					);
 
 				AdjustCamera();
 				return;
@@ -1609,9 +1659,9 @@ void FViewDevice_Decorator::AdjustCamera() const
 		);
 }
 
-FViewSpace_Decorator::FViewSpace_Decorator():
-	  Super(
-		   )
+FViewSpace_Decorator::FViewSpace_Decorator() :
+                                             Super(
+                                                  )
 {
 }
 
@@ -1621,13 +1671,43 @@ void FViewSpace_Decorator::Entry()
 
 	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 		TourProcessor::FViewSingleSpaceProcessor>(
-												  [this](
-												  auto NewProcessor
-												  )
-												  {
-													  NewProcessor->SceneElementPtr =SceneElementPtr;
-												  }
-												 );
+		                                          [this](
+		                                          auto NewProcessor
+		                                          )
+		                                          {
+			                                          NewProcessor->SceneElementPtr = SceneElementPtr;
+		                                          }
+		                                         );
+
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		Config = DecoratorSPtr->GetViewConfig();
+
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  auto TempConfig = Config;
+			                                                                  TempConfig.WallTranlucent = 10;
+			                                                                  TempConfig.PillarTranlucent = 10;
+			                                                                  TempConfig.StairsTranlucent = 10;
+			                                                                  TempConfig.bShowCurtainWall = false;
+			                                                                  TempConfig.bShowFurniture = false;
+
+			                                                                  SPtr->UpdateViewConfig(TempConfig);
+		                                                                  },
+		                                                                  false
+		                                                                 );
+	}
 
 	Process();
 }
@@ -1641,6 +1721,16 @@ void FViewSpace_Decorator::ReEntry()
 
 void FViewSpace_Decorator::Quit()
 {
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  SPtr->UpdateViewConfig(Config);
+	                                                                  },
+	                                                                  false
+	                                                                 );
 	Super::Quit();
 }
 
@@ -1655,29 +1745,6 @@ void FViewSpace_Decorator::OnUpdateFilterComplete(
 
 void FViewSpace_Decorator::Process()
 {
-	// 确认当前的模式
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	if (DecoratorSPtr)
-	{
-		Config = DecoratorSPtr->GetCurrentConfig();
-
-		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this](
-		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-		                                                                  )
-		                                                                  {
-		                                                                  },
-		                                                                  false
-		                                                                 );
-	}
-
 	if (SceneElementPtr.IsValid())
 	{
 		FSceneElementConditional SceneActorConditional;
@@ -1690,15 +1757,19 @@ void FViewSpace_Decorator::Process()
 			bool,
 			const TSet<AActor*>&,
 			UGT_SwitchSceneElement_Base*
+
+
+			
 			)> MulticastDelegate;
 
 		MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Space(
-																  SceneActorConditional,
-																  true,
-																  MulticastDelegate,SceneElementPtr
-																 );
+		                                                                SceneActorConditional,
+		                                                                true,
+		                                                                MulticastDelegate,
+		                                                                SceneElementPtr
+		                                                               );
 
 		AdjustCamera();
 	}
@@ -1707,22 +1778,22 @@ void FViewSpace_Decorator::Process()
 void FViewSpace_Decorator::AdjustCamera() const
 {
 	auto PCPtr = Cast<APlanetPlayerController>(
-											   GEngine->GetFirstLocalPlayerController(GetWorldImp())
-											  );
+	                                           GEngine->GetFirstLocalPlayerController(GetWorldImp())
+	                                          );
 
 	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
 		UGT_CameraTransformLocaterBySpace>(
-										   false,
-										   [this](
-										   UGT_CameraTransformLocaterBySpace* GTPtr
-										   )
-										   {
-											   if (GTPtr)
-											   {
-												   GTPtr->SpaceActorPtr = SceneElementPtr;
-											   }
-										   }
-										  );
+		                                   false,
+		                                   [this](
+		                                   UGT_CameraTransformLocaterBySpace* GTPtr
+		                                   )
+		                                   {
+			                                   if (GTPtr)
+			                                   {
+				                                   GTPtr->SpaceActorPtr = SceneElementPtr;
+			                                   }
+		                                   }
+		                                  );
 }
 
 void FViewSpecialArea_Decorator::Entry()
@@ -1736,17 +1807,94 @@ void FViewSpecialArea_Decorator::Entry()
 		 {
 		 }
 		);
+
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		Config = DecoratorSPtr->GetViewConfig();
+
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  auto TempConfig = Config;
+			                                                                  TempConfig.WallTranlucent = 10;
+			                                                                  TempConfig.PillarTranlucent = 10;
+			                                                                  TempConfig.StairsTranlucent = 10;
+			                                                                  TempConfig.bShowCurtainWall = false;
+			                                                                  TempConfig.bShowFurniture = false;
+
+			                                                                  SPtr->UpdateViewConfig(TempConfig);
+		                                                                  },
+		                                                                  false
+		                                                                 );
+	}
+
+	Process();
 }
 
 void FViewSpecialArea_Decorator::ReEntry()
 {
 	Super::ReEntry();
+
+	Process();
 }
 
 void FViewSpecialArea_Decorator::Process()
 {
+	FSceneElementConditional SceneActorConditional;
+
+	for (auto Iter : FloorSet)
+	{
+		SceneActorConditional.ConditionalSet.AddTag(Iter);
+	}
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElement_Base*
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter_SpeacialArea(
+	                                                                       SceneActorConditional,
+	                                                                       true,
+	                                                                       MulticastDelegate,
+	                                                                       FloorSet
+	                                                                      );
+
+	AdjustCamera();
 }
 
 void FViewSpecialArea_Decorator::AdjustCamera() const
 {
+	auto PCPtr = Cast<APlanetPlayerController>(
+	                                           GEngine->GetFirstLocalPlayerController(GetWorldImp())
+	                                          );
+
+	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
+		UGT_CameraTransformByPawnViewer>(
+		                                 false,
+		                                 [this](
+		                                 UGT_CameraTransformByPawnViewer* GTPtr
+		                                 )
+		                                 {
+			                                 if (GTPtr)
+			                                 {
+				                                 GTPtr->ViewerPawnPtr = ViewerPawnBasePtr.Get();
+			                                 }
+		                                 }
+		                                );
 }

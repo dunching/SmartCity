@@ -132,6 +132,19 @@ public:
 			TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr
 		);
 
+	UGT_SwitchSceneElement_Base* UpdateFilter_SpeacialArea(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElement_Base*
+			)>& OnEnd,
+			
+			const TSet<FGameplayTag>& FloorSet
+
+		);
+
 	void InitializeSceneActors();
 
 	TWeakObjectPtr<ASceneElementBase> FindSceneActor(

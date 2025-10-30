@@ -75,7 +75,7 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{
-		auto MessageSPtr = MakeShared<FMessageBody_Receive_InteractionOption>();
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateViewConfig>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{
@@ -92,6 +92,18 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 	}
 	{
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_SetRelativeTransoform>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_LocaterSpaceByID>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateFloorDescription>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_ViewSpeacialArea>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 }

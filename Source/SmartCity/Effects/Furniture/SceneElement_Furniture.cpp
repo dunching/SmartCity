@@ -114,7 +114,8 @@ void ASceneElement_Furniture::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				SwitchState(DecoratorSPtr->Config.bShowFurniture ? EState::kOriginal : EState::kHiden);
+				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
+				SwitchState(ViewConfig.bShowFurniture ? EState::kOriginal : EState::kHiden);
 
 				return;
 			}

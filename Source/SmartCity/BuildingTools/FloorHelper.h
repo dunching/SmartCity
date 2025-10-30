@@ -30,30 +30,32 @@ class SMARTCITY_API AFloorHelper :
 	GENERATED_BODY()
 
 public:
-
 	AFloorHelper(
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void OnConstruction(const FTransform& Transform) override;
-	
+	virtual void OnConstruction(
+		const FTransform& Transform
+		) override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USceneComponent> FloorHelper_DescriptionAttachTransform;
+
+	TObjectPtr<AFloorHelper_Description> FloorHelper_DescriptionPtr = nullptr;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorDescription;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorIndexDescription;
 
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDisplayDescritpion = true;
-
-	TObjectPtr<AFloorHelper_Description>FloorHelper_DescriptionPtr = nullptr;
 };
 
 UCLASS()
@@ -67,9 +69,10 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	void SetFloor(AFloorHelper*FloorPtr);
-	
+	void SetFloor(
+		AFloorHelper* FloorPtr
+		);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-
 };
