@@ -61,6 +61,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SplitFloor,"Interaction.Area.SplitFloor");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SpecialArea,"Interaction.Area.SpecialArea");
+
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode ,"Interaction.Mode");
 
