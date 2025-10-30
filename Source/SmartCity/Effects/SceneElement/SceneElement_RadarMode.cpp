@@ -261,7 +261,16 @@ void ASceneElement_RadarMode::EntryViewDevice()
 
 	SetActorHiddenInGame(false);
 
-	SweepActor->SetActorHiddenInGame(true);
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(true);
+		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	}
+
+	SweepActor->SetActorHiddenInGame(false);
+
+	SweepActor->GetStaticMeshComponent()->SetRenderCustomDepth(true);
+	SweepActor->GetStaticMeshComponent()->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 }
 
 void ASceneElement_RadarMode::EntryShowevice()
@@ -269,6 +278,11 @@ void ASceneElement_RadarMode::EntryShowevice()
 	Super::EntryShowevice();
 
 	SetActorHiddenInGame(false);
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(false);
+	}
 
 	SweepActor->SetActorHiddenInGame(true);
 }
@@ -341,6 +355,7 @@ void ASceneElement_RadarMode::ReplaceImp(
 			SweepActor->SetMobility(EComponentMobility::Movable);
 			SweepActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			SweepActor->GetStaticMeshComponent()->SetStaticMesh(SweepMesh.LoadSynchronous());
+			SweepActor->GetStaticMeshComponent()->SetRelativeRotation(FRotator(0, 45, 0));
 			const auto MatsNum = SweepActor->GetStaticMeshComponent()->GetNumMaterials();
 			for (int32 Index = 0; Index < MatsNum; Index++)
 			{
@@ -354,6 +369,22 @@ void ASceneElement_RadarMode::ReplaceImp(
 			SweepActor->GetStaticMeshComponent()->SetReceivesDecals(false);
 		}
 	}
+}
+
+void ASceneElement_RadarMode::UpdateReletiveTransform(
+	const FTransform& NewRelativeTransform
+	)
+{
+	Super::UpdateReletiveTransform(NewRelativeTransform);
+
+	SweepActor->SetActorLocation(RelativeTransformComponent->GetComponentLocation());
+
+	auto Rot = RelativeTransformComponent->GetComponentRotation();
+
+	Rot.Pitch = 0;
+	Rot.Roll = 0;
+
+	SweepActor->SetActorRotation(Rot);
 }
 
 void ASceneElement_RadarMode::UpdatePositions(
@@ -425,7 +456,10 @@ void ASceneElement_RadarMode::UpdatePositions(
 						auto NewMarkPtr = GetWorldImp()->SpawnActor<APersonMark>(
 							 UAssetRefMap::GetInstance()->PersonMarkClass
 							);
-						NewMarkPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+						NewMarkPtr->AttachToComponent(
+						                              RelativeTransformComponent,
+						                              FAttachmentTransformRules::KeepRelativeTransform
+						                             );
 						NewMarkPtr->Update(Pt);
 
 						NewMarkPtr->Marks = Marks;

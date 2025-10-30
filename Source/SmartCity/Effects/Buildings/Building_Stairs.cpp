@@ -44,17 +44,18 @@ void ABuilding_Stairs::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->Config.StairsTranlucent <= 0)
+				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
+				if (ViewConfig.StairsTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (DecoratorSPtr->Config.StairsTranlucent >= 100)
+				else if (ViewConfig.StairsTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(DecoratorSPtr->Config.StairsTranlucent);
+					SetTranslucent(ViewConfig.StairsTranlucent);
 				}
 
 				return;

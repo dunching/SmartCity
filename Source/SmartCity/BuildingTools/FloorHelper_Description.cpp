@@ -27,6 +27,17 @@ AFloorHelper_Description::AFloorHelper_Description(
 	PrimaryActorTick.TickInterval = 1.f / 30;
 }
 
+void AFloorHelper_Description::UpdateFloorDescription(
+	const FString& NewFloorDescription
+	)
+{
+	auto UIPtr = Cast<UFloorDescriptionHelper>(FloorDecriptionText->GetUserWidgetObject());
+	if ( UIPtr)
+	{
+		UIPtr->FloorDecriptionText->SetText(FText::FromString(NewFloorDescription));
+	}
+}
+
 void AFloorHelper_Description::BeginPlay()
 {
 	Super::BeginPlay();

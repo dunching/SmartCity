@@ -44,17 +44,18 @@ void ABuilding_Pillar::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				if (DecoratorSPtr->Config.PillarTranlucent <= 0)
+				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
+				if (ViewConfig.PillarTranlucent <= 0)
 				{
 					SwitchState(EState::kHiden);
 				}
-				else if (DecoratorSPtr->Config.PillarTranlucent >= 100)
+				else if (ViewConfig.PillarTranlucent >= 100)
 				{
 					SwitchState(EState::kOriginal);
 				}
 				else
 				{
-					SetTranslucent(DecoratorSPtr->Config.PillarTranlucent);
+					SetTranslucent(ViewConfig.PillarTranlucent);
 				}
 
 				return;

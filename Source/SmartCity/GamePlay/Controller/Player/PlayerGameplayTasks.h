@@ -26,6 +26,7 @@ class UGT_RuntimeTask;
 class UGameplayTaskBase;
 class ASceneElementBase;
 class ASceneElement_DeviceBase;
+class ASceneElement_Space;
 
 /*
  * PlayerController处理异步的组件
@@ -587,9 +588,16 @@ class SMARTCITY_API UGT_SwitchSceneElement_Space : public UGT_SwitchSceneElement
 	GENERATED_BODY()
 
 public:
-	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
+	virtual void Activate() override;
 
 	virtual bool ProcessTask_Display() override;
+	
+	virtual bool ProcessTask_SwitchState() override;
+	
+	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr = nullptr;
+	
+	FGameplayTag Floor;
+	
 };
 
 /**
@@ -601,13 +609,30 @@ class SMARTCITY_API UGT_SwitchSceneElement_Device : public UGT_SwitchSceneElemen
 	GENERATED_BODY()
 
 public:
+	virtual void Activate() override;
+
+	virtual bool ProcessTask_Display() override;
+	
+	virtual bool ProcessTask_SwitchState() override;
+
 	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
 
 	FGameplayTag Floor;
 	
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_SpecialArea : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
 	virtual bool ProcessTask_Display() override;
 	
-	virtual bool ProcessTask_SwitchState() override;
+	TSet<FGameplayTag> FloorSet;
 
 };
 

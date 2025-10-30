@@ -244,15 +244,6 @@ void ASceneElement_HVAC::EntryViewDevice()
 	Super::EntryViewDevice();
 
 	RevertOnriginalMat();
-
-	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewSingleDeviceProcessor>(
-		 [this](
-		 auto NewProcessor
-		 )
-		 {
-			 NewProcessor->TargetDevicePtr = this;
-		 }
-		);
 }
 
 void ASceneElement_HVAC::QuitViewDevice()
