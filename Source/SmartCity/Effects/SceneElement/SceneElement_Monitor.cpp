@@ -14,10 +14,8 @@ ASceneElement_Monitor::ASceneElement_Monitor(
 	) :
 	  Super(ObjectInitializer)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	StaticMeshComponent->SetCollisionObjectType(Device_Object);

@@ -46,6 +46,7 @@ public class BuildingTools : ModuleRules
                 "DatasmithContent",
 
                 "Effects",
+                "SmartCitySuite",
             }
 			);
 

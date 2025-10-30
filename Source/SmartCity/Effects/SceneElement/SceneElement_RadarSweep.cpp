@@ -19,7 +19,7 @@ ASceneElement_RadarSweep::ASceneElement_RadarSweep(
 	  Super(ObjectInitializer)
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

@@ -16,10 +16,11 @@ class USphereComponent;
 class UFloatingPawnMovement;
 class USpringArmComponent;
 class UCameraComponent;
-class AViewerPawn;
+class AViewerPawnBase;
 class URouteMarker;
 class ASceneElement_DeviceBase;
 class UFeatureWheel;
+class AFloorHelper;
 
 /**
  * 雷达扫描效果
@@ -41,6 +42,8 @@ public:
 		bool bNonColliding = false,
 		bool bIncludeFromChildActors = false
 		) const override;
+
+	virtual void InitialSceneElement() override;
 
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
@@ -68,15 +71,19 @@ public:
 	FString DataSmith_Key = TEXT("Element*空间划分");
 protected:
 
+	virtual void EntryViewDevice(
+		const FSceneElementConditional& ConditionalSet
+		);
+
 	virtual void EntryFocusDevice(
 		const FSceneElementConditional& ConditionalSet
 		) ;
 
-	virtual void EntryShowevice(
+	virtual void EntryShow(
 		const FSceneElementConditional& ConditionalSet
 		) ;
 
-	virtual void EntryShoweviceEffect(
+	virtual void EntryShowEffect(
 		const FSceneElementConditional& ConditionalSet
 		) ;
 
@@ -84,6 +91,9 @@ protected:
 		) override;
 	
 	void SwitchColor(const FColor& Color);
+
+	UFUNCTION()
+	void OnClickedTag();
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
@@ -92,6 +102,8 @@ protected:
 	TArray<TObjectPtr<UFeatureWheel>> FeatureWheelAry;
 	
 	TArray<FString> FeaturesAry;
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
-	;
 };

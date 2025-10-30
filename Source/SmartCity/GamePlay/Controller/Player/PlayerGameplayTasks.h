@@ -18,7 +18,7 @@
 #include "PlayerGameplayTasks.generated.h"
 
 class UGT_CameraTransform;
-class AViewerPawn;
+class AViewerPawnBase;
 class USceneInteractionWorldSystem;
 class ADatasmithSceneActor;
 class AReplaceActorBase;
@@ -198,10 +198,6 @@ public:
 		bool
 		)>;
 
-	UGT_ReplyCameraTransform(
-		const FObjectInitializer& ObjectInitializer
-		);
-
 	virtual void Activate() override;
 
 	virtual void OnDestroy(
@@ -209,6 +205,25 @@ public:
 		) override;
 
 	FGameplayTag SeatTag;
+};
+
+UCLASS()
+class SMARTCITY_API UGT_CameraTransformByPawnViewer : public UGT_CameraTransform
+{
+	GENERATED_BODY()
+
+public:
+	using FOnEnd = TMulticastDelegate<void(
+		bool
+		)>;
+
+	virtual void Activate() override;
+
+	virtual void OnDestroy(
+		bool bInOwnerFinished
+		) override;
+
+	TObjectPtr<AViewerPawnBase>ViewerPawnPtr = nullptr;
 };
 
 /**
@@ -447,7 +462,7 @@ public:
  * 
  */
 UCLASS()
-class SMARTCITY_API UGT_SwitchSceneElementState : public UGT_RuntimeTask
+class SMARTCITY_API UGT_SwitchSceneElement_Base : public UGT_RuntimeTask
 {
 	GENERATED_BODY()
 
@@ -455,12 +470,12 @@ public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
 		const TSet<AActor*>&,
-		UGT_SwitchSceneElementState*
+		UGT_SwitchSceneElement_Base*
 
 		
 		)>;
 
-	UGT_SwitchSceneElementState(
+	UGT_SwitchSceneElement_Base(
 		const FObjectInitializer& ObjectInitializer
 		);
 
@@ -490,16 +505,15 @@ protected:
 		float DeltaTime
 		) override;
 
-private:
-	bool ProcessTask_Display();
+	virtual bool ProcessTask_Display();
 
-	bool ProcessTask_Hiden();
+	virtual bool ProcessTask_Hiden();
 
-	bool ProcessTask_ConfirmConditional();
+	virtual bool ProcessTask_ConfirmConditional();
 
-	bool ProcessTask_SwitchState();
+	virtual bool ProcessTask_SwitchState();
 
-	bool ProcessTask_SwitchState_Elevator();
+	virtual bool ProcessTask_SwitchState_Elevator();
 
 	enum class EStep
 	{
@@ -513,12 +527,12 @@ private:
 
 	EStep Step = EStep::kDisplay;
 
+protected:
 	/**
 	 * 建筑物
 	 * 用于计算包围框
 	 */
 	TSet<AActor*> Result;
-
 
 	int32 DataSmithSceneActorsSetIndex = 0;
 
@@ -527,7 +541,7 @@ private:
 	TSet<TSoftObjectPtr<ASceneElementBase>> ReplaceActorsSet;
 
 	int32 DisplayAryIndex = 0;
-
+	
 	TArray<AActor*> DisplayAry;
 
 
@@ -543,6 +557,58 @@ private:
 
 
 	int32 RelatedActorsIndex = 0;
+};
+
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Generic : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+protected:
+private:
+	virtual bool ProcessTask_Display() override;
+
+	virtual bool ProcessTask_Hiden() override;
+
+	virtual bool ProcessTask_ConfirmConditional() override;
+
+	virtual bool ProcessTask_SwitchState() override;
+
+	virtual bool ProcessTask_SwitchState_Elevator() override;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Space : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
+
+	virtual bool ProcessTask_Display() override;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Device : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
+
+	FGameplayTag Floor;
+	
+	virtual bool ProcessTask_Display() override;
+	
+	virtual bool ProcessTask_SwitchState() override;
+
 };
 
 /**

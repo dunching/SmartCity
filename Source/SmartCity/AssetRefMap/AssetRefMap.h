@@ -16,7 +16,7 @@ class UDataLayerAsset;
 class ADatasmithSceneActor;
 class URouteMarker;
 class AFloorHelper;
-class ABuildingHelperBase;
+class ATowerHelperBase;
 class ALandScapeBase;
 class AElevator;
 class APostProcessVolume;
@@ -82,7 +82,7 @@ public:
 	 * 对应的楼宇
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TMap<FGameplayTag, TSoftObjectPtr<ABuildingHelperBase>> BuildingHelpers;
+	TMap<FGameplayTag, TSoftObjectPtr<ATowerHelperBase>> BuildingHelpers;
 
 	/**
 	 * 外景

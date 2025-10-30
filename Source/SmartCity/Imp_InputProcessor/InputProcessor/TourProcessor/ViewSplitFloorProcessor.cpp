@@ -10,7 +10,6 @@
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
-#include "ViewerPawn.h"
 #include "TourPawn.h"
 
 TourProcessor::FViewSplitFloorProcessor::FViewSplitFloorProcessor(

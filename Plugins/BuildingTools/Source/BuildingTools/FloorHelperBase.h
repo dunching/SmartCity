@@ -8,6 +8,7 @@
 #include "GameplayTagContainer.h"
 
 #include "BuildingGenerateTypes.h"
+#include "BuildingHelperBase.h"
 
 #include "FloorHelperBase.generated.h"
 
@@ -19,7 +20,7 @@ class UBoxComponent;
  */
 UCLASS()
 class BUILDINGTOOLS_API AFloorHelperBase :
-	public AActor
+	public ABuildingHelperBase
 {
 	GENERATED_BODY()
 

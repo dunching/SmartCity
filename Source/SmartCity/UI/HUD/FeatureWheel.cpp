@@ -71,7 +71,7 @@ void UFeatureItem::OnClicked()
 void UFeatureWheel::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
+
 	SetAlignmentInViewport(FVector2D(.5f, .5f));
 }
 
@@ -115,4 +115,11 @@ void UFeatureWheel::InitalFeaturesItem(
 			}
 		}
 	}
+}
+
+void UFeatureWheel::SetOncliced(
+	const FOnButtonClickedEvent& OnClicked
+	)
+{
+	Button->OnClicked = OnClicked;
 }

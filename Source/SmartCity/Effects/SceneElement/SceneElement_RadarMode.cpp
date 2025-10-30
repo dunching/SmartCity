@@ -21,7 +21,7 @@ ASceneElement_RadarMode::ASceneElement_RadarMode(
 	  Super(ObjectInitializer)
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 }
 
 void ASceneElement_RadarMode::OnConstruction(

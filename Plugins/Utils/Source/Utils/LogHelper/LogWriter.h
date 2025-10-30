@@ -6,14 +6,14 @@
 
 #include "CoreMinimal.h"
 
-#if UE_BUILD_SHIPPING && PRINTINVOKETIME
+#if UE_BUILD_SHIPPING 
 #define WRITEINVOKELINE()
 #else
 #define WRITEINVOKELINE() 
 #endif
 
-#if UE_BUILD_SHIPPING && PRINTINVOKETIME
-#define PRINTFUNC
+#if UE_BUILD_SHIPPING 
+#define PRINTFUNC()
 #else
 #define PRINTFUNC()\
 {\
@@ -21,19 +21,19 @@ UE_LOG(LogTemp, Log, TEXT("%s %s %d"), *FString(__FILE__), *FString(__FUNCDNAME_
 }
 #endif
 
-#if UE_BUILD_SHIPPING && PRINTINVOKETIME
-#define PRINTFUNCSTR
+#if UE_BUILD_SHIPPING 
+#define PRINTFUNCSTR(Str)
 #else
 #define PRINTFUNCSTR(Str)
 #endif
 
-#if UE_BUILD_SHIPPING && PRINTINVOKETIME
+#if UE_BUILD_SHIPPING 
 #define WRITESCOPERUNDELTATIME()
 #else
 #define WRITESCOPERUNDELTATIME()
 #endif
 
-#if UE_BUILD_SHIPPING && PRINTINVOKETIME
+#if UE_BUILD_SHIPPING 
 #define WRITEFUNCCALL()
 #else
 #define WRITEFUNCCALL()

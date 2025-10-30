@@ -17,9 +17,11 @@
 
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
-class UGT_SwitchSceneElementState;
+class UGT_SwitchSceneElement_Generic;
+class UGT_SwitchSceneElement_Space;
 class URouteMarker;
 class ASceneElementBase;
+class ASceneElement_Space;
 
 /*
  * 
@@ -31,7 +33,7 @@ class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
 
 public:
 	friend UGT_InitializeSceneActors;
-	friend UGT_SwitchSceneElementState;
+	friend UGT_SwitchSceneElement_Generic;
 
 	static USceneInteractionWorldSystem* GetInstance();
 
@@ -84,21 +86,50 @@ public:
 			)>& Func = nullptr
 		);
 
+	/**
+	 * 直接修改状态
+	 * @param FocusActorsAry 
+	 * @param FilterTags 
+	 */
+	void SwitchInteractionType(
+		const TSet<ASceneElementBase*>& FocusActorsAry,
+		const FSceneElementConditional& FilterTags
+		);
+
 	void Operation(
 		EOperatorType OperatorType
 		) const;
 
-	UGT_SwitchSceneElementState* UpdateFilter(
+	UGT_SwitchSceneElement_Base* UpdateFilter(
 		const FSceneElementConditional& FilterTags,
 		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
 			const TSet<AActor*>&,
-			UGT_SwitchSceneElementState*
-
-
-			
+			UGT_SwitchSceneElement_Base*
 			)>& OnEnd
+		);
+
+	UGT_SwitchSceneElement_Base* UpdateFilter_Space(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElement_Base*
+			)>& OnEnd,
+			TWeakObjectPtr<ASceneElement_Space>SceneElementPtr
+		);
+
+	UGT_SwitchSceneElement_Base* UpdateFilter_Device(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
+			const TSet<AActor*>&,
+			UGT_SwitchSceneElement_Base*
+			)>& OnEnd,
+			TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr
 		);
 
 	void InitializeSceneActors();
@@ -116,16 +147,6 @@ public:
 	 * @return 
 	 */
 	FGameplayTagContainer GetAllFilterTags() const;
-
-	void SwitchInteractionType(
-		AActor* DevicePtr,
-		const FSceneElementConditional& FilterTags
-		);
-
-	void SwitchInteractionType(
-		const TSet<ASceneElement_DeviceBase*>& FocusActorsAry,
-		const FSceneElementConditional& FilterTags
-		);
 
 	void AddFocusActor(
 		AActor* ActorPtr

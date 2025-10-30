@@ -251,6 +251,25 @@ public:
 	TArray<FUpdateRadarInfo> Value;
 };
 
+USTRUCT()
+struct FMessageBody_Receive_SetRelativeTransoform : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+public:
+	FMessageBody_Receive_SetRelativeTransoform();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	FString DeviceID;
+
+	FTransform Transform;
+};
+
 #pragma endregion
 
 #pragma region Send

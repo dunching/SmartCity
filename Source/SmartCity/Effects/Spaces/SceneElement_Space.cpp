@@ -8,12 +8,16 @@
 #include "CollisionDataStruct.h"
 #include "DatasmithAssetUserData.h"
 #include "FeatureWheel.h"
+#include "FloorHelper.h"
 #include "GameplayTagsLibrary.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
 #include "MessageBody.h"
+#include "PlanetPlayerController.h"
+#include "PlayerGameplayTasks.h"
 #include "RouteMarker.h"
 #include "SceneElement_DeviceBase.h"
+#include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
@@ -46,6 +50,33 @@ FBox ASceneElement_Space::GetComponentsBoundingBox(
 	}
 
 	return Box;
+}
+
+void ASceneElement_Space::InitialSceneElement()
+{
+	Super::InitialSceneElement();
+
+	if (BelongFloor)
+	{
+		return;
+	}
+	
+	auto ParentPtr = GetAttachParentActor();
+	AFloorHelper* FloorPtr = nullptr;
+	for (; ParentPtr;)
+	{
+		ParentPtr = ParentPtr->GetAttachParentActor();
+		FloorPtr = Cast<AFloorHelper>(ParentPtr);
+		if (FloorPtr)
+		{
+			break;
+		}
+	}
+
+	if (FloorPtr)
+	{
+		BelongFloor = FloorPtr;
+	}
 }
 
 void ASceneElement_Space::ReplaceImp(
@@ -166,6 +197,15 @@ void ASceneElement_Space::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
+		)
+		{
+			EntryViewDevice(ConditionalSet);
+			return;
+		}
+	}
+	{
+		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
 		)
 		{
@@ -180,7 +220,7 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect(ConditionalSet);
+			EntryShowEffect(ConditionalSet);
 			return;
 		}
 	}
@@ -190,8 +230,8 @@ void ASceneElement_Space::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect(ConditionalSet);
-			
+			EntryShowEffect(ConditionalSet);
+
 			return;
 		}
 	}
@@ -295,6 +335,22 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 	return Result;
 }
 
+void ASceneElement_Space::EntryViewDevice(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	SetActorHiddenInGame(true);
+	
+	for (auto Iter : FeatureWheelAry)
+	{
+		if (Iter)
+		{
+			Iter->RemoveFromParent();
+		}
+	}
+	FeatureWheelAry.Empty();
+}
+
 void ASceneElement_Space::EntryFocusDevice(
 	const FSceneElementConditional& ConditionalSet
 	)
@@ -360,7 +416,7 @@ void ASceneElement_Space::EntryFocusDevice(
 					if (PrimitiveComponentPtr)
 					{
 						PrimitiveComponentPtr->SetHiddenInGame(false);
-						PrimitiveComponentPtr->SetRenderInMainPass(true);
+						// PrimitiveComponentPtr->SetRenderInMainPass(true);
 						PrimitiveComponentPtr->SetRenderCustomDepth(true);
 						PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 					}
@@ -371,7 +427,7 @@ void ASceneElement_Space::EntryFocusDevice(
 	}
 }
 
-void ASceneElement_Space::EntryShowevice(
+void ASceneElement_Space::EntryShow(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
@@ -384,7 +440,7 @@ void ASceneElement_Space::EntryShowevice(
 		if (PrimitiveComponentPtr)
 		{
 			PrimitiveComponentPtr->SetHiddenInGame(true);
-			PrimitiveComponentPtr->SetRenderInMainPass(false);
+			// PrimitiveComponentPtr->SetRenderInMainPass(false);
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
@@ -393,11 +449,11 @@ void ASceneElement_Space::EntryShowevice(
 
 	MessageBodySPtr->SpaceName = Category;
 
-	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
-
 	TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
-
-	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(ActorsAry, ConditionalSet);
+	
+	TSet<ASceneElementBase*>TempActorsAry;
+	
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(TempActorsAry, ConditionalSet);
 
 	for (auto DeviceIter : ActorsAry)
 	{
@@ -424,7 +480,7 @@ void ASceneElement_Space::EntryShowevice(
 	FeatureWheelAry.Empty();
 }
 
-void ASceneElement_Space::EntryShoweviceEffect(
+void ASceneElement_Space::EntryShowEffect(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
@@ -456,7 +512,7 @@ void ASceneElement_Space::EntryShoweviceEffect(
 			break;
 		case FInteraction_Decorator::EInteractionType::kSpace:
 			{
-				SetActorHiddenInGame(true);
+				SetActorHiddenInGame(false);
 
 				SwitchColor(FColor::White);
 
@@ -476,8 +532,14 @@ void ASceneElement_Space::EntryShoweviceEffect(
 						Features.Add({Iter, nullptr});
 					}
 
-					FeatureWheelPtr->TargetPt = TargetPt.GetCenter() + FVector(0,0, TargetPt.GetExtent().Z);
+					FeatureWheelPtr->TargetPt = TargetPt.GetCenter() + FVector(0, 0, TargetPt.GetExtent().Z);
 					FeatureWheelPtr->InitalFeaturesItem(Category, Features);
+
+					FOnButtonClickedEvent OnClickedDelegate;
+
+					OnClickedDelegate.AddDynamic(this, &ThisClass::OnClickedTag);
+
+					FeatureWheelPtr->SetOncliced(OnClickedDelegate);
 
 					FeatureWheelPtr->AddToViewport();
 
@@ -488,7 +550,7 @@ void ASceneElement_Space::EntryShoweviceEffect(
 				{
 					if (PrimitiveComponentPtr)
 					{
-						PrimitiveComponentPtr->SetHiddenInGame(true);
+						PrimitiveComponentPtr->SetHiddenInGame(false);
 						PrimitiveComponentPtr->SetRenderInMainPass(false);
 						PrimitiveComponentPtr->SetRenderCustomDepth(false);
 					}
@@ -521,7 +583,6 @@ void ASceneElement_Space::QuitAllState()
 		if (PrimitiveComponentPtr)
 		{
 			PrimitiveComponentPtr->SetHiddenInGame(true);
-			PrimitiveComponentPtr->SetRenderInMainPass(false);
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
@@ -543,4 +604,20 @@ void ASceneElement_Space::SwitchColor(
 			}
 		}
 	}
+}
+
+void ASceneElement_Space::OnClickedTag()
+{
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
+		 USmartCitySuiteTags::Interaction_Area_Space,
+		 [this](const TSharedPtr<FDecoratorBase>& AreaDecoratorSPtr)
+		 {
+			 auto SpaceAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
+		 	if (SpaceAreaDecoratorSPtr)
+		 	{
+		 		SpaceAreaDecoratorSPtr->Floor = BelongFloor->FloorTag;
+		 		SpaceAreaDecoratorSPtr->SceneElementPtr = this;
+		 	}
+		 }
+		);
 }
