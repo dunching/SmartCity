@@ -106,8 +106,6 @@ void ASceneElement_Lighting::ReplaceImp(
 			NewComponentPtr->SetRenderCustomDepth(false);
 
 			StaticMeshComponentsAry.Add(NewComponentPtr);
-
-			RecordOnriginalMat();
 		}
 
 		SwitchLight(0);

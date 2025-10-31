@@ -372,7 +372,7 @@ void FMessageBody_Receive_LocaterSpaceByID::Deserialize(
 	}
 
 	FString FloorStr;
-	if (jsonObject->TryGetStringField(TEXT("FloorSet"), FloorStr))
+	if (jsonObject->TryGetStringField(TEXT("Floor"), FloorStr))
 	{
 		Floor = FGameplayTag::RequestGameplayTag(*FloorStr);
 	}

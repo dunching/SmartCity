@@ -2,6 +2,8 @@
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "DatasmithSceneActor.h"
+#include "FloorHelper.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -53,19 +55,29 @@ void ABuilding_CurtainWall::ReplaceImp(
 				StaticMeshComponentsAry.Add(NewComponentPtr);
 			}
 		}
+		
 
-		for (auto Iter : Components)
+		auto ParentPtr = GetAttachParentActor();
+		AFloorHelper* FloorPtr = nullptr;
+		for (; ParentPtr;)
 		{
-			if (Iter)
+			ParentPtr = ParentPtr->GetAttachParentActor();
+			FloorPtr = Cast<AFloorHelper>(ParentPtr);
+			if (FloorPtr)
 			{
-				FMaterialsCache MaterialAry;
-				auto Mats = Iter->GetMaterials();
-				for (auto MatIter : Mats)
-				{
-					MaterialAry.MaterialsCacheAry.Add(MatIter);
-				}
+				break;
+			}
+		}
 
-				OriginalMaterials.Add(Iter, MaterialAry);
+		if (FloorPtr)
+		{
+			if (!FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet.IsEmpty())
+			{
+				for (const auto & Iter : FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet)
+				{
+					AttachToActor(Iter.LoadSynchronous(), FAttachmentTransformRules::KeepWorldTransform);
+					return;
+				}
 			}
 		}
 	}

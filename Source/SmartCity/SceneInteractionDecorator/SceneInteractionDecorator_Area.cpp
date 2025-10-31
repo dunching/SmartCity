@@ -525,6 +525,8 @@ void FFloor_Decorator::Entry()
 	Super::Entry();
 
 	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(WeatherSettings::Clear_Skies);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverageMunualOverride(true);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverage(0);
 
 	FDateTime Time(1, 1, 1, 12);
 	UWeatherSystem::GetInstance()->AdjustTime(Time);

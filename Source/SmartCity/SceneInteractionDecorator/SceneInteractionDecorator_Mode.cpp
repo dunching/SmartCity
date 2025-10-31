@@ -386,7 +386,7 @@ void FLightingMode_Decorator::Quit()
 		                                            );
 	if (DecoratorSPtr)
 	{
-		UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+		// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
 
 		FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
@@ -417,7 +417,7 @@ void FLightingMode_Decorator::OnOtherDecoratorEntry(
 			                                            );
 		if (DecoratorSPtr)
 		{
-			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+			// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
 
 			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
 			UWeatherSystem::GetInstance()->AdjustTime(Time);

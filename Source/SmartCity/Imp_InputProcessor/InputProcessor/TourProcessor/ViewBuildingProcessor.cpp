@@ -48,6 +48,7 @@ void TourProcessor::FViewBuildingProcessor::EnterAction()
 		if (DecoratorSPtr)
 		{
 			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverageMunualOverride(false);
 
 			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
 			UWeatherSystem::GetInstance()->AdjustTime(Time);

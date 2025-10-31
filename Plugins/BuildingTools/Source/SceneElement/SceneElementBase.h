@@ -63,13 +63,11 @@ public:
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		);
-	
+
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const;
-	
-	void RecordOnriginalMat();
 
 	void RevertOnriginalMat();
-	
+
 #if WITH_EDITORONLY_DATA
 	FString SceneElementName;
 #endif
@@ -77,9 +75,19 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString SceneElementID;
 
-	FSceneElementConditional CurrentConditionalSet;
-	
-	UPROPERTY()
-	TMap<UStaticMeshComponent*, FMaterialsCache>OriginalMaterials;
+protected:
+	void SetTranslucentImp(
+		const TArray<UStaticMeshComponent*>& Components,
+		int32 Value,
+		const TSoftObjectPtr<UMaterialInstance>& MatRef
+		);
 
+	void CacheOriginalMat(
+		const TArray<UStaticMeshComponent*>& Components
+		);
+
+	FSceneElementConditional CurrentConditionalSet;
+
+	UPROPERTY()
+	TMap<UStaticMeshComponent*, FMaterialsCache> OriginalMaterials;
 };

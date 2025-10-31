@@ -159,6 +159,13 @@ void UWebChannelWorldSystem::OnInput(
 	)
 {
 	FString JsonStr = Descriptor;
+
+	int32 Index = -1;
+	if (JsonStr.FindChar(TEXT('}'), Index ) && (Index + 1) < JsonStr.Len())
+	{
+		JsonStr.RemoveAt(Index + 1, JsonStr.Len() - Index + 1);
+	}
+	
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;
