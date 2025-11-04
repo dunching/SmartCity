@@ -16,6 +16,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Seat_ViewSplit ,"Seat.ViewSplit");
 
+	UE_DEFINE_GAMEPLAY_TAG(Seat_Periphery ,"Seat.Periphery");
+
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area ,"Interaction.Area");
 
@@ -24,6 +26,8 @@ namespace USmartCitySuiteTags
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SpacialDataSmithActor_JF2 ,"Interaction.Area.SpacialDataSmithActor.JF2");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_LandScape ,"Interaction.Area.LandScape");
+
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Periphery ,"Interaction.Area.Periphery");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_ExternalWall ,"Interaction.Area.ExternalWall");
 

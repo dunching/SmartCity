@@ -11,6 +11,7 @@
 
 #include "FloorHelper.generated.h"
 
+class URectLightComponent;
 class UPlayerComponent;
 class USphereComponent;
 class UFloatingPawnMovement;
@@ -38,10 +39,16 @@ public:
 		const FTransform& Transform
 		) override;
 
+	virtual void BeginPlay() override;
+	
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	void OnHourChanged(int32 Hour);
+	
+	void OnExternalWall();
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USceneComponent> FloorHelper_DescriptionAttachTransform;
 
@@ -54,6 +61,9 @@ public:
 	FString FloorIndexDescription;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<TObjectPtr<URectLightComponent>> RectLightComponentAry;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDisplayDescritpion = true;
 };
@@ -75,4 +85,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+	
 };

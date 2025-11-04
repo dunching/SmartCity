@@ -14,7 +14,7 @@
 #include "FloorHelper.h"
 #include "IPSSI.h"
 #include "LogWriter.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "TourPawn.h"
 
 AGameMode_Main::AGameMode_Main() :

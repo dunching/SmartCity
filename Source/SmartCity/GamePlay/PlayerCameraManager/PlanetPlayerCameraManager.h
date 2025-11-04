@@ -27,8 +27,6 @@ public:
 		float DeltaTime
 		) override;
 
-	void UpdateCameraSetting(float InViewPitchMin,float InViewPitchMax);
-	
 	void UpdateCameraSetting();
 	
 };

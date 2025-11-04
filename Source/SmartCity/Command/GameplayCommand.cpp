@@ -14,7 +14,7 @@
 #include "PlayerGameplayTasks.h"
 #include "Tools.h"
 #include "SceneInteractionWorldSystem.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "TourPawn.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
@@ -526,4 +526,34 @@ void SmartCityCommand::ViewSpeacialArea(
 	
 	UWebChannelWorldSystem::GetInstance()->OnInput(Str
 													  );
+}
+
+void SmartCityCommand::UpdateSceneElementParam(
+	const TArray<FString>& Args
+	)
+{
+	if (!Args.IsValidIndex(2))
+	{
+		return;
+	}
+
+	
+	
+	UWebChannelWorldSystem::GetInstance()->OnInput(
+												   FString::Printf(
+																   TEXT(
+																		R"({
+    "CMD": "UpdateSceneElementParam",
+    "SceneElements":{
+	 "%s": {
+            "%s": "%s"
+        }
+}
+})"
+																	   ),
+																   *Args[0],
+																   *Args[1],
+																   *Args[2]
+																  )
+												  );
 }

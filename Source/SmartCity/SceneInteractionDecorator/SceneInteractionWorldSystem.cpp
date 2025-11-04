@@ -27,7 +27,7 @@
 #include "SceneInteractionDecorator_Mode.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
 #include "ViewSingleDeviceProcessor.h"
@@ -444,7 +444,27 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 			}
 		}
 
-		SwitchDecoratorImp<FExternalWall_Decorator>(
+		SwitchDecoratorImp<FViewTower_Decorator>(
+		                                            USmartCitySuiteTags::Interaction_Area,
+		                                            Interaction_Area,
+		                                            Func
+		                                           );
+
+		return;
+	}
+
+	if (Interaction_Area.MatchesTag(USmartCitySuiteTags::Interaction_Area_Periphery))
+	{
+		if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Area))
+		{
+			if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Area]->GetBranchDecoratorType() ==
+			    USmartCitySuiteTags::Interaction_Area_Periphery)
+			{
+				return;
+			}
+		}
+
+		SwitchDecoratorImp<FViewPeriphery_Decorator>(
 		                                            USmartCitySuiteTags::Interaction_Area,
 		                                            Interaction_Area,
 		                                            Func

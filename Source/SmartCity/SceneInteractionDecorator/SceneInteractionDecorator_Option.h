@@ -20,7 +20,6 @@ class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
 
-#pragma region 操作方式
 
 /**
  * 
@@ -70,4 +69,3 @@ private:
 
 };
 
-#pragma endregion

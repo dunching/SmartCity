@@ -29,16 +29,17 @@ class SMARTCITY_API ASceneElement_Lighting :
 	GENERATED_BODY()
 
 public:
-	
 	ASceneElement_Lighting(
 		const FObjectInitializer& ObjectInitializer
 		);
+
+	virtual void BeginPlay() override;
 
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
 		) override;
-	
+
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
 		const TPair<FName, FString>& InUserData
@@ -60,32 +61,39 @@ public:
 	virtual void QuitViewDevice(
 		) override;
 
-	virtual void EntryShowevice(
+	virtual void EntryShowDevice(
 		) override;
 
 	virtual void QuitShowDevice(
 		) override;
-	
+
 	virtual void EntryShoweviceEffect(
 		) override;
 
 	virtual void QuitShowDeviceEffect(
 		) override;
-	
+
 	virtual void QuitAllState(
 		) override;
-	
-protected:
 
-	void SwitchLight(int32 Intensity);
-	
-	void SetEmissiveValue(int32 Value);
-	
+protected:
+	void SwitchLight(
+		int32 Intensity,
+		int32 Temperature,
+		const FLinearColor& LightColor
+		);
+
+	void SetEmissiveValue(
+		int32 Value,
+		int32 Temperature,
+		const FLinearColor& LightColor
+		);
+
 	/**
 	 * 固定的网格体
 	*/
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+	TArray<UStaticMeshComponent*> StaticMeshComponentsAry;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> EmissiveMaterialInstance;
@@ -94,10 +102,12 @@ protected:
 	FName EmissiveValue = TEXT("Emissive");
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FName Color = TEXT("Color");
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TObjectPtr<URouteMarker> RouteMarkerPtr = nullptr;
 
 	TPair<FName, FString> UserData;
 
-	FString PWR_ID ;
-	
+	FString PWR_ID;
 };

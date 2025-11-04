@@ -149,6 +149,19 @@ void ASceneElementBase::RevertOnriginalMat()
 	OriginalMaterials.Empty();
 }
 
+void ASceneElementBase::UpdateExtensionParamMap(
+	const TMap<FString, FString>& NewExtensionParamMap,
+	bool bImmediatelyUpdate
+	)
+{
+	ExtensionParamMap = NewExtensionParamMap;
+
+	if (bImmediatelyUpdate)
+	{
+		SwitchInteractionType(CurrentConditionalSet);
+	}
+}
+
 void ASceneElementBase::SetTranslucentImp(
 	const TArray<UStaticMeshComponent*>& Components,
 	int32 Value,

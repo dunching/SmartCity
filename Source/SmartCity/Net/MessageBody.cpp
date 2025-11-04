@@ -17,7 +17,7 @@
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
@@ -605,14 +605,14 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 	if (FloorHelper)
 	{
 		RootJsonObj->SetStringField(
-								   TEXT("FloorTag"),
-								   FloorHelper->FloorTag.ToString()
-								  );
+		                            TEXT("FloorTag"),
+		                            FloorHelper->FloorTag.ToString()
+		                           );
 
 		RootJsonObj->SetStringField(
-								   TEXT("Floor"),
-								   FloorHelper->FloorIndexDescription
-								  );
+		                            TEXT("Floor"),
+		                            FloorHelper->FloorIndexDescription
+		                           );
 
 		for (const auto& Iter : FloorHelper->PresetBuildingCameraSeat)
 		{
@@ -622,11 +622,11 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		}
 
 		RootJsonObj->SetArrayField(
-								   TEXT("Spaces"),
-								   Array
-								  );
+		                           TEXT("Spaces"),
+		                           Array
+		                          );
 	}
-	
+
 	return RootJsonObj;
 }
 
@@ -717,6 +717,10 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	                             jsonObject
 	                            );
 
+	if (jsonObject->TryGetBoolField(TEXT("UseClampPitch"), bUseClampPitch))
+	{
+	}
+	
 	if (jsonObject->TryGetNumberField(TEXT("MinPitch"), MinPitch))
 	{
 	}
@@ -734,8 +738,27 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 {
 	UGameOptions::GetInstance()->bAllowRotByYaw = bAllowRotByYaw;
 
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+													 USceneInteractionWorldSystem::GetInstance()->
+													 GetDecorator(
+																  USmartCitySuiteTags::Interaction_Interaction
+																 )
+													);
+	
+	if (!DecoratorSPtr)
 	{
-		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewBuildingProcessor>(
+		return;
+	}
+	
+	auto ConfigControlConfig = DecoratorSPtr->GetConfigControlConfig();
+	ConfigControlConfig.bUseCustomPitchLimit = bUseClampPitch;
+	ConfigControlConfig.ViewPitchMin = MinPitch;
+	ConfigControlConfig.ViewPitchMax = MaxPitch;
+	DecoratorSPtr->UpdateControlConfig(ConfigControlConfig);
+	
+	{
+		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewTowerProcessor>(
 			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
 			);
 		if (ViewBuildingProcessorSPtr)
@@ -747,7 +770,7 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 	{
 		Cast<APlanetPlayerCameraManager>(
 		                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-		                                )->UpdateCameraSetting(MinPitch, MaxPitch);
+		                                )->UpdateCameraSetting();
 
 		return;
 	}
@@ -1018,6 +1041,62 @@ void FMessageBody_Receive_SetRelativeTransoform::DoAction() const
 		if (DevicePtr)
 		{
 			DevicePtr->UpdateReletiveTransform(Transform);
+		}
+	}
+}
+
+FMessageBody_Receive_UpdateSceneElementParam::FMessageBody_Receive_UpdateSceneElementParam()
+{
+	CMD_Name = TEXT("UpdateSceneElementParam");
+}
+
+void FMessageBody_Receive_UpdateSceneElementParam::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
+	{
+	}
+
+	const TSharedPtr<FJsonObject>* OutObject = nullptr;
+	if (jsonObject->TryGetObjectField(TEXT("SceneElements"), OutObject))
+	{
+		for (auto Iter : (*OutObject)->Values)
+		{
+			auto& Ref = ExtensionParamMap.Add(Iter.Key, {});
+
+			const auto ObjSPtr =  Iter.Value->AsObject();
+			for (const auto& SecondIter : ObjSPtr->Values)
+			{
+				Ref.Add(SecondIter.Key, SecondIter.Value->AsString());
+			}
+		}
+	}
+}
+
+void FMessageBody_Receive_UpdateSceneElementParam::DoAction() const
+{
+	Super::DoAction();
+
+	for (const auto& Iter : ExtensionParamMap)
+	{
+		auto SceneElementPtr =
+			USceneInteractionWorldSystem::GetInstance()->FindSceneActor(Iter.Key);
+
+		if (SceneElementPtr.IsValid())
+		{
+			SceneElementPtr->UpdateExtensionParamMap(Iter.Value, bImmediatelyUpdate);
 		}
 	}
 }

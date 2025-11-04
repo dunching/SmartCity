@@ -192,7 +192,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 			return;
 		}
 	}
@@ -215,7 +215,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
 		    EmptyContainer.Num())
 		{
-			EntryShowevice();
+			EntryShowDevice();
 			return;
 		}
 	}
@@ -281,9 +281,9 @@ void ASceneElement_PWR_Pipe::EntryViewDevice()
 	RevertOnriginalMat();
 }
 
-void ASceneElement_PWR_Pipe::EntryShowevice()
+void ASceneElement_PWR_Pipe::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 

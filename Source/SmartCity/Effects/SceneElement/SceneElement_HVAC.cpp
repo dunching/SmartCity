@@ -129,7 +129,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -139,7 +139,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 			return;
 		}
 	}
@@ -249,9 +249,9 @@ void ASceneElement_HVAC::QuitViewDevice()
 	Super::QuitViewDevice();
 }
 
-void ASceneElement_HVAC::EntryShowevice()
+void ASceneElement_HVAC::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 

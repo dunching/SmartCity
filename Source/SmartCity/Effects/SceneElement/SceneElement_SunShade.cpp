@@ -110,7 +110,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -132,7 +132,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 			 )
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -142,7 +142,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 			 )
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -186,9 +186,9 @@ void ASceneElement_SunShade::EntryViewDevice()
 	Super::EntryViewDevice();
 }
 
-void ASceneElement_SunShade::EntryShowevice()
+void ASceneElement_SunShade::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 	

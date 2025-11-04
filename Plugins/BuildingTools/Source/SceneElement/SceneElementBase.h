@@ -68,6 +68,11 @@ public:
 
 	void RevertOnriginalMat();
 
+	void UpdateExtensionParamMap(
+		const TMap<FString, FString>& NewExtensionParamMap,
+		bool bImmediatelyUpdate
+		);
+
 #if WITH_EDITORONLY_DATA
 	FString SceneElementName;
 #endif
@@ -87,6 +92,8 @@ protected:
 		);
 
 	FSceneElementConditional CurrentConditionalSet;
+
+	TMap<FString, FString> ExtensionParamMap;
 
 	UPROPERTY()
 	TMap<UStaticMeshComponent*, FMaterialsCache> OriginalMaterials;

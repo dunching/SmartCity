@@ -232,7 +232,7 @@ void ASceneElement_DeviceBase::QuitViewDevice()
 {
 }
 
-void ASceneElement_DeviceBase::EntryShowevice()
+void ASceneElement_DeviceBase::EntryShowDevice()
 {
 }
 
@@ -257,6 +257,11 @@ TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 	RootJsonObj->SetStringField(
 	                            TEXT("DeviceType"),
 	                            DeviceType.ToString()
+	                           );
+
+	RootJsonObj->SetStringField(
+	                            TEXT("DeviceTypeStr"),
+	                            DeviceTypeStr
 	                           );
 
 	return Result;

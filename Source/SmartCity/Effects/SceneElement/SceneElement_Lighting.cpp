@@ -3,20 +3,24 @@
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
 #include "DatasmithAssetUserData.h"
+#include "Dynamic_SkyBase.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/LocalLightComponent.h"
 #include "Engine/RectLight.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "TourPawn.h"
 #include "IPSSI.h"
 #include "MessageBody.h"
 #include "RouteMarker.h"
 #include "SceneElement_PWR_Pipe.h"
+#include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionDecorator_Mode.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "ViewSingleDeviceProcessor.h"
+#include "WeatherSystem.h"
 #include "WebChannelWorldSystem.h"
 
 ASceneElement_Lighting::ASceneElement_Lighting(
@@ -24,6 +28,11 @@ ASceneElement_Lighting::ASceneElement_Lighting(
 	) :
 	  Super(ObjectInitializer)
 {
+}
+
+void ASceneElement_Lighting::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ASceneElement_Lighting::ReplaceImp(
@@ -108,7 +117,8 @@ void ASceneElement_Lighting::ReplaceImp(
 			StaticMeshComponentsAry.Add(NewComponentPtr);
 		}
 
-		SwitchLight(0);
+		// SetEmissiveValue(0, -1, FColor::White);
+		SwitchLight(0, -1, FColor::White);
 	}
 }
 
@@ -135,7 +145,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
-			)
+		)
 		{
 			QuitAllState();
 
@@ -146,7 +156,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
-			)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -157,12 +167,12 @@ void ASceneElement_Lighting::SwitchInteractionType(
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
-			)
+		)
 		{
 			SetActorHiddenInGame(false);
 
-			SetEmissiveValue(0);
-			SwitchLight(0);
+			// SetEmissiveValue(0, -1, FColor::White);
+			SwitchLight(0, -1, FColor::White);
 
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FEnergyMode_Decorator>(
@@ -180,6 +190,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 				return;
 			}
 
+			CacheOriginalMat(StaticMeshComponentsAry);
 			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
 
 			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
@@ -206,7 +217,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -225,9 +236,9 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-			)
+		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -235,7 +246,7 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
-			)
+		)
 		{
 			EntryViewDevice();
 
@@ -245,14 +256,14 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
-			)
+		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
 	}
-	
+
 	{
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
@@ -292,14 +303,14 @@ void ASceneElement_Lighting::QuitViewDevice()
 	Super::QuitViewDevice();
 }
 
-void ASceneElement_Lighting::EntryShowevice()
+void ASceneElement_Lighting::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 
-	SetEmissiveValue(0);
-	SwitchLight(0);
+	// SetEmissiveValue(0, -1, FColor::White);
+	SwitchLight(0, -1, FColor::White);
 
 	RevertOnriginalMat();
 }
@@ -315,8 +326,31 @@ void ASceneElement_Lighting::EntryShoweviceEffect()
 
 	SetActorHiddenInGame(false);
 
-	SetEmissiveValue(1);
-	SwitchLight(5);
+	if (ExtensionParamMap.Contains(TEXT("Intensity")))
+	{
+		FLinearColor LightColor = FColor::White;
+		bool OutIsValid = false;
+		if (ExtensionParamMap.Contains(TEXT("LightColor")))
+		{
+			UKismetStringLibrary::Conv_StringToColor(ExtensionParamMap[TEXT("LightColor")], LightColor, OutIsValid);
+		}
+
+		int32 Temperature = -1;
+		if (ExtensionParamMap.Contains(TEXT("Temperature")))
+		{
+			Temperature = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Temperature")]);
+		}
+
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
+		SetEmissiveValue(Value, Temperature, LightColor);
+		SwitchLight(Value, Temperature, LightColor);
+
+		return;
+	}
+	// SetEmissiveValue(0, -1, FColor::White);
+	SwitchLight(0, -1, FColor::White);
+
+	RevertOnriginalMat();
 }
 
 void ASceneElement_Lighting::QuitShowDeviceEffect()
@@ -341,7 +375,9 @@ void ASceneElement_Lighting::QuitAllState()
 }
 
 void ASceneElement_Lighting::SwitchLight(
-	int32 Intensity
+	int32 Intensity,
+	int32 Temperature,
+	const FLinearColor& LightColor
 	)
 {
 	TArray<ULocalLightComponent*> LocalLightComponents;
@@ -352,6 +388,7 @@ void ASceneElement_Lighting::SwitchLight(
 		if (Iter)
 		{
 			Iter->Intensity = Intensity;
+			Iter->LightColor = LightColor.ToRGBE();
 			if (Intensity <= 0)
 			{
 				Iter->SetHiddenInGame(true);
@@ -360,30 +397,44 @@ void ASceneElement_Lighting::SwitchLight(
 			{
 				Iter->SetHiddenInGame(false);
 			}
+
+			if (Temperature <= 0)
+			{
+				Iter->bUseTemperature = false;
+			}
+			else
+			{
+				Iter->Temperature = Temperature;
+				Iter->bUseTemperature = true;
+			}
 		}
 	}
 }
 
 void ASceneElement_Lighting::SetEmissiveValue(
-	int32 Value
+	int32 Value,
+	int32 Temperature,
+	const FLinearColor& LightColor
 	)
 {
-	// for (auto MeshIter : StaticMeshComponentsAry)
-	// {
-	// 	const auto Num = MeshIter->GetNumMaterials();
-	// 	for (int32 Index = 0; Index < Num; Index++)
-	// 	{
-	// 		auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
-	// 		MeshIter->SetMaterial(Index, MaterialPtr);
-	// 	}
-	//
-	// 	for (int32 Index = 0; Index < Num; Index++)
-	// 	{
-	// 		auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
-	// 		if (MaterialPtr)
-	// 		{
-	// 			MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
-	// 		}
-	// 	}
-	// }
+	CacheOriginalMat(StaticMeshComponentsAry);
+	for (auto MeshIter : StaticMeshComponentsAry)
+	{
+		const auto Num = MeshIter->GetNumMaterials();
+		for (int32 Index = 0; Index < Num; Index++)
+		{
+			auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
+			MeshIter->SetMaterial(Index, MaterialPtr);
+		}
+
+		for (int32 Index = 0; Index < Num; Index++)
+		{
+			auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
+			if (MaterialPtr)
+			{
+				MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
+				MaterialPtr->SetVectorParameterValue(Color, LightColor);
+			}
+		}
+	}
 }

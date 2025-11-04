@@ -115,9 +115,14 @@ public:
 	FKey MouseWheelAxis = EKeys::MouseWheelAxis;
 #pragma endregion
 
+#pragma region 查看周边
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewPeripheryControlParam;
+#pragma endregion
+
 #pragma region 查看全局
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
-	FControlParam ViewBuildingControlParam;
+	FControlParam ViewTowerControlParam;
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
 	FControlParam ViewSplitFloorControlParam;
@@ -210,6 +215,10 @@ struct FControlConfig
 	float ViewPitchMin = -45;
 
 	float ViewPitchMax = -45;
+
+	float ProcessPitchMin = -45;
+
+	float ProcessPitchMax = -45;
 
 	EInteractionType InteractionType = EInteractionType::kSpace;
 
