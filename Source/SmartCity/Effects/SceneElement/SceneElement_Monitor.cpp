@@ -78,7 +78,7 @@ void ASceneElement_Monitor::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -99,7 +99,7 @@ void ASceneElement_Monitor::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -145,9 +145,9 @@ void ASceneElement_Monitor::EntryViewDevice()
 	SetActorHiddenInGame(false);
 }
 
-void ASceneElement_Monitor::EntryShowevice()
+void ASceneElement_Monitor::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 	
 	SetActorHiddenInGame(false);
 }

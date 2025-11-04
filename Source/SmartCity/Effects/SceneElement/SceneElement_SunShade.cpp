@@ -65,9 +65,13 @@ void ASceneElement_SunShade::ReplaceImp(
 		if (STPtr)
 		{
 			const auto Transient = STPtr->GetStaticMeshComponent()->GetRelativeTransform();
-			// BaseComponent->SetRelativeTransform(Transient);
 
 			FanMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+
+			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+			{
+				FanMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+			}
 
 			FVector Min;
 			FVector Max;
@@ -86,30 +90,11 @@ void ASceneElement_SunShade::ReplaceImp(
 
 			if (Dot > 0)
 			{
-				// DrawDebugSphere(GetWorld(), FloorCenter, 20, 20, FColor::Red, true);
-				// DrawDebugLine(
-				//               GetWorld(),
-				//               GetActorLocation(),
-				//               GetActorLocation() + (GetActorRightVector() * 100),
-				//               FColor::Red,
-				//               true
-				//              );
-
 				SceneComponent->SetRelativeRotation(FRotator(0, 180, 0));
 			}
 			else
 			{
-				// DrawDebugSphere(GetWorld(), FloorCenter, 20, 20, FColor::Yellow, true);
-				// DrawDebugLine(
-				//               GetWorld(),
-				//               GetActorLocation(),
-				//               GetActorLocation() + (GetActorRightVector() * 100),
-				//               FColor::Yellow,
-				//               true
-				//              );
-
 			}
-
 		}
 	}
 }
@@ -125,7 +110,8 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
 			)
 		{
-			QuitAllState();
+			EntryShowDevice();
+
 			return;
 		}
 	}
@@ -137,17 +123,6 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		{
 			EntryShoweviceEffect();
 
-			// RouteMarkerPtr = CreateWidget<URouteMarker>(
-			//                                             GEngine->GetFirstLocalPlayerController(GetWorld()),
-			//                                             UAssetRefMap::GetInstance()->RouteMarkerClass
-			//                                            );
-			// if (RouteMarkerPtr)
-			// {
-			// 	RouteMarkerPtr->TextStr = TEXT("遮阳");
-			// 	RouteMarkerPtr->TargetActor = this;
-			// 	RouteMarkerPtr->AddToViewport();
-			// }
-
 			return;
 		}
 	}
@@ -157,7 +132,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 			 )
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -167,7 +142,7 @@ void ASceneElement_SunShade::SwitchInteractionType(
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 			 )
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -211,9 +186,9 @@ void ASceneElement_SunShade::EntryViewDevice()
 	Super::EntryViewDevice();
 }
 
-void ASceneElement_SunShade::EntryShowevice()
+void ASceneElement_SunShade::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 	

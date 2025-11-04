@@ -29,7 +29,7 @@
 #include "ViewSingleFloorProcessor.h"
 #include "WeatherSystem.h"
 #include "TourPawn.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorViewEnergyProcessor.h"
 #include "ViewSplitFloorProcessor.h"
@@ -37,6 +37,7 @@
 #include "ViewSingleSpaceProcessor.h"
 #include "ViewSpecialAreaProcessor.h"
 #include "ViewerPawnBase.h"
+#include "ViewPeripheryProcessor.h"
 
 FArea_Decorator::FArea_Decorator(
 	) :
@@ -91,20 +92,20 @@ void FArea_Decorator::OnUpdateFilterComplete(
 {
 }
 
-FExternalWall_Decorator::FExternalWall_Decorator(
+FViewTower_Decorator::FViewTower_Decorator(
 	) :
 	  Super(
 	       )
 {
 }
 
-void FExternalWall_Decorator::Entry()
+void FViewTower_Decorator::Entry()
 {
 	Super::Entry();
 
 	ON_SCOPE_EXIT
 	{
-		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewBuildingProcessor>(
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewTowerProcessor>(
 			 [](
 			 auto NewProcessor
 			 )
@@ -221,9 +222,6 @@ void FExternalWall_Decorator::Entry()
 						bool,
 						const TSet<AActor*>&,
 						UGT_SwitchSceneElement_Base*
-
-
-						
 						)> MulticastDelegate;
 
 					MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
@@ -251,9 +249,6 @@ void FExternalWall_Decorator::Entry()
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
-
-
-		
 		)> MulticastDelegate;
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
@@ -265,7 +260,7 @@ void FExternalWall_Decorator::Entry()
 	                                                         );
 }
 
-void FExternalWall_Decorator::OnOtherDecoratorEntry(
+void FViewTower_Decorator::OnOtherDecoratorEntry(
 	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 	)
 {
@@ -404,7 +399,7 @@ void FExternalWall_Decorator::OnOtherDecoratorEntry(
 	                                                         );
 }
 
-bool FExternalWall_Decorator::Operation(
+bool FViewTower_Decorator::Operation(
 	EOperatorType OperatorType
 	)
 {
@@ -427,7 +422,345 @@ bool FExternalWall_Decorator::Operation(
 	return false;
 }
 
-void FExternalWall_Decorator::OnUpdateFilterComplete(
+void FViewTower_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	const TSet<AActor*>& InActors,
+	UGT_SwitchSceneElement_Base* TaskPtr
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+}
+
+FViewPeriphery_Decorator::FViewPeriphery_Decorator():
+	  Super(
+		   )
+{
+}
+
+void FViewPeriphery_Decorator::Entry()
+{
+	Super::Entry();
+
+	ON_SCOPE_EXIT
+	{
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<TourProcessor::FViewPeripheryProcessor>(
+			 [](
+			 auto NewProcessor
+			 )
+			 {
+			 }
+			);
+	};
+
+	{
+		auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			 USmartCitySuiteTags::Interaction_Mode
+			);
+		if (
+			DecoratorSPtr
+		)
+		{
+			if (
+				DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+			)
+			{
+				if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+				{
+					FSceneElementConditional SceneActorConditional;
+
+					SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+					TMulticastDelegate<void(
+						bool,
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElement_Base*
+
+
+						
+						)> MulticastDelegate;
+
+					MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+					                                                          SceneActorConditional,
+					                                                          true,
+					                                                          MulticastDelegate
+					                                                         );
+
+					return;
+				}
+				else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+				                                                            USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+				                                                           ))
+				{
+					FSceneElementConditional SceneActorConditional;
+
+					SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+					TMulticastDelegate<void(
+						bool,
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElement_Base*
+
+
+						
+						)> MulticastDelegate;
+
+					MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+					                                                          SceneActorConditional,
+					                                                          true,
+					                                                          MulticastDelegate
+					                                                         );
+
+					return;
+				}
+				else if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+				                                                            USmartCitySuiteTags::Interaction_Mode_View
+				                                                           ))
+				{
+					USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
+
+					return;
+				}
+				else if (DecoratorSPtr->GetBranchDecoratorType().
+				                        MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
+				{
+					FSceneElementConditional SceneActorConditional;
+
+					SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+					SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+					TMulticastDelegate<void(
+						bool,
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElement_Base*
+
+
+						
+						)> MulticastDelegate;
+
+					MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+					                                                          SceneActorConditional,
+					                                                          true,
+					                                                          MulticastDelegate
+					                                                         );
+
+					return;
+				}
+				{
+					FSceneElementConditional SceneActorConditional;
+
+					SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+					TMulticastDelegate<void(
+						bool,
+						const TSet<AActor*>&,
+						UGT_SwitchSceneElement_Base*
+						)> MulticastDelegate;
+
+					MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+					MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+					USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+					                                                          SceneActorConditional,
+					                                                          true,
+					                                                          MulticastDelegate
+					                                                         );
+
+					return;
+				}
+			}
+		}
+		else
+		{
+		}
+	}
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElement_Base*
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          true,
+	                                                          MulticastDelegate
+	                                                         );
+}
+
+void FViewPeriphery_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+	)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElement_Base*
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          true,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_EmergencySystem))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElement_Base*
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          true,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                           MatchesTag(USmartCitySuiteTags::Interaction_Mode_View))
+		{
+			// USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(FGameplayTag::EmptyTag);
+
+			// return;
+		}
+		else if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                               USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+		                                                              ))
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElement_Base*
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          true,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+		else
+		{
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElement_Base*
+
+
+				
+				)> MulticastDelegate;
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          true,
+			                                                          MulticastDelegate
+			                                                         );
+			return;
+		}
+	}
+	else
+	{
+	}
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+	TMulticastDelegate<void(
+		bool,
+		const TSet<AActor*>&,
+		UGT_SwitchSceneElement_Base*
+
+
+		
+		)> MulticastDelegate;
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+	USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+	                                                          SceneActorConditional,
+	                                                          true,
+	                                                          MulticastDelegate
+	                                                         );
+}
+
+bool FViewPeriphery_Decorator::Operation(
+	EOperatorType OperatorType
+	)
+{
+	Super::Operation(OperatorType);
+
+	PRINTFUNCSTR();
+
+	switch (OperatorType)
+	{
+	case EOperatorType::kLeftMouseButton:
+	case EOperatorType::kRightMouseButton:
+		{
+		}
+		break;
+	case EOperatorType::kNone:
+		break;
+	default: ;
+	}
+
+	return false;
+}
+
+void FViewPeriphery_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
@@ -525,6 +858,8 @@ void FFloor_Decorator::Entry()
 	Super::Entry();
 
 	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(WeatherSettings::Clear_Skies);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverageMunualOverride(true);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverage(0);
 
 	FDateTime Time(1, 1, 1, 12);
 	UWeatherSystem::GetInstance()->AdjustTime(Time);
@@ -625,7 +960,7 @@ void FFloor_Decorator::Entry()
 				                                                         );
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+					TourProcessor::FViewSingleFloorProcessor>(
 					                                                    [this](
 					                                                    auto NewProcessor
 					                                                    )
@@ -784,7 +1119,7 @@ void FFloor_Decorator::Entry()
 				                                                         );
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
+					TourProcessor::FViewSingleFloorProcessor>(
 					                                                    [this](
 					                                                    auto NewProcessor
 					                                                    )

@@ -80,7 +80,7 @@ public:
 	/**
 	 * 展示设备
 	 */
-	virtual void EntryShowevice(
+	virtual void EntryShowDevice(
 		);
 
 	virtual void QuitShowDevice(

@@ -105,40 +105,20 @@ void ASceneElementBase::SwitchInteractionType(
 TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
 {
 	auto RootJsonObj = MakeShared<FJsonObject>();
-	
+
 	auto Result = MakeShared<FJsonValueObject>(RootJsonObj);
 
 	RootJsonObj->SetStringField(
-								TEXT("ID"),
-								SceneElementID
-							   );
+	                            TEXT("ID"),
+	                            SceneElementID
+	                           );
 
 	RootJsonObj->SetStringField(
-								TEXT("CurrentConditionalSet"),
-								CurrentConditionalSet.ConditionalSet.ToString()
-							   );
+	                            TEXT("CurrentConditionalSet"),
+	                            CurrentConditionalSet.ConditionalSet.ToString()
+	                           );
 
 	return Result;
-}
-
-void ASceneElementBase::RecordOnriginalMat()
-{
-	TArray<UStaticMeshComponent*> Components;
-	GetComponents<UStaticMeshComponent>(Components);
-	for (auto Iter : Components)
-	{
-		if (Iter)
-		{
-			FMaterialsCache MaterialAry;
-			auto Mats = Iter->GetMaterials();
-			for (auto MatIter : Mats)
-			{
-				MaterialAry.MaterialsCacheAry.Add(MatIter);
-			}
-
-			OriginalMaterials.Add(Iter, MaterialAry);
-		}
-	}
 }
 
 void ASceneElementBase::RevertOnriginalMat()
@@ -164,5 +144,72 @@ void ASceneElementBase::RevertOnriginalMat()
 		{
 			Iter->SetMaterial(Index, MatAry->MaterialsCacheAry[Index]);
 		}
+	}
+
+	OriginalMaterials.Empty();
+}
+
+void ASceneElementBase::UpdateExtensionParamMap(
+	const TMap<FString, FString>& NewExtensionParamMap,
+	bool bImmediatelyUpdate
+	)
+{
+	ExtensionParamMap = NewExtensionParamMap;
+
+	if (bImmediatelyUpdate)
+	{
+		SwitchInteractionType(CurrentConditionalSet);
+	}
+}
+
+void ASceneElementBase::SetTranslucentImp(
+	const TArray<UStaticMeshComponent*>& Components,
+	int32 Value,
+	const TSoftObjectPtr<UMaterialInstance>& MatRef
+	)
+{
+	CacheOriginalMat(Components);
+
+	auto WallTranslucentMatInst = MatRef.LoadSynchronous();
+	auto MatInstDynamicPtr = UMaterialInstanceDynamic::Create(WallTranslucentMatInst, this);
+
+	MatInstDynamicPtr->SetScalarParameterValue(TEXT("Translucent"), Value / 100.f);
+
+	for (auto Iter : Components)
+	{
+		if (Iter)
+		{
+			const auto MatNum = Iter->GetMaterials().Num();
+			for (int32 Index = 0; Index < MatNum; Index++)
+			{
+				Iter->SetMaterial(Index, MatInstDynamicPtr);
+			}
+		}
+	}
+}
+
+void ASceneElementBase::CacheOriginalMat(
+	const TArray<UStaticMeshComponent*>& Components
+	)
+{
+	for (auto Iter : Components)
+	{
+		if (!Iter)
+		{
+			continue;
+		}
+		if (OriginalMaterials.Contains(Iter))
+		{
+			continue;
+		}
+
+		FMaterialsCache MaterialAry;
+		auto Mats = Iter->GetMaterials();
+		for (auto MatIter : Mats)
+		{
+			MaterialAry.MaterialsCacheAry.Add(MatIter);
+		}
+
+		OriginalMaterials.Add(Iter, MaterialAry);
 	}
 }

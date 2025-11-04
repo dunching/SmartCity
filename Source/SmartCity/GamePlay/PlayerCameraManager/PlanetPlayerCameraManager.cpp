@@ -58,10 +58,7 @@ void APlanetPlayerCameraManager::UpdateCamera(
 #endif
 }
 
-void APlanetPlayerCameraManager::UpdateCameraSetting(
-	float InViewPitchMin,
-	float InViewPitchMax
-	)
+void APlanetPlayerCameraManager::UpdateCameraSetting()
 {
 	auto DecoratorSPtr =
 		DynamicCastSharedPtr<FInteraction_Decorator>(
@@ -70,36 +67,27 @@ void APlanetPlayerCameraManager::UpdateCameraSetting(
 																  USmartCitySuiteTags::Interaction_Interaction
 																 )
 													);
-	
-	if (DecoratorSPtr && DecoratorSPtr->GetConfigControlConfig().bUseCustomPitchLimit)
+
+	if (!DecoratorSPtr)
 	{
 		return;
 	}
-	
-	// 往下看的限制
-	ViewPitchMin = InViewPitchMin;
 
-	// 往上看的限制
-	ViewPitchMax = InViewPitchMax;
-}
-
-void APlanetPlayerCameraManager::UpdateCameraSetting()
-{
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	
-	const auto ControllConfig = DecoratorSPtr->GetConfigControlConfig();
-	if (DecoratorSPtr && ControllConfig.bUseCustomPitchLimit)
+	const auto ConfigControlConfig = DecoratorSPtr->GetConfigControlConfig();
+	if (DecoratorSPtr->GetConfigControlConfig().bUseCustomPitchLimit)
 	{
 		// 往下看的限制
-		ViewPitchMin = ControllConfig.ViewPitchMin;
+		ViewPitchMin = ConfigControlConfig.ViewPitchMin;
 
 		// 往上看的限制
-		ViewPitchMax = ControllConfig.ViewPitchMax;
+		ViewPitchMax = ConfigControlConfig.ViewPitchMax;
+	}
+	else
+	{
+		// 往下看的限制
+		ViewPitchMin = ConfigControlConfig.ProcessPitchMin;
+
+		// 往上看的限制
+		ViewPitchMax = ConfigControlConfig.ProcessPitchMax;
 	}
 }

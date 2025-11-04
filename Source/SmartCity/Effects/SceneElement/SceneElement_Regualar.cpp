@@ -6,6 +6,7 @@
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "FloorHelper.h"
 #include "GameplayTagsLibrary.h"
 #include "MessageBody.h"
 #include "RouteMarker.h"
@@ -52,6 +53,33 @@ FBox ASceneElement_Regualar::GetComponentsBoundingBox(
 	                                     );
 
 	return Box;
+}
+
+void ASceneElement_Regualar::InitialSceneElement()
+{
+	Super::InitialSceneElement();
+
+	if (BelongFloor)
+	{
+		return;
+	}
+	
+	auto ParentPtr = GetAttachParentActor();
+	AFloorHelper* FloorPtr = nullptr;
+	for (; ParentPtr;)
+	{
+		ParentPtr = ParentPtr->GetAttachParentActor();
+		FloorPtr = Cast<AFloorHelper>(ParentPtr);
+		if (FloorPtr)
+		{
+			break;
+		}
+	}
+
+	if (FloorPtr)
+	{
+		BelongFloor = FloorPtr;
+	}
 }
 
 void ASceneElement_Regualar::ReplaceImp(
@@ -136,7 +164,21 @@ void ASceneElement_Regualar::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
 		)
 		{
-			QuitAllState();
+			if (BelongFloor && BelongFloor->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_Roof))
+			{
+				SetActorHiddenInGame(false);
+
+				auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+				if (PrimitiveComponentPtr)
+				{
+					PrimitiveComponentPtr->SetRenderCustomDepth(false);
+				}
+
+			}
+			else
+			{
+				QuitAllState();
+			}
 
 			return;
 		}

@@ -52,6 +52,16 @@ public:
 		const FVector& SrcLocation
 		) const override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateCloudCoverage(
+		float CloudCoverage
+		);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateCloudCoverageMunualOverride(
+		bool CloudCoverageMunualOverride
+		);
+
 	FGameplayTag GetCurrentWeather() const;
 
 protected:

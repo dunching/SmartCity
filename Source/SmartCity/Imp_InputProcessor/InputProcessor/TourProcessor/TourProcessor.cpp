@@ -4,6 +4,10 @@
 
 #include "GameOptions.h"
 #include "PlanetPlayerCameraManager.h"
+#include "SceneInteractionDecorator_Option.h"
+#include "SceneInteractionWorldSystem.h"
+#include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
 #include "TourPawn.h"
 
 TourProcessor::FTourProcessor::FTourProcessor(
@@ -39,19 +43,27 @@ bool TourProcessor::FTourProcessor::UpdateCameraClampPitch(
 	const FControlParam& ControlParam
 	)
 {
-	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
-	if (!OnwerActorPtr)
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+
+	if (!DecoratorSPtr)
 	{
-		return false;
+		return true;
 	}
 
-	Cast<APlanetPlayerCameraManager>(
-									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-									)->UpdateCameraSetting(ControlParam.CameraPitchMinLimit,ControlParam.CameraPitchMaxLimit);
+	auto ConfigControlConfig = DecoratorSPtr->GetConfigControlConfig();
+	ConfigControlConfig.ProcessPitchMin = ControlParam.CameraPitchMinLimit;
+	ConfigControlConfig.ProcessPitchMax = ControlParam.CameraPitchMaxLimit;
+	DecoratorSPtr->UpdateControlConfig(ConfigControlConfig);
 
 	Cast<APlanetPlayerCameraManager>(
-									 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-									)->UpdateCameraSetting();
+	                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+	                                )->UpdateCameraSetting();
 
 	return true;
 }

@@ -181,7 +181,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -202,7 +202,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -222,7 +222,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -273,9 +273,9 @@ void ASceneElement_RadarMode::EntryViewDevice()
 	SweepActor->GetStaticMeshComponent()->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 }
 
-void ASceneElement_RadarMode::EntryShowevice()
+void ASceneElement_RadarMode::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
 

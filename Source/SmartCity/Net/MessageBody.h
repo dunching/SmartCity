@@ -70,6 +70,8 @@ private:
 
 	int32 MaxPitch = 0;
 
+	bool bUseClampPitch = true;
+
 	bool bAllowRotByYaw = true;
 };
 
@@ -156,7 +158,7 @@ public:
 	virtual void DoAction() const override;
 
 	FViewConfig ViewConfig;
-	
+
 	bool bImmediatelyUpdate = true;
 };
 
@@ -232,17 +234,17 @@ public:
 	struct FUpdateRadarInfo
 	{
 		FVector2D Acceleration;
-		
+
 		FVector2D Position;
-		
+
 		FVector2D Velocity;
-		
+
 		FString TID;
-		
+
 		int32 EC = 0;
-		
+
 		int32 G = 0;
-		
+
 		int32 NumberOfTargets = 0;
 	};
 
@@ -298,10 +300,28 @@ struct FMessageBody_Receive_ViewSpeacialArea : public FMessageBody_Receive
 		) override;
 
 	virtual void DoAction() const override;
-	
+
 	TSet<FGameplayTag> FloorSet;
-	
+
 	FString Seat;
+};
+
+USTRUCT()
+struct FMessageBody_Receive_UpdateSceneElementParam : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+	FMessageBody_Receive_UpdateSceneElementParam();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
+
+	bool bImmediatelyUpdate = true;
 };
 
 #pragma endregion
@@ -327,7 +347,8 @@ struct FMessageBody_SelectedFloor : public FMessageBody_Send
 
 	TMap<ASceneElement_Space*, TSet<ASceneElement_DeviceBase*>> SpacesMap;
 
-	TObjectPtr<AFloorHelper>FloorHelper = nullptr;
+	TObjectPtr<AFloorHelper> FloorHelper = nullptr;
+
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };
@@ -390,7 +411,7 @@ struct FMessageBody_ViewConfigChanged : public FMessageBody_Send
 	FMessageBody_ViewConfigChanged();
 
 	FViewConfig ViewConfig;
-	
+
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };

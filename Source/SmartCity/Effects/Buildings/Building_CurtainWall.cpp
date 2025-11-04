@@ -1,11 +1,32 @@
 #include "Building_CurtainWall.h"
 
+#include "Components/RectLightComponent.h"
+
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
+#include "DatasmithSceneActor.h"
+#include "Dynamic_SkyBase.h"
+#include "FloorHelper.h"
 #include "SceneInteractionDecorator.h"
+#include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
+#include "WeatherSystem.h"
+
+void ABuilding_CurtainWall::BeginPlay()
+{
+	Super::BeginPlay();
+
+	auto Handle = UWeatherSystem::GetInstance()->GetDynamicSky()->OnHourChanged.AddCallback(
+		 std::bind(
+		           &ThisClass::OnHourChanged,
+		           this,
+		           std::placeholders::_1
+		          )
+		);
+	Handle->bIsAutoUnregister = false;
+}
 
 void ABuilding_CurtainWall::ReplaceImp(
 	AActor* ActorPtr,
@@ -23,14 +44,14 @@ void ABuilding_CurtainWall::ReplaceImp(
 			if (Iter)
 			{
 				auto NewComponentPtr = Cast<UStaticMeshComponent>(
-																  AddComponentByClass(
-																	   UStaticMeshComponent::StaticClass(),
-																	   true,
-																	   Iter->
-																			  GetComponentTransform(),
-																	   false
-																	  )
-																 );
+				                                                  AddComponentByClass(
+					                                                   UStaticMeshComponent::StaticClass(),
+					                                                   true,
+					                                                   Iter->
+					                                                   GetComponentTransform(),
+					                                                   false
+					                                                  )
+				                                                 );
 				NewComponentPtr->SetStaticMesh(Iter->GetStaticMesh());
 				NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
@@ -43,29 +64,39 @@ void ABuilding_CurtainWall::ReplaceImp(
 				NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
 
 				NewComponentPtr->SetRenderCustomDepth(false);
-			
+
 				auto Mats = Iter->GetMaterials();
-				for (int32 Index = 0;Index < Mats.Num(); Index++)
+				for (int32 Index = 0; Index < Mats.Num(); Index++)
 				{
 					NewComponentPtr->SetMaterial(Index, Mats[Index]);
 				}
-				
+
 				StaticMeshComponentsAry.Add(NewComponentPtr);
 			}
 		}
 
-		for (auto Iter : Components)
-		{
-			if (Iter)
-			{
-				FMaterialsCache MaterialAry;
-				auto Mats = Iter->GetMaterials();
-				for (auto MatIter : Mats)
-				{
-					MaterialAry.MaterialsCacheAry.Add(MatIter);
-				}
 
-				OriginalMaterials.Add(Iter, MaterialAry);
+		auto ParentPtr = GetAttachParentActor();
+		AFloorHelper* FloorPtr = nullptr;
+		for (; ParentPtr;)
+		{
+			ParentPtr = ParentPtr->GetAttachParentActor();
+			FloorPtr = Cast<AFloorHelper>(ParentPtr);
+			if (FloorPtr)
+			{
+				break;
+			}
+		}
+
+		if (FloorPtr)
+		{
+			if (!FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet.IsEmpty())
+			{
+				for (const auto& Iter : FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet)
+				{
+					AttachToActor(Iter.LoadSynchronous(), FAttachmentTransformRules::KeepWorldTransform);
+					return;
+				}
 			}
 		}
 	}
@@ -75,30 +106,23 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			)
 		{
+			OnExternalWall();
 			SwitchState(EState::kOriginal);
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		//  只要是楼层就显示
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
-			// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-				//     EmptyContainer.Num())
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -125,7 +149,7 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SwitchState(EState::kHiden);
 
@@ -134,7 +158,9 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 	}
 }
 
-void ABuilding_CurtainWall::SwitchState(EState State)
+void ABuilding_CurtainWall::SwitchState(
+	EState State
+	)
 {
 	switch (State)
 	{
@@ -172,5 +198,66 @@ void ABuilding_CurtainWall::SwitchState(EState State)
 			SetActorHiddenInGame(true);
 		}
 		break;
+	}
+}
+
+void ABuilding_CurtainWall::OnHourChanged(
+	int32 Hour
+	)
+{
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(true);
+		}
+		return;
+	}
+
+	if (!AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall))
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(true);
+		}
+		return;
+	}
+
+	if (Hour > 18 || Hour < 8)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(false);
+		}
+		return;
+	}
+	for (auto Iter : RectLightComponentAry)
+	{
+		Iter->SetHiddenInGame(true);
+	}
+}
+
+void ABuilding_CurtainWall::OnExternalWall()
+{
+	const auto Hour = UWeatherSystem::GetInstance()->GetDynamicSky()->GetCurrentHour();
+
+	if (Hour > 18 || Hour < 8)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(false);
+		}
+		return;
+	}
+	for (auto Iter : RectLightComponentAry)
+	{
+		Iter->SetHiddenInGame(true);
 	}
 }

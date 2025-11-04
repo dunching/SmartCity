@@ -19,7 +19,6 @@ class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
 
-#pragma region 模式
 /**
  * “空”模式
  */
@@ -336,4 +335,3 @@ public:
 	TWeakObjectPtr<ASceneElement_DeviceBase>TargetDevicePtr = nullptr;
 };
 
-#pragma endregion

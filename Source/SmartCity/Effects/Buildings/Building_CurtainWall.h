@@ -15,6 +15,7 @@
 #include "Building_CurtainWall.generated.h"
 
 class UStaticMeshComponent;
+class ULocalLightComponent;
 
 /**
  * 墙
@@ -26,6 +27,8 @@ class SMARTCITY_API ABuilding_CurtainWall :
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
+	
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
@@ -45,7 +48,14 @@ public:
 
 protected:
 	
+	void OnHourChanged(int32 Hour);
+	
+	void OnExternalWall();
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<TObjectPtr<ULocalLightComponent>> RectLightComponentAry;
+	
 };

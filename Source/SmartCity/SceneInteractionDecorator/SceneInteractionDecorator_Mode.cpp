@@ -28,7 +28,7 @@
 #include "ViewSingleFloorProcessor.h"
 #include "WeatherSystem.h"
 #include "TourPawn.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorViewEnergyProcessor.h"
 #include "ViewSplitFloorProcessor.h"
@@ -120,16 +120,19 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 
 	if (NewDecoratorSPtr)
 	{
-		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area))
 		{
-			auto AreaDecoratorSPtr =
-				DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
+			if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+			{
+				auto AreaDecoratorSPtr =
+					DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
 
-			Spawn(AreaDecoratorSPtr);
-		}
-		else
-		{
-			Clear();
+				Spawn(AreaDecoratorSPtr);
+			}
+			else
+			{
+				Clear();
+			}
 		}
 	}
 }
@@ -386,7 +389,7 @@ void FLightingMode_Decorator::Quit()
 		                                            );
 	if (DecoratorSPtr)
 	{
-		UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+		// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
 
 		FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
@@ -417,7 +420,7 @@ void FLightingMode_Decorator::OnOtherDecoratorEntry(
 			                                            );
 		if (DecoratorSPtr)
 		{
-			UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
+			// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
 
 			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
 			UWeatherSystem::GetInstance()->AdjustTime(Time);

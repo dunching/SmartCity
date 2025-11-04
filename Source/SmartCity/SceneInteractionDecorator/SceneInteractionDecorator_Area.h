@@ -72,15 +72,46 @@ protected:
 /**
  * 选中“整楼”区域
  */
-class SMARTCITY_API FExternalWall_Decorator : public FArea_Decorator
+class SMARTCITY_API FViewTower_Decorator : public FArea_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-	                    FExternalWall_Decorator,
+	                    FViewTower_Decorator,
 	                    FArea_Decorator
 	                   );
 
-	FExternalWall_Decorator(
+	FViewTower_Decorator(
+		);
+
+	virtual void Entry() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
+	virtual bool Operation(
+		EOperatorType OperatorType
+		) override;
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		const TSet<AActor*>& InActors,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
+};
+
+/**
+ * 选中“整楼”区域
+ */
+class SMARTCITY_API FViewPeriphery_Decorator : public FArea_Decorator
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FViewPeriphery_Decorator,
+	                    FArea_Decorator
+	                   );
+
+	FViewPeriphery_Decorator(
 		);
 
 	virtual void Entry() override;

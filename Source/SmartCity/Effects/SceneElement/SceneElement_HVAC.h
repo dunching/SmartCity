@@ -58,7 +58,7 @@ public:
 	virtual void QuitViewDevice(
 		) override;
 
-	virtual void EntryShowevice(
+	virtual void EntryShowDevice(
 		) override;
 
 	virtual void QuitShowDevice(

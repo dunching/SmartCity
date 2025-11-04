@@ -1,10 +1,16 @@
 #include "FloorHelper.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/RectLightComponent.h"
 
 #include "AssetRefMap.h"
+#include "Dynamic_SkyBase.h"
 #include "FloorHelper_Description.h"
+#include "SceneInteractionDecorator_Area.h"
+#include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
+#include "TemplateHelper.h"
+#include "WeatherSystem.h"
 
 AFloorHelper::AFloorHelper(
 	const FObjectInitializer& ObjectInitializer
@@ -17,6 +23,20 @@ AFloorHelper::AFloorHelper(
 	FloorHelper_DescriptionAttachTransform->SetMobility(EComponentMobility::Movable);
 
 	FloorHelper_DescriptionAttachTransform->SetupAttachment(BoxComponentPtr);
+}
+
+void AFloorHelper::BeginPlay()
+{
+	Super::BeginPlay();
+
+	auto Handle = UWeatherSystem::GetInstance()->GetDynamicSky()->OnHourChanged.AddCallback(
+		 std::bind(
+		           &ThisClass::OnHourChanged,
+		           this,
+		           std::placeholders::_1
+		          )
+		);
+	Handle->bIsAutoUnregister = false;
 }
 
 void AFloorHelper::OnConstruction(
@@ -41,6 +61,7 @@ void AFloorHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
 		)
 		{
+			OnExternalWall();
 			if (FloorHelper_DescriptionPtr)
 			{
 			}
@@ -154,5 +175,66 @@ void ABuilding_Floor_Mask::SetFloor(
 		FloorPtr->GetActorBounds(false, Origin, BoxExtent);
 
 		SetActorLocation(Origin - FVector(0, 0, BoxExtent.Z));
+	}
+}
+
+void AFloorHelper::OnHourChanged(
+	int32 Hour
+	)
+{
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	if (!AreaDecoratorSPtr)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(true);
+		}
+		return;
+	}
+
+	if (!AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall))
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			Iter->SetHiddenInGame(true);
+		}
+		return;
+	}
+
+	if (Hour > 18 || Hour < 8)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			// Iter->SetHiddenInGame(false	);
+		}
+		return;
+	}
+	for (auto Iter : RectLightComponentAry)
+	{
+		Iter->SetHiddenInGame(true);
+	}
+}
+
+void AFloorHelper::OnExternalWall()
+{
+	const auto Hour = UWeatherSystem::GetInstance()->GetDynamicSky()->GetCurrentHour();
+
+	if (Hour > 18 || Hour < 8)
+	{
+		for (auto Iter : RectLightComponentAry)
+		{
+			// Iter->SetHiddenInGame(false	);
+		}
+		return;
+	}
+	for (auto Iter : RectLightComponentAry)
+	{
+		Iter->SetHiddenInGame(true);
 	}
 }

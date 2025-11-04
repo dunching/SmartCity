@@ -28,11 +28,12 @@
 #include "ViewSingleFloorProcessor.h"
 #include "WeatherSystem.h"
 #include "TourPawn.h"
-#include "ViewBuildingProcessor.h"
+#include "ViewTowerProcessor.h"
 #include "ViewSingleDeviceProcessor.h"
 #include "ViewSingleFloorViewEnergyProcessor.h"
 #include "ViewSplitFloorProcessor.h"
 #include "SceneElement_AccessControl.h"
+#include "SceneInteractionDecorator_Area.h"
 
 void FInteraction_Decorator::SwitchIteractionType(
 	EInteractionType NewInteractionType
@@ -56,6 +57,20 @@ void FInteraction_Decorator::SetCurrentWeather(
 	)
 {
 	ControllConfig.CurrentWeather = WeatherTag;
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			                                       USmartCitySuiteTags::Interaction_Area
+			                                      )
+		                                     );
+
+	if (AreaDecoratorSPtr && AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		     USmartCitySuiteTags::Interaction_Area_Floor
+		    ))
+	{
+		return;
+	}
 
 	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(ControllConfig.CurrentWeather);
 }

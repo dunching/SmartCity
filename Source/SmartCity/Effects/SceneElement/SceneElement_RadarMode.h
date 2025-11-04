@@ -89,7 +89,7 @@ private:
 	virtual void EntryViewDevice(
 		) override;
 
-	virtual void EntryShowevice(
+	virtual void EntryShowDevice(
 		) override;
 
 	virtual void EntryShoweviceEffect(

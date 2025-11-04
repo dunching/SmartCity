@@ -61,7 +61,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -82,7 +82,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -92,7 +92,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -140,9 +140,9 @@ void ASceneElement_RollerBlind::EntryViewDevice()
 
 }
 
-void ASceneElement_RollerBlind::EntryShowevice()
+void ASceneElement_RollerBlind::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 	SetActorHiddenInGame(false);
 
 	PlayAnimation(0);

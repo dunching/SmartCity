@@ -106,6 +106,10 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_ViewSpeacialArea>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateSceneElementParam>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
 }
 
 void UWebChannelWorldSystem::SendMessage(
@@ -159,6 +163,13 @@ void UWebChannelWorldSystem::OnInput(
 	)
 {
 	FString JsonStr = Descriptor;
+
+	int32 Index = -1;
+	if (JsonStr.FindLastChar(TEXT('}'), Index ) && (Index + 1) < JsonStr.Len())
+	{
+		JsonStr.RemoveAt(Index + 1, JsonStr.Len() - Index + 1);
+	}
+	
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;

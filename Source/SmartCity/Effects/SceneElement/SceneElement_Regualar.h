@@ -21,6 +21,7 @@ class AViewerPawn;
 class UActorSequenceComponent;
 class URouteMarker;
 class UDatasmithAssetUserData;
+class AFloorHelper;
 
 /**
  * 门禁
@@ -43,6 +44,8 @@ public:
 		bool bNonColliding = false,
 		bool bIncludeFromChildActors = false
 		) const override;
+
+	virtual void InitialSceneElement() override;
 
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
@@ -70,4 +73,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
+
 };

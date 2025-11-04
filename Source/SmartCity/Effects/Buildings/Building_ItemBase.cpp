@@ -65,8 +65,6 @@ void ABuilding_ItemBase::ReplaceImp(
 				break;
 			}
 		}
-
-		RecordOnriginalMat();
 	}
 }
 
@@ -173,20 +171,5 @@ void ABuilding_ItemBase::SetTranslucent(
 	TArray<UStaticMeshComponent*> Components;
 	GetComponents<UStaticMeshComponent>(Components);
 
-	auto WallTranslucentMatInst = UAssetRefMap::GetInstance()->WallTranslucentMatInst.LoadSynchronous();
-	auto MatInstDynamicPtr = UMaterialInstanceDynamic::Create(WallTranslucentMatInst, this);
-
-	MatInstDynamicPtr->SetScalarParameterValue(TEXT("Translucent"), Value / 100.f);
-
-	for (auto Iter : Components)
-	{
-		if (Iter)
-		{
-			const auto MatNum = Iter->GetMaterials().Num();
-			for (int32 Index = 0; Index < MatNum; Index++)
-			{
-				Iter->SetMaterial(Index, MatInstDynamicPtr);
-			}
-		}
-	}
+	SetTranslucentImp(Components, Value, UAssetRefMap::GetInstance()->WallTranslucentMatInst);
 }

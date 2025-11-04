@@ -147,7 +147,7 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 			)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -168,7 +168,7 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 		)
 		{
-			EntryShowevice();
+			EntryShowDevice();
 
 			return;
 		}
@@ -213,9 +213,9 @@ void ASceneElement_InfraredDetector::EntryViewDevice()
 	Super::EntryViewDevice();
 }
 
-void ASceneElement_InfraredDetector::EntryShowevice()
+void ASceneElement_InfraredDetector::EntryShowDevice()
 {
-	Super::EntryShowevice();
+	Super::EntryShowDevice();
 
 
 	SetActorHiddenInGame(false);
