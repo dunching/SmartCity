@@ -3,6 +3,7 @@
 #include "ActorSequenceComponent.h"
 #include "DatasmithAssetUserData.h"
 #include "Engine/StaticMeshActor.h"
+#include "Components/BoxComponent.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -20,6 +21,14 @@ ASceneElement_Regualar::ASceneElement_Regualar(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+	
+	CollisionComponentHelper = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponentHelper"));
+	CollisionComponentHelper->SetupAttachment(RootComponent);
+			
+	CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponentHelper->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponentHelper->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+	CollisionComponentHelper->SetCollisionObjectType(Device_Object);
 }
 
 void ASceneElement_Regualar::BeginPlay()
@@ -113,6 +122,15 @@ void ASceneElement_Regualar::ReplaceImp(
 			{
 				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 			}
+
+			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+			FBox Box(ForceInit);
+			StaticMeshComponent->GetLocalBounds(Box.Min, Box.Max);
+			
+			CollisionComponentHelper->SetRelativeLocation(Box.GetCenter());
+
+			CollisionComponentHelper->SetBoxExtent(Box.GetExtent());
 		}
 	}
 }

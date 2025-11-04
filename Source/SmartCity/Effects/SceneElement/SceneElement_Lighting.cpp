@@ -40,6 +40,8 @@ void ASceneElement_Lighting::ReplaceImp(
 	const TPair<FName, FString>& InUserData
 	)
 {
+	Super::ReplaceImp(ActorPtr, InUserData);
+
 	UserData = InUserData;
 
 	if (ActorPtr)
@@ -115,6 +117,8 @@ void ASceneElement_Lighting::ReplaceImp(
 			NewComponentPtr->SetRenderCustomDepth(false);
 
 			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			UpdateCollisionBox({NewComponentPtr});
 		}
 
 		// SetEmissiveValue(0, -1, FColor::White);
@@ -125,9 +129,10 @@ void ASceneElement_Lighting::ReplaceImp(
 void ASceneElement_Lighting::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
 	const TPair<FName, FString>& InUserData
+	, const TMap<FName, FString>& NewUserData
 	)
 {
-	Super::Merge(ActorRef, InUserData);
+	Super::Merge(ActorRef, InUserData, NewUserData);
 }
 
 void ASceneElement_Lighting::SwitchInteractionType(

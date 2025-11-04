@@ -566,7 +566,11 @@ class SMARTCITY_API UGT_SwitchSceneElement_Generic : public UGT_SwitchSceneEleme
 	GENERATED_BODY()
 
 public:
+
+	bool bDisplayInnerStruct = true;
 protected:
+	virtual void Activate() override;
+
 private:
 	virtual bool ProcessTask_Display() override;
 

@@ -12,12 +12,9 @@ void ABuilding_Pillar::SwitchInteractionType(
 	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_ExternalWall.GetTag());
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			 )
 		{
 			SwitchState(EState::kOriginal);
 
@@ -25,14 +22,20 @@ void ABuilding_Pillar::SwitchInteractionType(
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)||
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
+			 )
+	 	{
+	 		SwitchState(EState::kOriginal);
 
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor.GetTag());
-
-		//  只要是楼层就显示
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer))
-			// if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-				//     EmptyContainer.Num())
+	 		return;
+	 	}
+	}
+	{
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		 )
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =

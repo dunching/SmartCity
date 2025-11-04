@@ -2,6 +2,7 @@
 
 #include "ActorSequenceComponent.h"
 #include "DatasmithAssetUserData.h"
+#include "Components/BoxComponent.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -12,7 +13,7 @@
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
 
-	
+
 ASceneElement_DeviceBase::ASceneElement_DeviceBase(
 	const FObjectInitializer& ObjectInitializer
 	) :
@@ -20,6 +21,14 @@ ASceneElement_DeviceBase::ASceneElement_DeviceBase(
 {
 	RelativeTransformComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RelativeTransformComponent"));
 	RelativeTransformComponent->SetupAttachment(RootComponent);
+
+	CollisionComponentHelper = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponentHelper"));
+	CollisionComponentHelper->SetupAttachment(RootComponent);
+
+	CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponentHelper->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponentHelper->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+	CollisionComponentHelper->SetCollisionObjectType(Device_Object);
 }
 
 void ASceneElement_DeviceBase::UpdateReletiveTransform(
@@ -42,26 +51,17 @@ void ASceneElement_DeviceBase::ReplaceImp(
 	Super::ReplaceImp(ActorPtr, InUserData);
 
 	DeviceTypeStr = InUserData.Value;
-	
-	TArray<UStaticMeshComponent*> Components;
-	GetComponents<UStaticMeshComponent>(Components);
-	for (auto Iter : Components)
-	{
-		if (Iter)
-		{
-			Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			Iter->SetCollisionObjectType(Device_Object);
-			Iter->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+}
 
-			Iter->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-			Iter->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-			Iter->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+void ASceneElement_DeviceBase::Merge(
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& InUserData
+	, const TMap<FName, FString>& NewUserData
+	)
+{
+	Super::Merge(ActorRef, InUserData, NewUserData);
 
-			Iter->SetRenderCustomDepth(false);
-
-			break;
-		}
-	}
+	DeviceTypeStr = InUserData.Value;
 }
 
 void ASceneElement_DeviceBase::BeginInteraction()
@@ -86,7 +86,7 @@ void ASceneElement_DeviceBase::InitialSceneElement()
 	{
 		return;
 	}
-	
+
 	auto ParentPtr = GetAttachParentActor();
 	AFloorHelper* FloorPtr = nullptr;
 	for (; ParentPtr;)
@@ -125,7 +125,7 @@ void ASceneElement_DeviceBase::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	// {
 	// 	auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
@@ -265,4 +265,24 @@ TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 	                           );
 
 	return Result;
+}
+
+void ASceneElement_DeviceBase::UpdateCollisionBox(
+	const TArray<UStaticMeshComponent*>& SMCompsAry
+	)
+{
+	FBox Box(ForceInit);
+	for (auto Iter : SMCompsAry)
+	{
+		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		FBox TemoBox(ForceInit);
+		Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
+
+		Box += TemoBox;
+	}
+
+	CollisionComponentHelper->SetRelativeLocation(Box.GetCenter());
+
+	CollisionComponentHelper->SetBoxExtent(Box.GetExtent());
 }

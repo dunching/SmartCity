@@ -53,6 +53,8 @@ void ASceneElement_Monitor::ReplaceImp(
 			{
 				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 			}
+
+			UpdateCollisionBox({StaticMeshComponent});
 		}
 	}
 }

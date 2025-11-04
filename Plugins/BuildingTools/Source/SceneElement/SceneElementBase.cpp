@@ -14,9 +14,11 @@ void ASceneElementBase::InitialSceneElement()
 
 void ASceneElementBase::Replace(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& InUserData
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
 	)
 {
+	UserData = NewUserData;
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		AActor* ParentPtr = ActorRef.LoadSynchronous()->GetAttachParentActor();
@@ -56,9 +58,11 @@ void ASceneElementBase::ReplaceImp(
 
 void ASceneElementBase::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& InUserData
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
 	)
 {
+	UserData = NewUserData;
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		AActor* ParentPtr = ActorRef.LoadSynchronous()->GetAttachParentActor();
@@ -116,6 +120,22 @@ TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
 	RootJsonObj->SetStringField(
 	                            TEXT("CurrentConditionalSet"),
 	                            CurrentConditionalSet.ConditionalSet.ToString()
+	                           );
+
+	auto ObjSPtr = MakeShared<FJsonObject>();
+
+	for (const auto &Iter : UserData)
+	{
+		auto StrObjSPtr = MakeShared<FJsonObject>();
+
+		auto Str = MakeShared<FJsonValueString>(Iter.Value);
+
+		ObjSPtr->SetObjectField(Iter.Key.ToString(), StrObjSPtr);
+	}
+	
+	RootJsonObj->SetObjectField(
+	                            TEXT("UserData"),
+	                            ObjSPtr
 	                           );
 
 	return Result;

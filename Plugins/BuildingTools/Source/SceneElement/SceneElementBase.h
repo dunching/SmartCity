@@ -30,7 +30,8 @@ public:
 
 	void Replace(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& InUserData
+		const TPair<FName, FString>& InUserData,
+		const TMap<FName, FString>& NewUserData
 		);
 
 	virtual void ReplaceImp(
@@ -41,11 +42,13 @@ public:
 	/**
 	 * 合并所有
 	 * @param ActorRef
-	 * @param InUserData 
+	 * @param InUserData
+	 * @param NewUserData 
 	 */
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& InUserData
+		const TPair<FName, FString>& InUserData,
+		 const TMap<FName, FString>& NewUserData
 		);
 
 	virtual void BeginInteraction();
@@ -80,6 +83,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString SceneElementID;
 
+	TMap<FName, FString> UserData;
+	
 protected:
 	void SetTranslucentImp(
 		const TArray<UStaticMeshComponent*>& Components,

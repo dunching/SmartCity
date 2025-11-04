@@ -18,6 +18,7 @@ class FDecoratorBase;
 class ASceneElement_Space;
 class ASceneElement_DeviceBase;
 class AFloorHelper;
+class AViewerPawnBase;
 
 USTRUCT()
 struct FMessageBody
@@ -349,6 +350,7 @@ struct FMessageBody_SelectedFloor : public FMessageBody_Send
 
 	TObjectPtr<AFloorHelper> FloorHelper = nullptr;
 
+	TMap<FString, TSoftObjectPtr<AViewerPawnBase>> PresetBuildingCameraSeat;
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };

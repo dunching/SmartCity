@@ -51,6 +51,7 @@ public:
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
 		const TPair<FName, FString>& InUserData
+		, const TMap<FName, FString>& NewUserData
 		) override;
 
 	virtual void SwitchInteractionType(

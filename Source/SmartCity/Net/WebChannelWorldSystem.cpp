@@ -168,6 +168,7 @@ void UWebChannelWorldSystem::OnInput(
 	if (JsonStr.FindLastChar(TEXT('}'), Index ) && (Index + 1) < JsonStr.Len())
 	{
 		JsonStr.RemoveAt(Index + 1, JsonStr.Len() - Index + 1);
+		JsonStr.RemoveAt(0);
 	}
 	
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);

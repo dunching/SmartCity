@@ -542,7 +542,7 @@ bool UGT_InitializeSceneActors::ProcessTask_NeedReplaceByRef()
 			                                                             Iter.Value,
 			                                                             SecondIter->GetActorTransform()
 			                                                            );
-			NewActorPtr->Replace(SecondIter, {});
+			NewActorPtr->Replace(SecondIter, {}, {});
 		}
 	}
 
@@ -686,7 +686,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 
 				if (MergeActorsMap.Contains(HashCode))
 				{
-					MergeActorsMap[HashCode]->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
+					MergeActorsMap[HashCode]->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value}, AUDPtr->MetaData);
 				}
 				else
 				{
@@ -694,7 +694,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet()
 						 UAssetRefMap::GetInstance()->
 						 SceneElement_SpaceClass
 						);
-					NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value});
+					NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value}, AUDPtr->MetaData);
 					NewActorPtr->InitialSceneElement();
 					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
@@ -827,7 +827,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-					NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter},AUDPtr->MetaData);
 					NewActorPtr->InitialSceneElement();
 					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
@@ -864,14 +864,14 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 
 				if (MergeActorsMap.Contains(HashCode))
 				{
-					MergeActorsMap[HashCode]->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					MergeActorsMap[HashCode]->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
 				}
 				else
 				{
 					auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 						 ThirdIter.Value
 						);
-					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter});
+					NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
 					NewActorPtr->InitialSceneElement();
 					NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
@@ -904,7 +904,7 @@ void UGT_InitializeSceneActors::ApplyRelatedActors(
 			{
 				auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
 					);
-				NewActorPtr->Replace(Iter, {});
+				NewActorPtr->Replace(Iter, {},{});
 				NewActorPtr->InitialSceneElement();
 			}
 			else
@@ -1514,6 +1514,11 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState_Elevator()
 	return false;
 }
 
+void UGT_SwitchSceneElement_Generic::Activate()
+{
+	Super::Activate();
+}
+
 bool UGT_SwitchSceneElement_Generic::ProcessTask_Display()
 {
 	if (FilterTags.ConditionalSet.IsEmpty())
@@ -1521,8 +1526,11 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_Display()
 		return false;
 	}
 
-	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-	    FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_SplitFloor))
+	if (
+		FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+		FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Periphery) ||
+	    FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_SplitFloor)
+	    )
 	{
 		auto Lambda = [&](
 			const FSceneElementMap& AllReference
@@ -1604,11 +1612,20 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_Display()
 				                                   FloorIter.Value->AllReference.StructItemSet.DatasmithSceneActorSet.
 				                                             Array()
 				                                  );
-				TempDataSmithSceneActorsSet.Append(
-				                                   FloorIter.Value->AllReference.InnerStructItemSet.
-				                                             DatasmithSceneActorSet.
-				                                             Array()
-				                                  );
+				
+				if (bDisplayInnerStruct)
+				{
+					DataSmithSceneActorsSet.Append(FloorIter.Value->AllReference.InnerStructItemSet.
+															 DatasmithSceneActorSet.
+															 Array());
+				}
+				else
+				{
+					HideDataSmithSceneActorsSet.Append(FloorIter.Value->AllReference.InnerStructItemSet.
+															 DatasmithSceneActorSet.
+															 Array());
+				}
+				
 				TempDataSmithSceneActorsSet.Append(
 				                                   FloorIter.Value->AllReference.SoftDecorationItem.
 				                                             DatasmithSceneActorSet.
@@ -1873,13 +1890,15 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempDataSmithSceneActorsSet;
 
+			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
+
 			const auto FloorIndex = FloorIter.Value->FloorIndex;
 
 			TempDataSmithSceneActorsSet.Append(
 			                                   FloorIter.Value->AllReference.StructItemSet.DatasmithSceneActorSet.
 			                                             Array()
 			                                  );
-			TempDataSmithSceneActorsSet.Append(
+			TempHideDataSmithSceneActorsSet.Append(
 			                                   FloorIter.Value->AllReference.InnerStructItemSet.
 			                                             DatasmithSceneActorSet.
 			                                             Array()
@@ -1894,6 +1913,8 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 			                                             DatasmithSceneActorSet.
 			                                             Array()
 			                                  );
+
+			HideDataSmithSceneActorsSet.Append(TempHideDataSmithSceneActorsSet.Array());
 
 			DataSmithSceneActorsSet.Append(TempDataSmithSceneActorsSet.Array());
 

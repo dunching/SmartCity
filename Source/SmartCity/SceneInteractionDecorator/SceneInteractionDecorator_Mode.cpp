@@ -120,6 +120,7 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 
 	if (NewDecoratorSPtr)
 	{
+		Clear();
 		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area))
 		{
 			if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
@@ -128,10 +129,6 @@ void FEmergencyMode_Decorator::OnOtherDecoratorEntry(
 					DynamicCastSharedPtr<FArea_Decorator>(NewDecoratorSPtr);
 
 				Spawn(AreaDecoratorSPtr);
-			}
-			else
-			{
-				Clear();
 			}
 		}
 	}
@@ -359,42 +356,10 @@ FLightingMode_Decorator::FLightingMode_Decorator() :
 void FLightingMode_Decorator::Entry()
 {
 	Super::Entry();
-
-	auto AreaDecoratorSPtr =
-		DynamicCastSharedPtr<FArea_Decorator>(
-		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-			                                       USmartCitySuiteTags::Interaction_Area
-			                                      )
-		                                     );
-	if (AreaDecoratorSPtr && AreaDecoratorSPtr->GetCurrentInteraction_Area().MatchesTag(
-		     USmartCitySuiteTags::Interaction_Area_Floor
-		    ))
-	{
-		UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
-	}
-	else
-	{
-	}
 }
 
 void FLightingMode_Decorator::Quit()
 {
-	// 确认当前的模式
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	if (DecoratorSPtr)
-	{
-		// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
-
-		FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
-		UWeatherSystem::GetInstance()->AdjustTime(Time);
-	}
-
 	Super::Quit();
 }
 
@@ -403,29 +368,6 @@ void FLightingMode_Decorator::OnOtherDecoratorEntry(
 	)
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
-
-	if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
-	{
-		UWeatherSystem::GetInstance()->AdjustTime(FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime));
-	}
-	else
-	{
-		// 确认当前的模式
-		auto DecoratorSPtr =
-			DynamicCastSharedPtr<FInteraction_Decorator>(
-			                                             USceneInteractionWorldSystem::GetInstance()->
-			                                             GetDecorator(
-			                                                          USmartCitySuiteTags::Interaction_Interaction
-			                                                         )
-			                                            );
-		if (DecoratorSPtr)
-		{
-			// UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(DecoratorSPtr->GetCurrentWeather());
-
-			FDateTime Time(1, 1, 1, DecoratorSPtr->GetCurrentHour());
-			UWeatherSystem::GetInstance()->AdjustTime(Time);
-		}
-	}
 }
 
 void FLightingMode_Decorator::OnOtherDecoratorQuit(

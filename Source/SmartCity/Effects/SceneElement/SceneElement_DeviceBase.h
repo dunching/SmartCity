@@ -22,6 +22,7 @@ class AViewerPawn;
 class UActorSequenceComponent;
 class URouteMarker;
 class UDatasmithAssetUserData;
+class UBoxComponent;
 
 /**
  * 门禁
@@ -43,6 +44,12 @@ public:
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
+		) override;
+
+	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef,
+		const TPair<FName, FString>& InUserData
+		, const TMap<FName, FString>& NewUserData
 		) override;
 
 	virtual void UpdateReletiveTransform(const FTransform& NewRelativeTransform);
@@ -98,17 +105,24 @@ public:
 	
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString DeviceTypeStr;
+
+protected:
+
+	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FString DeviceTypeStr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
 	bool bIsOpened = false;
 };

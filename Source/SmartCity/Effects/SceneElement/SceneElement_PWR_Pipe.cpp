@@ -3,6 +3,7 @@
 #include "Algorithm.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/StaticMeshActor.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -50,14 +51,17 @@ void ASceneElement_PWR_Pipe::ReplaceImp(
 	const TPair<FName, FString>& InUserData
 	)
 {
+	Super::ReplaceImp(ActorPtr, InUserData);
+
 }
 
 void ASceneElement_PWR_Pipe::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
 	const TPair<FName, FString>& InUserData
+	, const TMap<FName, FString>& NewUserData
 	)
 {
-	Super::Merge(ActorRef, UserData);
+	Super::Merge(ActorRef, UserData, NewUserData);
 
 	UserData = InUserData;
 
@@ -316,12 +320,19 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 	)
 	{
 		SetActorHiddenInGame(false);
+		CacheOriginalMat(StaticMeshComponentsAry);
 
 		auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyPipeMaterialInst.LoadSynchronous();
 
 		auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
 		EnergyValue = FMath::RandRange(0.f, 1.f);
+		
+		if (ExtensionParamMap.Contains(TEXT("Intensity")))
+		{
+			EnergyValue = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
+		}
+		
 		MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
 		for (auto Iter : StaticMeshComponentsAry)
 		{
@@ -346,21 +357,5 @@ void ASceneElement_PWR_Pipe::QuitAllState()
 
 	SetActorHiddenInGame(true);
 
-	for (auto Iter : StaticMeshComponentsAry)
-	{
-		if (Iter)
-		{
-			if (OriginalMaterials.Contains(Iter))
-			{
-				auto& Ref = OriginalMaterials[Iter];
-				if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
-				{
-					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-					{
-						Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
-					}
-				}
-			}
-		}
-	}
+	RevertOnriginalMat();
 }

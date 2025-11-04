@@ -81,9 +81,12 @@ void ASceneElement_SunShade::ReplaceImp(
 
 			FanAncherMeshComponent->SetRelativeLocation(FVector(0, 0, Box.GetSize().Z));
 			FanMeshComponent->SetRelativeLocation(FVector(0, 0, -Box.GetSize().Z));
-			
-			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(FloorPtr->BoxComponentPtr->GetComponentToWorld())
-											 .GetBox().GetCenter();
+
+			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
+			                                                               FloorPtr->BoxComponentPtr->
+			                                                               GetComponentToWorld()
+			                                                              )
+			                                 .GetBox().GetCenter();
 			const auto Dir = FloorCenter - GetActorLocation();
 
 			const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
@@ -95,6 +98,8 @@ void ASceneElement_SunShade::ReplaceImp(
 			else
 			{
 			}
+
+			UpdateCollisionBox({FanMeshComponent});
 		}
 	}
 }
@@ -103,12 +108,12 @@ void ASceneElement_SunShade::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
-			)
+		)
 		{
 			EntryShowDevice();
 
@@ -116,10 +121,10 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
-			 )
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -127,10 +132,10 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			  ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
-			  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
-			 )
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
 		{
 			EntryShowDevice();
 
@@ -138,9 +143,9 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-			 )
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
 			EntryShowDevice();
 
@@ -148,9 +153,9 @@ void ASceneElement_SunShade::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
-			 )
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
+		)
 		{
 			EntryFocusDevice();
 			return;
@@ -191,9 +196,8 @@ void ASceneElement_SunShade::EntryShowDevice()
 	Super::EntryShowDevice();
 
 	SetActorHiddenInGame(false);
-	
-	UpdateAngle(0);
 
+	UpdateAngle(0);
 }
 
 void ASceneElement_SunShade::EntryShoweviceEffect()
@@ -228,7 +232,7 @@ void ASceneElement_SunShade::QuitAllState()
 	{
 		PrimitiveComponentPtr->SetRenderCustomDepth(false);
 	}
-	
+
 	//
 	SetActorHiddenInGame(true);
 

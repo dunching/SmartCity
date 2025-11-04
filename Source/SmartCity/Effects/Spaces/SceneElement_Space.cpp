@@ -3,6 +3,7 @@
 #include "Algorithm.h"
 #include "Engine/OverlapResult.h"
 #include "Engine/StaticMeshActor.h"
+#include "Components/BoxComponent.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -41,7 +42,7 @@ FBox ASceneElement_Space::GetComponentsBoundingBox(
 {
 	FBox Box(ForceInit);
 
-	for (auto Iter : StaticMeshComponentsAry)
+	for (auto Iter : CollisionComponentsAry)
 	{
 		if (Iter->IsRegistered() && (bNonColliding || Iter->IsCollisionEnabled()))
 		{
@@ -89,9 +90,10 @@ void ASceneElement_Space::ReplaceImp(
 void ASceneElement_Space::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
 	const TPair<FName, FString>& InUserData
+	, const TMap<FName, FString>& NewUserData
 	)
 {
-	Super::Merge(ActorRef, InUserData);
+	Super::Merge(ActorRef, InUserData, NewUserData);
 
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
@@ -118,13 +120,7 @@ void ASceneElement_Space::Merge(
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-			NewComponentPtr->SetCollisionObjectType(Space_Object);
-			NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-			NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-			NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-			NewComponentPtr->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 			NewComponentPtr->SetRenderCustomDepth(false);
 
@@ -145,6 +141,37 @@ void ASceneElement_Space::Merge(
 			NewComponentPtr->bUseAsOccluder = false;
 
 			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			auto CollisionComponentPtr = Cast<UBoxComponent>(
+															  AddComponentByClass(
+																   UBoxComponent::StaticClass(),
+																   true,
+																   STPtr->GetStaticMeshComponent()->
+																		  GetComponentTransform(),
+																   false
+																  )
+															 );
+
+			CollisionComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+			CollisionComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			CollisionComponentPtr->SetCollisionObjectType(Space_Object);
+			CollisionComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+			CollisionComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+			CollisionComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+			CollisionComponentPtr->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
+
+			FBox Box(ForceInit);
+			STPtr->GetStaticMeshComponent()->GetLocalBounds(Box.Min, Box.Max);
+
+			CollisionComponentPtr->SetRelativeLocation(Box.GetCenter());
+
+			CollisionComponentPtr->SetBoxExtent(Box.GetExtent());
+			
+			CollisionComponentPtr->SetRenderCustomDepth(false);
+			
+			CollisionComponentsAry.Add(CollisionComponentPtr);
 
 			TArray<UStaticMeshComponent*> Components;
 			STPtr->GetComponents<UStaticMeshComponent>(Components);
@@ -310,7 +337,7 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
 
-	for (auto MeshIter : StaticMeshComponentsAry)
+	for (auto MeshIter : CollisionComponentsAry)
 	{
 		GetWorld()->ComponentOverlapMulti(
 		                                  OutOverlap,
@@ -327,7 +354,11 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 		{
 			if (Iter.GetActor() && !Iter.GetActor()->IsHidden())
 			{
-				Result.Add(Cast<ASceneElement_DeviceBase>(Iter.GetActor()));
+				auto DevicePtr = Cast<ASceneElement_DeviceBase>(Iter.GetActor());
+				if (DevicePtr)
+				{
+					Result.Add(DevicePtr);
+				}
 			}
 		}
 	}
@@ -604,18 +635,6 @@ void ASceneElement_Space::SwitchColor(
 	const FColor& Color
 	)
 {
-	for (auto MeshIter : StaticMeshComponentsAry)
-	{
-		const auto Mats = MeshIter->GetMaterials();
-		for (auto MatIter : Mats)
-		{
-			auto MatInst = Cast<UMaterialInstanceDynamic>(MatIter);
-			if (MatInst)
-			{
-				MatInst->SetVectorParameterValue(UAssetRefMap::GetInstance()->SpaceMaterialColorName, Color);
-			}
-		}
-	}
 }
 
 void ASceneElement_Space::OnClickedTag()

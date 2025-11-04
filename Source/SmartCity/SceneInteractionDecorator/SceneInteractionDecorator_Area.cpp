@@ -222,6 +222,9 @@ void FViewTower_Decorator::Entry()
 						bool,
 						const TSet<AActor*>&,
 						UGT_SwitchSceneElement_Base*
+
+
+						
 						)> MulticastDelegate;
 
 					MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
@@ -249,6 +252,9 @@ void FViewTower_Decorator::Entry()
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
+
+
+		
 		)> MulticastDelegate;
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
@@ -431,9 +437,9 @@ void FViewTower_Decorator::OnUpdateFilterComplete(
 	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
 }
 
-FViewPeriphery_Decorator::FViewPeriphery_Decorator():
-	  Super(
-		   )
+FViewPeriphery_Decorator::FViewPeriphery_Decorator() :
+                                                     Super(
+                                                          )
 {
 }
 
@@ -560,6 +566,9 @@ void FViewPeriphery_Decorator::Entry()
 						bool,
 						const TSet<AActor*>&,
 						UGT_SwitchSceneElement_Base*
+
+
+						
 						)> MulticastDelegate;
 
 					MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
@@ -587,6 +596,9 @@ void FViewPeriphery_Decorator::Entry()
 		bool,
 		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
+
+
+		
 		)> MulticastDelegate;
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
@@ -862,27 +874,39 @@ void FFloor_Decorator::Entry()
 	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverage(0);
 
 	FDateTime Time(1, 1, 1, 12);
-	UWeatherSystem::GetInstance()->AdjustTime(Time);
+
+	FViewConfig TempConfig;
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-	                                                                  [this](
+	                                                                  [this,&TempConfig](
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
 		                                                                  Config = SPtr->GetViewConfig();
-		                                                                  auto TempConfig = Config;
+
+		                                                                  TempConfig = Config;
 
 		                                                                  TempConfig.WallTranlucent = 30;
 		                                                                  TempConfig.PillarTranlucent = 30;
-
-		                                                                  SPtr->UpdateViewConfig(TempConfig);
 	                                                                  },
 	                                                                  false
 	                                                                 );
 
 	ON_SCOPE_EXIT
 	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this,&TempConfig](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  SPtr->UpdateViewConfig(TempConfig);
+		                                                                  },
+		                                                                  false
+		                                                                 );
+
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
 		AdjustCamera();
 	};
 
@@ -919,8 +943,6 @@ void FFloor_Decorator::Entry()
 				                                                          true,
 				                                                          MulticastDelegate
 				                                                         );
-
-				IncreaseWaitTaskCount();
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
@@ -961,14 +983,14 @@ void FFloor_Decorator::Entry()
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
-					                                                    [this](
-					                                                    auto NewProcessor
-					                                                    )
-					                                                    {
-						                                                    NewProcessor->Interaction_Area =
-							                                                    GetBranchDecoratorType();
-					                                                    }
-					                                                   );
+					                                          [this](
+					                                          auto NewProcessor
+					                                          )
+					                                          {
+						                                          NewProcessor->Interaction_Area =
+							                                          GetBranchDecoratorType();
+					                                          }
+					                                         );
 
 				return;
 			}
@@ -998,7 +1020,47 @@ void FFloor_Decorator::Entry()
 				                                                          MulticastDelegate
 				                                                         );
 
-				IncreaseWaitTaskCount();
+				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+					TourProcessor::FViewSingleFloorProcessor>(
+					                                          [this](
+					                                          auto NewProcessor
+					                                          )
+					                                          {
+						                                          NewProcessor->Interaction_Area =
+							                                          GetBranchDecoratorType();
+					                                          }
+					                                         );
+
+				TempConfig.WallTranlucent = 100;
+				TempConfig.PillarTranlucent = 100;
+
+				return;
+			}
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+			                                                      ))
+			{
+				FSceneElementConditional SceneActorConditional;
+
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				TMulticastDelegate<void(
+					bool,
+					const TSet<AActor*>&,
+					UGT_SwitchSceneElement_Base*
+
+
+					
+					)> MulticastDelegate;
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+				                                                          SceneActorConditional,
+				                                                          true,
+				                                                          MulticastDelegate
+				                                                         );
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
@@ -1010,6 +1072,8 @@ void FFloor_Decorator::Entry()
 							                                          GetBranchDecoratorType();
 					                                          }
 					                                         );
+
+				Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
 
 				return;
 			}
@@ -1054,46 +1118,6 @@ void FFloor_Decorator::Entry()
 
 				return;
 			}
-			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
-			                                                       USmartCitySuiteTags::Interaction_Mode_View
-			                                                      ))
-			{
-				FSceneElementConditional SceneActorConditional;
-
-				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
-
-				TMulticastDelegate<void(
-					bool,
-					const TSet<AActor*>&,
-					UGT_SwitchSceneElement_Base*
-
-
-					
-					)> MulticastDelegate;
-
-				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
-				                                                          SceneActorConditional,
-				                                                          true,
-				                                                          MulticastDelegate
-				                                                         );
-
-				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-					TourProcessor::FViewSingleFloorViewEnergyProcessor>(
-					                                                    [this](
-					                                                    auto NewProcessor
-					                                                    )
-					                                                    {
-						                                                    NewProcessor->Interaction_Area =
-							                                                    GetBranchDecoratorType();
-					                                                    }
-					                                                   );
-
-				return;
-			}
-
 			{
 				FSceneElementConditional SceneActorConditional;
 
@@ -1120,21 +1144,18 @@ void FFloor_Decorator::Entry()
 
 				UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 					TourProcessor::FViewSingleFloorProcessor>(
-					                                                    [this](
-					                                                    auto NewProcessor
-					                                                    )
-					                                                    {
-						                                                    NewProcessor->Interaction_Area =
-							                                                    GetBranchDecoratorType();
-					                                                    }
-					                                                   );
+					                                          [this](
+					                                          auto NewProcessor
+					                                          )
+					                                          {
+						                                          NewProcessor->Interaction_Area =
+							                                          GetBranchDecoratorType();
+					                                          }
+					                                         );
 
 				return;
 			}
 		}
-	}
-	else
-	{
 	}
 
 	FSceneElementConditional SceneActorConditional;
@@ -1199,6 +1220,42 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 	)
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	FDateTime Time(1, 1, 1, 12);
+
+	FViewConfig TempConfig;
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this,&TempConfig](
+	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  Config = SPtr->GetViewConfig();
+
+		                                                                  TempConfig = Config;
+
+		                                                                  TempConfig.WallTranlucent = 30;
+		                                                                  TempConfig.PillarTranlucent = 30;
+	                                                                  },
+	                                                                  false
+	                                                                 );
+
+	ON_SCOPE_EXIT
+	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this,&TempConfig](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  SPtr->UpdateViewConfig(TempConfig);
+		                                                                  },
+		                                                                  false
+		                                                                 );
+
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
+	};
 
 	if (
 		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
@@ -1312,8 +1369,53 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				                                          }
 				                                         );
 
+			TempConfig.WallTranlucent = 100;
+			TempConfig.PillarTranlucent = 100;
+
 			return;
 		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                          USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+		                                                         ))
+		{
+			Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
+
+			FSceneElementConditional SceneActorConditional;
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			TMulticastDelegate<void(
+				bool,
+				const TSet<AActor*>&,
+				UGT_SwitchSceneElement_Base*
+
+
+				
+				)> MulticastDelegate;
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter(
+			                                                          SceneActorConditional,
+			                                                          true,
+			                                                          MulticastDelegate
+			                                                         );
+
+			IncreaseWaitTaskCount();
+
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+				TourProcessor::FViewSingleFloorProcessor>(
+				                                          [this](
+				                                          auto NewProcessor
+				                                          )
+				                                          {
+					                                          NewProcessor->Interaction_Area =
+						                                          GetBranchDecoratorType();
+				                                          }
+				                                         );
+
+			return;
+		}
+
 		if (NewDecoratorSPtr->GetBranchDecoratorType().
 		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement))
 		{
@@ -1474,9 +1576,6 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			return;
 		}
 	}
-	else
-	{
-	}
 
 	if (
 		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Interaction)
@@ -1629,20 +1728,27 @@ bool FFloor_Decorator::Operation(
 										continue;
 									}
 
+									auto SpaceElementPtr = Cast<ASceneElement_DeviceBase>(Iter.GetActor());
+									if (!SpaceElementPtr)
 									{
-										FSceneElementConditional SceneActorConditional;
-
-										SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-										SceneActorConditional.ConditionalSet.AddTag(
-											 DecoratorSPtr->GetBranchDecoratorType()
-											);
+										continue;
 									}
 
-									FSceneElementConditional SceneActorConditional;
-
-									SceneActorConditional.ConditionalSet.AddTag(
-									                                            USmartCitySuiteTags::Interaction_Mode_View
-									                                           );
+									USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
+										 USmartCitySuiteTags::Interaction_Area_ViewDevice,
+										 [this, SpaceElementPtr](
+										 const TSharedPtr<FDecoratorBase>& AreaDecoratorSPtr
+										 )
+										 {
+											 auto SpaceAreaDecoratorSPtr = DynamicCastSharedPtr<FViewDevice_Decorator>(
+												  AreaDecoratorSPtr
+												 );
+											 if (SpaceAreaDecoratorSPtr)
+											 {
+												 SpaceAreaDecoratorSPtr->SceneElementPtr = SpaceElementPtr;
+											 }
+										 }
+										);
 
 									return true;
 								}
@@ -1779,7 +1885,7 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorIter.Value->GameplayTagContainer.HasTag(GetBranchDecoratorType()))
+		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
 		{
 			auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
 
@@ -1797,6 +1903,8 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 					}
 				}
 			}
+
+			MessageSPtr->PresetBuildingCameraSeat = FloorIter.Value->PresetBuildingCameraSeat;
 
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 
