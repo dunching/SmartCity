@@ -75,7 +75,7 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{
-		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateViewConfig>();
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_ViewConfigChanged>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{
@@ -118,11 +118,108 @@ void UWebChannelWorldSystem::SendMessage(
 {
 	if (Message)
 	{
-		auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
-		if (PCPtr)
+		const auto JsonStr = Message->GetJsonString();
+
+		if (JsonStr.IsEmpty())
 		{
-			PCPtr->PixelStreamingInputPtr->SendPixelStreamingResponse(Message->GetJsonString());
+			return;
 		}
+
+		TArray<FString> JsonStrAry;
+
+		const auto MessageSplitNumber = UGameOptions::GetInstance()->MessageSplitNumber;
+		for (int32 Index = 0; Index < JsonStr.Len();)
+		{
+			if (Index + MessageSplitNumber >= JsonStr.Len())
+			{
+				const auto Str = JsonStr.Mid(Index, JsonStr.Len() - MessageSplitNumber);
+
+				JsonStrAry.Add(Str);
+
+				break;
+			}
+			else
+			{
+				const auto Str = JsonStr.Mid(Index, MessageSplitNumber);
+
+				JsonStrAry.Add(Str);
+
+				Index += MessageSplitNumber;
+			}
+		}
+
+		struct FMessageHelper
+		{
+			TArray<FString> StrAry;
+
+			int32 Index = 0;
+		};
+
+		TSharedPtr<FMessageHelper> MessageHelperSPtr = MakeShared<FMessageHelper>();
+
+		FGuid Guid = FGuid::NewGuid();
+
+		for (int32 Index = 0; Index < JsonStrAry.Num(); Index++)
+		{
+			TSharedPtr<FJsonObject> RootJsonObj = MakeShareable<FJsonObject>(new FJsonObject);
+
+			RootJsonObj->SetStringField(
+			                            TEXT("GUID"),
+			                            Guid.ToString()
+			                           );
+
+			RootJsonObj->SetNumberField(
+			                            TEXT("CurrentIndex"),
+			                            Index
+			                           );
+
+			RootJsonObj->SetNumberField(
+			                            TEXT("Total"),
+			                            JsonStrAry.Num()
+			                           );
+
+			RootJsonObj->SetStringField(
+			                            TEXT("CurrentStr"),
+			                            JsonStrAry[Index]
+			                           );
+
+			FString JsonString;
+			TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
+			FJsonSerializer::Serialize(
+			                           RootJsonObj.ToSharedRef(),
+			                           Writer
+			                          );
+			MessageHelperSPtr->StrAry.Add(JsonString);
+		}
+
+		FTickerDelegate TickerDelegate;
+
+		TickerDelegate.BindLambda(
+		                          [this](
+		                          float,
+		                          const TSharedPtr<FMessageHelper>& NewMessageHelperSPtr
+		                          )
+		                          {
+			                          auto PCPtr = Cast<APlanetPlayerController>(
+				                           GEngine->GetFirstLocalPlayerController(GetWorld())
+				                          );
+			                          if (PCPtr)
+			                          {
+				                          PCPtr->PixelStreamingInputPtr->SendPixelStreamingResponse(
+					                           NewMessageHelperSPtr->StrAry[NewMessageHelperSPtr->Index]
+					                          );
+				                          NewMessageHelperSPtr->Index++;
+				                          if (NewMessageHelperSPtr->Index >= NewMessageHelperSPtr->StrAry.Num())
+				                          {
+					                          return false;
+				                          }
+			                          }
+			                          return true;
+		                          },
+		                          MessageHelperSPtr
+		                         );
+
+		FTSTicker::GetCoreTicker().AddTicker(TickerDelegate);
 	}
 }
 
@@ -165,11 +262,12 @@ void UWebChannelWorldSystem::OnInput(
 	FString JsonStr = Descriptor;
 
 	int32 Index = -1;
-	if (JsonStr.FindLastChar(TEXT('}'), Index ) && (Index + 1) < JsonStr.Len())
+	if (JsonStr.FindLastChar(TEXT('}'), Index) && (Index + 1) < JsonStr.Len())
 	{
 		JsonStr.RemoveAt(Index + 1, JsonStr.Len() - Index + 1);
+		JsonStr.RemoveAt(0);
 	}
-	
+
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;
@@ -201,6 +299,6 @@ void UWebChannelWorldSystem::MessageTickImp()
 	auto MessageBody_TestSPtr = MakeShared<FMessageBody_Test>();
 
 	MessageBody_TestSPtr->Text = TEXT("UE PixelStreamer Test");
-	
-	// SendMessage(MessageBody_TestSPtr);
+
+	SendMessage(MessageBody_TestSPtr);
 }

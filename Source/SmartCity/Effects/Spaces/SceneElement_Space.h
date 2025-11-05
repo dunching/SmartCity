@@ -11,6 +11,7 @@
 
 #include "SceneElement_Space.generated.h"
 
+class UBoxComponent;
 class UPlayerComponent;
 class USphereComponent;
 class UFloatingPawnMovement;
@@ -53,6 +54,7 @@ public:
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
 		const TPair<FName, FString>& InUserData
+		, const TMap<FName, FString>& NewUserData
 		) override;
 
 	virtual void SwitchInteractionType(
@@ -95,7 +97,10 @@ protected:
 	UFUNCTION()
 	void OnClickedTag();
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	TArray<UBoxComponent*>CollisionComponentsAry;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)

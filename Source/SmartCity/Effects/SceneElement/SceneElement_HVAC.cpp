@@ -112,6 +112,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	 		const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
 	 		MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
 	 		
+	 		CacheOriginalMat({StaticMeshComponent});
 	 		if (StaticMeshComponent)
 	 		{
 	 			for (int32 Index = 0; Index < StaticMeshComponent->GetNumMaterials(); Index++)
@@ -206,6 +207,8 @@ void ASceneElement_HVAC::ReplaceImp(
 		{
 			StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 		}
+
+		UpdateCollisionBox({StaticMeshComponent});
 	}
 }
 

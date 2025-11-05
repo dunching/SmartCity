@@ -351,6 +351,8 @@ void ASceneElement_RadarMode::ReplaceImp(
 				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
 			}
 
+		UpdateCollisionBox({StaticMeshComponent});
+
 			SweepActor = GetWorld()->SpawnActor<AStaticMeshActor>(GetActorLocation(), GetActorRotation());
 			SweepActor->SetMobility(EComponentMobility::Movable);
 			SweepActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

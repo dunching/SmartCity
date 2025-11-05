@@ -22,6 +22,7 @@ class UActorSequenceComponent;
 class URouteMarker;
 class UDatasmithAssetUserData;
 class AFloorHelper;
+class UBoxComponent;
 
 /**
  * 门禁
@@ -71,6 +72,9 @@ protected:
 
 	bool bIsOpened = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
 	

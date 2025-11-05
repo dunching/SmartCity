@@ -18,6 +18,7 @@ class FDecoratorBase;
 class ASceneElement_Space;
 class ASceneElement_DeviceBase;
 class AFloorHelper;
+class AViewerPawnBase;
 
 USTRUCT()
 struct FMessageBody
@@ -144,12 +145,12 @@ public:
 };
 
 USTRUCT()
-struct FMessageBody_Receive_UpdateViewConfig : public FMessageBody_Receive
+struct FMessageBody_Receive_ViewConfigChanged : public FMessageBody_Receive
 {
 	GENERATED_BODY()
 
 public:
-	FMessageBody_Receive_UpdateViewConfig();
+	FMessageBody_Receive_ViewConfigChanged();
 
 	virtual void Deserialize(
 		const FString& JsonStr
@@ -349,6 +350,7 @@ struct FMessageBody_SelectedFloor : public FMessageBody_Send
 
 	TObjectPtr<AFloorHelper> FloorHelper = nullptr;
 
+	TMap<FString, TSoftObjectPtr<AViewerPawnBase>> PresetBuildingCameraSeat;
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };

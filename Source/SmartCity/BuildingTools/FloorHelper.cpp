@@ -92,34 +92,31 @@ void AFloorHelper::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
+		{
+			if (FloorHelper_DescriptionPtr)
+			{
+				FloorHelper_DescriptionPtr->Destroy();
+			}
+
+			FloorHelper_DescriptionPtr = nullptr;
+			
+			return;
+		}
+	}
+	{
+		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
 		)
 		{
 			if (FloorHelper_DescriptionPtr)
 			{
+				FloorHelper_DescriptionPtr->Destroy();
 			}
-			else
-			{
-				if (bDisplayDescritpion)
-				{
-					FActorSpawnParameters SpawnParameters;
 
-					SpawnParameters.CustomPreSpawnInitalization = [this](
-						auto ActorPtr
-						)
-						{
-							auto FloorPtr = Cast<AFloorHelper_Description>(ActorPtr);
-							if (FloorPtr)
-							{
-								FloorPtr->SetFloor(this);
-							}
-						};
-					FloorHelper_DescriptionPtr = GetWorld()->SpawnActor<AFloorHelper_Description>(
-						 UAssetRefMap::GetInstance()->FloorHelper_DescriptionClass,
-						 SpawnParameters
-						);
-				}
-			}
+			FloorHelper_DescriptionPtr = nullptr;
+			
 			return;
 		}
 	}

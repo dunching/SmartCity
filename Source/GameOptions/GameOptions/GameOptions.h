@@ -166,6 +166,8 @@ public:
 #pragma endregion
 
 	bool bAllowRotByYaw = true;
+
+	int32 MessageSplitNumber = 10000; 
 	
 protected:
 
@@ -199,7 +201,8 @@ struct FViewConfig
 	 * 是否显示家具
 	 */
 	bool bShowFurniture = true;
-		
+
+	bool bUseCustomConfig = false;
 };
 
 enum class EInteractionType:uint8

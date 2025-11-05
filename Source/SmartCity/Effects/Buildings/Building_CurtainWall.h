@@ -18,7 +18,7 @@ class UStaticMeshComponent;
 class ULocalLightComponent;
 
 /**
- * 墙
+ * 幕墙
  */
 UCLASS()
 class SMARTCITY_API ABuilding_CurtainWall :

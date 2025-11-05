@@ -221,12 +221,12 @@ void FMessageBody_Receive_AdjustWeather::DoAction() const
 	}
 }
 
-FMessageBody_Receive_UpdateViewConfig::FMessageBody_Receive_UpdateViewConfig()
+FMessageBody_Receive_ViewConfigChanged::FMessageBody_Receive_ViewConfigChanged()
 {
-	CMD_Name = TEXT("UpdateViewConfig");
+	CMD_Name = TEXT("ViewConfigChanged");
 }
 
-void FMessageBody_Receive_UpdateViewConfig::Deserialize(
+void FMessageBody_Receive_ViewConfigChanged::Deserialize(
 	const FString& JsonStr
 	)
 {
@@ -266,7 +266,7 @@ void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	}
 }
 
-void FMessageBody_Receive_UpdateViewConfig::DoAction() const
+void FMessageBody_Receive_ViewConfigChanged::DoAction() const
 {
 	// 确认当前的模式
 	auto DecoratorSPtr =
@@ -284,7 +284,10 @@ void FMessageBody_Receive_UpdateViewConfig::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->UpdateViewConfig(ViewConfig);
+			                                                                  auto TempViewConfig = ViewConfig;
+			                                                                  TempViewConfig.bUseCustomConfig = true;
+
+			                                                                  SPtr->UpdateViewConfig(TempViewConfig);
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -577,31 +580,49 @@ FMessageBody_SelectedFloor::FMessageBody_SelectedFloor()
 TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
-
-	TArray<TSharedPtr<FJsonValue>> Array;
-
-	for (const auto& Iter : SpacesMap)
 	{
-		auto SpaceValue = Iter.Key->GetSceneElementData();
-		auto SpaceObj = SpaceValue->AsObject();
+		TArray<TSharedPtr<FJsonValue>> Array;
 
-		TArray<TSharedPtr<FJsonValue>> DeviceArray;
-
-		for (const auto& SecondIter : Iter.Value)
+		for (const auto& Iter : SpacesMap)
 		{
-			DeviceArray.Add(SecondIter->GetSceneElementData());
+			auto SpaceValue = Iter.Key->GetSceneElementData();
+			auto SpaceObj = SpaceValue->AsObject();
+
+			TArray<TSharedPtr<FJsonValue>> DeviceArray;
+
+			for (const auto& SecondIter : Iter.Value)
+			{
+				if (SecondIter)
+				{
+					DeviceArray.Add(SecondIter->GetSceneElementData());
+				}
+			}
+
+			SpaceObj->SetArrayField(TEXT("Devices"), DeviceArray);
+
+			Array.Add(SpaceValue);
 		}
 
-		SpaceObj->SetArrayField(TEXT("Devices"), DeviceArray);
-
-		Array.Add(SpaceValue);
+		RootJsonObj->SetArrayField(
+		                           TEXT("Spaces"),
+		                           Array
+		                          );
 	}
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
 
-	RootJsonObj->SetArrayField(
-	                           TEXT("Spaces"),
-	                           Array
-	                          );
+		for (const auto& Iter : PresetBuildingCameraSeat)
+		{
+			auto PresetValueSPtr = MakeShared<FJsonValueString>(Iter.Key);
 
+			Array.Add(PresetValueSPtr);
+		}
+
+		RootJsonObj->SetArrayField(
+		                           TEXT("PresetCameraSets"),
+		                           Array
+		                          );
+	}
 	if (FloorHelper)
 	{
 		RootJsonObj->SetStringField(
@@ -613,18 +634,6 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		                            TEXT("Floor"),
 		                            FloorHelper->FloorIndexDescription
 		                           );
-
-		for (const auto& Iter : FloorHelper->PresetBuildingCameraSeat)
-		{
-			auto PresetValueSPtr = MakeShared<FJsonValueString>(Iter.Key);
-
-			Array.Add(PresetValueSPtr);
-		}
-
-		RootJsonObj->SetArrayField(
-		                           TEXT("Spaces"),
-		                           Array
-		                          );
 	}
 
 	return RootJsonObj;
@@ -720,7 +729,7 @@ void FMessageBody_Receive_AdjustCameraSeat::Deserialize(
 	if (jsonObject->TryGetBoolField(TEXT("UseClampPitch"), bUseClampPitch))
 	{
 	}
-	
+
 	if (jsonObject->TryGetNumberField(TEXT("MinPitch"), MinPitch))
 	{
 	}
@@ -740,23 +749,23 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 
 	auto DecoratorSPtr =
 		DynamicCastSharedPtr<FInteraction_Decorator>(
-													 USceneInteractionWorldSystem::GetInstance()->
-													 GetDecorator(
-																  USmartCitySuiteTags::Interaction_Interaction
-																 )
-													);
-	
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+
 	if (!DecoratorSPtr)
 	{
 		return;
 	}
-	
+
 	auto ConfigControlConfig = DecoratorSPtr->GetConfigControlConfig();
 	ConfigControlConfig.bUseCustomPitchLimit = bUseClampPitch;
 	ConfigControlConfig.ViewPitchMin = MinPitch;
 	ConfigControlConfig.ViewPitchMax = MaxPitch;
 	DecoratorSPtr->UpdateControlConfig(ConfigControlConfig);
-	
+
 	{
 		auto ViewBuildingProcessorSPtr = DynamicCastSharedPtr<TourProcessor::FViewTowerProcessor>(
 			 UInputProcessorSubSystem_Imp::GetInstance()->GetCurrentAction()
@@ -1076,7 +1085,7 @@ void FMessageBody_Receive_UpdateSceneElementParam::Deserialize(
 		{
 			auto& Ref = ExtensionParamMap.Add(Iter.Key, {});
 
-			const auto ObjSPtr =  Iter.Value->AsObject();
+			const auto ObjSPtr = Iter.Value->AsObject();
 			for (const auto& SecondIter : ObjSPtr->Values)
 			{
 				Ref.Add(SecondIter.Key, SecondIter.Value->AsString());

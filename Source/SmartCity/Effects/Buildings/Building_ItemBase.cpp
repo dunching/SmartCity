@@ -170,6 +170,6 @@ void ABuilding_ItemBase::SetTranslucent(
 
 	TArray<UStaticMeshComponent*> Components;
 	GetComponents<UStaticMeshComponent>(Components);
-
+	
 	SetTranslucentImp(Components, Value, UAssetRefMap::GetInstance()->WallTranslucentMatInst);
 }

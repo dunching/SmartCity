@@ -173,7 +173,7 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewTowerControlParam.RotYawSpeed;
+						                 ViewPeripheryControlParam.RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
 						return true;
@@ -190,7 +190,7 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewTowerControlParam.MoveSpeed;
+						                   ViewPeripheryControlParam.MoveSpeed;
 
 						// OnwerActorPtr->AddMovementInput(
 						//                                 Direction,
@@ -211,7 +211,7 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewTowerControlParam.RotPitchSpeed;
+						                 ViewPeripheryControlParam.RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(-Rot);
 
 						return true;
@@ -228,7 +228,7 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewTowerControlParam.MoveSpeed;
+						                   ViewPeripheryControlParam.MoveSpeed;
 
 						// OnwerActorPtr->AddMovementInput(
 						//                                 Direction,
@@ -245,14 +245,14 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 				if (OnwerActorPtr->Controller != nullptr)
 				{
 					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-					                   ViewTowerControlParam.CameraSpringArmSpeed;
+					                   ViewPeripheryControlParam.CameraSpringArmSpeed;
 
 					const auto ClampValue = FMath::Clamp(
 					                                     OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
 					                                     GameOptionsPtr->
-					                                     ViewTowerControlParam.MinCameraSpringArm,
+					                                     ViewPeripheryControlParam.MinCameraSpringArm,
 					                                     GameOptionsPtr->
-					                                     ViewTowerControlParam.MaxCameraSpringArm
+					                                     ViewPeripheryControlParam.MaxCameraSpringArm
 					                                    );
 
 					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
