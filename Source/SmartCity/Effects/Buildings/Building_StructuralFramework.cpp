@@ -23,17 +23,17 @@ void ABuilding_StructuralFramework::SwitchInteractionType(
  			return;
  		}
 	 }
-	{
- 	 	if (
-			  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)||
-			  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
-			  )
- 	 	{
- 	 		SwitchState(EState::kOriginal);
-
- 	 		return;
- 	 	}
-	}
+	// {
+ // 	 	if (
+	// 		  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)||
+	// 		  ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
+	// 		  )
+ // 	 	{
+ // 	 		SwitchState(EState::kOriginal);
+	//
+ // 	 		return;
+ // 	 	}
+	// }
 	 {
 	 	//  只要是楼层就显示
 	 	if (

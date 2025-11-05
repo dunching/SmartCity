@@ -221,12 +221,12 @@ void FMessageBody_Receive_AdjustWeather::DoAction() const
 	}
 }
 
-FMessageBody_Receive_UpdateViewConfig::FMessageBody_Receive_UpdateViewConfig()
+FMessageBody_Receive_ViewConfigChanged::FMessageBody_Receive_ViewConfigChanged()
 {
-	CMD_Name = TEXT("UpdateViewConfig");
+	CMD_Name = TEXT("ViewConfigChanged");
 }
 
-void FMessageBody_Receive_UpdateViewConfig::Deserialize(
+void FMessageBody_Receive_ViewConfigChanged::Deserialize(
 	const FString& JsonStr
 	)
 {
@@ -266,7 +266,7 @@ void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	}
 }
 
-void FMessageBody_Receive_UpdateViewConfig::DoAction() const
+void FMessageBody_Receive_ViewConfigChanged::DoAction() const
 {
 	// 确认当前的模式
 	auto DecoratorSPtr =
@@ -284,7 +284,10 @@ void FMessageBody_Receive_UpdateViewConfig::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->UpdateViewConfig(ViewConfig);
+			                                                                  auto TempViewConfig = ViewConfig;
+			                                                                  TempViewConfig.bUseCustomConfig = true;
+
+			                                                                  SPtr->UpdateViewConfig(TempViewConfig);
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -601,9 +604,9 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		}
 
 		RootJsonObj->SetArrayField(
-								   TEXT("Spaces"),
-								   Array
-								  );
+		                           TEXT("Spaces"),
+		                           Array
+		                          );
 	}
 	{
 		TArray<TSharedPtr<FJsonValue>> Array;
@@ -616,9 +619,9 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		}
 
 		RootJsonObj->SetArrayField(
-								   TEXT("PresetCameraSets"),
-								   Array
-								  );
+		                           TEXT("PresetCameraSets"),
+		                           Array
+		                          );
 	}
 	if (FloorHelper)
 	{

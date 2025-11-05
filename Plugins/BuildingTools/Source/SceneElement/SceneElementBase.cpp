@@ -126,11 +126,7 @@ TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
 
 	for (const auto &Iter : UserData)
 	{
-		auto StrObjSPtr = MakeShared<FJsonObject>();
-
-		auto Str = MakeShared<FJsonValueString>(Iter.Value);
-
-		ObjSPtr->SetObjectField(Iter.Key.ToString(), StrObjSPtr);
+		ObjSPtr->SetStringField(Iter.Key.ToString(), Iter.Value);
 	}
 	
 	RootJsonObj->SetObjectField(

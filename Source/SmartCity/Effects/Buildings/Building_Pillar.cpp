@@ -21,17 +21,17 @@ void ABuilding_Pillar::SwitchInteractionType(
 			return;
 		}
 	}
-	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)||
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
-			 )
-	 	{
-	 		SwitchState(EState::kOriginal);
-
-	 		return;
-	 	}
-	}
+	// {
+	//  	if (
+	// 		 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor)||
+	// 		 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
+	// 		 )
+	//  	{
+	//  		SwitchState(EState::kOriginal);
+	//
+	//  		return;
+	//  	}
+	// }
 	{
 	 	if (
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)

@@ -885,10 +885,15 @@ void FFloor_Decorator::Entry()
 	                                                                  {
 		                                                                  Config = SPtr->GetViewConfig();
 
-		                                                                  TempConfig = Config;
-
-		                                                                  TempConfig.WallTranlucent = 30;
-		                                                                  TempConfig.PillarTranlucent = 30;
+		                                                                  if (Config.bUseCustomConfig)
+		                                                                  {
+			                                                                  TempConfig = Config;
+		                                                                  }
+		                                                                  else
+		                                                                  {
+			                                                                  TempConfig.WallTranlucent = 30;
+			                                                                  TempConfig.PillarTranlucent = 30;
+		                                                                  }
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -1031,8 +1036,26 @@ void FFloor_Decorator::Entry()
 					                                          }
 					                                         );
 
-				TempConfig.WallTranlucent = 100;
-				TempConfig.PillarTranlucent = 100;
+				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+					 [this,&TempConfig](
+					 const TSharedPtr<FInteraction_Decorator>& SPtr
+					 )
+					 {
+						 Config = SPtr->GetViewConfig();
+
+						 if (Config.bUseCustomConfig)
+						 {
+							 TempConfig = Config;
+						 }
+						 else
+						 {
+							 TempConfig.WallTranlucent = 100;
+							 TempConfig.PillarTranlucent = 100;
+						 }
+					 },
+					 false
+					);
 
 				return;
 			}
@@ -1074,6 +1097,27 @@ void FFloor_Decorator::Entry()
 					                                         );
 
 				Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
+
+				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+					 [this,&TempConfig](
+					 const TSharedPtr<FInteraction_Decorator>& SPtr
+					 )
+					 {
+						 Config = SPtr->GetViewConfig();
+
+						 if (Config.bUseCustomConfig)
+						 {
+							 TempConfig = Config;
+						 }
+						 else
+						 {
+							 TempConfig.WallTranlucent = 100;
+							 TempConfig.PillarTranlucent = 100;
+						 }
+					 },
+					 false
+					);
 
 				return;
 			}
@@ -1233,10 +1277,15 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 	                                                                  {
 		                                                                  Config = SPtr->GetViewConfig();
 
-		                                                                  TempConfig = Config;
-
-		                                                                  TempConfig.WallTranlucent = 30;
-		                                                                  TempConfig.PillarTranlucent = 30;
+		                                                                  if (Config.bUseCustomConfig)
+		                                                                  {
+			                                                                  TempConfig = Config;
+		                                                                  }
+		                                                                  else
+		                                                                  {
+			                                                                  TempConfig.WallTranlucent = 30;
+			                                                                  TempConfig.PillarTranlucent = 30;
+		                                                                  }
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -1369,8 +1418,27 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				                                          }
 				                                         );
 
-			TempConfig.WallTranlucent = 100;
-			TempConfig.PillarTranlucent = 100;
+			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+			                                                                  [this,&TempConfig](
+			                                                                  const TSharedPtr<FInteraction_Decorator>&
+			                                                                  SPtr
+			                                                                  )
+			                                                                  {
+				                                                                  Config = SPtr->GetViewConfig();
+
+				                                                                  if (Config.bUseCustomConfig)
+				                                                                  {
+					                                                                  TempConfig = Config;
+				                                                                  }
+				                                                                  else
+				                                                                  {
+					                                                                  TempConfig.WallTranlucent = 100;
+					                                                                  TempConfig.PillarTranlucent = 100;
+				                                                                  }
+			                                                                  },
+			                                                                  false
+			                                                                 );
 
 			return;
 		}
@@ -1412,6 +1480,28 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 						                                          GetBranchDecoratorType();
 				                                          }
 				                                         );
+
+			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+			                                                                  [this,&TempConfig](
+			                                                                  const TSharedPtr<FInteraction_Decorator>&
+			                                                                  SPtr
+			                                                                  )
+			                                                                  {
+				                                                                  Config = SPtr->GetViewConfig();
+
+				                                                                  if (Config.bUseCustomConfig)
+				                                                                  {
+					                                                                  TempConfig = Config;
+				                                                                  }
+				                                                                  else
+				                                                                  {
+					                                                                  TempConfig.WallTranlucent = 100;
+					                                                                  TempConfig.PillarTranlucent = 100;
+				                                                                  }
+			                                                                  },
+			                                                                  false
+			                                                                 );
 
 			return;
 		}
@@ -1609,7 +1699,24 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		                                                          MulticastDelegate
 		                                                         );
 
-		IncreaseWaitTaskCount();
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this,&TempConfig](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  Config = SPtr->GetViewConfig();
+
+			                                                                  if (Config.bUseCustomConfig)
+			                                                                  {
+				                                                                  TempConfig = Config;
+			                                                                  }
+			                                                                  else
+			                                                                  {
+			                                                                  }
+		                                                                  },
+		                                                                  false
+		                                                                 );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleFloorProcessor>(
