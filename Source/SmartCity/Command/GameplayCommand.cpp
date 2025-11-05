@@ -260,7 +260,7 @@ void SmartCityCommand::SetWallTranlucent(
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  DecoratorSPtr->UpdateViewConfig(ViewConfig);
+		                                                                  DecoratorSPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -287,7 +287,7 @@ void SmartCityCommand::SetPillarTranlucent(
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
+		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -314,7 +314,7 @@ void SmartCityCommand::SetStairsTranlucent(
 			                                                                  UKismetStringLibrary::Conv_StringToInt(
 				                                                                   Args[0]
 				                                                                  );
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
+		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -342,7 +342,7 @@ void SmartCityCommand::SetShowCurtainWall(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
 					                                                                  ));
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
+		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
 	                                                                 );
@@ -370,7 +370,7 @@ void SmartCityCommand::SetShowFurniture(
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
 					                                                                  ));
-		                                                                  SPtr->UpdateViewConfig(ViewConfig);
+		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
 	                                                                 );

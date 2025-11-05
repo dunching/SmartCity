@@ -439,6 +439,7 @@ struct FMessageBody_Test : public FMessageBody_Send
 	FString Text;
 
 protected:
+	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };
 
 #pragma endregion

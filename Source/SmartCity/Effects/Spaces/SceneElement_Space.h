@@ -22,6 +22,7 @@ class URouteMarker;
 class ASceneElement_DeviceBase;
 class UFeatureWheel;
 class AFloorHelper;
+class ULocalLightComponent;
 
 /**
  * 雷达扫描效果
@@ -111,4 +112,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<TObjectPtr<ULocalLightComponent>> RectLightComponentAry;
+	
 };

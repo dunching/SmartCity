@@ -132,7 +132,7 @@ void UWebChannelWorldSystem::SendMessage(
 		{
 			if (Index + MessageSplitNumber >= JsonStr.Len())
 			{
-				const auto Str = JsonStr.Mid(Index, JsonStr.Len() - MessageSplitNumber);
+				const auto Str = JsonStr.Mid(Index, JsonStr.Len() - Index);
 
 				JsonStrAry.Add(Str);
 
@@ -300,5 +300,5 @@ void UWebChannelWorldSystem::MessageTickImp()
 
 	MessageBody_TestSPtr->Text = TEXT("UE PixelStreamer Test");
 
-	SendMessage(MessageBody_TestSPtr);
+	// SendMessage(MessageBody_TestSPtr);
 }

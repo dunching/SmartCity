@@ -110,8 +110,9 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
-			)
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
 		{
 			OnExternalWall();
 			SwitchState(EState::kOriginal);

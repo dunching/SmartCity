@@ -109,8 +109,9 @@ void ASceneElement_InfraredDetector::SwitchInteractionType(
 	 Super::SwitchInteractionType(ConditionalSet);
 
 	{
-		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+	 	if (
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
 			QuitAllState();

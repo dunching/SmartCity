@@ -284,10 +284,7 @@ void FMessageBody_Receive_ViewConfigChanged::DoAction() const
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto TempViewConfig = ViewConfig;
-			                                                                  TempViewConfig.bUseCustomConfig = true;
-
-			                                                                  SPtr->UpdateViewConfig(TempViewConfig);
+			                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 		                                                                  },
 		                                                                  bImmediatelyUpdate
 		                                                                 );
@@ -980,6 +977,18 @@ TSharedPtr<FJsonObject> FMessageBody_UE_Initialized::SerializeBody() const
 
 FMessageBody_Test::FMessageBody_Test()
 {
+}
+
+TSharedPtr<FJsonObject> FMessageBody_Test::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
+
+	RootJsonObj->SetStringField(
+							  TEXT("Text"),
+							  Text
+							 );
+
+	return RootJsonObj;
 }
 
 FMessageBody_Receive_SetRelativeTransoform::FMessageBody_Receive_SetRelativeTransoform()
