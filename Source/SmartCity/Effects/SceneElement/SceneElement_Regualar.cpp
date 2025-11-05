@@ -179,7 +179,8 @@ void ASceneElement_Regualar::SwitchInteractionType(
 
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
 			if (BelongFloor && BelongFloor->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_Roof))

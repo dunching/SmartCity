@@ -13,8 +13,9 @@ void ABuilding_Pillar::SwitchInteractionType(
 
 	{
 	 	if (
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
-			 )
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		 )
 		{
 			SwitchState(EState::kOriginal);
 

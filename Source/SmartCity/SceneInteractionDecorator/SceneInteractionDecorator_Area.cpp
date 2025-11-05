@@ -875,38 +875,49 @@ void FFloor_Decorator::Entry()
 
 	FDateTime Time(1, 1, 1, 12);
 
-	FViewConfig TempConfig;
+	FViewConfig Config;
+
+	bool bUseTemporaComfig = false;
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-	                                                                  [this,&TempConfig](
-	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-	                                                                  )
-	                                                                  {
-		                                                                  Config = SPtr->GetViewConfig();
+																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+																	  [this,&Config](
+																	  const TSharedPtr<FInteraction_Decorator>&
+																	  SPtr
+																	  )
+																	  {
+																		  Config = SPtr->GetViewConfig();
 
-		                                                                  if (Config.bUseCustomConfig)
-		                                                                  {
-			                                                                  TempConfig = Config;
-		                                                                  }
-		                                                                  else
-		                                                                  {
-			                                                                  TempConfig.WallTranlucent = 30;
-			                                                                  TempConfig.PillarTranlucent = 30;
-		                                                                  }
-	                                                                  },
-	                                                                  false
-	                                                                 );
+																		  if (SPtr->HasViewConfigChanged())
+																		  {
+																		  }
+																		  else
+																		  {
+																			  Config.WallTranlucent = 30;
+																			  Config.PillarTranlucent = 30;
+																			  SPtr->UpdateViewConfig(Config, true);
+																			  SPtr->UpdateViewConfig(Config, false);
+																		  }
+																	  },
+																	  false
+																	 );
 
 	ON_SCOPE_EXIT
 	{
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this,&TempConfig](
+		                                                                  [this,&Config, &bUseTemporaComfig](
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->UpdateViewConfig(TempConfig);
+			                                                                  if (bUseTemporaComfig)
+			                                                                  {
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->ClearTemporaViewConfig();
+			                                                                  }
 		                                                                  },
 		                                                                  false
 		                                                                 );
@@ -1036,23 +1047,17 @@ void FFloor_Decorator::Entry()
 					                                          }
 					                                         );
 
+				bUseTemporaComfig = true;
 				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-					 [this,&TempConfig](
+					 [this,&Config](
 					 const TSharedPtr<FInteraction_Decorator>& SPtr
 					 )
 					 {
 						 Config = SPtr->GetViewConfig();
 
-						 if (Config.bUseCustomConfig)
-						 {
-							 TempConfig = Config;
-						 }
-						 else
-						 {
-							 TempConfig.WallTranlucent = 100;
-							 TempConfig.PillarTranlucent = 100;
-						 }
+						 Config.WallTranlucent = 100;
+						 Config.PillarTranlucent = 100;
 					 },
 					 false
 					);
@@ -1098,23 +1103,17 @@ void FFloor_Decorator::Entry()
 
 				Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
 
+				bUseTemporaComfig = true;
 				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-					 [this,&TempConfig](
+					 [this,&Config](
 					 const TSharedPtr<FInteraction_Decorator>& SPtr
 					 )
 					 {
 						 Config = SPtr->GetViewConfig();
 
-						 if (Config.bUseCustomConfig)
-						 {
-							 TempConfig = Config;
-						 }
-						 else
-						 {
-							 TempConfig.WallTranlucent = 100;
-							 TempConfig.PillarTranlucent = 100;
-						 }
+						 Config.WallTranlucent = 100;
+						 Config.PillarTranlucent = 100;
 					 },
 					 false
 					);
@@ -1252,7 +1251,7 @@ void FFloor_Decorator::Quit()
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->UpdateViewConfig(Config);
+		                                                                  // SPtr->UpdateViewConfig(Config);
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -1265,40 +1264,84 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 {
 	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
 
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Interaction)
+	)
+	{
+		{
+			auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+				 USmartCitySuiteTags::Interaction_Mode
+				);
+			if (
+				DecoratorSPtr
+			)
+			{
+				if (
+					DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+				)
+				{
+					if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+					                                                       USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+					                                                      ))
+					{
+						return;
+					}
+					if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+					                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+					                                                      ))
+					{
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	bool bUseTemporaComfig = false;
+
 	FDateTime Time(1, 1, 1, 12);
 
-	FViewConfig TempConfig;
+	FViewConfig Config;
 
 	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-	                                                                  [this,&TempConfig](
-	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-	                                                                  )
-	                                                                  {
-		                                                                  Config = SPtr->GetViewConfig();
+																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+																	  [this,&Config](
+																	  const TSharedPtr<FInteraction_Decorator>&
+																	  SPtr
+																	  )
+																	  {
+																		  Config = SPtr->GetViewConfig();
 
-		                                                                  if (Config.bUseCustomConfig)
-		                                                                  {
-			                                                                  TempConfig = Config;
-		                                                                  }
-		                                                                  else
-		                                                                  {
-			                                                                  TempConfig.WallTranlucent = 30;
-			                                                                  TempConfig.PillarTranlucent = 30;
-		                                                                  }
-	                                                                  },
-	                                                                  false
-	                                                                 );
+																		  if (SPtr->HasViewConfigChanged())
+																		  {
+																		  }
+																		  else
+																		  {
+																			  Config.WallTranlucent = 30;
+																			  Config.PillarTranlucent = 30;
+																			  SPtr->UpdateViewConfig(Config, true);
+																			  SPtr->UpdateViewConfig(Config, false);
+																		  }
+																	  },
+																	  false
+																	 );
 
 	ON_SCOPE_EXIT
 	{
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this,&TempConfig](
+		                                                                  [this,&Config, &bUseTemporaComfig](
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  SPtr->UpdateViewConfig(TempConfig);
+			                                                                  if (bUseTemporaComfig)
+			                                                                  {
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->ClearTemporaViewConfig();
+			                                                                  }
 		                                                                  },
 		                                                                  false
 		                                                                 );
@@ -1418,24 +1461,18 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				                                          }
 				                                         );
 
+			bUseTemporaComfig = true;
 			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-			                                                                  [this,&TempConfig](
+			                                                                  [this,&Config](
 			                                                                  const TSharedPtr<FInteraction_Decorator>&
 			                                                                  SPtr
 			                                                                  )
 			                                                                  {
 				                                                                  Config = SPtr->GetViewConfig();
 
-				                                                                  if (Config.bUseCustomConfig)
-				                                                                  {
-					                                                                  TempConfig = Config;
-				                                                                  }
-				                                                                  else
-				                                                                  {
-					                                                                  TempConfig.WallTranlucent = 100;
-					                                                                  TempConfig.PillarTranlucent = 100;
-				                                                                  }
+				                                                                  Config.WallTranlucent = 100;
+				                                                                  Config.PillarTranlucent = 100;
 			                                                                  },
 			                                                                  false
 			                                                                 );
@@ -1481,24 +1518,17 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 				                                          }
 				                                         );
 
+			bUseTemporaComfig = true;
 			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-			                                                                  [this,&TempConfig](
+			                                                                  [this,&Config](
 			                                                                  const TSharedPtr<FInteraction_Decorator>&
 			                                                                  SPtr
 			                                                                  )
 			                                                                  {
 				                                                                  Config = SPtr->GetViewConfig();
-
-				                                                                  if (Config.bUseCustomConfig)
-				                                                                  {
-					                                                                  TempConfig = Config;
-				                                                                  }
-				                                                                  else
-				                                                                  {
-					                                                                  TempConfig.WallTranlucent = 100;
-					                                                                  TempConfig.PillarTranlucent = 100;
-				                                                                  }
+				                                                                  Config.WallTranlucent = 100;
+				                                                                  Config.PillarTranlucent = 100;
 			                                                                  },
 			                                                                  false
 			                                                                 );
@@ -1698,25 +1728,6 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 		                                                          true,
 		                                                          MulticastDelegate
 		                                                         );
-
-		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this,&TempConfig](
-		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-		                                                                  )
-		                                                                  {
-			                                                                  Config = SPtr->GetViewConfig();
-
-			                                                                  if (Config.bUseCustomConfig)
-			                                                                  {
-				                                                                  TempConfig = Config;
-			                                                                  }
-			                                                                  else
-			                                                                  {
-			                                                                  }
-		                                                                  },
-		                                                                  false
-		                                                                 );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleFloorProcessor>(
@@ -2101,22 +2112,20 @@ void FViewDevice_Decorator::Entry()
 		                                            );
 	if (DecoratorSPtr)
 	{
-		Config = DecoratorSPtr->GetViewConfig();
-
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
 		                                                                  [this](
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto TempConfig = Config;
+			                                                                  auto TempConfig = SPtr->GetViewConfig();
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
 			                                                                  TempConfig.bShowCurtainWall = false;
 			                                                                  TempConfig.bShowFurniture = false;
 
-			                                                                  SPtr->UpdateViewConfig(TempConfig);
+			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },
 		                                                                  false
 		                                                                 );
@@ -2140,7 +2149,7 @@ void FViewDevice_Decorator::Quit()
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->UpdateViewConfig(Config);
+		                                                                  SPtr->ClearTemporaViewConfig();
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -2238,22 +2247,20 @@ void FViewSpace_Decorator::Entry()
 		                                            );
 	if (DecoratorSPtr)
 	{
-		Config = DecoratorSPtr->GetViewConfig();
-
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
 		                                                                  [this](
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto TempConfig = Config;
+			                                                                  auto TempConfig = SPtr->GetViewConfig();
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
 			                                                                  TempConfig.bShowCurtainWall = false;
 			                                                                  TempConfig.bShowFurniture = false;
 
-			                                                                  SPtr->UpdateViewConfig(TempConfig);
+			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },
 		                                                                  false
 		                                                                 );
@@ -2277,7 +2284,7 @@ void FViewSpace_Decorator::Quit()
 	                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 	                                                                  )
 	                                                                  {
-		                                                                  SPtr->UpdateViewConfig(Config);
+		                                                                  SPtr->ClearTemporaViewConfig();
 	                                                                  },
 	                                                                  false
 	                                                                 );
@@ -2367,22 +2374,20 @@ void FViewSpecialArea_Decorator::Entry()
 		                                            );
 	if (DecoratorSPtr)
 	{
-		Config = DecoratorSPtr->GetViewConfig();
-
 		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
 		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
 		                                                                  [this](
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto TempConfig = Config;
+			                                                                  auto TempConfig = SPtr->GetViewConfig();
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
 			                                                                  TempConfig.bShowCurtainWall = false;
 			                                                                  TempConfig.bShowFurniture = false;
 
-			                                                                  SPtr->UpdateViewConfig(TempConfig);
+			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },
 		                                                                  false
 		                                                                 );
@@ -2396,6 +2401,21 @@ void FViewSpecialArea_Decorator::ReEntry()
 	Super::ReEntry();
 
 	Process();
+}
+
+void FViewSpecialArea_Decorator::Quit()
+{
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+																	  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+																	  [this](
+																	  const TSharedPtr<FInteraction_Decorator>& SPtr
+																	  )
+																	  {
+																		  SPtr->ClearTemporaViewConfig();
+																	  },
+																	  false
+																	 );
+	Super::Quit();
 }
 
 void FViewSpecialArea_Decorator::Process()

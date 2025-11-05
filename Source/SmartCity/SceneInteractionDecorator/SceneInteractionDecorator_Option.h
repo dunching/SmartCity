@@ -28,9 +28,9 @@ class SMARTCITY_API FInteraction_Decorator : public FDecoratorBase
 {
 public:
 	GENERATIONCLASSINFO(
-						FInteraction_Decorator,
-						FDecoratorBase
-					   );
+	                    FInteraction_Decorator,
+	                    FDecoratorBase
+	                   );
 
 	FInteraction_Decorator();
 
@@ -54,18 +54,34 @@ public:
 		int32 Hour
 		);
 
-	void UpdateViewConfig(const FViewConfig &Config);
+	void UpdateViewConfig(
+		const FViewConfig& Config,
+		bool bIsTempora
+		);
+
+	void ClearTemporaViewConfig();
+
+	FViewConfig GetViewConfig() const;
+
+	bool HasViewConfigChanged() const;
 	
-	FViewConfig GetViewConfig()const;
-	
-	void UpdateControlConfig(const FControlConfig &Config);
-	
-	FControlConfig GetConfigControlConfig()const;
-	
+	void UpdateControlConfig(
+		const FControlConfig& Config
+		);
+
+	FControlConfig GetConfigControlConfig() const;
+
 private:
-	FViewConfig ViewConfig;
+	
+	/**
+	 * 临时的值
+	 */
+	TArray<FViewConfig> TemporaViewConfigAry;
+
+	/**
+	 * 网页设定的值
+	 */
+	TArray<FViewConfig> ViewConfig;
 
 	FControlConfig ControllConfig;
-
 };
-

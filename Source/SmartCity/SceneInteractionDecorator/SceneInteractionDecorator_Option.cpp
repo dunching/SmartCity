@@ -92,23 +92,57 @@ void FInteraction_Decorator::SetCurrentHour(
 }
 
 void FInteraction_Decorator::UpdateViewConfig(
-	const FViewConfig& InConfig
+	const FViewConfig& InConfig,
+	bool bIsTempora
 	)
 {
-	ViewConfig = InConfig;
+	if (bIsTempora)
+	{
+		TemporaViewConfigAry = {InConfig};
 
-	auto MessageSPtr = MakeShared<
-		FMessageBody_ViewConfigChanged>();
+		auto MessageSPtr = MakeShared<
+			FMessageBody_ViewConfigChanged>();
 
-	MessageSPtr->ViewConfig = ViewConfig;
+		MessageSPtr->ViewConfig = InConfig;
 
-	UWebChannelWorldSystem::GetInstance()->
-		SendMessage(MessageSPtr);
+		UWebChannelWorldSystem::GetInstance()->
+			SendMessage(MessageSPtr);
+	}
+	else
+	{
+		ViewConfig = {InConfig};
+	}
+}
+
+void FInteraction_Decorator::ClearTemporaViewConfig()
+{
+	TemporaViewConfigAry.Empty();
 }
 
 FViewConfig FInteraction_Decorator::GetViewConfig() const
 {
-	return ViewConfig;
+	if (TemporaViewConfigAry.IsEmpty())
+	{
+	}
+	else
+	{
+		return TemporaViewConfigAry[0];
+	}
+
+	if (ViewConfig.IsEmpty())
+	{
+	}
+	else
+	{
+		return ViewConfig[0];
+	}
+
+	return FViewConfig();
+}
+
+bool FInteraction_Decorator::HasViewConfigChanged() const
+{
+	return ViewConfig.Num() > 0;
 }
 
 void FInteraction_Decorator::UpdateControlConfig(

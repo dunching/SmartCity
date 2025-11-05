@@ -199,8 +199,6 @@ protected:
 	
 private:
 	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
-
-	FViewConfig Config;
 };
 
 /**
@@ -234,8 +232,6 @@ private:
 	TWeakObjectPtr<ASceneElement_DeviceBase>PreviousSceneElementPtr = nullptr;
 
 	TObjectPtr<AFloorHelper>PreviousFloorHelper = nullptr;
-
-	FViewConfig Config;
 };
 
 class SMARTCITY_API FViewSpace_Decorator : public FArea_Decorator
@@ -270,8 +266,6 @@ private:
 	void Process();
 	
 	void AdjustCamera()const;
-
-	FViewConfig Config;
 };
 
 class SMARTCITY_API FViewSpecialArea_Decorator : public FArea_Decorator
@@ -286,6 +280,8 @@ public:
 
 	virtual void ReEntry() override;
 	
+	virtual void Quit() override;
+
 	TSet<FGameplayTag> FloorSet;
 
 	TWeakObjectPtr<AViewerPawnBase>ViewerPawnBasePtr = nullptr;
@@ -295,6 +291,4 @@ private:
 	void Process();
 	
 	void AdjustCamera()const;
-	
-	FViewConfig Config;
 };
