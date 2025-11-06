@@ -75,7 +75,7 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{
-		auto MessageSPtr = MakeShared<FMessageBody_Receive_ViewConfigChanged>();
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateViewConfig>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 	{

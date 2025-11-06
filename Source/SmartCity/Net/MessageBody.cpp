@@ -221,12 +221,12 @@ void FMessageBody_Receive_AdjustWeather::DoAction() const
 	}
 }
 
-FMessageBody_Receive_ViewConfigChanged::FMessageBody_Receive_ViewConfigChanged()
+FMessageBody_Receive_UpdateViewConfig::FMessageBody_Receive_UpdateViewConfig()
 {
-	CMD_Name = TEXT("ViewConfigChanged");
+	CMD_Name = TEXT("UpdateViewConfig");
 }
 
-void FMessageBody_Receive_ViewConfigChanged::Deserialize(
+void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	const FString& JsonStr
 	)
 {
@@ -266,7 +266,7 @@ void FMessageBody_Receive_ViewConfigChanged::Deserialize(
 	}
 }
 
-void FMessageBody_Receive_ViewConfigChanged::DoAction() const
+void FMessageBody_Receive_UpdateViewConfig::DoAction() const
 {
 	// 确认当前的模式
 	auto DecoratorSPtr =

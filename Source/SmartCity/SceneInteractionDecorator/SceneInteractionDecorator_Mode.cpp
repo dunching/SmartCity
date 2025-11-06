@@ -14,6 +14,7 @@
 #include "Algorithm.h"
 #include "DatasmithSceneActor.h"
 #include "Dynamic_WeatherBase.h"
+#include "FireMark.h"
 #include "FloorHelper.h"
 #include "PlanetPlayerController.h"
 #include "PlayerGameplayTasks.h"

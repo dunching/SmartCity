@@ -1580,6 +1580,8 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_Display()
 		}
 		for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
 		{
+			Iter.Value->SwitchInteractionType(FilterTags);
+
 			Lambda(Iter.Value->AllReference);
 		}
 
@@ -1694,6 +1696,8 @@ bool UGT_SwitchSceneElement_Generic::ProcessTask_Display()
 		}
 		for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
 		{
+			Iter.Value->SwitchInteractionType(FilterTags);
+
 			TSet<TSoftObjectPtr<ADatasmithSceneActor>> TempHideDataSmithSceneActorsSet;
 
 			TempHideDataSmithSceneActorsSet.Append(

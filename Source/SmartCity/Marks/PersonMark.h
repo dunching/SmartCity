@@ -63,24 +63,3 @@ public:
 
 	FVector TargetLocation;
 };
-
-/*
- * 用于表示火灾的标记点
- */
-UCLASS()
-class SMARTCITY_API AFireMark : public AActor
-{
-	GENERATED_BODY()
-
-public:
-	AFireMark(
-		const FObjectInitializer& ObjectInitializer
-		);
-
-	void Update(
-		const FVector& NewLocation
-		);
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<UNiagaraComponent> NiagaraComponent;
-};

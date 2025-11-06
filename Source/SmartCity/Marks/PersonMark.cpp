@@ -133,20 +133,3 @@ void APersonMark::Update(
 		DrawDebugSphere(GetWorld(), Transform.TransformPosition(TargetLocation), 10.0f, 12, FColor::Red, false, 1);
 	}
 }
-
-AFireMark::AFireMark(
-	const FObjectInitializer& ObjectInitializer
-	) :
-	  Super(ObjectInitializer)
-{
-	RootComponent = CreateOptionalDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-
-	NiagaraComponent = CreateOptionalDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
-	NiagaraComponent->SetupAttachment(RootComponent);
-}
-
-void AFireMark::Update(
-	const FVector& NewLocation
-	)
-{
-}

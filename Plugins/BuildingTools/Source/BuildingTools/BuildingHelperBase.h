@@ -24,6 +24,10 @@ class BUILDINGTOOLS_API ABuildingHelperBase :
 
 public:
 
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		);
+	
 	/**
 	 * 默认机位
 	 */
