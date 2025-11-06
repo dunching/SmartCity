@@ -145,12 +145,12 @@ public:
 };
 
 USTRUCT()
-struct FMessageBody_Receive_ViewConfigChanged : public FMessageBody_Receive
+struct FMessageBody_Receive_UpdateViewConfig : public FMessageBody_Receive
 {
 	GENERATED_BODY()
 
 public:
-	FMessageBody_Receive_ViewConfigChanged();
+	FMessageBody_Receive_UpdateViewConfig();
 
 	virtual void Deserialize(
 		const FString& JsonStr
