@@ -2,12 +2,13 @@
 
 #include "ActorSequenceComponent.h"
 #include "ActorSequencePlayer.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "AssetRefMap.h"
 #include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
-#include "Kismet/KismetMathLibrary.h"
 
 ASceneElement_RollerBlind::ASceneElement_RollerBlind(
 	const FObjectInitializer& ObjectInitializer
@@ -153,10 +154,17 @@ void ASceneElement_RollerBlind::EntryShowDevice()
 void ASceneElement_RollerBlind::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
+	
 	SetActorHiddenInGame(false);
 
-	PlayAnimation(UKismetMathLibrary::RandomFloatInRange(0,1));
-			
+	if (ExtensionParamMap.Contains(TEXT("Percent")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Percent")]);
+		PlayAnimation(Value / 100.0f);
+
+		return;
+	}
+	EntryShowDevice();
 }
 
 void ASceneElement_RollerBlind::QuitAllState()

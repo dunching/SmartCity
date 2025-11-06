@@ -17,7 +17,7 @@
 class UStaticMeshComponent;
 
 /**
- * 墙
+ * 建筑类的
  */
 UCLASS()
 class SMARTCITY_API ABuilding_StructuralFramework :

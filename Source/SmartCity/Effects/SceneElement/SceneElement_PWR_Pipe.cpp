@@ -4,6 +4,7 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Components/BoxComponent.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -21,6 +22,7 @@ ASceneElement_PWR_Pipe::ASceneElement_PWR_Pipe(
 	) :
 	  Super(ObjectInitializer)
 {
+	CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASceneElement_PWR_Pipe::BeginPlay()

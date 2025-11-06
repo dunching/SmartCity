@@ -353,6 +353,7 @@ void ASceneElement_Lighting::EntryShoweviceEffect()
 
 		return;
 	}
+	
 	// SetEmissiveValue(0, -1, FColor::White);
 	SwitchLight(0, -1, FColor::White);
 

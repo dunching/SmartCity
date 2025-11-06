@@ -21,7 +21,7 @@ class AViewerPawn;
 class URouteMarker;
 
 /**
- * 雷达扫描效果
+ * 家具
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_Furniture :

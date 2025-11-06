@@ -183,7 +183,7 @@ struct FViewConfig
 	int32 WallTranlucent = 100;
 
 	/**
-	 * 墙体透明度 0 完全透明（隐藏） 100 完全不透明
+	 * 主体体透明度 0 完全透明（隐藏） 100 完全不透明
 	 */
 	int32 PillarTranlucent = 100;
 
@@ -195,12 +195,13 @@ struct FViewConfig
 	/**
 	 * 幕墙墙体透明度 0 完全透明（隐藏） 100 完全不透明
 	 */
-	bool bShowCurtainWall = true;
+	int32 CurtainWallTranlucent = 100;
 
 	/**
-	 * 是否显示家具
+	 * 家具 透明度
 	 */
-	bool bShowFurniture = true;
+	int32 FurnitureTranlucent = 100;
+
 };
 
 enum class EInteractionType:uint8

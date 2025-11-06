@@ -32,8 +32,6 @@ ASceneElement_Furniture::ASceneElement_Furniture(
 void ASceneElement_Furniture::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void ASceneElement_Furniture::ReplaceImp(
@@ -50,7 +48,7 @@ void ASceneElement_Furniture::ReplaceImp(
 		{
 			StaticMeshComponent->SetWorldTransform(STPtr->GetStaticMeshComponent()->GetComponentTransform());
 			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
-			
+
 			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
 			{
 				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
@@ -59,7 +57,7 @@ void ASceneElement_Furniture::ReplaceImp(
 
 		TArray<UStaticMeshComponent*> Components;
 		GetComponents<UStaticMeshComponent>(Components);
-		
+
 		for (auto Iter : Components)
 		{
 			if (Iter)
@@ -89,31 +87,44 @@ void ASceneElement_Furniture::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
-			SwitchState(EState::kHiden);
+			SwitchState(EState::kOriginal);
 
 			return;
 		}
 	}
 	{
-		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
-
-		EmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor);
-
-		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-		    EmptyContainer.Num())
+		//  只要是楼层就显示
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
-				SwitchState(ViewConfig.bShowFurniture ? EState::kOriginal : EState::kHiden);
+				if (ViewConfig.FurnitureTranlucent <= 0)
+				{
+					SwitchState(EState::kHiden);
+				}
+				else if (ViewConfig.FurnitureTranlucent >= 100)
+				{
+					SwitchState(EState::kOriginal);
+				}
+				else
+				{
+					SetTranslucentImp(
+					                  {StaticMeshComponent},
+					                  ViewConfig.FurnitureTranlucent,
+					                  UAssetRefMap::GetInstance()->WallTranslucentMatInst
+					                 );
+				}
 
 				return;
 			}
@@ -127,7 +138,7 @@ void ASceneElement_Furniture::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SwitchState(EState::kHiden);
 

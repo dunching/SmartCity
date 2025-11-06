@@ -5,6 +5,7 @@
 #include "AssetRefMap.h"
 #include "NiagaraComponent.h"
 #include "DatasmithAssetUserData.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
@@ -276,6 +277,26 @@ void ASceneElement_HVAC::EntryShoweviceEffect()
 	SetActorHiddenInGame(false);
 
 	NiagaraComponentPtr->SetActive(true);
+	
+	if (ExtensionParamMap.Contains(TEXT("Looping")))
+	{
+	}
+	if (ExtensionParamMap.Contains(TEXT("Pattern")))
+	{
+	}
+	if (ExtensionParamMap.Contains(TEXT("WindSpeed")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Temperature")]);
+		NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), Value);
+
+		return;
+	}
+	if (ExtensionParamMap.Contains(TEXT("Temperature")))
+	{
+		NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Black);
+	}
+
+	EntryShowDevice();
 }
 
 void ASceneElement_HVAC::QuitShowDeviceEffect()

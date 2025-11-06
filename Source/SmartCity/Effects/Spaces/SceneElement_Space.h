@@ -98,6 +98,10 @@ protected:
 	UFUNCTION()
 	void OnClickedTag();
 	
+	void OnHourChanged(int32 Hour);
+	
+	void OnExternalWall();
+	
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	TArray<UBoxComponent*>CollisionComponentsAry;
 
