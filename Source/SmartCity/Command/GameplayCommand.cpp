@@ -337,11 +337,10 @@ void SmartCityCommand::SetShowCurtainWall(
 	                                                                  {
 		                                                                  auto ViewConfig = SPtr->
 			                                                                  GetViewConfig();
-		                                                                  ViewConfig.bShowCurtainWall =
-			                                                                  static_cast<bool>(
+		                                                                  ViewConfig.CurtainWallTranlucent =
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
-					                                                                  ));
+					                                                                  );
 		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true
@@ -365,11 +364,10 @@ void SmartCityCommand::SetShowFurniture(
 	                                                                  {
 		                                                                  auto ViewConfig = SPtr->
 			                                                                  GetViewConfig();
-		                                                                  ViewConfig.bShowFurniture =
-			                                                                  static_cast<bool>(
+		                                                                  ViewConfig.FurnitureTranlucent =
 				                                                                  UKismetStringLibrary::Conv_StringToInt(
 					                                                                   Args[0]
-					                                                                  ));
+					                                                                  );
 		                                                                  SPtr->UpdateViewConfig(ViewConfig, false);
 	                                                                  },
 	                                                                  true

@@ -28,6 +28,7 @@ ASceneElement_Regualar::ASceneElement_Regualar(
 	CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionComponentHelper->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionComponentHelper->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+	CollisionComponentHelper->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
 	CollisionComponentHelper->SetCollisionObjectType(Device_Object);
 }
 

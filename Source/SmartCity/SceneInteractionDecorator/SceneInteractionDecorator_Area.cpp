@@ -2122,8 +2122,8 @@ void FViewDevice_Decorator::Entry()
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
-			                                                                  TempConfig.bShowCurtainWall = false;
-			                                                                  TempConfig.bShowFurniture = false;
+			                                                                  TempConfig.CurtainWallTranlucent = 10;
+			                                                                  TempConfig.FurnitureTranlucent = 10;
 
 			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },
@@ -2257,8 +2257,8 @@ void FViewSpace_Decorator::Entry()
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
-			                                                                  TempConfig.bShowCurtainWall = false;
-			                                                                  TempConfig.bShowFurniture = false;
+			                                                                  TempConfig.CurtainWallTranlucent = 10;
+			                                                                  TempConfig.FurnitureTranlucent = 10;
 
 			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },
@@ -2384,8 +2384,8 @@ void FViewSpecialArea_Decorator::Entry()
 			                                                                  TempConfig.WallTranlucent = 10;
 			                                                                  TempConfig.PillarTranlucent = 10;
 			                                                                  TempConfig.StairsTranlucent = 10;
-			                                                                  TempConfig.bShowCurtainWall = false;
-			                                                                  TempConfig.bShowFurniture = false;
+			                                                                  TempConfig.CurtainWallTranlucent = 10;
+			                                                                  TempConfig.FurnitureTranlucent = 10;
 
 			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
 		                                                                  },

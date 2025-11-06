@@ -9,13 +9,13 @@ void ABuilding_Floor::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
-		 )
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
 		{
 			SwitchState(EState::kOriginal);
 
@@ -23,9 +23,10 @@ void ABuilding_Floor::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-		 )
+		//  只要是楼层就显示
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =
@@ -37,22 +38,7 @@ void ABuilding_Floor::SwitchInteractionType(
 															);
 			if (DecoratorSPtr)
 			{
-				// if (DecoratorSPtr->Config.WallTranlucent <= 0)
-				// {
-				// 	SwitchState(EState::kHiden);
-				// }
-				// else if (DecoratorSPtr->Config.WallTranlucent >= 100)
-				// {
-				// 	SwitchState(EState::kOriginal);
-				// }
-				// else
-				// {
-				// 	SetTranslucent(DecoratorSPtr->Config.WallTranlucent);
-				// }
 
-				SwitchState(EState::kOriginal);
-
-				return;
 			}
 
 			SwitchState(EState::kOriginal);

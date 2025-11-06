@@ -3,6 +3,7 @@
 #include "ActorSequenceComponent.h"
 #include "Engine/StaticMeshActor.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/KismetStringLibrary.h"
 
 #include "CollisionDataStruct.h"
 #include "GameplayTagsLibrary.h"
@@ -207,9 +208,18 @@ void ASceneElement_SunShade::EntryShoweviceEffect()
 
 	SetActorHiddenInGame(false);
 
-	UpdateAngle(-90);
+	if (ExtensionParamMap.Contains(TEXT("IsOpened")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("IsOpened")]);
+		
+		UpdateAngle(Value);
 
-	RemoveRouteMarker();
+		RemoveRouteMarker();
+	
+		return;
+	}
+
+	EntryShowDevice();
 }
 
 void ASceneElement_SunShade::UpdateAngle(

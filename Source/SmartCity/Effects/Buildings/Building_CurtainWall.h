@@ -22,7 +22,7 @@ class ULocalLightComponent;
  */
 UCLASS()
 class SMARTCITY_API ABuilding_CurtainWall :
-	public ASceneElementBase
+	public ABuilding_ItemBase
 {
 	GENERATED_BODY()
 

@@ -253,11 +253,11 @@ void FMessageBody_Receive_ViewConfigChanged::Deserialize(
 	{
 	}
 
-	if (jsonObject->TryGetBoolField(TEXT("ShowCurtainWall"), ViewConfig.bShowCurtainWall))
+	if (jsonObject->TryGetNumberField(TEXT("ShowCurtainWall"), ViewConfig.FurnitureTranlucent))
 	{
 	}
 
-	if (jsonObject->TryGetBoolField(TEXT("ShowFurniture"), ViewConfig.bShowFurniture))
+	if (jsonObject->TryGetNumberField(TEXT("ShowFurniture"), ViewConfig.FurnitureTranlucent))
 	{
 	}
 
@@ -823,14 +823,14 @@ TSharedPtr<FJsonObject> FMessageBody_ViewConfigChanged::SerializeBody() const
 	                            ViewConfig.StairsTranlucent
 	                           );
 
-	RootJsonObj->SetBoolField(
+	RootJsonObj->SetNumberField(
 	                          TEXT("ShowCurtainWall"),
-	                          ViewConfig.bShowCurtainWall
+	                          ViewConfig.CurtainWallTranlucent
 	                         );
 
-	RootJsonObj->SetBoolField(
+	RootJsonObj->SetNumberField(
 	                          TEXT("ShowFurniture"),
-	                          ViewConfig.bShowFurniture
+	                          ViewConfig.FurnitureTranlucent
 	                         );
 
 	return RootJsonObj;
