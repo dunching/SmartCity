@@ -22,7 +22,7 @@ class UActorSequenceComponent;
 class AFloorHelper_Description;
 
 /**
- * 门禁
+ * 楼层
  */
 UCLASS()
 class SMARTCITY_API AFloorHelper :
@@ -60,12 +60,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorIndexDescription;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AViewerPawnBase>ViewerPawnClass;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<URectLightComponent>> RectLightComponentAry;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDisplayDescritpion = true;
+};
+
+UCLASS()
+class SMARTCITY_API AFloorHelper_Computer :
+	public AFloorHelper
+{
+	GENERATED_BODY()
+
+public:
+	virtual void OnConstruction(
+		const FTransform& Transform
+		) override;
+
 };
 
 UCLASS()

@@ -4,12 +4,15 @@
 #include "Components/RectLightComponent.h"
 
 #include "AssetRefMap.h"
+#include "DatasmithAssetUserData.h"
+#include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
 #include "FloorHelper_Description.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
+#include "ViewerPawnBase.h"
 #include "WeatherSystem.h"
 
 AFloorHelper::AFloorHelper(
@@ -101,7 +104,7 @@ void AFloorHelper::SwitchInteractionType(
 			}
 
 			FloorHelper_DescriptionPtr = nullptr;
-			
+
 			return;
 		}
 	}
@@ -116,7 +119,7 @@ void AFloorHelper::SwitchInteractionType(
 			}
 
 			FloorHelper_DescriptionPtr = nullptr;
-			
+
 			return;
 		}
 	}
@@ -144,6 +147,113 @@ void AFloorHelper::SwitchInteractionType(
 			FloorHelper_DescriptionPtr->Destroy();
 		}
 		FloorHelper_DescriptionPtr = nullptr;
+
+		return;
+	}
+}
+
+void AFloorHelper_Computer::OnConstruction(
+	const FTransform& Transform
+	)
+{
+	Super::OnConstruction(Transform);
+
+	for (auto Iter : PresetBuildingCameraSeat)
+	{
+		auto ActorPtr = Iter.Value.LoadSynchronous();
+		if (ActorPtr)
+		{
+			ActorPtr->Destroy();
+		}
+	}
+	PresetBuildingCameraSeat.Empty();
+
+	const auto BoxPt = BoxComponentPtr->GetComponentLocation();
+
+	for (const auto& DatasmithSceneActorIter : AllReference.SoftDecorationItem.DatasmithSceneActorSet)
+	{
+		TArray<AActor*> OutActors;
+		DatasmithSceneActorIter->GetAttachedActors(OutActors, true, true);
+		for (auto Iter : OutActors)
+		{
+			if (Iter)
+			{
+				auto Components = Iter->GetComponents();
+				for (auto SecondIter : Components)
+				{
+					auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+					if (!InterfacePtr)
+					{
+						continue;
+					}
+					auto AUDPtr = Cast<UDatasmithAssetUserData>(
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
+					if (!AUDPtr)
+					{
+						continue;
+					}
+
+					auto Name = AUDPtr->MetaData.Find(TEXT("服务器"));
+					if (!Name)
+					{
+						continue;
+					}
+
+					auto STCPtr = Cast<UStaticMeshComponent>(SecondIter);
+					if (!STCPtr)
+					{
+						continue;
+					}
+
+					const auto STCTransform = STCPtr->GetComponentTransform();
+
+					FVector Min;
+					FVector Max;
+					STCPtr->GetLocalBounds(Min, Max);
+					FBox Bounds(Min, Max);
+
+					const auto Pt1 = STCTransform.TransformPosition(
+					                                                Bounds.GetCenter() + FVector(
+						                                                 0,
+						                                                 Bounds.GetExtent().Y,
+						                                                 0
+						                                                )
+					                                               );
+					const auto Pt2 = STCTransform.TransformPosition(
+					                                                Bounds.GetCenter() - FVector(
+						                                                 0,
+						                                                 Bounds.GetExtent().Y,
+						                                                 0
+						                                                )
+					                                               );
+
+					if (FVector::Distance(BoxPt, Pt1) > FVector::Distance(BoxPt, Pt2))
+					{
+						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
+							 ViewerPawnClass,
+							 Pt1,
+							 STCPtr->GetComponentRotation() + FRotator(0, -90, 0)
+							);
+						PresetBuildingCameraSeat.Add(*Name, ViewerPawnPtr);
+					}
+					else
+					{
+						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
+							 ViewerPawnClass,
+							 Pt1,
+							 STCPtr->GetComponentRotation() + FRotator(0, -90, 0) + FRotator(0, 180, 0)
+							);
+
+						PresetBuildingCameraSeat.Add(*Name, ViewerPawnPtr);
+					}
+
+					break;
+				}
+			}
+		}
 
 		return;
 	}

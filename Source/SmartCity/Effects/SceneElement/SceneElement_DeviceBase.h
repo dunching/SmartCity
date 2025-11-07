@@ -103,6 +103,9 @@ public:
 		);
 
 	
+	virtual void QuitAllState(
+		) override;
+
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

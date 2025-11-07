@@ -436,6 +436,11 @@ void ASceneElement_Space::EntryViewDevice(
 			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 		}
 	}
+	
+	for (auto Iter : CollisionComponentsAry)
+	{
+		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void ASceneElement_Space::EntryFocusDevice(
@@ -507,6 +512,11 @@ void ASceneElement_Space::EntryFocusDevice(
 						PrimitiveComponentPtr->SetRenderCustomDepth(true);
 						PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 					}
+				}
+	
+				for (auto Iter : CollisionComponentsAry)
+				{
+					Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				}
 			}
 			break;
@@ -642,6 +652,11 @@ void ASceneElement_Space::EntryShowEffect(
 						PrimitiveComponentPtr->SetRenderCustomDepth(false);
 					}
 				}
+	
+				for (auto Iter : CollisionComponentsAry)
+				{
+					Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				}
 			}
 			break;
 		}
@@ -652,7 +667,7 @@ void ASceneElement_Space::QuitAllState()
 {
 	Super::QuitAllState();
 
-	SetActorHiddenInGame(false);
+	SetActorHiddenInGame(true);
 
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
@@ -672,6 +687,11 @@ void ASceneElement_Space::QuitAllState()
 			PrimitiveComponentPtr->SetHiddenInGame(true);
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
+	}
+	
+	for (auto Iter : CollisionComponentsAry)
+	{
+		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 

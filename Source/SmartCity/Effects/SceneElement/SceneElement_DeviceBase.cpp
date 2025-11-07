@@ -249,6 +249,11 @@ void ASceneElement_DeviceBase::QuitShowDeviceEffect()
 {
 }
 
+void ASceneElement_DeviceBase::QuitAllState()
+{
+	Super::QuitAllState();
+}
+
 TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 {
 	auto Result = Super::GetSceneElementData();
