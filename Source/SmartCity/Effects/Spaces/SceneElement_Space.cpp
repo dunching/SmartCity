@@ -56,10 +56,7 @@ FBox ASceneElement_Space::GetComponentsBoundingBox(
 
 	for (auto Iter : CollisionComponentsAry)
 	{
-		if (Iter->IsRegistered() && (bNonColliding || Iter->IsCollisionEnabled()))
-		{
 			Box += Iter->Bounds.GetBox();
-		}
 	}
 
 	return Box;

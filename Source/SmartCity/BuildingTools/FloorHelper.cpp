@@ -230,6 +230,9 @@ void AFloorHelper_Computer::OnConstruction(
 						                                                )
 					                                               );
 
+					DrawDebugSphere(GetWorld(), Pt1,20,20,FColor::Red, false, 10);
+					DrawDebugSphere(GetWorld(), Pt2,20,20,FColor::Yellow, false, 10);
+					
 					if (FVector::Distance(BoxPt, Pt1) > FVector::Distance(BoxPt, Pt2))
 					{
 						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
@@ -243,7 +246,7 @@ void AFloorHelper_Computer::OnConstruction(
 					{
 						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
 							 ViewerPawnClass,
-							 Pt1,
+							 Pt2,
 							 STCPtr->GetComponentRotation() + FRotator(0, -90, 0) + FRotator(0, 180, 0)
 							);
 
@@ -254,8 +257,6 @@ void AFloorHelper_Computer::OnConstruction(
 				}
 			}
 		}
-
-		return;
 	}
 }
 
