@@ -253,7 +253,7 @@ void FMessageBody_Receive_UpdateViewConfig::Deserialize(
 	{
 	}
 
-	if (jsonObject->TryGetNumberField(TEXT("ShowCurtainWall"), ViewConfig.FurnitureTranlucent))
+	if (jsonObject->TryGetNumberField(TEXT("ShowCurtainWall"), ViewConfig.CurtainWallTranlucent))
 	{
 	}
 
