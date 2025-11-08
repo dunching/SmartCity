@@ -14,8 +14,6 @@ ABuilding_ItemBase::ABuilding_ItemBase(
 	) :
 	  Super(ObjectInitializer)
 {
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
 

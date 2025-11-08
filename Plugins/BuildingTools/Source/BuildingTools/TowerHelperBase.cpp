@@ -8,8 +8,6 @@ ATowerHelperBase::ATowerHelperBase(
 	):Super(ObjectInitializer)
 {
 	
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
 

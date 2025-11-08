@@ -76,6 +76,8 @@ public:
 		bool bImmediatelyUpdate
 		);
 
+	virtual TPair<FTransform, float> GetViewSeat()const;
+	
 #if WITH_EDITORONLY_DATA
 	FString SceneElementName;
 #endif

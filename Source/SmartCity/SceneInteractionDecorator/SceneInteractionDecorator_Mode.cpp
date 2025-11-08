@@ -144,11 +144,10 @@ void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
 
 void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 void FEmergencyMode_Decorator::Spawn(
@@ -284,60 +283,10 @@ FEnergyMode_Decorator::FEnergyMode_Decorator() :
 
 void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
-
-	for (auto Iter : InActors)
-	{
-		auto PipePtr = Cast<ASceneElement_PWR_Pipe>(Iter);
-		if (PipePtr)
-		{
-			PipeActors.Add(PipePtr);
-
-			continue;
-		}
-
-		auto DevicePtr = Cast<ASceneElement_DeviceBase>(Iter);
-		if (DevicePtr)
-		{
-			OtherDevices.Add(DevicePtr);
-
-			continue;
-		}
-	}
-
-	auto AreaDecoratorSPtr =
-		DynamicCastSharedPtr<FArea_Decorator>(
-		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-			                                       USmartCitySuiteTags::Interaction_Area
-			                                      )
-		                                     );
-
-	FSceneElementConditional SceneActorConditional;
-
-	SceneActorConditional.ConditionalSet.AddTag(AreaDecoratorSPtr->GetBranchDecoratorType());
-	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-	for (auto Iter : PipeActors)
-	{
-		if (Iter)
-		{
-			Iter->SwitchInteractionType(SceneActorConditional);
-
-			IDMap.Add(Iter->GetID(), Iter);
-		}
-	}
-
-	for (auto Iter : OtherDevices)
-	{
-		if (Iter)
-		{
-			Iter->SwitchInteractionType(SceneActorConditional);
-		}
-	}
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 FHVACMode_Decorator::FHVACMode_Decorator() :
@@ -430,11 +379,10 @@ void FElevatorMode_Decorator::Quit()
 
 void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 FSunShadeMode_Decorator::FSunShadeMode_Decorator() :

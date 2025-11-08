@@ -8,6 +8,8 @@
 #include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
 #include "FloorHelper_Description.h"
+#include "SceneElementCategory.h"
+#include "SceneElement_Computer.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -157,107 +159,29 @@ void AFloorHelper_Computer::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+}
 
-	for (auto Iter : PresetBuildingCameraSeat)
-	{
-		auto ActorPtr = Iter.Value.LoadSynchronous();
-		if (ActorPtr)
-		{
-			ActorPtr->Destroy();
-		}
-	}
-	PresetBuildingCameraSeat.Empty();
+TMap<FString, TSoftObjectPtr<AViewerPawnBase>> AFloorHelper_Computer::GetPresetBuildingCameraSeat() const
+{
+	auto Result = Super::GetPresetBuildingCameraSeat();
 
-	const auto BoxPt = BoxComponentPtr->GetComponentLocation();
-
-	for (const auto& DatasmithSceneActorIter : AllReference.SoftDecorationItem.DatasmithSceneActorSet)
+	for (const auto& Iter : SceneElementCategoryMap)
 	{
 		TArray<AActor*> OutActors;
-		DatasmithSceneActorIter->GetAttachedActors(OutActors, true, true);
-		for (auto Iter : OutActors)
+	
+		Iter.Value->GetAttachedActors(OutActors, true, true);
+	
+		for (auto ActorIter : OutActors)
 		{
-			if (Iter)
+			auto SceneElementBasePtr = Cast<ASceneElement_Computer>(ActorIter);
+			if (SceneElementBasePtr)
 			{
-				auto Components = Iter->GetComponents();
-				for (auto SecondIter : Components)
-				{
-					auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
-					if (!InterfacePtr)
-					{
-						continue;
-					}
-					auto AUDPtr = Cast<UDatasmithAssetUserData>(
-					                                            InterfacePtr->GetAssetUserDataOfClass(
-						                                             UDatasmithAssetUserData::StaticClass()
-						                                            )
-					                                           );
-					if (!AUDPtr)
-					{
-						continue;
-					}
-
-					auto Name = AUDPtr->MetaData.Find(TEXT("服务器"));
-					if (!Name)
-					{
-						continue;
-					}
-
-					auto STCPtr = Cast<UStaticMeshComponent>(SecondIter);
-					if (!STCPtr)
-					{
-						continue;
-					}
-
-					const auto STCTransform = STCPtr->GetComponentTransform();
-
-					FVector Min;
-					FVector Max;
-					STCPtr->GetLocalBounds(Min, Max);
-					FBox Bounds(Min, Max);
-
-					const auto Pt1 = STCTransform.TransformPosition(
-					                                                Bounds.GetCenter() + FVector(
-						                                                 0,
-						                                                 Bounds.GetExtent().Y,
-						                                                 0
-						                                                )
-					                                               );
-					const auto Pt2 = STCTransform.TransformPosition(
-					                                                Bounds.GetCenter() - FVector(
-						                                                 0,
-						                                                 Bounds.GetExtent().Y,
-						                                                 0
-						                                                )
-					                                               );
-
-					DrawDebugSphere(GetWorld(), Pt1,20,20,FColor::Red, false, 10);
-					DrawDebugSphere(GetWorld(), Pt2,20,20,FColor::Yellow, false, 10);
-					
-					if (FVector::Distance(BoxPt, Pt1) > FVector::Distance(BoxPt, Pt2))
-					{
-						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
-							 ViewerPawnClass,
-							 Pt1,
-							 STCPtr->GetComponentRotation() + FRotator(0, -90, 0)
-							);
-						PresetBuildingCameraSeat.Add(*Name, ViewerPawnPtr);
-					}
-					else
-					{
-						auto ViewerPawnPtr = GetWorld()->SpawnActor<AViewerPawnBase>(
-							 ViewerPawnClass,
-							 Pt2,
-							 STCPtr->GetComponentRotation() + FRotator(0, -90, 0) + FRotator(0, 180, 0)
-							);
-
-						PresetBuildingCameraSeat.Add(*Name, ViewerPawnPtr);
-					}
-
-					break;
-				}
+				Result.Add(SceneElementBasePtr->DeviceTypeStr, nullptr);
 			}
 		}
 	}
+
+	return Result;
 }
 
 ABuilding_Floor_Mask::ABuilding_Floor_Mask(

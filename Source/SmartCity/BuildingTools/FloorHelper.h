@@ -40,20 +40,22 @@ public:
 		) override;
 
 	virtual void BeginPlay() override;
-	
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	void OnHourChanged(int32 Hour);
-	
+	void OnHourChanged(
+		int32 Hour
+		);
+
 	void OnExternalWall();
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<USceneComponent> FloorHelper_DescriptionAttachTransform;
 
 	TObjectPtr<AFloorHelper_Description> FloorHelper_DescriptionPtr = nullptr;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FString FloorDescription;
 
@@ -61,12 +63,12 @@ public:
 	FString FloorIndexDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AViewerPawnBase>ViewerPawnClass;
+	TSubclassOf<AViewerPawnBase> ViewerPawnClass;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<URectLightComponent>> RectLightComponentAry;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDisplayDescritpion = true;
 };
@@ -82,6 +84,7 @@ public:
 		const FTransform& Transform
 		) override;
 
+	virtual TMap<FString, TSoftObjectPtr<AViewerPawnBase>> GetPresetBuildingCameraSeat() const override;
 };
 
 UCLASS()
@@ -101,5 +104,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
 };

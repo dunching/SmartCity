@@ -373,13 +373,8 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 
 	for (auto MeshIter : CollisionComponentsAry)
 	{
-		// MeshIter->ComponentOverlapComponentWithResult(
-		//                                               MeshIter,
-		//                                               MeshIter->GetComponentLocation(),
-		//                                               MeshIter->GetComponentRotation(),
-		//                                               ObjectQueryParams,
-		//                                               OutOverlap
-		//                                              );
+		const auto Collision = MeshIter->GetCollisionEnabled();
+		MeshIter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		GetWorld()->ComponentOverlapMulti(
 		                                  OutOverlap,
 		                                  MeshIter,
@@ -390,6 +385,7 @@ TSet<ASceneElement_DeviceBase*> ASceneElement_Space::GetAllDevices() const
 		                                  Params,
 		                                  ObjectQueryParams
 		                                 );
+		MeshIter->SetCollisionEnabled(Collision);
 
 		for (const auto& Iter : OutOverlap)
 		{
@@ -527,51 +523,20 @@ void ASceneElement_Space::EntryShow(
 {
 	SetActorHiddenInGame(true);
 
-	SwitchColor(FColor::Red);
-
 	for (auto PrimitiveComponentPtr : StaticMeshComponentsAry)
 	{
 		if (PrimitiveComponentPtr)
 		{
-			PrimitiveComponentPtr->SetHiddenInGame(true);
-			// PrimitiveComponentPtr->SetRenderInMainPass(false);
+			PrimitiveComponentPtr->SetHiddenInGame(false);
+			PrimitiveComponentPtr->SetRenderInMainPass(false);
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
-
-	auto MessageBodySPtr = MakeShared<FMessageBody_SelectedSpace>();
-
-	MessageBodySPtr->SpaceName = Category;
-
-	TSet<ASceneElement_DeviceBase*> ActorsAry = GetAllDevices();
-
-	TSet<ASceneElementBase*> TempActorsAry;
-
-	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(TempActorsAry, ConditionalSet);
-
-	for (auto DeviceIter : ActorsAry)
+	
+	for (auto Iter : CollisionComponentsAry)
 	{
-		if (DeviceIter)
-		{
-			FMessageBody_SelectedSpace::FDeviceInfo DeviceInfo;
-
-			DeviceInfo.DeviceID = DeviceIter->SceneElementID;
-			DeviceInfo.Type = DeviceIter->DeviceTypeStr;
-
-			MessageBodySPtr->DeviceIDAry.Add(DeviceInfo);
-		}
+		Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
-
-	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
-
-	for (auto Iter : FeatureWheelAry)
-	{
-		if (Iter)
-		{
-			Iter->RemoveFromParent();
-		}
-	}
-	FeatureWheelAry.Empty();
 }
 
 void ASceneElement_Space::EntryShowEffect(
