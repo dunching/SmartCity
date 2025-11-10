@@ -7,6 +7,7 @@
 #include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
 #include "FloorHelper.h"
+#include "SceneElementCategory.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
@@ -74,8 +75,7 @@ void ABuilding_CurtainWall::ReplaceImp(
 				StaticMeshComponentsAry.Add(NewComponentPtr);
 			}
 		}
-
-
+		
 		auto ParentPtr = GetAttachParentActor();
 		AFloorHelper* FloorPtr = nullptr;
 		for (; ParentPtr;)
@@ -90,12 +90,15 @@ void ABuilding_CurtainWall::ReplaceImp(
 
 		if (FloorPtr)
 		{
-			if (!FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet.IsEmpty())
+			if (!FloorPtr->SceneElementCategoryMap.IsEmpty())
 			{
-				for (const auto& Iter : FloorPtr->AllReference.StructItemSet.DatasmithSceneActorSet)
+				for (const auto& Iter : FloorPtr->SceneElementCategoryMap)
 				{
-					AttachToActor(Iter.LoadSynchronous(), FAttachmentTransformRules::KeepWorldTransform);
-					return;
+					if (Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_AS))
+					{
+						AttachToActor(Iter.Value, FAttachmentTransformRules::KeepWorldTransform);
+						return;	
+					}
 				}
 			}
 		}

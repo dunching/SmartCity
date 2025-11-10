@@ -9,9 +9,8 @@ AFloorHelperBase::AFloorHelperBase(
 {
 	SceneComponentPtr = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 	SceneComponentPtr->SetMobility(EComponentMobility::Movable);
+	SceneComponentPtr->SetupAttachment(RootComponent);
 
-	RootComponent = SceneComponentPtr;
-	
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
 

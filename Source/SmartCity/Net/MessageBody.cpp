@@ -9,6 +9,7 @@
 #include "GameOptions.h"
 #include "IPSSI.h"
 #include "PlanetPlayerCameraManager.h"
+#include "SceneElementCategory.h"
 #include "SceneElement_DeviceBase.h"
 #include "SceneElement_RadarMode.h"
 #include "SceneElement_Space.h"
@@ -387,10 +388,15 @@ void FMessageBody_Receive_LocaterSpaceByID::DoAction() const
 		auto FloorRef = UAssetRefMap::GetInstance()->FloorHelpers[Floor];
 		auto FloorPtr = FloorRef.LoadSynchronous();
 
-		for (auto Iter : FloorPtr->AllReference.SpaceItemSet.DatasmithSceneActorSet)
+		for (auto Iter : FloorPtr->SceneElementCategoryMap)
 		{
+			if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+			{
+				continue;		
+			}
+			
 			TArray<AActor*> OutActors;
-			Iter->GetAttachedActors(OutActors, true, true);
+			Iter.Value->GetAttachedActors(OutActors, true, true);
 
 			for (auto SpaceIter : OutActors)
 			{
@@ -924,9 +930,10 @@ void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
 
 	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (Iter.Value->PresetBuildingCameraSeat.Contains(Seat))
+		const auto PresetBuildingCameraSeat= Iter.Value->GetPresetBuildingCameraSeat();
+		if (PresetBuildingCameraSeat.Contains(Seat))
 		{
-			auto ViewerPawnBasePtr = Iter.Value->PresetBuildingCameraSeat[
+			auto ViewerPawnBasePtr = PresetBuildingCameraSeat[
 				Seat];
 			USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
 			                                                                   USmartCitySuiteTags::Interaction_Area_SpecialArea,
@@ -949,6 +956,9 @@ void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
 
 					                                                                   SpaceAreaDecoratorSPtr->
 						                                                                   FloorSet = FloorSet;
+
+					                                                                   SpaceAreaDecoratorSPtr->
+						                                                                   Seat = Seat;
 				                                                                   }
 			                                                                   }
 			                                                                  );

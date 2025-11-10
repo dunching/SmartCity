@@ -293,7 +293,12 @@ void ASceneElement_HVAC::EntryShoweviceEffect()
 	}
 	if (ExtensionParamMap.Contains(TEXT("Temperature")))
 	{
-		NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Black);
+		NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Blue);
+	}
+	if (ExtensionParamMap.Contains(TEXT("开关")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
+		
 	}
 
 	EntryShowDevice();

@@ -4,12 +4,17 @@
 #include "Components/RectLightComponent.h"
 
 #include "AssetRefMap.h"
+#include "DatasmithAssetUserData.h"
+#include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
 #include "FloorHelper_Description.h"
+#include "SceneElementCategory.h"
+#include "SceneElement_Computer.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
+#include "ViewerPawnBase.h"
 #include "WeatherSystem.h"
 
 AFloorHelper::AFloorHelper(
@@ -101,7 +106,7 @@ void AFloorHelper::SwitchInteractionType(
 			}
 
 			FloorHelper_DescriptionPtr = nullptr;
-			
+
 			return;
 		}
 	}
@@ -116,7 +121,7 @@ void AFloorHelper::SwitchInteractionType(
 			}
 
 			FloorHelper_DescriptionPtr = nullptr;
-			
+
 			return;
 		}
 	}
@@ -147,6 +152,36 @@ void AFloorHelper::SwitchInteractionType(
 
 		return;
 	}
+}
+
+void AFloorHelper_Computer::OnConstruction(
+	const FTransform& Transform
+	)
+{
+	Super::OnConstruction(Transform);
+}
+
+TMap<FString, TSoftObjectPtr<AViewerPawnBase>> AFloorHelper_Computer::GetPresetBuildingCameraSeat() const
+{
+	auto Result = Super::GetPresetBuildingCameraSeat();
+
+	for (const auto& Iter : SceneElementCategoryMap)
+	{
+		TArray<AActor*> OutActors;
+	
+		Iter.Value->GetAttachedActors(OutActors, true, true);
+	
+		for (auto ActorIter : OutActors)
+		{
+			auto SceneElementBasePtr = Cast<ASceneElement_Computer>(ActorIter);
+			if (SceneElementBasePtr)
+			{
+				Result.Add(SceneElementBasePtr->DeviceTypeStr, nullptr);
+			}
+		}
+	}
+
+	return Result;
 }
 
 ABuilding_Floor_Mask::ABuilding_Floor_Mask(

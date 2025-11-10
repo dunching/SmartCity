@@ -14,6 +14,8 @@ void ALandScapeHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
+			SetActorHiddenInGame(false);
+
 			for (auto Iter : LandmarkAry)
 			{
 				auto MarkPtr = Iter.LoadSynchronous();
@@ -26,6 +28,8 @@ void ALandScapeHelper::SwitchInteractionType(
 		}
 	}
 	{
+		SetActorHiddenInGame(true);
+
 		for (auto Iter : LandmarkAry)
 		{
 			auto MarkPtr = Iter.LoadSynchronous();

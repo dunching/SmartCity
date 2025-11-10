@@ -63,9 +63,9 @@ void ASceneElement_PWR_Pipe::Merge(
 	, const TMap<FName, FString>& NewUserData
 	)
 {
-	Super::Merge(ActorRef, UserData, NewUserData);
+	Super::Merge(ActorRef, InUserData, NewUserData);
 
-	UserData = InUserData;
+	CurrentUserData = InUserData;
 
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
@@ -249,17 +249,17 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 FString ASceneElement_PWR_Pipe::GetID() const
 {
 	if (
-		(UserData.Key == TEXT("Element*照明回路编号")) ||
-		(UserData.Key == TEXT("Element*空调和新风回路编号"))
+		(CurrentUserData.Key == TEXT("Element*照明回路编号")) ||
+		(CurrentUserData.Key == TEXT("Element*空调和新风回路编号"))
 	)
 	{
-		return UserData.Value;
+		return CurrentUserData.Value;
 	}
 	if (
-		(UserData.Key == TEXT("Element*管线类型编号"))
+		(CurrentUserData.Key == TEXT("Element*管线类型编号"))
 	)
 	{
-		return UserData.Value;
+		return CurrentUserData.Value;
 	}
 
 	return TEXT("");
@@ -314,9 +314,9 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
 	if (
-		(UserData.Key == TEXT("Element*照明回路编号")) ||
-		(UserData.Key == TEXT("Element*管线类型编号")) ||
-		(UserData.Key == TEXT("Element*空调和新风回路编号"))
+		(CurrentUserData.Key == TEXT("Element*照明回路编号")) ||
+		(CurrentUserData.Key == TEXT("Element*管线类型编号")) ||
+		(CurrentUserData.Key == TEXT("Element*空调和新风回路编号"))
 	)
 	{
 		SetActorHiddenInGame(false);

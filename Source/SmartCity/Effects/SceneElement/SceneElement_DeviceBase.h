@@ -66,6 +66,8 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	
+		
 	/**
 	 * 选中的状态
 	 */
@@ -103,6 +105,9 @@ public:
 		);
 
 	
+	virtual void QuitAllState(
+		) override;
+
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

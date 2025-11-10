@@ -27,6 +27,9 @@ class UGameplayTaskBase;
 class ASceneElementBase;
 class ASceneElement_DeviceBase;
 class ASceneElement_Space;
+class ASceneElementCategory;
+
+struct FSceneElementMap;
 
 /*
  * PlayerController处理异步的组件
@@ -51,6 +54,7 @@ public:
 		bool bBreakRuntimeTask,
 		const std::function<void(
 			GameplayTaskType*
+
 
 			
 			)>& Func
@@ -224,7 +228,7 @@ public:
 		bool bInOwnerFinished
 		) override;
 
-	TObjectPtr<AViewerPawnBase>ViewerPawnPtr = nullptr;
+	TObjectPtr<AViewerPawnBase> ViewerPawnPtr = nullptr;
 };
 
 /**
@@ -264,7 +268,7 @@ public:
 
 	FString ID;
 
-	TWeakObjectPtr<ASceneElementBase>TargetDevicePtr = nullptr;
+	TWeakObjectPtr<ASceneElementBase> TargetDevicePtr = nullptr;
 };
 
 /**
@@ -367,84 +371,29 @@ public:
 	FOnEnd OnEnd;
 
 protected:
-	virtual bool ProcessTask(
-		float DeltaTime
-		) override;
+	bool ProcessTask_StructItemSet(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		FSceneElementMap& AllReference
+		);
 
-	/**
-	 * 
-	 * @return true：未处理完成，false：处理完成
-	 */
-	bool ProcessTask_RecordFloor();
+	bool ProcessTask_InnerStructItemSet(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		FSceneElementMap& AllReference);
 
-	/**
-	 * 
-	 * @return true：未处理完成，false：处理完成
-	 */
-	bool ProcessTask_NeedReplaceByRef();
+	bool ProcessTask_SoftDecorationItemSet(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		FSceneElementMap& AllReference);
 
-	/**
-	 * 
-	 * @return true：未处理完成，false：处理完成
-	 */
-	bool ProcessTask_StructItemSet();
+	bool ProcessTask_SpaceItemSet(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		FSceneElementMap& AllReference);
 
-	bool ProcessTask_InnerStructItemSet();
+	bool ProcessTask_Lanscape(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		TSet<TSoftObjectPtr<ADatasmithSceneActor>> &DatasmithSceneActorSet
+		);
 
-	bool ProcessTask_SoftDecorationItemSet();
-
-	bool ProcessTask_ReplaceSoftDecorationItemSet();
-
-	bool ProcessTask_SpaceItemSet();
-
-	
-	
 private:
-	bool ReplacedActor(
-		AActor* ActorPtr
-		);
-
-	void ApplyData(
-		int32 Index
-		);
-
-	void ApplyRelatedActors(
-		const TSoftObjectPtr<ADatasmithSceneActor>& ItemSet
-		);
-
-	int32 SceneActorMapIndex = 0;
-
-	TArray<FSceneElementMap> SceneActorMap;
-
-
-	enum class EStep
-	{
-		kRecordFloor,
-		kNeedReplaceByRef,
-		kStructItemSet,
-		kInnerStructItemSet,
-		kSoftDecorationItemSet,
-		kSpaceItemSet,
-	};
-
-	EStep Step = EStep::kRecordFloor;
-
-
-	int32 StructItemSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> StructItemSet;
-
-	int32 InnerStructItemSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> InnerStructItemSet;
-
-	int32 SoftDecorationItemSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SoftDecorationItemSet;
-
-	int32 SpaceItemSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> SpaceItemSet;
 };
 
 #pragma endregion
@@ -470,8 +419,8 @@ class SMARTCITY_API UGT_SwitchSceneElement_Base : public UGT_RuntimeTask
 public:
 	using FOnEnd = TMulticastDelegate<void(
 		bool,
-		const TSet<AActor*>&,
 		UGT_SwitchSceneElement_Base*
+
 
 		
 		)>;
@@ -529,48 +478,24 @@ protected:
 	EStep Step = EStep::kDisplay;
 
 protected:
-	/**
-	 * 建筑物
-	 * 用于计算包围框
-	 */
-	TSet<AActor*> Result;
-
-	int32 DataSmithSceneActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> DataSmithSceneActorsSet;
-
-	TSet<TSoftObjectPtr<ASceneElementBase>> ReplaceActorsSet;
+	TArray<TObjectPtr<ASceneElementBase>> NeedDisplayAry;
 
 	int32 DisplayAryIndex = 0;
-	
-	TArray<AActor*> DisplayAry;
 
-
-	int32 HideDataSmithSceneActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
-
-	TSet<TSoftObjectPtr<ASceneElementBase>> HideReplaceActorsSet;
+	TArray<TObjectPtr<ASceneElementBase>> NeedHideAry;
 
 	int32 HideAryIndex = 0;
-
-	TArray<AActor*> HideAry;
-
-
-	int32 RelatedActorsIndex = 0;
 };
 
 UCLASS()
-class SMARTCITY_API UGT_SwitchSceneElement_Generic : public UGT_SwitchSceneElement_Base
+class SMARTCITY_API UGT_SwitchSceneElement_Tower : public UGT_SwitchSceneElement_Base
 {
 	GENERATED_BODY()
 
 public:
-
 	bool bDisplayInnerStruct = true;
-protected:
-	virtual void Activate() override;
 
+protected:
 private:
 	virtual bool ProcessTask_Display() override;
 
@@ -581,6 +506,23 @@ private:
 	virtual bool ProcessTask_SwitchState() override;
 
 	virtual bool ProcessTask_SwitchState_Elevator() override;
+	
+	TArray<TObjectPtr<ASceneElementBase>> BuildingsAry;
+
+	int32 BuildingsAryIndex = 0;
+
+};
+
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Floor : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+	virtual bool ProcessTask_Display() override;
+
+	virtual bool ProcessTask_Hiden() override;
+
 };
 
 /**
@@ -595,13 +537,14 @@ public:
 	virtual void Activate() override;
 
 	virtual bool ProcessTask_Display() override;
-	
+
+	virtual bool ProcessTask_Hiden() override;
+
 	virtual bool ProcessTask_SwitchState() override;
-	
+
 	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr = nullptr;
-	
-	FGameplayTag Floor;
-	
+
+	FGameplayTag FloorTag;
 };
 
 /**
@@ -616,13 +559,14 @@ public:
 	virtual void Activate() override;
 
 	virtual bool ProcessTask_Display() override;
-	
+
+	virtual bool ProcessTask_Hiden() override;
+
 	virtual bool ProcessTask_SwitchState() override;
 
 	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
 
-	FGameplayTag Floor;
-	
+	FGameplayTag FloorTag;
 };
 
 /**
@@ -635,9 +579,10 @@ class SMARTCITY_API UGT_SwitchSceneElement_SpecialArea : public UGT_SwitchSceneE
 
 public:
 	virtual bool ProcessTask_Display() override;
-	
-	TSet<FGameplayTag> FloorSet;
 
+	virtual bool ProcessTask_Hiden() override;
+
+	TSet<FGameplayTag> FloorSet;
 };
 
 /**
@@ -649,91 +594,6 @@ class SMARTCITY_API UGT_FloorSplit : public UGT_RuntimeTask
 	GENERATED_BODY()
 
 public:
-	using FOnEnd = TMulticastDelegate<void(
-		bool
-		)>;
-
-	UGT_FloorSplit(
-		const FObjectInitializer& ObjectInitializer
-		);
-
-	virtual void Activate() override;
-
-	virtual void TickTask(
-		float DeltaTime
-		) override;
-
-	virtual void OnDestroy(
-		bool bInOwnerFinished
-		) override;
-
-	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
-
-	/**
-	 * 是否清除之前的
-	 */
-	bool bClearPrevious = false;
-
-	int32 HeightInterval = 500;
-
-	float MoveDuration = 1.f;
-
-	FOnEnd OnEnd;
-
-protected:
-	virtual bool ProcessTask(
-		float DeltaTime
-		) override;
-
-private:
-	bool ProcessTask_Sort();
-
-	bool ProcessTask_ConfirmConditional();
-
-	bool ProcessTask_Display();
-
-	bool ProcessTask_Move(
-		float DeltaTime
-		);
-
-	enum class EStep
-	{
-		kSort,
-		kConfirmConditional,
-		kDisplay,
-		kMove,
-		kComplete,
-	};
-
-	EStep Step = EStep::kSort;
-
-	/**
-	 * 等待显示
-	 */
-	int32 FilterIndex = 0;
-
-	std::map<AActor*, int32> FilterCount;
-
-
-	int32 DataSmithSceneActorsSetIndex = 0;
-
-	TMap<int32, TArray<TSoftObjectPtr<ADatasmithSceneActor>>> DataSmithSceneActorsSet;
-
-	int32 ReplaceActorsSetIndex = 0;
-
-	TMap<int32, TArray<TSoftObjectPtr<ASceneElementBase>>> ReplaceActorsSet;
-
-
-	int32 HideDataSmithSceneActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ADatasmithSceneActor>> HideDataSmithSceneActorsSet;
-
-	int32 HideRePlaceActorsSetIndex = 0;
-
-	TArray<TSoftObjectPtr<ASceneElementBase>> HideReplaceActorsSet;
-
-
-	float ConsumeTime = 0.f;
 };
 
 /**
@@ -745,70 +605,6 @@ class SMARTCITY_API UGT_QuitFloorSplit : public UGT_RuntimeTask
 	GENERATED_BODY()
 
 public:
-	using FOnEnd = TMulticastDelegate<void(
-		bool
-		)>;
-
-	UGT_QuitFloorSplit(
-		const FObjectInitializer& ObjectInitializer
-		);
-
-	virtual void OnDestroy(
-		bool bInOwnerFinished
-		) override;
-
-	USceneInteractionWorldSystem* SceneInteractionWorldSystemPtr = nullptr;
-
-	/**
-	 * 是否清除之前的
-	 */
-	bool bClearPrevious = false;
-
-	int32 HeightInterval = 500;
-
-	float MoveDuration = 1.f;
-
-	FOnEnd OnEnd;
-
-protected:
-	virtual bool ProcessTask(
-		float DeltaTime
-		) override;
-
-private:
-	bool ProcessTask_Sort();
-
-	bool ProcessTask_Move(
-		float DeltaTime
-		);
-
-	enum class EStep
-	{
-		kSort,
-		kMove,
-		kComplete,
-	};
-
-	EStep Step = EStep::kSort;
-
-	/**
-	 * 等待显示
-	 */
-	int32 FilterIndex = 0;
-
-	std::map<AActor*, int32> FilterCount;
-
-
-	int32 DataSmithSceneActorsSetIndex = 0;
-
-	TMap<int32, TArray<TSoftObjectPtr<ADatasmithSceneActor>>> DataSmithSceneActorsSet;
-
-	int32 ReplaceActorsSetIndex = 0;
-
-	TMap<int32, TArray<TSoftObjectPtr<ASceneElementBase>>> ReplaceActorsSet;
-
-
-	float ConsumeTime = 0.f;
 };
 
 #pragma endregion

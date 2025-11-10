@@ -100,7 +100,6 @@ FGameplayTag FDecoratorBase::GetBranchDecoratorType() const
 
 void FDecoratorBase::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {

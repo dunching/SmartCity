@@ -20,7 +20,7 @@ class AFloorHelper;
 class USceneInteractionWorldSystem;
 class ASceneElement_PWR_Pipe;
 class APersonMark;
-class UGT_SwitchSceneElement_Generic;
+class UGT_SwitchSceneElement_Tower;
 class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
@@ -60,13 +60,12 @@ protected:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	FGameplayTag CurrentInteraction_Area;
 
-	TArray<UGT_SwitchSceneElement_Generic*> SwitchSceneElementStateAry;
+	TArray<UGT_SwitchSceneElement_Tower*> SwitchSceneElementStateAry;
 };
 
 /**
@@ -95,7 +94,6 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 };
@@ -126,7 +124,6 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 };
@@ -191,7 +188,6 @@ public:
 protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
@@ -225,6 +221,11 @@ public:
 
 private:
 
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
+
 	void Process();
 	
 	void AdjustCamera()const;
@@ -232,6 +233,8 @@ private:
 	TWeakObjectPtr<ASceneElement_DeviceBase>PreviousSceneElementPtr = nullptr;
 
 	TObjectPtr<AFloorHelper>PreviousFloorHelper = nullptr;
+
+	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
 };
 
 class SMARTCITY_API FViewSpace_Decorator : public FArea_Decorator
@@ -253,19 +256,19 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	FGameplayTag Floor;
 
 	TWeakObjectPtr<ASceneElement_Space>SceneElementPtr = nullptr;
-
 private:
 
 	void Process();
 	
 	void AdjustCamera()const;
+
+	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
 };
 
 class SMARTCITY_API FViewSpecialArea_Decorator : public FArea_Decorator
@@ -283,7 +286,9 @@ public:
 	virtual void Quit() override;
 
 	TSet<FGameplayTag> FloorSet;
-
+	
+	FString Seat;
+	
 	TWeakObjectPtr<AViewerPawnBase>ViewerPawnBasePtr = nullptr;
 
 private:

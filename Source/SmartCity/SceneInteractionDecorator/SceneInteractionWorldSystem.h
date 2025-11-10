@@ -17,7 +17,7 @@
 
 class FDecoratorBase;
 class UGT_InitializeSceneActors;
-class UGT_SwitchSceneElement_Generic;
+class UGT_SwitchSceneElement_Tower;
 class UGT_SwitchSceneElement_Space;
 class URouteMarker;
 class ASceneElementBase;
@@ -33,7 +33,7 @@ class SMARTCITY_API USceneInteractionWorldSystem : public UWorldSubsystem
 
 public:
 	friend UGT_InitializeSceneActors;
-	friend UGT_SwitchSceneElement_Generic;
+	friend UGT_SwitchSceneElement_Tower;
 
 	static USceneInteractionWorldSystem* GetInstance();
 
@@ -100,12 +100,20 @@ public:
 		EOperatorType OperatorType
 		) const;
 
-	UGT_SwitchSceneElement_Base* UpdateFilter(
+	UGT_SwitchSceneElement_Base* UpdateFilter_Tower(
 		const FSceneElementConditional& FilterTags,
 		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&,
+			UGT_SwitchSceneElement_Base*
+			)>& OnEnd
+		);
+
+	UGT_SwitchSceneElement_Base* UpdateFilter_Floor(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
 			UGT_SwitchSceneElement_Base*
 			)>& OnEnd
 		);
@@ -115,7 +123,6 @@ public:
 		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&,
 			UGT_SwitchSceneElement_Base*
 			)>& OnEnd,
 			TWeakObjectPtr<ASceneElement_Space>SceneElementPtr
@@ -126,7 +133,6 @@ public:
 		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&,
 			UGT_SwitchSceneElement_Base*
 			)>& OnEnd,
 			TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr
@@ -137,7 +143,6 @@ public:
 		bool bBreakRuntimeTask,
 		const TMulticastDelegate<void(
 			bool,
-			const TSet<AActor*>&,
 			UGT_SwitchSceneElement_Base*
 			)>& OnEnd,
 			

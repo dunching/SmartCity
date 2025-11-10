@@ -14,7 +14,7 @@ class UTILS_API UKismetAlgorithm : public UBlueprintFunctionLibrary
 
 public:
 	static TPair<FTransform, float> GetCameraSeat(
-		const TSet<AActor*>& Actors,
+		const TSet<const AActor*>& Actors,
 		const FRotator& Rot,
 		float FOV
 		);

@@ -40,7 +40,7 @@ public:
 
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
-		);
+		) override;
 	
 	virtual TPair<FTransform, float> GetCameraSeat(
 			const FRotator& Rot,

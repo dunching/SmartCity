@@ -1,5 +1,7 @@
 #include "SceneElementBase.h"
 
+#include "Algorithm.h"
+
 ASceneElementBase::ASceneElementBase(
 	const FObjectInitializer& ObjectInitializer
 	) :
@@ -22,7 +24,7 @@ void ASceneElementBase::Replace(
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		AActor* ParentPtr = ActorRef.LoadSynchronous()->GetAttachParentActor();
-		if (ParentPtr && !GetAttachParentActor())
+		if (ParentPtr)
 		{
 			AttachToActor(ParentPtr, FAttachmentTransformRules::KeepWorldTransform);
 			SetActorTransform(ActorRef.LoadSynchronous()->GetTransform());
@@ -124,11 +126,11 @@ TSharedPtr<FJsonValue> ASceneElementBase::GetSceneElementData() const
 
 	auto ObjSPtr = MakeShared<FJsonObject>();
 
-	for (const auto &Iter : UserData)
+	for (const auto& Iter : UserData)
 	{
 		ObjSPtr->SetStringField(Iter.Key.ToString(), Iter.Value);
 	}
-	
+
 	RootJsonObj->SetObjectField(
 	                            TEXT("UserData"),
 	                            ObjSPtr
@@ -176,6 +178,19 @@ void ASceneElementBase::UpdateExtensionParamMap(
 	{
 		SwitchInteractionType(CurrentConditionalSet);
 	}
+}
+
+TPair<FTransform, float> ASceneElementBase::GetViewSeat() const
+{
+	TSet<const AActor*>Actors;
+
+	Actors.Add(this);
+	
+	return UKismetAlgorithm::GetCameraSeat(
+	                                       Actors,
+	                                       FRotator::ZeroRotator,
+	                                       90
+	                                      );
 }
 
 void ASceneElementBase::SetTranslucentImp(

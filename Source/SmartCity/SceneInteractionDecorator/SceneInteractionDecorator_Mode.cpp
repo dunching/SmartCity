@@ -144,11 +144,10 @@ void FEmergencyMode_Decorator::OnOtherDecoratorQuit(
 
 void FEmergencyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 void FEmergencyMode_Decorator::Spawn(
@@ -173,20 +172,35 @@ void FEmergencyMode_Decorator::Spawn(
 
 		if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetBranchDecoratorType())
 		{
-			auto FireMarkClass = UAssetRefMap::GetInstance()->FireMarkClass;
-
-			const auto Box = Iter.Value->BoxComponentPtr->GetLocalBounds();
-			const auto Location = Iter.Value->BoxComponentPtr->GetComponentLocation();
-			auto Center = Box.GetBox().GetCenter();
-			auto Extent = Box.GetBox().GetExtent();
-			Extent.Z = 0;
-
-			for (int32 Index = 0; Index < 3; Index++)
+			if (Iter.Value->SceneElementCategoryMap.Contains(USmartCitySuiteTags::SceneElement_Category_Space))
 			{
-				auto Pt = UKismetMathLibrary::RandomPointInBoundingBox(Location, Extent);
+				auto FireMarkClass = UAssetRefMap::GetInstance()->FireMarkClass;
 
-				auto FireMarkPtr = GetWorldImp()->SpawnActor<AFireMark>(FireMarkClass, Pt, FRotator::ZeroRotator);
-				FireMarkSet.Add(FireMarkPtr);
+				const auto Spaces = Iter.Value->SceneElementCategoryMap[
+					USmartCitySuiteTags::SceneElement_Category_Space];
+				TArray<AActor*> OutActors;
+
+				Iter.Value->GetAttachedActors(OutActors, true, true);
+
+				for (auto ActorIter : OutActors)
+				{
+					auto SceneElementBasePtr = Cast<ASceneElement_Space>(ActorIter);
+					if (SceneElementBasePtr)
+					{
+						for (auto SpaceBoxIter : SceneElementBasePtr->CollisionComponentsAry)
+						{
+							if (FMath::RandRange(0, 100) > 60)
+							{
+								auto FireMarkPtr = GetWorldImp()->SpawnActor<AFireMark>(
+									 FireMarkClass,
+									 SpaceBoxIter->GetComponentLocation(),
+									 FRotator::ZeroRotator
+									);
+								FireMarkSet.Add(FireMarkPtr);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -284,60 +298,10 @@ FEnergyMode_Decorator::FEnergyMode_Decorator() :
 
 void FEnergyMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
-
-	for (auto Iter : InActors)
-	{
-		auto PipePtr = Cast<ASceneElement_PWR_Pipe>(Iter);
-		if (PipePtr)
-		{
-			PipeActors.Add(PipePtr);
-
-			continue;
-		}
-
-		auto DevicePtr = Cast<ASceneElement_DeviceBase>(Iter);
-		if (DevicePtr)
-		{
-			OtherDevices.Add(DevicePtr);
-
-			continue;
-		}
-	}
-
-	auto AreaDecoratorSPtr =
-		DynamicCastSharedPtr<FArea_Decorator>(
-		                                      USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-			                                       USmartCitySuiteTags::Interaction_Area
-			                                      )
-		                                     );
-
-	FSceneElementConditional SceneActorConditional;
-
-	SceneActorConditional.ConditionalSet.AddTag(AreaDecoratorSPtr->GetBranchDecoratorType());
-	SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
-
-	for (auto Iter : PipeActors)
-	{
-		if (Iter)
-		{
-			Iter->SwitchInteractionType(SceneActorConditional);
-
-			IDMap.Add(Iter->GetID(), Iter);
-		}
-	}
-
-	for (auto Iter : OtherDevices)
-	{
-		if (Iter)
-		{
-			Iter->SwitchInteractionType(SceneActorConditional);
-		}
-	}
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 FHVACMode_Decorator::FHVACMode_Decorator() :
@@ -430,11 +394,10 @@ void FElevatorMode_Decorator::Quit()
 
 void FElevatorMode_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
-	const TSet<AActor*>& InActors,
 	UGT_SwitchSceneElement_Base* TaskPtr
 	)
 {
-	Super::OnUpdateFilterComplete(bIsOK, InActors, TaskPtr);
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
 }
 
 FSunShadeMode_Decorator::FSunShadeMode_Decorator() :

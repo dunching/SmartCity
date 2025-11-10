@@ -72,6 +72,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere)
 	FString DataSmith_Key = TEXT("Element*空间划分");
+	
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	TArray<UBoxComponent*>CollisionComponentsAry;
+
 protected:
 
 	virtual void EntryViewDevice(
@@ -102,9 +106,6 @@ protected:
 	
 	void OnExternalWall();
 	
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<UBoxComponent*>CollisionComponentsAry;
-
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 

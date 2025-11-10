@@ -1,0 +1,246 @@
+#include "SceneElement_Computer.h"
+
+#include "Engine/StaticMeshActor.h"
+#include "ActorSequenceComponent.h"
+#include "DatasmithAssetUserData.h"
+#include "Components/BoxComponent.h"
+
+#include "CollisionDataStruct.h"
+#include "FloorHelper.h"
+#include "MessageBody.h"
+#include "SmartCitySuiteTags.h"
+#include "WebChannelWorldSystem.h"
+
+ASceneElement_Computer::ASceneElement_Computer(
+	const FObjectInitializer& ObjectInitializer
+	) :
+	  Super(ObjectInitializer)
+{
+	// CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ASceneElement_Computer::ReplaceImp(
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
+	)
+{
+	Super::ReplaceImp(ActorPtr, InUserData);
+
+	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
+	{
+	}
+}
+
+void ASceneElement_Computer::Merge(
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
+	)
+{
+	Super::Merge(ActorRef, InUserData, NewUserData);
+
+	CurrentUserData = InUserData;
+
+	if (ActorRef.ToSoftObjectPath().IsValid())
+	{
+		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
+		if (STPtr)
+		{
+			auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
+			if (!InterfacePtr)
+			{
+				return;
+			}
+			auto AUDPtr = Cast<UDatasmithAssetUserData>(
+			                                            InterfacePtr->GetAssetUserDataOfClass(
+				                                             UDatasmithAssetUserData::StaticClass()
+				                                            )
+			                                           );
+
+			CheckIsJiaCeng(AUDPtr);
+
+			auto Transform =
+				STPtr->GetStaticMeshComponent()->
+				       GetComponentTransform();
+
+			auto NewComponentPtr = Cast<UStaticMeshComponent>(
+			                                                  AddComponentByClass(
+				                                                   UStaticMeshComponent::StaticClass(),
+				                                                   true,
+				                                                   Transform,
+				                                                   false
+				                                                  )
+			                                                 );
+
+			NewComponentPtr->AddAssetUserData(AUDPtr);
+
+			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+
+			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			NewComponentPtr->SetCollisionObjectType(Device_Object);
+			NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+			NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+
+			NewComponentPtr->SetRenderCustomDepth(false);
+
+			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			UpdateCollisionBox(StaticMeshComponentsAry);
+		}
+
+		ActorRef->Destroy();
+	}
+}
+
+void ASceneElement_Computer::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	Super::SwitchInteractionType(ConditionalSet);
+
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
+		{
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
+		)
+		{
+			EntryShowDevice();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
+		)
+		{
+			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
+		)
+		{
+			EntryShowDevice();
+
+			return;
+		}
+	}
+
+	if (ProcessJiaCengLogic(ConditionalSet))
+	{
+		QuitAllState();
+		return;
+	}
+
+	{
+		if (ConditionalSet.ConditionalSet.IsEmpty())
+		{
+		}
+		QuitAllState();
+
+		return;
+	}
+}
+
+void ASceneElement_Computer::EntryFocusDevice()
+{
+	Super::EntryFocusDevice();
+
+	SetActorHiddenInGame(false);
+
+	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
+
+	MessageBodySPtr->DeviceID = SceneElementID;
+	MessageBodySPtr->Type = DeviceTypeStr;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);
+}
+
+void ASceneElement_Computer::EntryViewDevice()
+{
+	Super::EntryViewDevice();
+
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Computer::EntryShowDevice()
+{
+	Super::EntryShowDevice();
+
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Computer::EntryShoweviceEffect()
+{
+	Super::EntryShoweviceEffect();
+
+	SetActorHiddenInGame(false);
+}
+
+void ASceneElement_Computer::QuitAllState()
+{
+	Super::QuitAllState();
+
+	SetActorHiddenInGame(true);
+}
+
+TPair<FTransform, float> ASceneElement_Computer::GetViewSeat() const
+{
+	const auto FloorBoxPt = BelongFloor->BoxComponentPtr->GetComponentLocation();
+
+	const auto BoxPt = CollisionComponentHelper->GetComponentLocation();
+
+	const auto Bounds = CollisionComponentHelper->GetScaledBoxExtent();
+
+	const auto Pt1 =
+		BoxPt + FVector(
+		                0,
+		                Bounds.Y,
+		                0
+		               );
+	const auto Pt2 =
+		BoxPt - FVector(
+		                0,
+		                Bounds.Y,
+		                0
+		               );
+
+	DrawDebugSphere(GetWorld(), Pt1, 20, 20, FColor::Red, false, 10);
+	DrawDebugSphere(GetWorld(), Pt2, 20, 20, FColor::Yellow, false, 10);
+
+	TPair<FTransform, float> Result;
+	Result.Value = 130;
+
+	if (FVector::Distance(FloorBoxPt, Pt1) > FVector::Distance(FloorBoxPt, Pt2))
+	{
+		Result.Key.SetLocation(Pt1);
+		Result.Key.SetRotation((CollisionComponentHelper->GetComponentRotation() + FRotator(0, -90, 0)).Quaternion());
+	}
+	else
+	{
+		Result.Key.SetLocation(Pt2);
+		Result.Key.SetRotation((CollisionComponentHelper->GetComponentRotation() + FRotator(0, 90, 0)).Quaternion());
+	}
+
+	return Result;
+}

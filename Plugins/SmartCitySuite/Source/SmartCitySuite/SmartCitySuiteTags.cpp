@@ -119,4 +119,16 @@ namespace USmartCitySuiteTags
 
 
 	UE_DEFINE_GAMEPLAY_TAG(SceneElement_FanCoil,"SceneElement.FanCoil");
+
+	
+	UE_DEFINE_GAMEPLAY_TAG(SceneElement_Category,"SceneElement.Category");
+	
+	UE_DEFINE_GAMEPLAY_TAG(SceneElement_Category_AS,"SceneElement.Category.AS");
+	
+	UE_DEFINE_GAMEPLAY_TAG(SceneElement_Category_ID,"SceneElement.Category.ID");
+	
+	UE_DEFINE_GAMEPLAY_TAG(SceneElement_Category_Soft,"SceneElement.Category.Soft");
+	
+	UE_DEFINE_GAMEPLAY_TAG(SceneElement_Category_Space,"SceneElement.Category.Space");
+	
 }

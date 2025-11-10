@@ -65,7 +65,6 @@ public:
 
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
-		const TSet<AActor*>& InActors,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		);
 

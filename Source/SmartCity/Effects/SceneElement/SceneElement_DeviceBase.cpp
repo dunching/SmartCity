@@ -249,6 +249,11 @@ void ASceneElement_DeviceBase::QuitShowDeviceEffect()
 {
 }
 
+void ASceneElement_DeviceBase::QuitAllState()
+{
+	Super::QuitAllState();
+}
+
 TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 {
 	auto Result = Super::GetSceneElementData();
@@ -280,7 +285,8 @@ void ASceneElement_DeviceBase::UpdateCollisionBox(
 		FBox TemoBox(ForceInit);
 		TemoBox.IsValid = true;
 		Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
-
+		TemoBox = TemoBox.TransformBy(Iter->GetComponentTransform());
+		
 		Box += TemoBox;
 	}
 
