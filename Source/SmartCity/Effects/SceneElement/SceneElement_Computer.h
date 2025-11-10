@@ -40,6 +40,12 @@ public:
 		const TPair<FName, FString>& InUserData
 		) override;
 	
+	virtual void Merge(
+		const TSoftObjectPtr<AActor>& ActorRef,
+		const TPair<FName, FString>& InUserData
+		, const TMap<FName, FString>& NewUserData
+		) override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;
@@ -63,10 +69,9 @@ public:
 	
 protected:
 	
-	/**
-	 * 网格体
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> StaticMeshComponent = nullptr;
-	
+	TPair<FName, FString> CurrentUserData;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+
 };

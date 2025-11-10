@@ -931,7 +931,7 @@ void FFloor_Decorator::Entry()
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate
@@ -968,7 +968,7 @@ void FFloor_Decorator::Entry()
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate
@@ -1007,7 +1007,7 @@ void FFloor_Decorator::Entry()
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate
@@ -1061,7 +1061,7 @@ void FFloor_Decorator::Entry()
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate
@@ -1117,7 +1117,7 @@ void FFloor_Decorator::Entry()
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate
@@ -1156,7 +1156,7 @@ void FFloor_Decorator::Entry()
 				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Tower(
+				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
 				                                                                SceneActorConditional,
 				                                                                true,
 				                                                                MulticastDelegate

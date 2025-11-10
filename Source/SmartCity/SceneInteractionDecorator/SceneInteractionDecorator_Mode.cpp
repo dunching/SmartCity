@@ -172,20 +172,35 @@ void FEmergencyMode_Decorator::Spawn(
 
 		if (Iter.Value->FloorTag == AreaDecoratorSPtr->GetBranchDecoratorType())
 		{
-			auto FireMarkClass = UAssetRefMap::GetInstance()->FireMarkClass;
-
-			const auto Box = Iter.Value->BoxComponentPtr->GetLocalBounds();
-			const auto Location = Iter.Value->BoxComponentPtr->GetComponentLocation();
-			auto Center = Box.GetBox().GetCenter();
-			auto Extent = Box.GetBox().GetExtent();
-			Extent.Z = 0;
-
-			for (int32 Index = 0; Index < 3; Index++)
+			if (Iter.Value->SceneElementCategoryMap.Contains(USmartCitySuiteTags::SceneElement_Category_Space))
 			{
-				auto Pt = UKismetMathLibrary::RandomPointInBoundingBox(Location, Extent);
+				auto FireMarkClass = UAssetRefMap::GetInstance()->FireMarkClass;
 
-				auto FireMarkPtr = GetWorldImp()->SpawnActor<AFireMark>(FireMarkClass, Pt, FRotator::ZeroRotator);
-				FireMarkSet.Add(FireMarkPtr);
+				const auto Spaces = Iter.Value->SceneElementCategoryMap[
+					USmartCitySuiteTags::SceneElement_Category_Space];
+				TArray<AActor*> OutActors;
+
+				Iter.Value->GetAttachedActors(OutActors, true, true);
+
+				for (auto ActorIter : OutActors)
+				{
+					auto SceneElementBasePtr = Cast<ASceneElement_Space>(ActorIter);
+					if (SceneElementBasePtr)
+					{
+						for (auto SpaceBoxIter : SceneElementBasePtr->CollisionComponentsAry)
+						{
+							if (FMath::RandRange(0, 100) > 60)
+							{
+								auto FireMarkPtr = GetWorldImp()->SpawnActor<AFireMark>(
+									 FireMarkClass,
+									 SpaceBoxIter->GetComponentLocation(),
+									 FRotator::ZeroRotator
+									);
+								FireMarkSet.Add(FireMarkPtr);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

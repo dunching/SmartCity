@@ -79,7 +79,7 @@ protected:
 	virtual void QuitAllState(
 		) override;
 	
-	TPair<FName, FString> UserData;
+	TPair<FName, FString> CurrentUserData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;

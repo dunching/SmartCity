@@ -16,12 +16,7 @@ ASceneElement_Computer::ASceneElement_Computer(
 	) :
 	  Super(ObjectInitializer)
 {
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
-
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	StaticMeshComponent->SetCollisionObjectType(Device_Object);
-	StaticMeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	// CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASceneElement_Computer::ReplaceImp(
@@ -33,7 +28,22 @@ void ASceneElement_Computer::ReplaceImp(
 
 	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 	{
-		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+	}
+}
+
+void ASceneElement_Computer::Merge(
+	const TSoftObjectPtr<AActor>& ActorRef,
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
+	)
+{
+	Super::Merge(ActorRef, InUserData, NewUserData);
+
+	CurrentUserData = InUserData;
+
+	if (ActorRef.ToSoftObjectPath().IsValid())
+	{
+		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
 		if (STPtr)
 		{
 			auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
@@ -49,15 +59,40 @@ void ASceneElement_Computer::ReplaceImp(
 
 			CheckIsJiaCeng(AUDPtr);
 
-			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			auto Transform =
+				STPtr->GetStaticMeshComponent()->
+				       GetComponentTransform();
 
-			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
-			{
-				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
-			}
+			auto NewComponentPtr = Cast<UStaticMeshComponent>(
+			                                                  AddComponentByClass(
+				                                                   UStaticMeshComponent::StaticClass(),
+				                                                   true,
+				                                                   Transform,
+				                                                   false
+				                                                  )
+			                                                 );
 
-			UpdateCollisionBox({StaticMeshComponent});
+			NewComponentPtr->AddAssetUserData(AUDPtr);
+
+			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+
+			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			NewComponentPtr->SetCollisionObjectType(Device_Object);
+			NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+			NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+			NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+
+			NewComponentPtr->SetRenderCustomDepth(false);
+
+			StaticMeshComponentsAry.Add(NewComponentPtr);
+
+			UpdateCollisionBox(StaticMeshComponentsAry);
 		}
+
+		ActorRef->Destroy();
 	}
 }
 
@@ -133,12 +168,6 @@ void ASceneElement_Computer::EntryFocusDevice()
 
 	SetActorHiddenInGame(false);
 
-	if (StaticMeshComponent)
-	{
-		StaticMeshComponent->SetRenderCustomDepth(true);
-		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
-	}
-
 	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
 
 	MessageBodySPtr->DeviceID = SceneElementID;
@@ -177,51 +206,41 @@ void ASceneElement_Computer::QuitAllState()
 
 TPair<FTransform, float> ASceneElement_Computer::GetViewSeat() const
 {
-	const auto BoxPt = BelongFloor->BoxComponentPtr->GetComponentLocation();
+	const auto FloorBoxPt = BelongFloor->BoxComponentPtr->GetComponentLocation();
 
-	const auto STCTransform = StaticMeshComponent->GetComponentTransform();
+	const auto BoxPt = CollisionComponentHelper->GetComponentLocation();
 
-	FVector Min;
-	FVector Max;
-	StaticMeshComponent->GetLocalBounds(Min, Max);
-	FBox Bounds(Min, Max);
+	const auto Bounds = CollisionComponentHelper->GetScaledBoxExtent();
 
-	const auto Pt1 = STCTransform.TransformPosition(
-	                                                Bounds.GetCenter() + FVector(
-		                                                 0,
-		                                                 Bounds.GetExtent().Y,
-		                                                 0
-		                                                )
-	                                               );
-	const auto Pt2 = STCTransform.TransformPosition(
-	                                                Bounds.GetCenter() - FVector(
-		                                                 0,
-		                                                 Bounds.GetExtent().Y,
-		                                                 0
-		                                                )
-	                                               );
+	const auto Pt1 =
+		BoxPt + FVector(
+		                0,
+		                Bounds.Y,
+		                0
+		               );
+	const auto Pt2 =
+		BoxPt - FVector(
+		                0,
+		                Bounds.Y,
+		                0
+		               );
 
 	DrawDebugSphere(GetWorld(), Pt1, 20, 20, FColor::Red, false, 10);
 	DrawDebugSphere(GetWorld(), Pt2, 20, 20, FColor::Yellow, false, 10);
 
-	if (FVector::Distance(BoxPt, Pt1) > FVector::Distance(BoxPt, Pt2))
+	TPair<FTransform, float> Result;
+	Result.Value = 130;
+
+	if (FVector::Distance(FloorBoxPt, Pt1) > FVector::Distance(FloorBoxPt, Pt2))
 	{
-		TPair<FTransform, float> Result;
-
 		Result.Key.SetLocation(Pt1);
-		Result.Key.SetRotation((StaticMeshComponent->GetComponentRotation() + FRotator(0, -90, 0)).Quaternion());
-		Result.Value = 160;
-
-		return Result;
+		Result.Key.SetRotation((CollisionComponentHelper->GetComponentRotation() + FRotator(0, -90, 0)).Quaternion());
 	}
 	else
 	{
-		TPair<FTransform, float> Result;
-
 		Result.Key.SetLocation(Pt2);
-		Result.Key.SetRotation((StaticMeshComponent->GetComponentRotation() + FRotator(0, 90, 0)).Quaternion());
-		Result.Value = 60;
-
-		return Result;
+		Result.Key.SetRotation((CollisionComponentHelper->GetComponentRotation() + FRotator(0, 90, 0)).Quaternion());
 	}
+
+	return Result;
 }
