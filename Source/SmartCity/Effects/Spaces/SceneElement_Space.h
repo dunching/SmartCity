@@ -54,8 +54,8 @@ public:
 
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& InUserData
-		, const TMap<FName, FString>& NewUserData
+		const TPair<FName, FString>& InUserData,
+		const TMap<FName, FString>& NewUserData
 		) override;
 
 	virtual void SwitchInteractionType(
@@ -63,61 +63,66 @@ public:
 		) override;
 
 	virtual TSharedPtr<FJsonValue> GetSceneElementData() const override;
-	
-	void SetFeatures(const TArray<FString>& InFeaturesAry);
 
-	TSet<ASceneElement_DeviceBase*>GetAllDevices()const;
-	
+	void SetFeatures(
+		const TArray<FString>& InFeaturesAry
+		);
+
+	TSet<ASceneElement_DeviceBase*> GetAllDevices() const;
+
 	FString Category;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FString DataSmith_Key = TEXT("Element*空间划分");
-	
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<UBoxComponent*>CollisionComponentsAry;
+	TArray<UBoxComponent*> CollisionComponentsAry;
 
 protected:
-
 	virtual void EntryViewDevice(
 		const FSceneElementConditional& ConditionalSet
 		);
 
 	virtual void EntryFocusDevice(
 		const FSceneElementConditional& ConditionalSet
-		) ;
+		);
 
 	virtual void EntryShow(
 		const FSceneElementConditional& ConditionalSet
-		) ;
+		);
 
 	virtual void EntryShowEffect(
 		const FSceneElementConditional& ConditionalSet
-		) ;
+		);
 
 	virtual void QuitAllState(
 		) override;
-	
-	void SwitchColor(const FColor& Color);
+
+	void SwitchColor(
+		const FColor& Color
+		);
 
 	UFUNCTION()
 	void OnClickedTag();
-	
-	void OnHourChanged(int32 Hour);
-	
+
+	void OnHourChanged(
+		int32 Hour
+		);
+
 	void OnExternalWall();
-	
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
+	TArray<UStaticMeshComponent*> StaticMeshComponentsAry;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TArray<TObjectPtr<UFeatureWheel>> FeatureWheelAry;
-	
+
 	TArray<FString> FeaturesAry;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<ULocalLightComponent>> RectLightComponentAry;
-	
 };

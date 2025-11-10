@@ -192,10 +192,10 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                   ViewPeripheryControlParam.MoveSpeed;
 
-						// OnwerActorPtr->AddMovementInput(
-						//                                 Direction,
-						//                                 Value
-						//                                );
+						OnwerActorPtr->AddMovementInput(
+						                                Direction,
+						                                Value
+						                               );
 
 						return true;
 					}
@@ -230,10 +230,10 @@ bool TourProcessor::FViewPeripheryProcessor::InputAxis(
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
 						                   ViewPeripheryControlParam.MoveSpeed;
 
-						// OnwerActorPtr->AddMovementInput(
-						//                                 Direction,
-						//                                 Value
-						//                                );
+						OnwerActorPtr->AddMovementInput(
+						                                Direction,
+						                                Value
+						                               );
 
 						return true;
 					}

@@ -2012,6 +2012,10 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 	}
 }
 
+void FFloor_Decorator::Process()
+{
+}
+
 void FFloor_Decorator::AdjustCamera() const
 {
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
@@ -2265,18 +2269,31 @@ void FViewSpace_Decorator::Entry()
 		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
 		                                                                  )
 		                                                                  {
-			                                                                  auto TempConfig = SPtr->GetViewConfig();
-			                                                                  TempConfig.WallTranlucent = 10;
-			                                                                  TempConfig.PillarTranlucent = 10;
-			                                                                  TempConfig.StairsTranlucent = 10;
-			                                                                  TempConfig.CurtainWallTranlucent = 10;
-			                                                                  TempConfig.FurnitureTranlucent = 10;
+			                                                                  auto Config = SPtr->GetViewConfig();
 
-			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
+			                                                                  if (SPtr->HasViewConfigChanged())
+			                                                                  {
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  Config.WallTranlucent = 10;
+				                                                                  Config.PillarTranlucent = 10;
+				                                                                  Config.StairsTranlucent = 10;
+				                                                                  Config.CurtainWallTranlucent = 10;
+				                                                                  Config.FurnitureTranlucent = 10;
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
 		                                                                  },
 		                                                                  false
 		                                                                 );
 	}
+
+	ON_SCOPE_EXIT
+	{
+		FDateTime Time(1, 1, 1, 12);
+
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
+	};
 
 	Process();
 }
@@ -2284,6 +2301,40 @@ void FViewSpace_Decorator::Entry()
 void FViewSpace_Decorator::ReEntry()
 {
 	Super::ReEntry();
+
+	auto DecoratorSPtr =
+		DynamicCastSharedPtr<FInteraction_Decorator>(
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
+	if (DecoratorSPtr)
+	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  auto Config = SPtr->GetViewConfig();
+
+			                                                                  if (SPtr->HasViewConfigChanged())
+			                                                                  {
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  Config.WallTranlucent = 10;
+				                                                                  Config.PillarTranlucent = 10;
+				                                                                  Config.StairsTranlucent = 10;
+				                                                                  Config.CurtainWallTranlucent = 10;
+				                                                                  Config.FurnitureTranlucent = 10;
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
+		                                                                  },
+		                                                                  false
+		                                                                 );
+	}
 
 	Process();
 }
@@ -2307,6 +2358,13 @@ void FViewSpace_Decorator::Quit()
 	                                                                  false
 	                                                                 );
 	Super::Quit();
+}
+
+void FViewSpace_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
 }
 
 void FViewSpace_Decorator::OnUpdateFilterComplete(
