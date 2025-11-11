@@ -1805,9 +1805,16 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 
 				for (auto ActorIter : OutActors)
 				{
-					if (ActorIter == SceneElementPtr)
+					auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+					if (SceneElementBasePtr)
 					{
-						break;
+						if (ActorIter == SceneElementPtr)
+						{
+						}
+						else
+						{
+							NeedDisplayAry.Add(SceneElementBasePtr);
+						}
 					}
 				}
 				continue;
@@ -1943,7 +1950,10 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_Display()
 					{
 						if (SceneElementSet.Contains(SceneElementBasePtr))
 						{
-							break;
+						}
+						else
+						{
+							NeedDisplayAry.Add(SceneElementBasePtr);
 						}
 					}
 				}
@@ -2045,7 +2055,7 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Display()
 {
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorSet.Contains( FloorIter.Value->FloorTag))
+		if (FloorSet.Contains(FloorIter.Value->FloorTag))
 		{
 		}
 		else
@@ -2077,7 +2087,7 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Hiden()
 {
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorSet.Contains( FloorIter.Value->FloorTag))
+		if (FloorSet.Contains(FloorIter.Value->FloorTag))
 		{
 			continue;
 		}

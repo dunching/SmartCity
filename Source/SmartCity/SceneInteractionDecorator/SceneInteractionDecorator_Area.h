@@ -219,6 +219,10 @@ public:
 
 	virtual void Quit() override;
 
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+
 	TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
 
 private:
@@ -232,10 +236,6 @@ private:
 	
 	void AdjustCamera()const;
 	
-	TWeakObjectPtr<ASceneElement_DeviceBase>PreviousSceneElementPtr = nullptr;
-
-	TObjectPtr<AFloorHelper>PreviousFloorHelper = nullptr;
-
 	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
 };
 
