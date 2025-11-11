@@ -37,6 +37,9 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FVector DefaultSize;
+	
 protected:
 
 	virtual void EntryFocusDevice(
