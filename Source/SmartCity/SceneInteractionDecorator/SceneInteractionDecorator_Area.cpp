@@ -2078,44 +2078,6 @@ void FViewDevice_Decorator::Entry()
 {
 	Super::Entry();
 
-	UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
-		TourProcessor::FViewSingleDeviceProcessor>(
-		                                           [this](
-		                                           auto NewProcessor
-		                                           )
-		                                           {
-			                                           NewProcessor->SceneElementPtr = SceneElementPtr;
-		                                           }
-		                                          );
-
-	auto DecoratorSPtr =
-		DynamicCastSharedPtr<FInteraction_Decorator>(
-		                                             USceneInteractionWorldSystem::GetInstance()->
-		                                             GetDecorator(
-		                                                          USmartCitySuiteTags::Interaction_Interaction
-		                                                         )
-		                                            );
-	if (DecoratorSPtr)
-	{
-		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
-		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
-		                                                                  [this](
-		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
-		                                                                  )
-		                                                                  {
-			                                                                  auto TempConfig = SPtr->GetViewConfig();
-			                                                                  TempConfig.WallTranlucent = 10;
-			                                                                  TempConfig.PillarTranlucent = 10;
-			                                                                  TempConfig.StairsTranlucent = 10;
-			                                                                  TempConfig.CurtainWallTranlucent = 10;
-			                                                                  TempConfig.FurnitureTranlucent = 10;
-
-			                                                                  SPtr->UpdateViewConfig(TempConfig, true);
-		                                                                  },
-		                                                                  false
-		                                                                 );
-	}
-
 	Process();
 }
 
@@ -2147,6 +2109,265 @@ void FViewDevice_Decorator::Quit()
 	Super::Quit();
 }
 
+void FViewDevice_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Interaction)
+	)
+	{
+		{
+			auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+				 USmartCitySuiteTags::Interaction_Mode
+				);
+			if (
+				DecoratorSPtr
+			)
+			{
+				if (
+					DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+				)
+				{
+					if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+					                                                       USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+					                                                      ))
+					{
+						return;
+					}
+					if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+					                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+					                                                      ))
+					{
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	bool bUseTemporaComfig = false;
+
+	FDateTime Time(1, 1, 1, 12);
+
+	FViewConfig Config;
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this,&Config](
+	                                                                  const TSharedPtr<FInteraction_Decorator>&
+	                                                                  SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  Config = SPtr->GetViewConfig();
+
+		                                                                  if (SPtr->HasViewConfigChanged())
+		                                                                  {
+		                                                                  }
+		                                                                  else
+		                                                                  {
+			                                                                  Config.WallTranlucent = 30;
+			                                                                  Config.PillarTranlucent = 30;
+			                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  SPtr->UpdateViewConfig(Config, false);
+		                                                                  }
+	                                                                  },
+	                                                                  false
+	                                                                 );
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(SceneElementPtr->BelongFloor->FloorTag);
+
+	TMulticastDelegate<void(
+		bool,
+
+		UGT_SwitchSceneElement_Base*
+		)> MulticastDelegate;
+
+	ON_SCOPE_EXIT
+	{
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this,&Config, &bUseTemporaComfig](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  if (bUseTemporaComfig)
+			                                                                  {
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->ClearTemporaViewConfig();
+			                                                                  }
+		                                                                  },
+		                                                                  false
+		                                                                 );
+
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
+		
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
+																		SceneActorConditional,
+																		true,
+																		MulticastDelegate,
+		                                                                SceneElementPtr
+																	   );
+
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+			TourProcessor::FViewSingleDeviceProcessor>(
+													  [this](
+													  auto NewProcessor
+													  )
+													  {
+			                                           NewProcessor->SceneElementPtr = SceneElementPtr;
+													  }
+													 );
+	};
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+	)
+	{
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                          USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+		                                                         ))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_EmergencySystem))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			bUseTemporaComfig = true;
+			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+			                                                                  [this,&Config](
+			                                                                  const TSharedPtr<FInteraction_Decorator>&
+			                                                                  SPtr
+			                                                                  )
+			                                                                  {
+				                                                                  Config = SPtr->GetViewConfig();
+
+				                                                                  Config.WallTranlucent = 100;
+				                                                                  Config.PillarTranlucent = 100;
+			                                                                  },
+			                                                                  false
+			                                                                 );
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+		                                                          USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+		                                                         ))
+		{
+			Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
+
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Floor(
+			                                                                SceneActorConditional,
+			                                                                true,
+			                                                                MulticastDelegate
+			                                                               );
+
+			IncreaseWaitTaskCount();
+
+			bUseTemporaComfig = true;
+			USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+			                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+			                                                                  [this,&Config](
+			                                                                  const TSharedPtr<FInteraction_Decorator>&
+			                                                                  SPtr
+			                                                                  )
+			                                                                  {
+				                                                                  Config = SPtr->GetViewConfig();
+				                                                                  Config.WallTranlucent = 100;
+				                                                                  Config.PillarTranlucent = 100;
+			                                                                  },
+			                                                                  false
+			                                                                 );
+
+			return;
+		}
+
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_EnergyManagement))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_View))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			return;
+		}
+
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			return;
+		}
+	}
+
+	if (
+		NewDecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Interaction)
+	)
+	{
+		SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+		auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+			 USmartCitySuiteTags::Interaction_Mode
+			);
+		if (
+			DecoratorSPtr
+		)
+		{
+			SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+		}
+
+		return;
+	}
+
+	SceneActorConditional.ConditionalSet = USceneInteractionWorldSystem::GetInstance()->GetAllInteractionTags();
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+}
+
 void FViewDevice_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	UGT_SwitchSceneElement_Base* TaskPtr
@@ -2166,55 +2387,207 @@ void FViewDevice_Decorator::OnUpdateFilterComplete(
 	}
 	if (Building_Floor_Mask)
 	{
-		Building_Floor_Mask->SetFloor(PreviousSceneElementPtr->BelongFloor);
+		Building_Floor_Mask->SetFloor(SceneElementPtr->BelongFloor);
 	}
 }
 
 void FViewDevice_Decorator::Process()
 {
-	if (SceneElementPtr.IsValid())
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateWeather(WeatherSettings::Clear_Skies);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverageMunualOverride(true);
+	UWeatherSystem::GetInstance()->GetDynamicWeather()->UpdateCloudCoverage(0);
+
+	FDateTime Time(1, 1, 1, 12);
+
+	FViewConfig Config;
+
+	bool bUseTemporaComfig = false;
+
+	USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+	                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+	                                                                  [this,&Config](
+	                                                                  const TSharedPtr<FInteraction_Decorator>&
+	                                                                  SPtr
+	                                                                  )
+	                                                                  {
+		                                                                  Config = SPtr->GetViewConfig();
+
+		                                                                  if (SPtr->HasViewConfigChanged())
+		                                                                  {
+		                                                                  }
+		                                                                  else
+		                                                                  {
+			                                                                  Config.WallTranlucent = 10;
+			                                                                  Config.PillarTranlucent = 10;
+			                                                                  Config.StairsTranlucent = 10;
+			                                                                  Config.CurtainWallTranlucent = 10;
+			                                                                  Config.FurnitureTranlucent = 10;
+			                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  SPtr->UpdateViewConfig(Config, false);
+		                                                                  }
+	                                                                  },
+	                                                                  false
+	                                                                 );
+
+	FSceneElementConditional SceneActorConditional;
+
+	SceneActorConditional.ConditionalSet.AddTag(SceneElementPtr->BelongFloor->FloorTag);
+
+	TMulticastDelegate<void(
+		bool,
+
+		UGT_SwitchSceneElement_Base*
+		)> MulticastDelegate;
+
+	ON_SCOPE_EXIT
 	{
-		if (PreviousSceneElementPtr == SceneElementPtr)
+		USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+		                                                                  USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+		                                                                  [this,&Config, &bUseTemporaComfig](
+		                                                                  const TSharedPtr<FInteraction_Decorator>& SPtr
+		                                                                  )
+		                                                                  {
+			                                                                  if (bUseTemporaComfig)
+			                                                                  {
+				                                                                  SPtr->UpdateViewConfig(Config, true);
+			                                                                  }
+			                                                                  else
+			                                                                  {
+				                                                                  SPtr->ClearTemporaViewConfig();
+			                                                                  }
+		                                                                  },
+		                                                                  false
+		                                                                 );
+
+		UWeatherSystem::GetInstance()->AdjustTime(Time);
+		
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
+																		SceneActorConditional,
+																		true,
+																		MulticastDelegate,
+																		SceneElementPtr
+																	   );
+
+		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+			TourProcessor::FViewSingleDeviceProcessor>(
+													  [this](
+													  auto NewProcessor
+													  )
+													  {
+														  NewProcessor->SceneElementPtr = SceneElementPtr;
+													  }
+													 );
+
+		AdjustCamera();
+	};
+
+	auto DecoratorSPtr = USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+		 USmartCitySuiteTags::Interaction_Mode
+		);
+	if (
+		DecoratorSPtr
+	)
+	{
+		if (
+			DecoratorSPtr->GetMainDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode)
+		)
 		{
-		}
-		else
-		{
-			PreviousSceneElementPtr = SceneElementPtr;
-
-			if (SceneElementPtr->BelongFloor == PreviousFloorHelper)
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_Empty))
 			{
-			}
-			else
-			{
-				PreviousFloorHelper = SceneElementPtr->BelongFloor;
-
-				FSceneElementConditional SceneActorConditional;
-
-				SceneActorConditional.ConditionalSet.AddTag(PreviousFloorHelper->FloorTag);
-
-				TMulticastDelegate<void(
-					bool,
-
-					UGT_SwitchSceneElement_Base*
-
-
-					
-					)> MulticastDelegate;
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
-				USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
-					 SceneActorConditional,
-					 true,
-					 MulticastDelegate,
-					 SceneElementPtr
+				return;
+			}
+			if (DecoratorSPtr->GetBranchDecoratorType().
+			                   MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator))
+			{
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				return;
+			}
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                       USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+			                                                      ))
+			{
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				bUseTemporaComfig = true;
+				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+					 [this,&Config](
+					 const TSharedPtr<FInteraction_Decorator>& SPtr
+					 )
+					 {
+						 Config = SPtr->GetViewConfig();
+
+						 Config.WallTranlucent = 100;
+						 Config.PillarTranlucent = 100;
+					 },
+					 false
 					);
 
-				AdjustCamera();
+				return;
+			}
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                       USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+			                                                      ))
+			{
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				Time = FDateTime(1, 1, UAssetRefMap::GetInstance()->ViewLightingTime);
+
+				bUseTemporaComfig = true;
+				USceneInteractionWorldSystem::GetInstance()->SetInteractionOption(
+					 USmartCitySuiteTags::Interaction_Interaction_WallTranlucent,
+					 [this,&Config](
+					 const TSharedPtr<FInteraction_Decorator>& SPtr
+					 )
+					 {
+						 Config = SPtr->GetViewConfig();
+
+						 Config.WallTranlucent = 100;
+						 Config.PillarTranlucent = 100;
+					 },
+					 false
+					);
+
+				return;
+			}
+			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(
+			                                                       USmartCitySuiteTags::Interaction_Mode_EnergyManagement
+			                                                      ))
+			{
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
+				return;
+			}
+			{
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+				SceneActorConditional.ConditionalSet.AddTag(DecoratorSPtr->GetBranchDecoratorType());
+
+				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 				return;
 			}
 		}
 	}
+
+	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+
 }
 
 void FViewDevice_Decorator::AdjustCamera() const

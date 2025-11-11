@@ -285,7 +285,7 @@ void ASceneElement_DeviceBase::UpdateCollisionBox(
 		FBox TemoBox(ForceInit);
 		TemoBox.IsValid = true;
 		Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
-		TemoBox = TemoBox.TransformBy(Iter->GetComponentTransform());
+		TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
 		
 		Box += TemoBox;
 	}
