@@ -191,6 +191,8 @@ protected:
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
+	void Process();
+	
 	void AdjustCamera()const;
 	
 private:
@@ -254,15 +256,19 @@ public:
 
 	virtual void Quit() override;
 
-	virtual void OnUpdateFilterComplete(
-		bool bIsOK,
-		UGT_SwitchSceneElement_Base* TaskPtr
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
 	FGameplayTag Floor;
 
 	TWeakObjectPtr<ASceneElement_Space>SceneElementPtr = nullptr;
 private:
+
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
 
 	void Process();
 	

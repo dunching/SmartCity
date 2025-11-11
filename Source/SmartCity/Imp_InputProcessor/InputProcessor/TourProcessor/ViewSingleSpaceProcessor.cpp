@@ -34,13 +34,13 @@ void TourProcessor::FViewSingleSpaceProcessor::EnterAction()
 
 		UpdateCameraArmLen(
 		                   GameOptionsPtr->
-		                   ViewDeviceControlParam,
+		                   ViewSpaceControlParam,
 		                   0
 		                  );
 
 		UpdateCameraClampPitch(
 		                       GameOptionsPtr->
-		                       ViewDeviceControlParam
+		                       ViewSpaceControlParam
 		                      );
 	}
 }
@@ -142,7 +142,7 @@ bool TourProcessor::FViewSingleSpaceProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewFloorControlParam.RotYawSpeed;
+						                 ViewSpaceControlParam.RotYawSpeed;
 						OnwerActorPtr->AddControllerYawInput(Rot);
 
 						return true;
@@ -159,7 +159,7 @@ bool TourProcessor::FViewSingleSpaceProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewFloorControlParam.MoveSpeed;
+						                   ViewSpaceControlParam.MoveSpeed;
 
 						OnwerActorPtr->AddMovementInput(
 						                                Direction,
@@ -180,7 +180,7 @@ bool TourProcessor::FViewSingleSpaceProcessor::InputAxis(
 						bHasRoted = true;
 
 						const auto Rot = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                 ViewFloorControlParam.RotPitchSpeed;
+						                 ViewSpaceControlParam.RotPitchSpeed;
 						OnwerActorPtr->AddControllerPitchInput(-Rot);
 
 						return true;
@@ -197,7 +197,7 @@ bool TourProcessor::FViewSingleSpaceProcessor::InputAxis(
 							).Vector();
 
 						const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
-						                   ViewFloorControlParam.MoveSpeed;
+						                   ViewSpaceControlParam.MoveSpeed;
 
 						OnwerActorPtr->AddMovementInput(
 						                                Direction,
@@ -211,7 +211,23 @@ bool TourProcessor::FViewSingleSpaceProcessor::InputAxis(
 
 			if (EventArgs.Key == GameOptionsPtr->MouseWheelAxis)
 			{
-				// 这个状态下不进行此操作
+				if (OnwerActorPtr->Controller != nullptr)
+				{
+					const auto Value = EventArgs.AmountDepressed * EventArgs.DeltaTime * GameOptionsPtr->
+									   ViewSpaceControlParam.CameraSpringArmSpeed;
+
+					const auto ClampValue = FMath::Clamp(
+														 OnwerActorPtr->SpringArmComponent->TargetArmLength - Value,
+														 GameOptionsPtr->
+														 ViewSpaceControlParam.MinCameraSpringArm,
+														 GameOptionsPtr->
+														 ViewSpaceControlParam.MaxCameraSpringArm
+														);
+
+					OnwerActorPtr->SpringArmComponent->TargetArmLength = ClampValue;
+
+					return true;
+				}
 			}
 		}
 		break;
