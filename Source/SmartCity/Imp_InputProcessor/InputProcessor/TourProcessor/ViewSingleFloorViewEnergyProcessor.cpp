@@ -25,10 +25,10 @@ void TourProcessor::FViewSingleFloorViewEnergyProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorEnergyControlParam);
-		
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewFloorEnergyControlParam);
+		
 		UpdateCameraArmLen(GameOptionsPtr->
 						   ViewFloorEnergyControlParam, 0);
 

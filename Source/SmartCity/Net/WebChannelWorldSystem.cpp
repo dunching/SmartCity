@@ -266,7 +266,7 @@ void UWebChannelWorldSystem::OnInput(
 	{
 		JsonStr.RemoveAt(Index + 1, JsonStr.Len() - Index + 1);
 	}
-	if (JsonStr.FindLastChar(TEXT('{'), Index) && Index < JsonStr.Len())
+	if (JsonStr.FindChar(TEXT('{'), Index) && Index < JsonStr.Len())
 	{
 		JsonStr.RemoveAt(0, Index);
 	}

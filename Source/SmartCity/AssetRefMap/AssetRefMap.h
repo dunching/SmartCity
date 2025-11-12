@@ -28,6 +28,7 @@ class UFeatureWheel;
 class ABuilding_Floor_Mask;
 class AFloorHelper_Description;
 class AViewerPawnBase;
+class ASceneElement_RollerBlind;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -169,6 +170,13 @@ public:
 		EditAnywhere
 	)
 	TSubclassOf<AFloorHelper_Description> FloorHelper_DescriptionClass;
+
+	UPROPERTY(
+
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	TSubclassOf<ASceneElement_RollerBlind> SceneElement_RollerBlindClass;
 
 #pragma endregion
 };

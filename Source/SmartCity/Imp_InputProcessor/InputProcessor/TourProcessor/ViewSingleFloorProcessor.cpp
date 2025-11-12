@@ -27,6 +27,8 @@ void TourProcessor::FViewSingleFloorProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewFloorControlParam);
+		
 		UpdateCameraArmLen(GameOptionsPtr->
 						   ViewFloorControlParam, 0);
 

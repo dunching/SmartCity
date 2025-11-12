@@ -128,8 +128,8 @@ void ASceneElement_Lighting::ReplaceImp(
 
 void ASceneElement_Lighting::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& InUserData
-	, const TMap<FName, FString>& NewUserData
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
 	)
 {
 	Super::Merge(ActorRef, InUserData, NewUserData);
@@ -332,32 +332,48 @@ void ASceneElement_Lighting::EntryShoweviceEffect()
 
 	SetActorHiddenInGame(false);
 
-	if (ExtensionParamMap.Contains(TEXT("Intensity")))
+	if (ExtensionParamMap.Contains(TEXT("开关")))
 	{
-		FLinearColor LightColor = FColor::White;
-		bool OutIsValid = false;
-		if (ExtensionParamMap.Contains(TEXT("LightColor")))
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
+		if (Value)
 		{
-			UKismetStringLibrary::Conv_StringToColor(ExtensionParamMap[TEXT("LightColor")], LightColor, OutIsValid);
-		}
+			if (ExtensionParamMap.Contains(TEXT("亮度")))
+			{
+				FLinearColor LightColor = FColor::White;
+				bool OutIsValid = false;
+				if (ExtensionParamMap.Contains(TEXT("LightColor")))
+				{
+					UKismetStringLibrary::Conv_StringToColor(
+					                                         ExtensionParamMap[TEXT("LightColor")],
+					                                         LightColor,
+					                                         OutIsValid
+					                                        );
+				}
 
-		int32 Temperature = -1;
-		if (ExtensionParamMap.Contains(TEXT("Temperature")))
+				int32 Temperature = -1;
+				if (ExtensionParamMap.Contains(TEXT("色温")))
+				{
+					Temperature = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("色温")]);
+				}
+
+				const auto IntensityValue =
+					UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("亮度")]);
+				SetEmissiveValue(IntensityValue, Temperature, LightColor);
+				SwitchLight(IntensityValue, Temperature, LightColor);
+
+				return;
+			}
+		}
+		else
 		{
-			Temperature = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Temperature")]);
+			SetEmissiveValue(0, -1, FColor::White);
+			SwitchLight(0, -1, FColor::White);
 		}
-
-		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
-		SetEmissiveValue(Value, Temperature, LightColor);
-		SwitchLight(Value, Temperature, LightColor);
-
 		return;
 	}
-	
-	// SetEmissiveValue(0, -1, FColor::White);
-	SwitchLight(0, -1, FColor::White);
 
-	RevertOnriginalMat();
+	SetEmissiveValue(0, -1, FColor::White);
+	SwitchLight(0, -1, FColor::White);
 }
 
 void ASceneElement_Lighting::QuitShowDeviceEffect()
@@ -370,7 +386,6 @@ void ASceneElement_Lighting::QuitAllState()
 	Super::QuitAllState();
 
 	SetActorHiddenInGame(true);
-
 
 	RevertOnriginalMat();
 
@@ -395,7 +410,7 @@ void ASceneElement_Lighting::SwitchLight(
 		if (Iter)
 		{
 			Iter->Intensity = Intensity;
-			Iter->LightColor = LightColor.ToRGBE();
+			// Iter->LightColor = LightColor.ToRGBE();
 			if (Intensity <= 0)
 			{
 				Iter->SetHiddenInGame(true);
@@ -411,7 +426,7 @@ void ASceneElement_Lighting::SwitchLight(
 			}
 			else
 			{
-				Iter->Temperature = Temperature;
+				Iter->Temperature = FMath::Lerp(1700, 12000, Temperature / 100.f);
 				Iter->bUseTemperature = true;
 			}
 		}
@@ -424,23 +439,31 @@ void ASceneElement_Lighting::SetEmissiveValue(
 	const FLinearColor& LightColor
 	)
 {
-	CacheOriginalMat(StaticMeshComponentsAry);
-	for (auto MeshIter : StaticMeshComponentsAry)
+	if (Value <= 0)
 	{
-		const auto Num = MeshIter->GetNumMaterials();
-		for (int32 Index = 0; Index < Num; Index++)
-		{
-			auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
-			MeshIter->SetMaterial(Index, MaterialPtr);
-		}
+	RevertOnriginalMat();
+	}
+	else
+	{
 
-		for (int32 Index = 0; Index < Num; Index++)
+		CacheOriginalMat(StaticMeshComponentsAry);
+		for (auto MeshIter : StaticMeshComponentsAry)
 		{
-			auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
-			if (MaterialPtr)
+			const auto Num = MeshIter->GetNumMaterials();
+			for (int32 Index = 0; Index < Num; Index++)
 			{
-				MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
-				MaterialPtr->SetVectorParameterValue(Color, LightColor);
+				auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
+				MeshIter->SetMaterial(Index, MaterialPtr);
+			}
+
+			for (int32 Index = 0; Index < Num; Index++)
+			{
+				auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
+				if (MaterialPtr)
+				{
+					MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
+					MaterialPtr->SetVectorParameterValue(Color, LightColor);
+				}
 			}
 		}
 	}
