@@ -164,6 +164,14 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 
 		return;
 	}
+	
+	if (ExtensionParamMap.Contains(TEXT("开关")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
+		
+		PlayAnimation(Value / 100.0f);
+	}
+
 	EntryShowDevice();
 }
 

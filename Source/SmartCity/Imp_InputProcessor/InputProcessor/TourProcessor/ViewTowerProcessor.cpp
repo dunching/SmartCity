@@ -62,6 +62,8 @@ void TourProcessor::FViewTowerProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewTowerControlParam);
+		
 		UpdateCameraArmLen(
 		                   GameOptionsPtr->
 		                   ViewTowerControlParam,

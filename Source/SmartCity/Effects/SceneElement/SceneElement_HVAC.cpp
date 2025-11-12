@@ -50,7 +50,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
@@ -60,10 +60,10 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	}
 
 	{
-	 	if (
+		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
-			 )
+		)
 		{
 			QuitAllState();
 
@@ -82,49 +82,49 @@ void ASceneElement_HVAC::SwitchInteractionType(
 		}
 	}
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
-			 )
-	 	{
-	 		SetActorHiddenInGame(false);
+		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
+		)
+		{
+			SetActorHiddenInGame(false);
 
-	 		NiagaraComponentPtr->SetActive(false);
-	 		
-	 		auto DecoratorSPtr =
-				 DynamicCastSharedPtr<FEnergyMode_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Mode
-																		 )
-															);
-	 		if (!DecoratorSPtr)
-	 		{
-	 			return;
-	 		}
-	 		if (!DecoratorSPtr->IDMap.Contains(PWR_ID))
-	 		{
-	 			return;
-	 		}
+			NiagaraComponentPtr->SetActive(false);
 
-	 		auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
+			auto DecoratorSPtr =
+				DynamicCastSharedPtr<FEnergyMode_Decorator>(
+				                                            USceneInteractionWorldSystem::GetInstance()->
+				                                            GetDecorator(
+				                                                         USmartCitySuiteTags::Interaction_Mode
+				                                                        )
+				                                           );
+			if (!DecoratorSPtr)
+			{
+				return;
+			}
+			if (!DecoratorSPtr->IDMap.Contains(PWR_ID))
+			{
+				return;
+			}
 
-	 		auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
+			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
 
-	 		const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
-	 		MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
-	 		
-	 		CacheOriginalMat({StaticMeshComponent});
-	 		if (StaticMeshComponent)
-	 		{
-	 			for (int32 Index = 0; Index < StaticMeshComponent->GetNumMaterials(); Index++)
-	 			{
-	 				StaticMeshComponent->SetMaterial(Index, MaterialInstanceDynamic);
-	 			}
-	 		}
+			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
-	 		return;
-	 	}
+			const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
+			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+
+			CacheOriginalMat({StaticMeshComponent});
+			if (StaticMeshComponent)
+			{
+				for (int32 Index = 0; Index < StaticMeshComponent->GetNumMaterials(); Index++)
+				{
+					StaticMeshComponent->SetMaterial(Index, MaterialInstanceDynamic);
+				}
+			}
+
+			return;
+		}
 	}
 	{
 		if (
@@ -140,7 +140,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-			)
+		)
 		{
 			EntryShowDevice();
 			return;
@@ -149,7 +149,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
-			)
+		)
 		{
 			EntryViewDevice();
 			return;
@@ -158,7 +158,7 @@ void ASceneElement_HVAC::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
-			)
+		)
 		{
 			EntryFocusDevice();
 			return;
@@ -277,28 +277,61 @@ void ASceneElement_HVAC::EntryShoweviceEffect()
 	SetActorHiddenInGame(false);
 
 	NiagaraComponentPtr->SetActive(true);
-	
+
 	if (ExtensionParamMap.Contains(TEXT("Looping")))
 	{
 	}
+
 	if (ExtensionParamMap.Contains(TEXT("Pattern")))
 	{
 	}
-	if (ExtensionParamMap.Contains(TEXT("WindSpeed")))
+
+	if (ExtensionParamMap.Contains(TEXT("风速")))
 	{
-		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Temperature")]);
-		NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), Value);
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("风速")]);
+		switch (Value)
+		{
+		case 0:
+			{
+				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
+			}
+			break;
+		case 1:
+			{
+				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 50);
+			}
+			break;
+		case 2:
+			{
+				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 75);
+			}
+			break;
+		case 3:
+			{
+				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 100);
+			}
+			break;
+		default:
+			{
+				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
+			}
+		}
 
 		return;
 	}
+
 	if (ExtensionParamMap.Contains(TEXT("Temperature")))
 	{
 		NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Blue);
 	}
+
 	if (ExtensionParamMap.Contains(TEXT("开关")))
 	{
-		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
-		
+		const auto Value = static_cast<bool>(UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]));
+
+		NiagaraComponentPtr->SetActive(Value);
+
+		return;
 	}
 
 	EntryShowDevice();

@@ -32,6 +32,8 @@ void TourProcessor::FViewSingleDeviceProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewDeviceControlParam);
+		
 		UpdateCameraArmLen(
 		                   GameOptionsPtr->
 		                   ViewDeviceControlParam,

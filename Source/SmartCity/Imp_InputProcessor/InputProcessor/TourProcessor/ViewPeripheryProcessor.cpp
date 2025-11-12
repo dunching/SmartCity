@@ -63,6 +63,8 @@ void TourProcessor::FViewPeripheryProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewPeripheryControlParam);
+		
 		UpdateCameraArmLen(
 		                   GameOptionsPtr->
 		                   ViewPeripheryControlParam,

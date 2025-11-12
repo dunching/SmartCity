@@ -219,6 +219,15 @@ void ASceneElement_SunShade::EntryShoweviceEffect()
 		return;
 	}
 
+	if (ExtensionParamMap.Contains(TEXT("开关")))
+	{
+		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
+		
+		UpdateAngle(Value);
+
+		return;
+	}
+
 	EntryShowDevice();
 }
 

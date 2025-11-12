@@ -42,7 +42,20 @@ void TourProcessor::FViewSpecialAreaProcessor::EnterAction()
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
 	if (OnwerActorPtr)
 	{
-		OnwerActorPtr->UpdateControlParam(UGameOptions::GetInstance()->ViewFloorControlParam);
+		auto GameOptionsPtr = UGameOptions::GetInstance();
+
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewSpaceControlParam);
+		
+		UpdateCameraArmLen(
+						   GameOptionsPtr->
+						   ViewSpaceControlParam,
+						   0
+						  );
+
+		UpdateCameraClampPitch(
+							   GameOptionsPtr->
+							   ViewSpaceControlParam
+							  );
 	}
 }
 

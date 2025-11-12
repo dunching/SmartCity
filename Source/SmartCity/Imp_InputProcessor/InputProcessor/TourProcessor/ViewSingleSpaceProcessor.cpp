@@ -32,6 +32,8 @@ void TourProcessor::FViewSingleSpaceProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewSpaceControlParam);
+		
 		UpdateCameraArmLen(
 		                   GameOptionsPtr->
 		                   ViewSpaceControlParam,

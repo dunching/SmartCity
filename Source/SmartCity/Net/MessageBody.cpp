@@ -1097,6 +1097,8 @@ void FMessageBody_Receive_UpdateSceneElementParam::Deserialize(
 	{
 	}
 
+	ExtensionParamMap.Empty();
+	
 	const TSharedPtr<FJsonObject>* OutObject = nullptr;
 	if (jsonObject->TryGetObjectField(TEXT("SceneElements"), OutObject))
 	{

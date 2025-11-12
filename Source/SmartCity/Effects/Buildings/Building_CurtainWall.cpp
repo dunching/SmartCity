@@ -15,6 +15,7 @@
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
 #include "WeatherSystem.h"
+#include "Components/BoxComponent.h"
 
 void ABuilding_CurtainWall::BeginPlay()
 {
@@ -78,32 +79,75 @@ void ABuilding_CurtainWall::ReplaceImp(
 		}
 
 		// 生成窗帘
-		FBox Box(ForceInit);
-		for (auto Iter : StaticMeshComponentsAry)
 		{
-			Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			auto ParentPtr = ActorPtr->GetAttachParentActor();
 
-			FBox TemoBox(ForceInit);
-			TemoBox.IsValid = true;
-			Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
-			TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
-			Box += TemoBox;
-		}
-		auto SceneElement_RollerBlindPtr = GetWorld()->SpawnActor<ASceneElement_RollerBlind>(
-			 UAssetRefMap::GetInstance()->SceneElement_RollerBlindClass
-			);
-		if (SceneElement_RollerBlindPtr)
-		{
-			SceneElement_RollerBlindPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-			
-			const auto Size = Box.GetSize();
-			SceneElement_RollerBlindPtr->SetActorRelativeLocation(Box.GetCenter() - FVector(0, 0, Size.Z / 2));
+			AFloorHelper* FloorPtr = nullptr;
+			for (; ParentPtr;)
+			{
+				ParentPtr = ParentPtr->GetAttachParentActor();
+				FloorPtr = Cast<AFloorHelper>(ParentPtr);
+				if (FloorPtr)
+				{
+					break;
+				}
+			}
 
-			SceneElement_RollerBlindPtr->SetActorScale3D(FVector(
-				Size.X / SceneElement_RollerBlindPtr->DefaultSize.X,
-				1,
-				(Size.Z - 40) / SceneElement_RollerBlindPtr->DefaultSize.Z
-				));
+			if (!FloorPtr)
+			{
+				return;
+			}
+
+			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
+			                                                               FloorPtr->BoxComponentPtr->
+			                                                               GetComponentToWorld()
+			                                                              )
+			                                 .GetBox().GetCenter();
+			const auto Dir = FloorCenter - GetActorLocation();
+
+			const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
+
+			FBox Box(ForceInit);
+			for (auto Iter : StaticMeshComponentsAry)
+			{
+				Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+				FBox TemoBox(ForceInit);
+				TemoBox.IsValid = true;
+				Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
+				TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
+				Box += TemoBox;
+			}
+			auto SceneElement_RollerBlindPtr = GetWorld()->SpawnActor<ASceneElement_RollerBlind>(
+				 UAssetRefMap::GetInstance()->SceneElement_RollerBlindClass
+				);
+			if (SceneElement_RollerBlindPtr)
+			{
+				SceneElementID = FGuid::NewGuid().ToString();
+				
+				SceneElement_RollerBlindPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+				const auto Size = Box.GetSize();
+				if (Dot > 0)
+				{
+					SceneElement_RollerBlindPtr->
+						SetActorRelativeLocation(Box.GetCenter() - FVector(0, -20, Size.Z / 2));
+				}
+				else
+				{
+					SceneElement_RollerBlindPtr->SetActorRelativeLocation(Box.GetCenter() - FVector(0, 20, Size.Z / 2));
+				}
+
+				SceneElement_RollerBlindPtr->SetActorScale3D(
+				                                             FVector(
+				                                                     Size.X / SceneElement_RollerBlindPtr->DefaultSize.
+				                                                     X,
+				                                                     1,
+				                                                     (Size.Z - 40) / SceneElement_RollerBlindPtr->
+				                                                     DefaultSize.Z
+				                                                    )
+				                                            );
+			}
 		}
 
 		// 附加到AS
