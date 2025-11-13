@@ -210,29 +210,50 @@ void ASceneElement_Space::Merge(
 
 			CollisionComponentsAry.Add(CollisionComponentPtr);
 
-			auto LightComponentPtr = Cast<UPointLightComponent>(
-			                                                    AddComponentByClass(
-				                                                     UPointLightComponent::StaticClass(),
-				                                                     true,
-				                                                     STPtr->GetStaticMeshComponent()->
-				                                                            GetComponentTransform(),
-				                                                     false
-				                                                    )
-			                                                   );
+			AFloorHelper* FloorPtr = nullptr;
+			for (; ParentPtr;)
+			{
+				ParentPtr = ParentPtr->GetAttachParentActor();
+				FloorPtr = Cast<AFloorHelper>(ParentPtr);
+				if (FloorPtr)
+				{
+					break;
+				}
+			}
 
-			LightComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			if (!FloorPtr)
+			{
+				return;
+			}
 
-			LightComponentPtr->bUseInverseSquaredFalloff = false;
-			LightComponentPtr->IntensityUnits = ELightUnits::Lumens;
-			const auto Size = Box.GetSize().Size();
-			LightComponentPtr->SourceRadius = Size;
-			LightComponentPtr->SoftSourceRadius = Size;
-			LightComponentPtr->SourceLength = Size;
-			LightComponentPtr->Intensity = 8;
+			if (!FloorPtr->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_Roof))
+			{
+				auto LightComponentPtr = Cast<UPointLightComponent>(
+																	AddComponentByClass(
+																		 UPointLightComponent::StaticClass(),
+																		 true,
+																		 STPtr->GetStaticMeshComponent()->
+																				GetComponentTransform(),
+																		 false
+																		)
+																   );
 
-			LightComponentPtr->SetRelativeLocation(Box.GetCenter());
+				LightComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
-			RectLightComponentAry.Add(LightComponentPtr);
+				LightComponentPtr->SetRelativeLocation(Box.GetCenter());
+
+				LightComponentPtr->bUseInverseSquaredFalloff = false;
+				LightComponentPtr->IntensityUnits = ELightUnits::Lumens;
+				const auto Size = Box.GetSize().Size();
+				LightComponentPtr->SourceRadius = Size;
+				LightComponentPtr->SoftSourceRadius = Size;
+				LightComponentPtr->SourceLength = Size;
+				LightComponentPtr->Intensity = 8;
+
+				LightComponentPtr->SetRelativeLocation(Box.GetCenter());
+
+				RectLightComponentAry.Add(LightComponentPtr);
+			}
 		}
 
 		ActorRef->Destroy();
@@ -247,7 +268,8 @@ void ASceneElement_Space::SwitchInteractionType(
 
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery) 
 		)
 		{
 			QuitAllState();
@@ -629,7 +651,7 @@ void ASceneElement_Space::QuitAllState()
 {
 	Super::QuitAllState();
 
-	SetActorHiddenInGame(true);
+	SetActorHiddenInGame(false);
 
 	USceneInteractionWorldSystem::GetInstance()->ClearFocus();
 
@@ -708,27 +730,30 @@ void ASceneElement_Space::OnHourChanged(
 		return;
 	}
 
-	if (!AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall))
+	if (
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Periphery) 
+		)
 	{
+		if (Hour > 18 || Hour < 8)
+		{
+			for (auto Iter : RectLightComponentAry)
+			{
+				Iter->SetHiddenInGame(false);
+			}
+			return;
+		}
 		for (auto Iter : RectLightComponentAry)
 		{
 			Iter->SetHiddenInGame(true);
+			DrawDebugSphere(GetWorld(), Iter->GetComponentLocation(), 20, 20, FColor::Red, false, 10);
 		}
 		return;
 	}
-
-	if (Hour > 18 || Hour < 8)
-	{
-		for (auto Iter : RectLightComponentAry)
-		{
-			Iter->SetHiddenInGame(false);
-		}
-		return;
-	}
+	
 	for (auto Iter : RectLightComponentAry)
 	{
 		Iter->SetHiddenInGame(true);
-		DrawDebugSphere(GetWorld(), Iter->GetComponentLocation(), 20, 20, FColor::Red, false, 10);
 	}
 }
 
