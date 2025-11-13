@@ -1,5 +1,6 @@
 #include "Building_Pillar.h"
 
+#include "AssetRefMap.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -31,11 +32,11 @@ void ABuilding_Pillar::SwitchInteractionType(
 			// 确认当前的模式
 			auto DecoratorSPtr =
 				DynamicCastSharedPtr<FInteraction_Decorator>(
-															 USceneInteractionWorldSystem::GetInstance()->
-															 GetDecorator(
-																		  USmartCitySuiteTags::Interaction_Interaction
-																		 )
-															);
+				                                             USceneInteractionWorldSystem::GetInstance()->
+				                                             GetDecorator(
+				                                                          USmartCitySuiteTags::Interaction_Interaction
+				                                                         )
+				                                            );
 			if (DecoratorSPtr)
 			{
 				const auto ViewConfig = DecoratorSPtr->GetViewConfig();
@@ -49,7 +50,14 @@ void ABuilding_Pillar::SwitchInteractionType(
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.PillarTranlucent);
+					TArray<UStaticMeshComponent*> Components;
+					GetComponents<UStaticMeshComponent>(Components);
+
+					SetTranslucentImp(
+					                  Components,
+					                  ViewConfig.PillarTranlucent,
+					                  UAssetRefMap::GetInstance()->CurtainWallTranslucentMatInst.LoadSynchronous()
+					                 );
 				}
 
 				return;
@@ -64,7 +72,7 @@ void ABuilding_Pillar::SwitchInteractionType(
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		if (ConditionalSet.ConditionalSet.HasAll(EmptyContainer) && ConditionalSet.ConditionalSet.Num() ==
-			EmptyContainer.Num())
+		    EmptyContainer.Num())
 		{
 			SwitchState(EState::kHiden);
 

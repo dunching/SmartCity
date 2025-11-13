@@ -98,6 +98,11 @@ void ABuilding_CurtainWall::ReplaceImp(
 				return;
 			}
 
+			if (FloorPtr->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F1))
+			{
+				return;
+			}
+
 			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
 			                                                               FloorPtr->BoxComponentPtr->
 			                                                               GetComponentToWorld()
@@ -224,7 +229,14 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.CurtainWallTranlucent);
+					TArray<UStaticMeshComponent*> Components;
+					GetComponents<UStaticMeshComponent>(Components);
+
+					SetTranslucentImp(
+									  Components,
+									  ViewConfig.CurtainWallTranlucent,
+									  UAssetRefMap::GetInstance()->CurtainWallTranslucentMatInst.LoadSynchronous()
+									 );
 				}
 
 				return;
@@ -245,49 +257,6 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 
 			return;
 		}
-	}
-}
-
-void ABuilding_CurtainWall::SwitchState(
-	EState State
-	)
-{
-	switch (State)
-	{
-	case EState::kOriginal:
-		{
-			SetActorHiddenInGame(false);
-
-			TArray<UStaticMeshComponent*> Components;
-			GetComponents<UStaticMeshComponent>(Components);
-
-			auto WallTranslucentMatInst = UAssetRefMap::GetInstance()->WallTranslucentMatInst.LoadSynchronous();
-			for (auto Iter : Components)
-			{
-				if (!Iter)
-				{
-					continue;
-				}
-				auto MatAry = OriginalMaterials.Find(Iter);
-				if (!MatAry)
-				{
-					continue;
-				}
-
-				const auto MatNum = Iter->GetMaterials().Num();
-				const auto OriMatNum = MatAry->MaterialsCacheAry.Num();
-				for (int32 Index = 0; Index < MatNum && Index < OriMatNum; Index++)
-				{
-					Iter->SetMaterial(Index, MatAry->MaterialsCacheAry[Index]);
-				}
-			}
-		}
-		break;
-	case EState::kHiden:
-		{
-			SetActorHiddenInGame(true);
-		}
-		break;
 	}
 }
 

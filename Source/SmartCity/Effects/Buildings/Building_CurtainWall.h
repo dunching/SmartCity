@@ -38,14 +38,6 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	enum class EState : uint8
-	{
-		kOriginal,
-		kHiden,
-	};
-	
-	void SwitchState(EState State);
-
 protected:
 	
 	void OnHourChanged(int32 Hour);

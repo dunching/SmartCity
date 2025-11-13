@@ -65,6 +65,12 @@ void ASceneElement_Monitor::SwitchInteractionType(
 {
 	 Super::SwitchInteractionType(ConditionalSet);
 
+	if (ProcessJiaCengLogic(ConditionalSet))
+	{
+		SetActorHiddenInGame(true);
+		return;
+	}
+
 	{
 	 	if (
 			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||

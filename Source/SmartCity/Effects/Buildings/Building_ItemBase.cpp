@@ -93,15 +93,3 @@ void ABuilding_ItemBase::SwitchState(
 		break;
 	}
 }
-
-void ABuilding_ItemBase::SetTranslucent(
-	int32 Value
-	)
-{
-	SetActorHiddenInGame(false);
-
-	TArray<UStaticMeshComponent*> Components;
-	GetComponents<UStaticMeshComponent>(Components);
-	
-	SetTranslucentImp(Components, Value, UAssetRefMap::GetInstance()->WallTranslucentMatInst);
-}

@@ -101,6 +101,11 @@ void ASceneElement_PWR_Pipe::Merge(
 			NewComponentPtr->AddAssetUserData(AUDPtr);
 
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+			{
+				NewComponentPtr->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+			}
+
 			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -124,6 +129,8 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
+	 Super::SwitchInteractionType(ConditionalSet);
+
 	if (OriginalMaterials.IsEmpty())
 	{
 		for (auto Iter : StaticMeshComponentsAry)
@@ -157,6 +164,7 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 			return;
 		}
 	}
+	
 	{
 		auto EmptyContainer = FGameplayTagContainer::EmptyContainer;
 
@@ -358,4 +366,49 @@ void ASceneElement_PWR_Pipe::QuitAllState()
 	SetActorHiddenInGame(true);
 
 	RevertOnriginalMat();
+}
+
+void ASceneElement_PWR_Pipe::CheckIsJiaCeng(
+	UDatasmithAssetUserData* AUDPtr
+	)
+{
+	if (!AUDPtr)
+	{
+		return;
+	}
+	{
+		{
+			auto ID = AUDPtr->MetaData.Find(TEXT("Element*管线类型编号"));
+			if (ID)
+			{
+				if (ID->Contains(TEXT("J")))
+				{
+					bIsJiaCengg = true;
+					return;
+				}
+			}
+		}
+		{
+			auto ID = AUDPtr->MetaData.Find(TEXT("Element*照明回路编号"));
+			if (ID)
+			{
+				if (ID->Contains(TEXT("J")))
+				{
+					bIsJiaCengg = true;
+					return;
+				}
+			}
+		}
+		{
+			auto ID = AUDPtr->MetaData.Find(TEXT("Element*空调和新风回路编号"));
+			if (ID)
+			{
+				if (ID->Contains(TEXT("J")))
+				{
+					bIsJiaCengg = true;
+					return;
+				}
+			}
+		}
+	}
 }

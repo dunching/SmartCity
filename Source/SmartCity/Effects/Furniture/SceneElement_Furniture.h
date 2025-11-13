@@ -8,6 +8,7 @@
 
 #include "GameOptions.h"
 #include "SceneElementBase.h"
+#include "SEJC.h"
 #include "Tools.h"
 
 #include "SceneElement_Furniture.generated.h"
@@ -25,7 +26,8 @@ class URouteMarker;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_Furniture :
-	public ASceneElementBase
+public ASceneElementBase,
+public ISceneElement_JiaCengInterface
 {
 	GENERATED_BODY()
 

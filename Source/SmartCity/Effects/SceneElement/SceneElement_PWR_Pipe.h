@@ -79,6 +79,10 @@ protected:
 	virtual void QuitAllState(
 		) override;
 	
+	virtual void CheckIsJiaCeng(
+		UDatasmithAssetUserData* AUDPtr
+		) override;
+
 	TPair<FName, FString> CurrentUserData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

@@ -1,5 +1,6 @@
 #include "Building_Wall.h"
 
+#include "AssetRefMap.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -49,7 +50,14 @@ void ABuilding_Wall::SwitchInteractionType(
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.WallTranlucent);
+					TArray<UStaticMeshComponent*> Components;
+					GetComponents<UStaticMeshComponent>(Components);
+
+					SetTranslucentImp(
+									  Components,
+									  ViewConfig.WallTranlucent,
+									  UAssetRefMap::GetInstance()->WallTranslucentMatInst.LoadSynchronous()
+									 );
 				}
 
 				return;

@@ -237,7 +237,7 @@ void ASceneElement_SunShade::UpdateAngle(
 {
 	if (Angle != TargetAngle)
 	{
-		TargetAngle = Angle;
+		TargetAngle = FMath::Lerp(0,-90,  Angle / 100.f);
 
 		GetWorldTimerManager().SetTimer(TimerHandle, this, &ThisClass::UpdateAngleImp, Frequency, true);
 	}

@@ -1,5 +1,6 @@
 #include "Building_Stairs.h"
 
+#include "AssetRefMap.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -49,7 +50,14 @@ void ABuilding_Stairs::SwitchInteractionType(
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.StairsTranlucent);
+					TArray<UStaticMeshComponent*> Components;
+					GetComponents<UStaticMeshComponent>(Components);
+
+					SetTranslucentImp(
+									  Components,
+									  ViewConfig.StairsTranlucent,
+									  UAssetRefMap::GetInstance()->StairsTranslucentMatInst.LoadSynchronous()
+									 );
 				}
 
 				return;

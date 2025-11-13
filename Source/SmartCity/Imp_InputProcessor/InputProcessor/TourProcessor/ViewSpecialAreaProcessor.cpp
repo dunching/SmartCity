@@ -23,20 +23,6 @@ void TourProcessor::FViewSpecialAreaProcessor::EnterAction()
 {
 	FInputProcessor::EnterAction();
 
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_ReplyCameraTransform>(
-		 false,
-		 [](
-		 UGT_ReplyCameraTransform* GTPtr
-		 )
-		 {
-			 if (GTPtr)
-			 {
-				 GTPtr->SeatTag = USmartCitySuiteTags::Seat_ViewSplit;
-			 }
-		 }
-		);
-
 	SwitchShowCursor(true);
 
 	auto OnwerActorPtr = GetOwnerActor<FOwnerPawnType>();
@@ -44,17 +30,17 @@ void TourProcessor::FViewSpecialAreaProcessor::EnterAction()
 	{
 		auto GameOptionsPtr = UGameOptions::GetInstance();
 
-		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewSpaceControlParam);
+		OnwerActorPtr->UpdateControlParam(GameOptionsPtr->ViewSpecialAreaControlParam);
 		
 		UpdateCameraArmLen(
 						   GameOptionsPtr->
-						   ViewSpaceControlParam,
+						   ViewSpecialAreaControlParam,
 						   0
 						  );
 
 		UpdateCameraClampPitch(
 							   GameOptionsPtr->
-							   ViewSpaceControlParam
+							   ViewSpecialAreaControlParam
 							  );
 	}
 }
