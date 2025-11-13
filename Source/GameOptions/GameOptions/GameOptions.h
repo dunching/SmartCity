@@ -152,6 +152,9 @@ public:
 	FControlParam ViewSpaceControlParam;
 #pragma endregion
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Keys")
+	FControlParam ViewSpecialAreaControlParam;
+	
 #pragma region 查看单个设备
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Viewer")
 	FRotator ViewDeviceRot = FRotator(-30, 30, 0);

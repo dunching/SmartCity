@@ -394,6 +394,13 @@ protected:
 		);
 
 private:
+
+	bool ProcessTask_Generic(
+		ASceneElementCategory* SceneElementCategoryPtr,
+		FSceneElementMap& AllReference,
+		FSceneElementFilter &StructItemSet
+		);
+
 };
 
 #pragma endregion

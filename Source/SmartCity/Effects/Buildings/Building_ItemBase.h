@@ -46,8 +46,6 @@ public:
 	
 	void SwitchState(EState State);
 		
-	void SetTranslucent(int32 Value);
-		
 	/**
 	 * 网格体
 	 */

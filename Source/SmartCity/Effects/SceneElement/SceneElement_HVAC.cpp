@@ -278,58 +278,60 @@ void ASceneElement_HVAC::EntryShoweviceEffect()
 
 	NiagaraComponentPtr->SetActive(true);
 
-	if (ExtensionParamMap.Contains(TEXT("Looping")))
-	{
-	}
-
-	if (ExtensionParamMap.Contains(TEXT("Pattern")))
-	{
-	}
-
-	if (ExtensionParamMap.Contains(TEXT("风速")))
-	{
-		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("风速")]);
-		switch (Value)
-		{
-		case 0:
-			{
-				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
-			}
-			break;
-		case 1:
-			{
-				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 50);
-			}
-			break;
-		case 2:
-			{
-				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 75);
-			}
-			break;
-		case 3:
-			{
-				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 100);
-			}
-			break;
-		default:
-			{
-				NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
-			}
-		}
-
-		return;
-	}
-
-	if (ExtensionParamMap.Contains(TEXT("Temperature")))
-	{
-		NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Blue);
-	}
-
 	if (ExtensionParamMap.Contains(TEXT("开关")))
 	{
 		const auto Value = static_cast<bool>(UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]));
 
 		NiagaraComponentPtr->SetActive(Value);
+		if (Value)
+		{
+			if (ExtensionParamMap.Contains(TEXT("Looping")))
+			{
+			}
+
+			if (ExtensionParamMap.Contains(TEXT("Pattern")))
+			{
+			}
+
+			if (ExtensionParamMap.Contains(TEXT("风速")))
+			{
+				const auto WindSpeed = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("风速")]);
+				switch (WindSpeed)
+				{
+				case 0:
+					{
+						NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
+					}
+					break;
+				case 1:
+					{
+						NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 50);
+					}
+					break;
+				case 2:
+					{
+						NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 75);
+					}
+					break;
+				case 3:
+					{
+						NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 100);
+					}
+					break;
+				default:
+					{
+						NiagaraComponentPtr->SetFloatParameter(TEXT("Emessive"), 25);
+					}
+				}
+
+				return;
+			}
+
+			if (ExtensionParamMap.Contains(TEXT("Temperature")))
+			{
+				NiagaraComponentPtr->SetColorParameter(TEXT("Color_A"), FColor::Blue);
+			}
+		}
 
 		return;
 	}

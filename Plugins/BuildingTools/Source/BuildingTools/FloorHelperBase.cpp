@@ -13,7 +13,6 @@ AFloorHelperBase::AFloorHelperBase(
 
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
-
 	BoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
@@ -53,7 +52,7 @@ TPair<FTransform, float> AFloorHelperBase::GetCameraSeat(
 	TPair<FTransform, float> Result;
 
 	auto Box = BoxComponentPtr->GetLocalBounds();
-	
+
 	Result.Key.SetLocation(BoxComponentPtr->GetComponentLocation());
 	Result.Key.SetRotation(Rot.Quaternion());
 

@@ -1979,7 +1979,7 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
+		if (FloorIter.Value->GameplayTagContainer.HasTag(GetBranchDecoratorType()))
 		{
 			auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
 
@@ -2006,8 +2006,6 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 			MessageSPtr->PresetBuildingCameraSeat = FloorIter.Value->GetPresetBuildingCameraSeat();
 
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
-
-			return;
 		}
 	}
 }
@@ -2389,6 +2387,12 @@ void FViewDevice_Decorator::OnUpdateFilterComplete(
 	{
 		Building_Floor_Mask->SetFloor(SceneElementPtr->BelongFloor);
 	}
+	
+	auto MessageSPtr = MakeShared<FMessageBody_SelectedDevice>();
+
+	MessageSPtr->DeviceIDAry.Add(SceneElementPtr->SceneElementID);
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 }
 
 void FViewDevice_Decorator::Process()
@@ -2928,6 +2932,22 @@ void FViewSpace_Decorator::OnUpdateFilterComplete(
 	{
 		Building_Floor_Mask->SetFloor(SceneElementPtr->BelongFloor);
 	}
+	
+	auto MessageSPtr = MakeShared<FMessageBody_SelectedSpace>();
+
+	for (auto Iter : SceneElementPtr->GetAllDevices())
+	{
+		FMessageBody_SelectedSpace::FDeviceInfo DeviceInfo;
+
+		DeviceInfo.DeviceID = Iter->SceneElementID;
+		DeviceInfo.Type = Iter->DeviceTypeStr;
+		
+		MessageSPtr->DeviceIDAry.Add(DeviceInfo);
+	}
+
+	MessageSPtr->SpaceName = SceneElementPtr->Category;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 }
 
 void FViewSpace_Decorator::Process()
@@ -3271,38 +3291,40 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 	}
 	else
 	{
-		if (UAssetRefMap::GetInstance()->FloorHelpers.Contains(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
+		for (auto FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			auto Floor = UAssetRefMap::GetInstance()->FloorHelpers[USmartCitySuiteTags::Interaction_Area_Floor_F12JF];
-			for (auto Iter : Floor->SceneElementCategoryMap)
+			if (FloorIter.Key.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
 			{
-				TArray<AActor*> OutActors;
-
-				Iter.Value->GetAttachedActors(OutActors, true, true);
-
-				for (auto ActorIter : OutActors)
+				for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
 				{
-					auto SceneElementBasePtr = Cast<ASceneElement_Computer>(ActorIter);
-					if (SceneElementBasePtr && SceneElementBasePtr->DeviceTypeStr == Seat)
-					{
-						const auto ViewSeat = SceneElementBasePtr->GetViewSeat();
-						PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
-							UGT_CameraTransform>(
-							                     false,
-							                     [this, ViewSeat](
-							                     UGT_CameraTransform* GTPtr
-							                     )
-							                     {
-								                     if (GTPtr)
-								                     {
-									                     GTPtr->TargetLocation = ViewSeat.Key.GetLocation();
-									                     GTPtr->TargetRotation = ViewSeat.Key.GetRotation().Rotator();
-									                     GTPtr->TargetTargetArmLength = ViewSeat.Value;
-								                     }
-							                     }
-							                    );
+					TArray<AActor*> OutActors;
 
-						return;
+					Iter.Value->GetAttachedActors(OutActors, true, true);
+
+					for (auto ActorIter : OutActors)
+					{
+						auto SceneElementBasePtr = Cast<ASceneElement_Computer>(ActorIter);
+						if (SceneElementBasePtr && SceneElementBasePtr->DeviceTypeStr == Seat)
+						{
+							const auto ViewSeat = SceneElementBasePtr->GetViewSeat();
+							PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
+								UGT_CameraTransform>(
+													 false,
+													 [this, ViewSeat](
+													 UGT_CameraTransform* GTPtr
+													 )
+													 {
+														 if (GTPtr)
+														 {
+															 GTPtr->TargetLocation = ViewSeat.Key.GetLocation();
+															 GTPtr->TargetRotation = ViewSeat.Key.GetRotation().Rotator();
+															 GTPtr->TargetTargetArmLength = ViewSeat.Value;
+														 }
+													 }
+													);
+
+							return;
+						}
 					}
 				}
 			}

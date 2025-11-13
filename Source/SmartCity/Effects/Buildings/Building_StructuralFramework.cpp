@@ -2,6 +2,7 @@
 
 #include "Building_StructuralFramework.h"
 
+#include "AssetRefMap.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -51,7 +52,14 @@ void ABuilding_StructuralFramework::SwitchInteractionType(
 				}
 				else
 				{
-					SetTranslucent(ViewConfig.WallTranlucent);
+					TArray<UStaticMeshComponent*> Components;
+					GetComponents<UStaticMeshComponent>(Components);
+
+					SetTranslucentImp(
+									  Components,
+									  ViewConfig.WallTranlucent,
+									  UAssetRefMap::GetInstance()->PillarTranslucentMatInst.LoadSynchronous()
+									 );
 				}
 
 				return;

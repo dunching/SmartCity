@@ -27,6 +27,10 @@ class SMARTCITY_API ABuilding_CurtainWall :
 	GENERATED_BODY()
 
 public:
+	ABuilding_CurtainWall(
+		const FObjectInitializer& ObjectInitializer
+		);
+
 	virtual void BeginPlay() override;
 	
 	virtual void ReplaceImp(
@@ -38,23 +42,22 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	enum class EState : uint8
-	{
-		kOriginal,
-		kHiden,
-	};
-	
-	void SwitchState(EState State);
-
 protected:
 	
 	void OnHourChanged(int32 Hour);
 	
 	void OnExternalWall();
+
+	void GenerateRollerBlind(AActor* ActorPtr);
+	
+	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<ULocalLightComponent>> RectLightComponentAry;
 	

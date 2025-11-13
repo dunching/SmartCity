@@ -114,7 +114,7 @@ public class SmartCity : ModuleRules
 			"CommonType",
 			"GameOptions",
 			"GameplayTagsLibrary",
-			"Tools",
+			"Tools", 
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[]

@@ -43,8 +43,6 @@ public:
 
 protected:
 
-private:
 	bool bIsJiaCengg = false;
-	
-	bool bIsJiaCengg1 = false;
+private:
 };

@@ -99,39 +99,79 @@ void ASceneElement_Regualar::ReplaceImp(
 {
 	Super::ReplaceImp(ActorPtr, InUserData);
 
-	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
+	if (ActorPtr)
 	{
-		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
-		if (STPtr)
+		if (ActorPtr->IsA(AStaticMeshActor::StaticClass()))
 		{
-			auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
-			if (!InterfacePtr)
+			auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+			if (STPtr)
 			{
-				return;
-			}
-			auto AUDPtr = Cast<UDatasmithAssetUserData>(
-			                                            InterfacePtr->GetAssetUserDataOfClass(
-				                                             UDatasmithAssetUserData::StaticClass()
-				                                            )
-			                                           );
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(STPtr->GetStaticMeshComponent());
+				if (!InterfacePtr)
+				{
+					return;
+				}
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+															InterfacePtr->GetAssetUserDataOfClass(
+																 UDatasmithAssetUserData::StaticClass()
+																)
+														   );
 
-			CheckIsJiaCeng(AUDPtr);
+				CheckIsJiaCeng(AUDPtr);
 
-			StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+				StaticMeshComponent->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
 
-			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
-			{
-				StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
-			}
+				for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+				{
+					StaticMeshComponent->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+				}
 
-			StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			FBox Box(ForceInit);
-			StaticMeshComponent->GetLocalBounds(Box.Min, Box.Max);
+				FBox Box(ForceInit);
+				StaticMeshComponent->GetLocalBounds(Box.Min, Box.Max);
 			
-			CollisionComponentHelper->SetRelativeLocation(Box.GetCenter());
+				CollisionComponentHelper->SetRelativeLocation(Box.GetCenter());
 
-			CollisionComponentHelper->SetBoxExtent(Box.GetExtent());
+				CollisionComponentHelper->SetBoxExtent(Box.GetExtent());
+			}
+		}
+		else if (ActorPtr->IsA(AActor::StaticClass()))
+		{
+			TArray<UStaticMeshComponent*>STCAry;
+			ActorPtr->GetComponents<UStaticMeshComponent>(STCAry);
+			for (auto Iter : STCAry)
+			{
+				auto NewComponentPtr = Cast<UStaticMeshComponent>(
+																  AddComponentByClass(
+																	   UStaticMeshComponent::StaticClass(),
+																	   true,
+																	   Iter->GetComponentTransform(),
+																	   false
+																	  )
+																 );
+
+				NewComponentPtr->SetStaticMesh(Iter->GetStaticMesh());
+				
+				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+				{
+					StaticMeshComponent->SetMaterial(Index, Iter->GetMaterial(Index));
+				}
+
+				NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+
+				NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				NewComponentPtr->SetCollisionObjectType(Device_Object);
+				NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+				NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+
+				NewComponentPtr->SetRenderCustomDepth(false);
+
+				StaticMeshComponentsAry.Add(NewComponentPtr);
+			}
 		}
 	}
 }
