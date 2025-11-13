@@ -13,8 +13,11 @@ AFloorHelperBase::AFloorHelperBase(
 
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
-
 	BoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	InnerBoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("InnerBoxComponent"));
+	InnerBoxComponentPtr->SetupAttachment(RootComponent);
+	InnerBoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AFloorHelperBase::BeginPlay()

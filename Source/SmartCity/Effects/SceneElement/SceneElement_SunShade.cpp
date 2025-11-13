@@ -100,7 +100,7 @@ void ASceneElement_SunShade::ReplaceImp(
 			{
 			}
 
-			UpdateCollisionBox({FanMeshComponent});
+			// UpdateCollisionBox({FanMeshComponent});
 		}
 	}
 }
