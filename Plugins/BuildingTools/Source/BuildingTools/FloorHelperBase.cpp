@@ -23,6 +23,15 @@ AFloorHelperBase::AFloorHelperBase(
 void AFloorHelperBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InnerBoxComponentPtr->SetRelativeTransform(BoxComponentPtr->GetRelativeTransform());
+	auto Box = BoxComponentPtr->GetScaledBoxExtent();
+
+	Box.X = Box.X - 200;
+	Box.Y = Box.Y - 200;
+	Box.Z = Box.Z - 200;
+	
+	InnerBoxComponentPtr->SetBoxExtent(Box);
 }
 
 void AFloorHelperBase::OnConstruction(
