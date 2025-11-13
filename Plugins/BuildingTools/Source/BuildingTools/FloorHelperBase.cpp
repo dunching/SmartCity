@@ -14,24 +14,11 @@ AFloorHelperBase::AFloorHelperBase(
 	BoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponentPtr->SetupAttachment(RootComponent);
 	BoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	InnerBoxComponentPtr = CreateDefaultSubobject<UBoxComponent>(TEXT("InnerBoxComponent"));
-	InnerBoxComponentPtr->SetupAttachment(RootComponent);
-	InnerBoxComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AFloorHelperBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InnerBoxComponentPtr->SetRelativeTransform(BoxComponentPtr->GetRelativeTransform());
-	auto Box = BoxComponentPtr->GetScaledBoxExtent();
-
-	Box.X = Box.X - 200;
-	Box.Y = Box.Y - 200;
-	Box.Z = Box.Z - 200;
-	
-	InnerBoxComponentPtr->SetBoxExtent(Box);
 }
 
 void AFloorHelperBase::OnConstruction(
@@ -65,7 +52,7 @@ TPair<FTransform, float> AFloorHelperBase::GetCameraSeat(
 	TPair<FTransform, float> Result;
 
 	auto Box = BoxComponentPtr->GetLocalBounds();
-	
+
 	Result.Key.SetLocation(BoxComponentPtr->GetComponentLocation());
 	Result.Key.SetRotation(Rot.Quaternion());
 

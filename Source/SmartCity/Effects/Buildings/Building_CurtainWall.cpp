@@ -16,6 +16,22 @@
 #include "TemplateHelper.h"
 #include "WeatherSystem.h"
 #include "Components/BoxComponent.h"
+#include "Engine/OverlapResult.h"
+
+ABuilding_CurtainWall::ABuilding_CurtainWall(
+	const FObjectInitializer& ObjectInitializer
+	):Super(ObjectInitializer)
+{
+
+	CollisionComponentHelper = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponentHelper"));
+	CollisionComponentHelper->SetupAttachment(RootComponent);
+
+	CollisionComponentHelper->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponentHelper->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponentHelper->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+	CollisionComponentHelper->SetCollisionResponseToChannel(Device_Object, ECollisionResponse::ECR_Overlap);
+	CollisionComponentHelper->SetCollisionObjectType(Device_Object);
+}
 
 void ABuilding_CurtainWall::BeginPlay()
 {
@@ -58,13 +74,7 @@ void ABuilding_CurtainWall::ReplaceImp(
 				NewComponentPtr->SetStaticMesh(Iter->GetStaticMesh());
 				NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
-				NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				NewComponentPtr->SetCollisionObjectType(Wall_Object);
-				NewComponentPtr->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-
-				NewComponentPtr->SetCollisionResponseToChannel(ExternalWall_Object, ECollisionResponse::ECR_Overlap);
-				NewComponentPtr->SetCollisionResponseToChannel(Floor_Object, ECollisionResponse::ECR_Overlap);
-				NewComponentPtr->SetCollisionResponseToChannel(Space_Object, ECollisionResponse::ECR_Overlap);
+				NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 				NewComponentPtr->SetRenderCustomDepth(false);
 
@@ -77,83 +87,10 @@ void ABuilding_CurtainWall::ReplaceImp(
 				StaticMeshComponentsAry.Add(NewComponentPtr);
 			}
 		}
+		UpdateCollisionBox({StaticMeshComponent});
 
 		// 生成窗帘
-		{
-			auto ParentPtr = ActorPtr->GetAttachParentActor();
-
-			AFloorHelper* FloorPtr = nullptr;
-			for (; ParentPtr;)
-			{
-				ParentPtr = ParentPtr->GetAttachParentActor();
-				FloorPtr = Cast<AFloorHelper>(ParentPtr);
-				if (FloorPtr)
-				{
-					break;
-				}
-			}
-
-			if (!FloorPtr)
-			{
-				return;
-			}
-
-			if (FloorPtr->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F1))
-			{
-				return;
-			}
-
-			const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
-			                                                               FloorPtr->BoxComponentPtr->
-			                                                               GetComponentToWorld()
-			                                                              )
-			                                 .GetBox().GetCenter();
-			const auto Dir = FloorCenter - GetActorLocation();
-
-			const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
-
-			FBox Box(ForceInit);
-			for (auto Iter : StaticMeshComponentsAry)
-			{
-				Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-				FBox TemoBox(ForceInit);
-				TemoBox.IsValid = true;
-				Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
-				TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
-				Box += TemoBox;
-			}
-			auto SceneElement_RollerBlindPtr = GetWorld()->SpawnActor<ASceneElement_RollerBlind>(
-				 UAssetRefMap::GetInstance()->SceneElement_RollerBlindClass
-				);
-			if (SceneElement_RollerBlindPtr)
-			{
-				SceneElementID = FGuid::NewGuid().ToString();
-				
-				SceneElement_RollerBlindPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-
-				const auto Size = Box.GetSize();
-				if (Dot > 0)
-				{
-					SceneElement_RollerBlindPtr->
-						SetActorRelativeLocation(Box.GetCenter() - FVector(0, -20, Size.Z / 2));
-				}
-				else
-				{
-					SceneElement_RollerBlindPtr->SetActorRelativeLocation(Box.GetCenter() - FVector(0, 20, Size.Z / 2));
-				}
-
-				SceneElement_RollerBlindPtr->SetActorScale3D(
-				                                             FVector(
-				                                                     Size.X / SceneElement_RollerBlindPtr->DefaultSize.
-				                                                     X,
-				                                                     1,
-				                                                     (Size.Z - 40) / SceneElement_RollerBlindPtr->
-				                                                     DefaultSize.Z
-				                                                    )
-				                                            );
-			}
-		}
+		GenerateRollerBlind(ActorPtr);
 
 		// 附加到AS
 		auto ParentPtr = GetAttachParentActor();
@@ -233,10 +170,10 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 					GetComponents<UStaticMeshComponent>(Components);
 
 					SetTranslucentImp(
-									  Components,
-									  ViewConfig.CurtainWallTranlucent,
-									  UAssetRefMap::GetInstance()->CurtainWallTranslucentMatInst.LoadSynchronous()
-									 );
+					                  Components,
+					                  ViewConfig.CurtainWallTranlucent,
+					                  UAssetRefMap::GetInstance()->CurtainWallTranslucentMatInst.LoadSynchronous()
+					                 );
 				}
 
 				return;
@@ -319,4 +256,143 @@ void ABuilding_CurtainWall::OnExternalWall()
 	{
 		Iter->SetHiddenInGame(true);
 	}
+}
+
+void ABuilding_CurtainWall::GenerateRollerBlind(AActor* ActorPtr)
+{
+	{
+		auto ParentPtr = ActorPtr->GetAttachParentActor();
+
+		AFloorHelper* FloorPtr = nullptr;
+		for (; ParentPtr;)
+		{
+			ParentPtr = ParentPtr->GetAttachParentActor();
+			FloorPtr = Cast<AFloorHelper>(ParentPtr);
+			if (FloorPtr)
+			{
+				break;
+			}
+		}
+
+		if (!FloorPtr)
+		{
+			return;
+		}
+
+		if (FloorPtr->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F1))
+		{
+			return;
+		}
+
+		TArray<FOverlapResult> OutOverlap;
+
+		FComponentQueryParams Params;
+
+		FCollisionObjectQueryParams ObjectQueryParams;
+		ObjectQueryParams.AddObjectTypesToQuery(Device_Object);
+
+		auto TempBox = FloorPtr->BoxComponentPtr->GetScaledBoxExtent();
+		TempBox.X -= 200;
+		TempBox.Y -= 200;
+		
+		GetWorld()->OverlapMultiByObjectType(
+		                                     OutOverlap,
+		                                     FloorPtr->BoxComponentPtr->GetComponentLocation(),
+		                                     FloorPtr->BoxComponentPtr->GetComponentRotation().Quaternion(),
+		                                     ObjectQueryParams,
+		                                     FCollisionShape::MakeBox(TempBox),
+		                                     Params
+		                                    );
+
+		// DrawDebugBox(
+		// 	GetWorld(), FloorPtr->BoxComponentPtr->GetComponentLocation(),TempBox,
+		// 	FloorPtr->BoxComponentPtr->GetComponentRotation().Quaternion(),
+		// 	FColor::Red,
+		// 	false,
+		// 	50
+		// 	);
+		
+		for (const auto& Iter : OutOverlap)
+		{
+			auto Building_CurtainWallPtr = Cast<ABuilding_CurtainWall>(Iter.GetActor());
+			if (Building_CurtainWallPtr == this)
+			{
+				return;
+			}
+		}
+
+		const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
+		                                                               FloorPtr->BoxComponentPtr->
+		                                                               GetComponentToWorld()
+		                                                              )
+		                                 .GetBox().GetCenter();
+		const auto Dir = FloorCenter - GetActorLocation();
+
+		const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
+
+		FBox Box(ForceInit);
+		for (auto Iter : StaticMeshComponentsAry)
+		{
+			Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+			FBox TemoBox(ForceInit);
+			TemoBox.IsValid = true;
+			Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
+			TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
+			Box += TemoBox;
+		}
+		auto SceneElement_RollerBlindPtr = GetWorld()->SpawnActor<ASceneElement_RollerBlind>(
+			 UAssetRefMap::GetInstance()->SceneElement_RollerBlindClass
+			);
+		if (SceneElement_RollerBlindPtr)
+		{
+			SceneElementID = FGuid::NewGuid().ToString();
+
+			SceneElement_RollerBlindPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+			const auto Size = Box.GetSize();
+			if (Dot > 0)
+			{
+				SceneElement_RollerBlindPtr->
+					SetActorRelativeLocation(Box.GetCenter() - FVector(0, -20, Size.Z / 2));
+			}
+			else
+			{
+				SceneElement_RollerBlindPtr->SetActorRelativeLocation(Box.GetCenter() - FVector(0, 20, Size.Z / 2));
+			}
+
+			SceneElement_RollerBlindPtr->SetActorScale3D(
+			                                             FVector(
+			                                                     Size.X / SceneElement_RollerBlindPtr->DefaultSize.
+			                                                     X,
+			                                                     1,
+			                                                     (Size.Z - 40) / SceneElement_RollerBlindPtr->
+			                                                     DefaultSize.Z
+			                                                    )
+			                                            );
+		}
+	}
+}
+
+
+void ABuilding_CurtainWall::UpdateCollisionBox(
+	const TArray<UStaticMeshComponent*>& SMCompsAry
+	)
+{
+	FBox Box(ForceInit);
+	for (auto Iter : SMCompsAry)
+	{
+		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		FBox TemoBox(ForceInit);
+		TemoBox.IsValid = true;
+		Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
+		TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
+		
+		Box += TemoBox;
+	}
+
+	CollisionComponentHelper->SetRelativeLocation(Box.GetCenter());
+
+	CollisionComponentHelper->SetBoxExtent(Box.GetExtent());
 }

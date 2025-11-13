@@ -53,9 +53,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TObjectPtr<UBoxComponent> BoxComponentPtr;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	TObjectPtr<UBoxComponent> InnerBoxComponentPtr;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<ANavagationPaths> NavagationPaths = nullptr;
 	

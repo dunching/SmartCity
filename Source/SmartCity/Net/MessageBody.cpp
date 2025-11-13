@@ -775,6 +775,10 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 			);
 		if (ViewBuildingProcessorSPtr)
 		{
+			Cast<APlanetPlayerCameraManager>(
+											 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+											)->UpdateCameraSetting();
+
 			ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(MinPitch, 0, 0));
 			return;
 		}
