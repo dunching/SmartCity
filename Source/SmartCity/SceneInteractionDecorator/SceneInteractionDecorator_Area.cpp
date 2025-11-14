@@ -2003,6 +2003,7 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 				}
 			}
 
+			MessageSPtr->FloorHelper = Cast<AFloorHelper>(FloorIter.Value.LoadSynchronous());
 			MessageSPtr->PresetBuildingCameraSeat = FloorIter.Value->GetPresetBuildingCameraSeat();
 
 			UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
@@ -2183,6 +2184,7 @@ void FViewDevice_Decorator::OnOtherDecoratorEntry(
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+		
 		)> MulticastDelegate;
 
 	ON_SCOPE_EXIT
@@ -2206,23 +2208,23 @@ void FViewDevice_Decorator::OnOtherDecoratorEntry(
 		                                                                 );
 
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
-		
+
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
-																		SceneActorConditional,
-																		true,
-																		MulticastDelegate,
-		                                                                SceneElementPtr
-																	   );
+		                                                                 SceneActorConditional,
+		                                                                 true,
+		                                                                 MulticastDelegate,
+		                                                                 SceneElementPtr
+		                                                                );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleDeviceProcessor>(
-													  [this](
-													  auto NewProcessor
-													  )
-													  {
-			                                           NewProcessor->SceneElementPtr = SceneElementPtr;
-													  }
-													 );
+			                                           [this](
+			                                           auto NewProcessor
+			                                           )
+			                                           {
+				                                           NewProcessor->SceneElementPtr = SceneElementPtr;
+			                                           }
+			                                          );
 	};
 
 	if (
@@ -2387,7 +2389,7 @@ void FViewDevice_Decorator::OnUpdateFilterComplete(
 	{
 		Building_Floor_Mask->SetFloor(SceneElementPtr->BelongFloor);
 	}
-	
+
 	auto MessageSPtr = MakeShared<FMessageBody_SelectedDevice>();
 
 	MessageSPtr->DeviceIDAry.Add(SceneElementPtr->SceneElementID);
@@ -2441,6 +2443,7 @@ void FViewDevice_Decorator::Process()
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+		
 		)> MulticastDelegate;
 
 	ON_SCOPE_EXIT
@@ -2464,23 +2467,23 @@ void FViewDevice_Decorator::Process()
 		                                                                 );
 
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
-		
+
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Device(
-																		SceneActorConditional,
-																		true,
-																		MulticastDelegate,
-																		SceneElementPtr
-																	   );
+		                                                                 SceneActorConditional,
+		                                                                 true,
+		                                                                 MulticastDelegate,
+		                                                                 SceneElementPtr
+		                                                                );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleDeviceProcessor>(
-													  [this](
-													  auto NewProcessor
-													  )
-													  {
-														  NewProcessor->SceneElementPtr = SceneElementPtr;
-													  }
-													 );
+			                                           [this](
+			                                           auto NewProcessor
+			                                           )
+			                                           {
+				                                           NewProcessor->SceneElementPtr = SceneElementPtr;
+			                                           }
+			                                          );
 
 		AdjustCamera();
 	};
@@ -2591,7 +2594,6 @@ void FViewDevice_Decorator::Process()
 	}
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-
 }
 
 void FViewDevice_Decorator::AdjustCamera() const
@@ -2726,6 +2728,7 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+		
 		)> MulticastDelegate;
 
 	ON_SCOPE_EXIT
@@ -2749,24 +2752,24 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 		                                                                 );
 
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
-		
+
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Space(
-																		SceneActorConditional,
-																		true,
-																		MulticastDelegate,
+		                                                                SceneActorConditional,
+		                                                                true,
+		                                                                MulticastDelegate,
 		                                                                SceneElementPtr
-																	   );
+		                                                               );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleFloorProcessor>(
-													  [this](
-													  auto NewProcessor
-													  )
-													  {
-														  NewProcessor->Interaction_Area =
-															  GetBranchDecoratorType();
-													  }
-													 );
+			                                          [this](
+			                                          auto NewProcessor
+			                                          )
+			                                          {
+				                                          NewProcessor->Interaction_Area =
+					                                          GetBranchDecoratorType();
+			                                          }
+			                                         );
 	};
 
 	if (
@@ -2908,7 +2911,6 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 	SceneActorConditional.ConditionalSet = USceneInteractionWorldSystem::GetInstance()->GetAllInteractionTags();
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-
 }
 
 void FViewSpace_Decorator::OnUpdateFilterComplete(
@@ -2932,7 +2934,7 @@ void FViewSpace_Decorator::OnUpdateFilterComplete(
 	{
 		Building_Floor_Mask->SetFloor(SceneElementPtr->BelongFloor);
 	}
-	
+
 	auto MessageSPtr = MakeShared<FMessageBody_SelectedSpace>();
 
 	for (auto Iter : SceneElementPtr->GetAllDevices())
@@ -2941,7 +2943,7 @@ void FViewSpace_Decorator::OnUpdateFilterComplete(
 
 		DeviceInfo.DeviceID = Iter->SceneElementID;
 		DeviceInfo.Type = Iter->DeviceTypeStr;
-		
+
 		MessageSPtr->DeviceIDAry.Add(DeviceInfo);
 	}
 
@@ -2994,6 +2996,7 @@ void FViewSpace_Decorator::Process()
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+		
 		)> MulticastDelegate;
 
 	ON_SCOPE_EXIT
@@ -3017,23 +3020,23 @@ void FViewSpace_Decorator::Process()
 		                                                                 );
 
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
-		
+
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Space(
-																		SceneActorConditional,
-																		true,
-																		MulticastDelegate,
-																		SceneElementPtr
-																	   );
+		                                                                SceneActorConditional,
+		                                                                true,
+		                                                                MulticastDelegate,
+		                                                                SceneElementPtr
+		                                                               );
 
 		UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 			TourProcessor::FViewSingleSpaceProcessor>(
-													  [this](
-													  auto NewProcessor
-													  )
-													  {
-														  NewProcessor->SceneElementPtr = SceneElementPtr;
-													  }
-													 );
+			                                          [this](
+			                                          auto NewProcessor
+			                                          )
+			                                          {
+				                                          NewProcessor->SceneElementPtr = SceneElementPtr;
+			                                          }
+			                                         );
 
 		AdjustCamera();
 	};
@@ -3148,7 +3151,6 @@ void FViewSpace_Decorator::Process()
 	SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
-
 }
 
 void FViewSpace_Decorator::AdjustCamera() const
@@ -3237,6 +3239,14 @@ void FViewSpecialArea_Decorator::Quit()
 	Super::Quit();
 }
 
+void FViewSpecialArea_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	UGT_SwitchSceneElement_Base* TaskPtr
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
+}
+
 void FViewSpecialArea_Decorator::Process()
 {
 	FSceneElementConditional SceneActorConditional;
@@ -3261,7 +3271,8 @@ void FViewSpecialArea_Decorator::Process()
 	                                                                       SceneActorConditional,
 	                                                                       true,
 	                                                                       MulticastDelegate,
-	                                                                       FloorSet
+	                                                                       FloorSet,
+	                                                                       PriorityHideFloorSet
 	                                                                      );
 
 	AdjustCamera();
@@ -3293,7 +3304,10 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 	{
 		for (auto FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (FloorIter.Key.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
+			if (
+				FloorIter.Key.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF) &&
+				FloorIter.Key.MatchesTag(AreaTag)
+			)
 			{
 				for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
 				{
@@ -3309,19 +3323,20 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 							const auto ViewSeat = SceneElementBasePtr->GetViewSeat();
 							PCPtr->GameplayTasksComponentPtr->StartGameplayTask<
 								UGT_CameraTransform>(
-													 false,
-													 [this, ViewSeat](
-													 UGT_CameraTransform* GTPtr
-													 )
-													 {
-														 if (GTPtr)
-														 {
-															 GTPtr->TargetLocation = ViewSeat.Key.GetLocation();
-															 GTPtr->TargetRotation = ViewSeat.Key.GetRotation().Rotator();
-															 GTPtr->TargetTargetArmLength = ViewSeat.Value;
-														 }
-													 }
-													);
+								                     false,
+								                     [this, ViewSeat](
+								                     UGT_CameraTransform* GTPtr
+								                     )
+								                     {
+									                     if (GTPtr)
+									                     {
+										                     GTPtr->TargetLocation = ViewSeat.Key.GetLocation();
+										                     GTPtr->TargetRotation = ViewSeat.Key.GetRotation().
+											                     Rotator();
+										                     GTPtr->TargetTargetArmLength = ViewSeat.Value;
+									                     }
+								                     }
+								                    );
 
 							return;
 						}

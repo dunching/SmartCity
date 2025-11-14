@@ -304,6 +304,10 @@ struct FMessageBody_Receive_ViewSpeacialArea : public FMessageBody_Receive
 
 	TSet<FGameplayTag> FloorSet;
 
+	TSet<FGameplayTag> PriorityHideFloorSet;
+
+	FGameplayTag AreaTag;
+
 	FString Seat;
 };
 

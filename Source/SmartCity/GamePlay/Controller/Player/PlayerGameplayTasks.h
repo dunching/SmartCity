@@ -589,7 +589,15 @@ public:
 
 	virtual bool ProcessTask_Hiden() override;
 
+	virtual bool ProcessTask_SwitchState() override;
+
+	TArray<TObjectPtr<ASceneElementBase>> PriorityHideFloorAryAry;
+
+	int32 PriorityHideFloorAryIndex = 0;
+
 	TSet<FGameplayTag> FloorSet;
+
+	TSet<FGameplayTag> PriorityHideFloorSet;
 };
 
 /**

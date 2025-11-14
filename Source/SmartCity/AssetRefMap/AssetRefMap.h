@@ -191,4 +191,8 @@ public:
 	TSubclassOf<ASceneElement_RollerBlind> SceneElement_RollerBlindClass;
 
 #pragma endregion
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<FString, FString> ParamJson;
+
 };

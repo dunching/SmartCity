@@ -1745,6 +1745,34 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Display()
 {
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
+		if (PriorityHideFloorSet.Contains(FloorIter.Value->FloorTag))
+		{
+		}
+		else
+		{
+			continue;
+		}
+
+		PriorityHideFloorAryAry.Add(FloorIter.Value.LoadSynchronous());
+		for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+		{
+			TArray<AActor*> OutActors;
+
+			Iter.Value->GetAttachedActors(OutActors, true, true);
+
+			for (auto ActorIter : OutActors)
+			{
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+				if (SceneElementBasePtr)
+				{
+					PriorityHideFloorAryAry.Add(SceneElementBasePtr);
+				}
+			}
+		}
+	}
+
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
 		if (FloorSet.Contains(FloorIter.Value->FloorTag))
 		{
 		}
@@ -1778,6 +1806,14 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Hiden()
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		if (FloorSet.Contains(FloorIter.Value->FloorTag))
+		{
+			continue;
+		}
+		else
+		{
+		}
+
+		if (PriorityHideFloorSet.Contains(FloorIter.Value->FloorTag))
 		{
 			continue;
 		}
@@ -1824,4 +1860,41 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Hiden()
 	}
 
 	return false;
+}
+
+bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_SwitchState()
+{
+	if (PriorityHideFloorAryIndex < PriorityHideFloorAryAry.Num())
+	{
+		ON_SCOPE_EXIT
+		{
+			PriorityHideFloorAryIndex++;
+		};
+
+		auto ActorPtr = PriorityHideFloorAryAry[PriorityHideFloorAryIndex];
+		if (ActorPtr)
+		{
+			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
+			if (SceneElementPtr)
+			{
+				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+			}
+			else
+			{
+				ActorPtr->SetActorHiddenInGame(true);
+				
+				TArray<AActor*> OutActors;
+
+				ActorPtr->GetAttachedActors(OutActors, true, true);
+				for (auto Iter : OutActors)
+				{
+					Iter->SetActorHiddenInGame(true);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	return Super::ProcessTask_SwitchState();
 }

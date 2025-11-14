@@ -445,10 +445,10 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		}
 
 		SwitchDecoratorImp<FViewTower_Decorator>(
-		                                            USmartCitySuiteTags::Interaction_Area,
-		                                            Interaction_Area,
-		                                            Func
-		                                           );
+		                                         USmartCitySuiteTags::Interaction_Area,
+		                                         Interaction_Area,
+		                                         Func
+		                                        );
 
 		return;
 	}
@@ -465,10 +465,10 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 		}
 
 		SwitchDecoratorImp<FViewPeriphery_Decorator>(
-		                                            USmartCitySuiteTags::Interaction_Area,
-		                                            Interaction_Area,
-		                                            Func
-		                                           );
+		                                             USmartCitySuiteTags::Interaction_Area,
+		                                             Interaction_Area,
+		                                             Func
+		                                            );
 
 		return;
 	}
@@ -601,6 +601,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Tower(
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+		
 		)>& OnEnd
 	)
 {
@@ -626,7 +627,10 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Tower(
 UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 	const FSceneElementConditional& FilterTags,
 	bool bBreakRuntimeTask,
-	const TMulticastDelegate<void(bool, UGT_SwitchSceneElement_Base*)>& OnEnd
+	const TMulticastDelegate<void(
+		bool,
+		UGT_SwitchSceneElement_Base*
+		)>& OnEnd
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
@@ -724,16 +728,18 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Speacial
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+		
 		)>& OnEnd,
 
-	const TSet<FGameplayTag>& FloorSet
+	const TSet<FGameplayTag>& FloorSet,
+	const TSet<FGameplayTag>& PriorityHideFloorSet
 
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_SpecialArea>(
 		 bBreakRuntimeTask,
-		 [this, OnEnd, &FilterTags, FloorSet](
+		 [this, OnEnd, &FilterTags, FloorSet, PriorityHideFloorSet](
 		 UGT_SwitchSceneElement_SpecialArea* GTPtr
 		 )
 		 {
@@ -746,6 +752,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Speacial
 				 GTPtr->OnEnd = OnEnd;
 
 				 GTPtr->FloorSet = FloorSet;
+				 GTPtr->PriorityHideFloorSet = PriorityHideFloorSet;
 			 }
 		 }
 		);

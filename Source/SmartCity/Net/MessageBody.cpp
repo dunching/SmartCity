@@ -910,17 +910,38 @@ void FMessageBody_Receive_ViewSpeacialArea::Deserialize(
 	                             JsonReader,
 	                             jsonObject
 	                            );
-
-	FloorSet.Empty();
-	const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
-	if (jsonObject->TryGetArrayField(TEXT("FloorSet"), OutArray))
 	{
-		FString FloorStr;
-		for (const auto JsonValue : *OutArray)
+		FloorSet.Empty();
+		const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
+		if (jsonObject->TryGetArrayField(TEXT("FloorSet"), OutArray))
 		{
-			FloorStr = JsonValue->AsString();
-			FloorSet.Add(FGameplayTag::RequestGameplayTag(*FloorStr));
+			FString FloorStr;
+			for (const auto JsonValue : *OutArray)
+			{
+				FloorStr = JsonValue->AsString();
+				FloorSet.Add(FGameplayTag::RequestGameplayTag(*FloorStr));
+			}
 		}
+	}
+	
+	{
+		PriorityHideFloorSet.Empty();
+		const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
+		if (jsonObject->TryGetArrayField(TEXT("PriorityHideFloorSet"), OutArray))
+		{
+			FString FloorStr;
+			for (const auto JsonValue : *OutArray)
+			{
+				FloorStr = JsonValue->AsString();
+				PriorityHideFloorSet.Add(FGameplayTag::RequestGameplayTag(*FloorStr));
+			}
+		}
+	}
+	
+	FString AreaTagStr;
+	if (jsonObject->TryGetStringField(TEXT("AreaTag"), AreaTagStr))
+	{
+		AreaTag = FGameplayTag::RequestGameplayTag(*AreaTagStr);
 	}
 
 	if (jsonObject->TryGetStringField(TEXT("Seat"), Seat))
@@ -962,7 +983,13 @@ void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
 						                                                                   FloorSet = FloorSet;
 
 					                                                                   SpaceAreaDecoratorSPtr->
+						                                                                   PriorityHideFloorSet = PriorityHideFloorSet;
+
+					                                                                   SpaceAreaDecoratorSPtr->
 						                                                                   Seat = Seat;
+
+					                                                                   SpaceAreaDecoratorSPtr->
+						                                                                   AreaTag = AreaTag;
 				                                                                   }
 			                                                                   }
 			                                                                  );

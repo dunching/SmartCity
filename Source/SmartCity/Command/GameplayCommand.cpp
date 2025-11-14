@@ -488,42 +488,16 @@ void SmartCityCommand::ViewSpeacialArea(
 	const TArray<FString>& Args
 	)
 {
-	if (!Args.IsValidIndex(1))
+	if (!Args.IsValidIndex(0))
 	{
 		return;
 	}
 
-	auto Str = FString::Printf(
-					TEXT(
-						 R"({
-    "CMD": "ViewSpeacialArea",
-    "Seat": "%s",
-)"
-						),
-					*Args[0]);
-					
-					
-	Str.Append(TEXT("\"FloorSet\":["));
-
-	int32 Index = 1;
-	for (; Index < Args.Num() - 1; Index++)
+	if (UAssetRefMap::GetInstance()->ParamJson.Contains(Args[0]))
 	{
-		Str.Append(TEXT("\""));	
-		Str.Append(Args[Index]);	
-		Str.Append(TEXT("\""));	
-		Str.Append(TEXT(","));	
+		UWebChannelWorldSystem::GetInstance()->OnInput(UAssetRefMap::GetInstance()->ParamJson[Args[0]]
+														  );
 	}
-	if (Index < Args.Num())
-	{
-		Str.Append(TEXT("\""));	
-		Str.Append(Args[Index]);	
-		Str.Append(TEXT("\""));	
-	}
-	
-	Str.Append(TEXT("]}"));			
-	
-	UWebChannelWorldSystem::GetInstance()->OnInput(Str
-													  );
 }
 
 void SmartCityCommand::UpdateSceneElementParam(

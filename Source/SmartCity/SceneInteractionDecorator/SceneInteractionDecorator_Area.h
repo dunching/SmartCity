@@ -51,8 +51,9 @@ public:
 
 	virtual void InitialType(
 		FGameplayTag InMainDecoratorType,
-		FGameplayTag InBranchDecoratorType) override;
-	
+		FGameplayTag InBranchDecoratorType
+		) override;
+
 	FGameplayTag GetCurrentInteraction_Area() const;
 
 protected:
@@ -192,11 +193,11 @@ protected:
 		) override;
 
 	void Process();
-	
-	void AdjustCamera()const;
-	
+
+	void AdjustCamera() const;
+
 private:
-	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
+	TObjectPtr<ABuilding_Floor_Mask> Building_Floor_Mask = nullptr;
 };
 
 /**
@@ -223,20 +224,19 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 
-	TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr = nullptr;
+	TWeakObjectPtr<ASceneElement_DeviceBase> SceneElementPtr = nullptr;
 
 private:
-
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	void Process();
-	
-	void AdjustCamera()const;
-	
-	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
+
+	void AdjustCamera() const;
+
+	TObjectPtr<ABuilding_Floor_Mask> Building_Floor_Mask = nullptr;
 };
 
 class SMARTCITY_API FViewSpace_Decorator : public FArea_Decorator
@@ -262,44 +262,52 @@ public:
 
 	FGameplayTag Floor;
 
-	TWeakObjectPtr<ASceneElement_Space>SceneElementPtr = nullptr;
-private:
+	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr = nullptr;
 
+private:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
 	void Process();
-	
-	void AdjustCamera()const;
 
-	TObjectPtr<ABuilding_Floor_Mask>Building_Floor_Mask = nullptr;
+	void AdjustCamera() const;
+
+	TObjectPtr<ABuilding_Floor_Mask> Building_Floor_Mask = nullptr;
 };
 
 class SMARTCITY_API FViewSpecialArea_Decorator : public FArea_Decorator
 {
 public:
 	GENERATIONCLASSINFO(
-						FViewSpecialArea_Decorator,
-						FArea_Decorator
-					   );
+	                    FViewSpecialArea_Decorator,
+	                    FArea_Decorator
+	                   );
 
 	virtual void Entry() override;
 
 	virtual void ReEntry() override;
-	
+
 	virtual void Quit() override;
 
 	TSet<FGameplayTag> FloorSet;
-	
+
+	TSet<FGameplayTag> PriorityHideFloorSet;
+
+	FGameplayTag AreaTag;
+
 	FString Seat;
-	
-	TWeakObjectPtr<AViewerPawnBase>ViewerPawnBasePtr = nullptr;
+
+	TWeakObjectPtr<AViewerPawnBase> ViewerPawnBasePtr = nullptr;
 
 private:
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
 
 	void Process();
-	
-	void AdjustCamera()const;
+
+	void AdjustCamera() const;
 };

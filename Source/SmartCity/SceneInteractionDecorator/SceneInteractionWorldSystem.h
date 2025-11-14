@@ -82,7 +82,8 @@ public:
 
 			const TSharedPtr<FDecoratorBase>&
 
-		
+
+			
 			)>& Func = nullptr
 		);
 
@@ -106,6 +107,7 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+			
 			)>& OnEnd
 		);
 
@@ -115,6 +117,7 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+			
 			)>& OnEnd
 		);
 
@@ -124,8 +127,9 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+			
 			)>& OnEnd,
-			TWeakObjectPtr<ASceneElement_Space>SceneElementPtr
+		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr
 		);
 
 	UGT_SwitchSceneElement_Base* UpdateFilter_Device(
@@ -134,8 +138,9 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+			
 			)>& OnEnd,
-			TWeakObjectPtr<ASceneElement_DeviceBase>SceneElementPtr
+		TWeakObjectPtr<ASceneElement_DeviceBase> SceneElementPtr
 		);
 
 	UGT_SwitchSceneElement_Base* UpdateFilter_SpeacialArea(
@@ -144,9 +149,11 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
-			)>& OnEnd,
 			
-			const TSet<FGameplayTag>& FloorSet
+			)>& OnEnd,
+
+		const TSet<FGameplayTag>& FloorSet,
+		const TSet<FGameplayTag>& PriorityHideFloorSet
 
 		);
 
@@ -181,6 +188,7 @@ public:
 		const std::function<void(
 
 			const TSharedPtr<FDecoratorBase>&
+
 
 			
 			)>& Func = nullptr
@@ -219,6 +227,7 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	const std::function<void(
 		const TSharedPtr<FDecoratorBase>&
 
+
 		
 		)>& Func
 	)
@@ -232,9 +241,9 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 			{
 				Func(OldDecoratorSPtr);
 			}
-			
+
 			OldDecoratorSPtr->ReEntry();
-			
+
 			return;
 		}
 
