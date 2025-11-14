@@ -1,6 +1,7 @@
 #include "PersonMark.h"
 
 #include "NiagaraComponent.h"
+#include "SceneElement_RadarMode.h"
 #include "Kismet/KismetMathLibrary.h"
 
 APersonMark::APersonMark(
@@ -49,25 +50,32 @@ void APersonMark::Tick(
 	auto Pt = GetActorLocation();
 
 	TObjectPtr<AActor> OwnerActor = GetAttachParentActor();
-	if (OwnerActor)
+	if (!OwnerActor)
 	{
-		const auto Transform = OwnerActor->GetActorTransform();
-		const auto RelativePt = Transform.InverseTransformPosition(Pt);
-		if (FVector::Distance(RelativePt, TargetLocation) < 1.f)
-		{
-		}
-		else
-		{
-			const auto Offset = TargetLocation - RelativePt;
-			const auto Dir = Offset.GetSafeNormal();
+		return;
+	}
+	auto SceneElement_RadarModePtr = Cast<ASceneElement_RadarMode>(OwnerActor);
+	if (!SceneElement_RadarModePtr)
+	{
+		return;
+	}
+	
+	const auto Transform = SceneElement_RadarModePtr->RelativeTransformComponent->GetComponentTransform();
+	const auto RelativePt = Transform.InverseTransformPosition(Pt);
+	if (FVector::Distance(RelativePt, TargetLocation) < 1.f)
+	{
+	}
+	else
+	{
+		const auto Offset = TargetLocation - RelativePt;
+		const auto Dir = Offset.GetSafeNormal();
 
-			const auto Len = Offset.Length();
+		const auto Len = Offset.Length();
 
-			const auto DeltaScale = DeltaTime * MoveSpeed;
-			const auto MoveOffset = Dir * (DeltaScale > Len ? Len : DeltaScale);
+		const auto DeltaScale = DeltaTime * MoveSpeed;
+		const auto MoveOffset = Dir * (DeltaScale > Len ? Len : DeltaScale);
 
-			SetActorRelativeLocation(RelativePt + MoveOffset, false);
-		}
+		SetActorRelativeLocation(RelativePt + MoveOffset, false);
 	}
 
 	auto Dist = -1;

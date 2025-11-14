@@ -116,6 +116,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString DeviceTypeStr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
+
 protected:
 
 	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
@@ -123,9 +126,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;
 

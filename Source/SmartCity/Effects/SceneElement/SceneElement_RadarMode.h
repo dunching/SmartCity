@@ -20,6 +20,7 @@ class UCameraComponent;
 class AViewerPawnBase;
 class APersonMark;
 class AStaticMeshActor;
+class ASceneElement_RadarSweep;
 
 /**
  * 雷达扫描效果
@@ -77,7 +78,7 @@ public:
 	TSoftObjectPtr<UMaterialInstance> SweepMatInst;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AStaticMeshActor> SweepActor = nullptr;
+	TObjectPtr<ASceneElement_RadarSweep> SweepActor = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 Deepth = 120;

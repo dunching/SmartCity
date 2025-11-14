@@ -633,23 +633,46 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 		)>& OnEnd
 	)
 {
-	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
-	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Floor>(
-		 bBreakRuntimeTask,
-		 [this, OnEnd, &FilterTags](
-		 UGT_SwitchSceneElement_Floor* GTPtr
-		 )
-		 {
-			 if (GTPtr)
+	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
+	{
+		auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+		return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Floor_JF>(
+			 bBreakRuntimeTask,
+			 [this, OnEnd, &FilterTags](
+			 UGT_SwitchSceneElement_Floor_JF* GTPtr
+			 )
 			 {
-				 GTPtr->
-					 SceneInteractionWorldSystemPtr =
-					 this;
-				 GTPtr->FilterTags = FilterTags;
-				 GTPtr->OnEnd = OnEnd;
+				 if (GTPtr)
+				 {
+					 GTPtr->
+						 SceneInteractionWorldSystemPtr =
+						 this;
+					 GTPtr->FilterTags = FilterTags;
+					 GTPtr->OnEnd = OnEnd;
+				 }
 			 }
-		 }
-		);
+			);
+	}
+	else
+	{
+		auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+		return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Floor>(
+			 bBreakRuntimeTask,
+			 [this, OnEnd, &FilterTags](
+			 UGT_SwitchSceneElement_Floor* GTPtr
+			 )
+			 {
+				 if (GTPtr)
+				 {
+					 GTPtr->
+						 SceneInteractionWorldSystemPtr =
+						 this;
+					 GTPtr->FilterTags = FilterTags;
+					 GTPtr->OnEnd = OnEnd;
+				 }
+			 }
+			);
+	}
 }
 
 UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(

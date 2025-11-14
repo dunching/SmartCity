@@ -8,6 +8,7 @@
 #include "DatasmithAssetUserData.h"
 #include "FloorHelper.h"
 #include "MessageBody.h"
+#include "SceneElement_RadarSweep.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
@@ -270,8 +271,8 @@ void ASceneElement_RadarMode::EntryViewDevice()
 
 	SweepActor->SetActorHiddenInGame(false);
 
-	SweepActor->GetStaticMeshComponent()->SetRenderCustomDepth(true);
-	SweepActor->GetStaticMeshComponent()->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+	SweepActor->StaticMeshComponent->SetRenderCustomDepth(true);
+	SweepActor->StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 }
 
 void ASceneElement_RadarMode::EntryShowDevice()
@@ -286,6 +287,16 @@ void ASceneElement_RadarMode::EntryShowDevice()
 	}
 
 	SweepActor->SetActorHiddenInGame(true);
+	SweepActor->StaticMeshComponent->SetRenderCustomDepth(false);
+
+	for (auto Iter : GeneratedMarkers)
+	{
+		if (Iter.Value)
+		{
+			Iter.Value->Destroy();
+		}
+	}
+	GeneratedMarkers.Empty();
 }
 
 void ASceneElement_RadarMode::EntryShoweviceEffect()
@@ -294,7 +305,13 @@ void ASceneElement_RadarMode::EntryShoweviceEffect()
 
 	SetActorHiddenInGame(false);
 
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(false);
+	}
+
 	SweepActor->SetActorHiddenInGame(false);
+	SweepActor->StaticMeshComponent->SetRenderCustomDepth(false);
 }
 
 void ASceneElement_RadarMode::QuitAllState()
@@ -354,22 +371,20 @@ void ASceneElement_RadarMode::ReplaceImp(
 
 			UpdateCollisionBox({StaticMeshComponent});
 
-			SweepActor = GetWorld()->SpawnActor<AStaticMeshActor>(GetActorLocation(), GetActorRotation());
-			SweepActor->SetMobility(EComponentMobility::Movable);
-			SweepActor->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			SweepActor->GetStaticMeshComponent()->SetStaticMesh(SweepMesh.LoadSynchronous());
-			SweepActor->GetStaticMeshComponent()->SetRelativeRotation(FRotator(0, 45, 0));
-			const auto MatsNum = SweepActor->GetStaticMeshComponent()->GetNumMaterials();
+			SweepActor = GetWorld()->SpawnActor<ASceneElement_RadarSweep>(GetActorLocation(), GetActorRotation());
+			SweepActor->StaticMeshComponent->SetStaticMesh(SweepMesh.LoadSynchronous());
+			SweepActor->StaticMeshComponent->SetRelativeRotation(FRotator(0, 135, 0));
+			const auto MatsNum = SweepActor->StaticMeshComponent->GetNumMaterials();
 			for (int32 Index = 0; Index < MatsNum; Index++)
 			{
-				SweepActor->GetStaticMeshComponent()->SetMaterial(Index, SweepMatInst.LoadSynchronous());
+				SweepActor->StaticMeshComponent->SetMaterial(Index, SweepMatInst.LoadSynchronous());
 			}
 
 			const auto Scale = Deepth / 10;
-			SweepActor->GetStaticMeshComponent()->SetRelativeScale3D(FVector(Scale, Scale, 1));
+			SweepActor->StaticMeshComponent->SetRelativeScale3D(FVector(Scale, Scale, 1));
 
-			SweepActor->GetStaticMeshComponent()->SetCastShadow(false);
-			SweepActor->GetStaticMeshComponent()->SetReceivesDecals(false);
+			SweepActor->StaticMeshComponent->SetCastShadow(false);
+			SweepActor->StaticMeshComponent->SetReceivesDecals(false);
 		}
 	}
 }

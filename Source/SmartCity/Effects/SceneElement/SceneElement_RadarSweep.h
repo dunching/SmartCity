@@ -25,7 +25,7 @@ class APersonMark;
  */
 UCLASS()
 class SMARTCITY_API ASceneElement_RadarSweep :
-	public ASceneElement_DeviceBase
+	public AActor
 {
 	GENERATED_BODY()
 
@@ -34,45 +34,7 @@ public:
 		const FObjectInitializer& ObjectInitializer
 		);
 
-	virtual void OnConstruction(
-		const FTransform& Transform
-		) override;
+	UPROPERTY(Category = StaticMeshActor, VisibleAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Mesh,Rendering,Physics,Components|StaticMesh", AllowPrivateAccess = "true"))
+	TObjectPtr<class UStaticMeshComponent> StaticMeshComponent = nullptr;
 
-	virtual void BeginPlay() override;
-	
-	virtual void Tick(
-		float DeltaTime
-		) override;
-
-	virtual FBox GetComponentsBoundingBox(
-		bool bNonColliding = false,
-		bool bIncludeFromChildActors = false
-		) const override;
-
-	virtual void SwitchInteractionType(
-		const FSceneElementConditional& ConditionalSet
-		) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent>StaticMeshComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 Deepth = 120;
-
-private:
-	void EntryQuery();
-
-	void QuitQuery();
-
-	void RadarQuery();
-
-	void QueryComplete();
-
-	void UpdateMeshEffect();
-
-	FTimerHandle UpdateMeshTimerHandle;
-
-	FTimerHandle QueryTimerHandle;
-
-	TArray<APersonMark*> GeneratedMarkers;
 };

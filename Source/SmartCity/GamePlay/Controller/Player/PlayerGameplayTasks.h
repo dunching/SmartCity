@@ -532,6 +532,21 @@ public:
 
 };
 
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_Floor_JF : public UGT_SwitchSceneElement_Floor
+{
+	GENERATED_BODY()
+
+public:
+	virtual bool ProcessTask_Hiden() override;
+
+	virtual bool ProcessTask_SwitchState() override;
+
+	TArray<TObjectPtr<ASceneElementBase>> PriorityHideFloorAryAry;
+
+	int32 PriorityHideFloorAryIndex = 0;
+};
+
 /**
  * 
  */

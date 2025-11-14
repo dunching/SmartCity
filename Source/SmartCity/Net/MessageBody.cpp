@@ -516,7 +516,7 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 	                             jsonObject
 	                            );
 
-	if (jsonObject->TryGetStringField(TEXT("SpaceID"), DeviceID))
+	if (jsonObject->TryGetStringField(TEXT("DeviceID"), DeviceID))
 	{
 	}
 

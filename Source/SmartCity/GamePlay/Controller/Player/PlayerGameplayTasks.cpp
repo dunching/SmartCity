@@ -1460,6 +1460,145 @@ bool UGT_SwitchSceneElement_Floor::ProcessTask_Hiden()
 	return false;
 }
 
+bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_Hiden()
+{
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->GameplayTagContainer.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
+		{
+		}
+		else
+		{
+			continue;
+		}
+
+		PriorityHideFloorAryAry.Add(FloorIter.Value.LoadSynchronous());
+		for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+		{
+			TArray<AActor*> OutActors;
+
+			Iter.Value->GetAttachedActors(OutActors, true, true);
+
+			for (auto ActorIter : OutActors)
+			{
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+				if (SceneElementBasePtr)
+				{
+					PriorityHideFloorAryAry.Add(SceneElementBasePtr);
+				}
+			}
+		}
+	}
+
+	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
+	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
+	{
+		for (const auto Iter : FilterTags.ConditionalSet)
+		{
+			if (Iter.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+			{
+				FloorTag = Iter;
+				break;
+			}
+		}
+	}
+
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
+		{
+			continue;
+		}
+		else
+		{
+		}
+
+		if (FloorIter.Value->GameplayTagContainer.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
+		{
+			continue;
+		}
+		else
+		{
+		}
+
+		NeedHideAry.Add(FloorIter.Value.LoadSynchronous());
+		for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+		{
+			TArray<AActor*> OutActors;
+
+			Iter.Value->GetAttachedActors(OutActors, true, true);
+
+			for (auto ActorIter : OutActors)
+			{
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+				if (SceneElementBasePtr)
+				{
+					NeedHideAry.Add(SceneElementBasePtr);
+				}
+			}
+		}
+	}
+
+	for (const auto& LandScapeIter : UAssetRefMap::GetInstance()->LandScapeHelper)
+	{
+		NeedHideAry.Add(LandScapeIter.Value.LoadSynchronous());
+		for (const auto& Iter : LandScapeIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+		{
+			TArray<AActor*> OutActors;
+
+			Iter.Value->GetAttachedActors(OutActors, true, true);
+
+			for (auto ActorIter : OutActors)
+			{
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+				if (SceneElementBasePtr)
+				{
+					NeedHideAry.Add(SceneElementBasePtr);
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_SwitchState()
+{
+	if (PriorityHideFloorAryIndex < PriorityHideFloorAryAry.Num())
+	{
+		ON_SCOPE_EXIT
+		{
+			PriorityHideFloorAryIndex++;
+		};
+
+		auto ActorPtr = PriorityHideFloorAryAry[PriorityHideFloorAryIndex];
+		if (ActorPtr)
+		{
+			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
+			if (SceneElementPtr)
+			{
+				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+			}
+			else
+			{
+				ActorPtr->SetActorHiddenInGame(true);
+				
+				TArray<AActor*> OutActors;
+
+				ActorPtr->GetAttachedActors(OutActors, true, true);
+				for (auto Iter : OutActors)
+				{
+					Iter->SetActorHiddenInGame(true);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	return Super::ProcessTask_SwitchState();
+}
+
 void UGT_SwitchSceneElement_Space::Activate()
 {
 	Super::Activate();
