@@ -677,6 +677,11 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 	                           Array
 	                          );
 
+	RootJsonObj->SetStringField(
+	                           TEXT("SpaceName"),
+	                           SpaceName
+	                          );
+
 	return RootJsonObj;
 }
 

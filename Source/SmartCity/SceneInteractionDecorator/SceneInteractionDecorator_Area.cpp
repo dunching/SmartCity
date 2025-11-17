@@ -3021,6 +3021,7 @@ void FViewSpace_Decorator::Process()
 
 		UWeatherSystem::GetInstance()->AdjustTime(Time);
 
+		SceneActorConditional.ConditionalSet.AddTag(Floor);
 		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_Space(
 		                                                                SceneActorConditional,
 		                                                                true,

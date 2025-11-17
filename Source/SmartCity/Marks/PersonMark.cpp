@@ -75,7 +75,9 @@ void APersonMark::Tick(
 		const auto DeltaScale = DeltaTime * MoveSpeed;
 		const auto MoveOffset = Dir * (DeltaScale > Len ? Len : DeltaScale);
 
-		SetActorRelativeLocation(RelativePt + MoveOffset, false);
+		auto NewPt = RelativePt + MoveOffset;
+		// NewPt.Z = 5;
+		SetActorRelativeLocation(NewPt, false);
 	}
 
 	auto Dist = -1;
@@ -105,18 +107,32 @@ void APersonMark::Tick(
 	{
 		Dist = MaxDistance;
 	}
+	
+	const auto Dis = FMath::Clamp(
+																			Dist - MinDistance,
+																			0,
+																			MaxDistance - MinDistance
+																		   );
+	const auto Offset = MaxDistance - MinDistance;
 
-	const auto Color = UKismetMathLibrary::LinearColorLerp(
-	                                                       Color2,
-	                                                       Color1,
-	                                                       FMath::Clamp(
-	                                                                    Dist - MinDistance,
-	                                                                    0,
-	                                                                    MaxDistance - MinDistance
-	                                                                   ) /
-	                                                       (MaxDistance - MinDistance)
-	                                                      );
-
+	FLinearColor Color;
+	if (Dis < (Offset * .3f))
+	{
+		Color = Color2;
+	}
+	else if (Dis < Offset * .6f)
+	{
+		Color = UKismetMathLibrary::LinearColorLerp(
+														   Color2,
+														   Color1,
+															.5f
+														  );
+	}
+	else
+	{
+		Color = Color1;
+	}
+	
 	const auto Mats = StaticMeshComponent->GetMaterials();
 	for (int32 Index = 0; Index < Mats.Num(); Index++)
 	{

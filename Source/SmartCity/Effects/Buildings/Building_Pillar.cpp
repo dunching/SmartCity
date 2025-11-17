@@ -50,6 +50,8 @@ void ABuilding_Pillar::SwitchInteractionType(
 				}
 				else
 				{
+			SetActorHiddenInGame(false);
+
 					TArray<UStaticMeshComponent*> Components;
 					GetComponents<UStaticMeshComponent>(Components);
 

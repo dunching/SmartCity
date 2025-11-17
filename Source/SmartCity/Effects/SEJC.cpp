@@ -20,9 +20,10 @@ bool ISceneElement_JiaCengInterface::ProcessJiaCengLogic(
 		TempEmptyContainer = FGameplayTagContainer::EmptyContainer;
 
 		TempEmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor_F1J);
+		TempEmptyContainer.AddTag(USmartCitySuiteTags::Interaction_Area_Floor_F13J);
 
 		// 是否是夹层
-		if (ConditionalSet.ConditionalSet.HasAll(TempEmptyContainer))
+		if (ConditionalSet.ConditionalSet.HasAny(TempEmptyContainer))
 		{
 			if (bIsJiaCengg)
 			{

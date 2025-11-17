@@ -340,6 +340,24 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				return;
 			}
+			if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind))
+			{
+				if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+				{
+					if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+					    USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind)
+					{
+						return;
+					}
+				}
+
+				SwitchDecoratorImp<FSunShadeMode_Decorator>(
+				                                            USmartCitySuiteTags::Interaction_Mode,
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind
+				                                           );
+
+				return;
+			}
 			SwitchDecoratorImp<FDeviceManaggerMode_Decorator>(
 			                                                  USmartCitySuiteTags::Interaction_Mode,
 			                                                  USmartCitySuiteTags::Interaction_Mode_DeviceManagger
@@ -823,6 +841,14 @@ TWeakObjectPtr<ASceneElementBase> USceneInteractionWorldSystem::FindSceneActor(
 		return SceneElementMap[ID];
 	}
 	return nullptr;
+}
+
+void USceneInteractionWorldSystem::SetSceneActor(
+	const FString& ID,
+	ASceneElementBase* SceneElementPtr
+	) 
+{
+	SceneElementMap.Add(ID, SceneElementPtr);
 }
 
 FString USceneInteractionWorldSystem::GetName(

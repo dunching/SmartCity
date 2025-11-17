@@ -160,7 +160,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting)
 		)
 		{
@@ -171,7 +172,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnergyManagement)
 		)
 		{
@@ -219,7 +221,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
@@ -230,7 +233,8 @@ void ASceneElement_Lighting::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
@@ -409,7 +413,7 @@ void ASceneElement_Lighting::SwitchLight(
 	{
 		if (Iter)
 		{
-			Iter->Intensity = Intensity;
+			Iter->SetIntensity(FMath::Lerp(0, 10, Intensity / 100.f));
 			// Iter->LightColor = LightColor.ToRGBE();
 			if (Intensity <= 0)
 			{
@@ -422,12 +426,12 @@ void ASceneElement_Lighting::SwitchLight(
 
 			if (Temperature <= 0)
 			{
-				Iter->bUseTemperature = false;
+				Iter->SetUseTemperature(false);
 			}
 			else
 			{
-				Iter->Temperature = FMath::Lerp(1700, 12000, Temperature / 100.f);
-				Iter->bUseTemperature = true;
+				Iter->SetTemperature(FMath::Lerp(1700, 12000, Temperature / 100.f));
+				Iter->SetUseTemperature(true);
 			}
 		}
 	}
