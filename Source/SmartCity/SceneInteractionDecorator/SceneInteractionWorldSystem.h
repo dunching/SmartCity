@@ -163,6 +163,11 @@ public:
 		const FString& ID
 		) const;
 
+	void SetSceneActor(
+		const FString& ID,
+		ASceneElementBase*SceneElementPtr
+		) ;
+
 	FString GetName(
 		AActor* DevicePtr
 		) const;

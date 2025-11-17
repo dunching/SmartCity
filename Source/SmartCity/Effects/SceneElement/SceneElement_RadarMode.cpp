@@ -23,6 +23,8 @@ ASceneElement_RadarMode::ASceneElement_RadarMode(
 {
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
+
+	StaticMeshComponent->SetRelativeRotation(FRotator(0, 90, 0));
 }
 
 void ASceneElement_RadarMode::OnConstruction(
@@ -145,7 +147,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar)
 		)
 		{
@@ -156,7 +159,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception)
 		)
 		{
@@ -167,7 +171,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Interaction)
 		)
@@ -179,7 +184,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
@@ -190,7 +196,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
@@ -426,6 +433,11 @@ void ASceneElement_RadarMode::UpdatePositions(
 		)
 		{
 		}
+		else if (
+			CurrentConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View) 
+		)
+		{
+		}
 		else
 		{
 			return;
@@ -448,7 +460,10 @@ void ASceneElement_RadarMode::UpdatePositions(
 
 		for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 		{
-			if (Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area()))
+			if (
+			Iter.Value->GameplayTagContainer.HasTag(AreaDecoratorSPtr->GetCurrentInteraction_Area())||
+			Iter.Value->GameplayTagContainer.HasTag(BelongFloor->FloorTag)
+			)
 			{
 				const auto FloorLocation = Iter.Value->GetActorLocation();
 
@@ -459,7 +474,7 @@ void ASceneElement_RadarMode::UpdatePositions(
 				{
 					auto Pt = PtIter.Value;
 
-					Pt.Z = -Offset + 50;
+					Pt.Z = -Offset + 80;
 
 					if (GeneratedMarkers.Contains(PtIter.Key))
 					{

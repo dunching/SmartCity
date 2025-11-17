@@ -33,24 +33,25 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
 			QuitAllState();
-			
+
 			return;
 		}
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow)
-			)
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind)
+		)
 		{
 			EntryShoweviceEffect();
 
@@ -59,9 +60,10 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
-			)
+		)
 		{
 			EntryShowDevice();
 
@@ -70,7 +72,8 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) &&
+			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
@@ -82,7 +85,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-			)
+		)
 		{
 			EntryShowDevice();
 
@@ -92,7 +95,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_Focus)
-			)
+		)
 		{
 			EntryShowDevice();
 
@@ -139,7 +142,6 @@ void ASceneElement_RollerBlind::EntryViewDevice()
 {
 	Super::EntryViewDevice();
 	SetActorHiddenInGame(false);
-
 }
 
 void ASceneElement_RollerBlind::EntryShowDevice()
@@ -148,13 +150,12 @@ void ASceneElement_RollerBlind::EntryShowDevice()
 	SetActorHiddenInGame(false);
 
 	PlayAnimation(0);
-			
 }
 
 void ASceneElement_RollerBlind::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
-	
+
 	SetActorHiddenInGame(false);
 
 	if (ExtensionParamMap.Contains(TEXT("Percent")))
@@ -164,12 +165,14 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 
 		return;
 	}
-	
+
 	if (ExtensionParamMap.Contains(TEXT("开关")))
 	{
 		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
-		
+
 		PlayAnimation(Value / 100.0f);
+
+		return;
 	}
 
 	EntryShowDevice();
@@ -178,7 +181,7 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 void ASceneElement_RollerBlind::QuitAllState()
 {
 	Super::QuitAllState();
-	
+
 	SetActorHiddenInGame(true);
 
 	TArray<UStaticMeshComponent*> OutComponents;
@@ -192,9 +195,8 @@ void ASceneElement_RollerBlind::QuitAllState()
 		}
 	}
 
-	
+
 	PlayAnimation(0);
-			
 }
 
 void ASceneElement_RollerBlind::PlayAnimation(
@@ -204,7 +206,9 @@ void ASceneElement_RollerBlind::PlayAnimation(
 	if (MySequenceComponent->GetSequencePlayer() != nullptr)
 	{
 		const auto Second = MySequenceComponent->GetSequencePlayer()->GetDuration().AsSeconds();
-		MySequenceComponent->GetSequencePlayer()->SetTimeRange(0, Percent * Duration);
-		MySequenceComponent->GetSequencePlayer()->Play();
+
+		FMovieSceneSequencePlaybackParams PlaybackParams(Percent * Second, EUpdatePositionMethod::Play);
+		FMovieSceneSequencePlayToParams PlayToParams;
+		MySequenceComponent->GetSequencePlayer()->PlayTo(PlaybackParams, PlayToParams);
 	}
 }

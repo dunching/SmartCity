@@ -1464,7 +1464,7 @@ bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_Hiden()
 {
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorIter.Value->GameplayTagContainer.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
+		if (FloorIter.Value->FloorTag.MatchesTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
 		{
 		}
 		else
@@ -1513,7 +1513,7 @@ bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_Hiden()
 		{
 		}
 
-		if (FloorIter.Value->GameplayTagContainer.HasTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
+		if (FloorIter.Value->FloorTag.MatchesTagExact(USmartCitySuiteTags::Interaction_Area_Floor_F12))
 		{
 			continue;
 		}
@@ -1608,7 +1608,7 @@ void UGT_SwitchSceneElement_Space::Activate()
 		FloorTag = SceneElementPtr->BelongFloor->FloorTag;
 	}
 
-	FilterTags.ConditionalSet = FGameplayTagContainer{FloorTag};
+	// FilterTags.ConditionalSet = FGameplayTagContainer{FloorTag};
 }
 
 bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
@@ -1870,6 +1870,7 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
 		FSceneElementConditional TempFilterTags;
 
 		TempFilterTags.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
+		// TempFilterTags.ConditionalSet.AddTag(FloorTag);
 
 		for (auto Iter : SceneElementSet)
 		{
@@ -1882,34 +1883,6 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
 
 bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Display()
 {
-	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		if (PriorityHideFloorSet.Contains(FloorIter.Value->FloorTag))
-		{
-		}
-		else
-		{
-			continue;
-		}
-
-		PriorityHideFloorAryAry.Add(FloorIter.Value.LoadSynchronous());
-		for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
-		{
-			TArray<AActor*> OutActors;
-
-			Iter.Value->GetAttachedActors(OutActors, true, true);
-
-			for (auto ActorIter : OutActors)
-			{
-				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
-				if (SceneElementBasePtr)
-				{
-					PriorityHideFloorAryAry.Add(SceneElementBasePtr);
-				}
-			}
-		}
-	}
-
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		if (FloorSet.Contains(FloorIter.Value->FloorTag))
@@ -1942,6 +1915,34 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Display()
 
 bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_Hiden()
 {
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (PriorityHideFloorSet.Contains(FloorIter.Value->FloorTag))
+		{
+		}
+		else
+		{
+			continue;
+		}
+
+		PriorityHideFloorAryAry.Add(FloorIter.Value.LoadSynchronous());
+		for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+		{
+			TArray<AActor*> OutActors;
+
+			Iter.Value->GetAttachedActors(OutActors, true, true);
+
+			for (auto ActorIter : OutActors)
+			{
+				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+				if (SceneElementBasePtr)
+				{
+					PriorityHideFloorAryAry.Add(SceneElementBasePtr);
+				}
+			}
+		}
+	}
+
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		if (FloorSet.Contains(FloorIter.Value->FloorTag))

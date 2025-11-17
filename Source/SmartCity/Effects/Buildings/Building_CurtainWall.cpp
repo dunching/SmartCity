@@ -166,6 +166,8 @@ void ABuilding_CurtainWall::SwitchInteractionType(
 				}
 				else
 				{
+			SetActorHiddenInGame(false);
+
 					TArray<UStaticMeshComponent*> Components;
 					GetComponents<UStaticMeshComponent>(Components);
 
@@ -341,14 +343,21 @@ void ABuilding_CurtainWall::GenerateRollerBlind(AActor* ActorPtr)
 			TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
 			Box += TemoBox;
 		}
+		if (!UserData.Contains( TEXT("Datasmith_UniqueId")))
+		{
+			return;
+		}
+			
 		auto SceneElement_RollerBlindPtr = GetWorld()->SpawnActor<ASceneElement_RollerBlind>(
 			 UAssetRefMap::GetInstance()->SceneElement_RollerBlindClass
 			);
 		if (SceneElement_RollerBlindPtr)
 		{
-			SceneElementID = FGuid::NewGuid().ToString();
-
+			SceneElement_RollerBlindPtr->SceneElementID = UserData[TEXT("Datasmith_UniqueId")] + TEXT("窗帘");
+			SceneElement_RollerBlindPtr->DeviceTypeStr = TEXT("窗帘");
 			SceneElement_RollerBlindPtr->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+
+			USceneInteractionWorldSystem::GetInstance()->SetSceneActor(SceneElement_RollerBlindPtr->SceneElementID, SceneElement_RollerBlindPtr);
 
 			const auto Size = Box.GetSize();
 			if (Dot > 0)
