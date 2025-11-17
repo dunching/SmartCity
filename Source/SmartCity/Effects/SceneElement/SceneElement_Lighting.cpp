@@ -413,7 +413,7 @@ void ASceneElement_Lighting::SwitchLight(
 	{
 		if (Iter)
 		{
-			Iter->Intensity = Intensity;
+			Iter->SetIntensity(Intensity);
 			// Iter->LightColor = LightColor.ToRGBE();
 			if (Intensity <= 0)
 			{
@@ -426,12 +426,12 @@ void ASceneElement_Lighting::SwitchLight(
 
 			if (Temperature <= 0)
 			{
-				Iter->bUseTemperature = false;
+				Iter->SetUseTemperature(false);
 			}
 			else
 			{
-				Iter->Temperature = FMath::Lerp(1700, 12000, Temperature / 100.f);
-				Iter->bUseTemperature = true;
+				Iter->SetTemperature(FMath::Lerp(1700, 12000, Temperature / 100.f));
+				Iter->SetUseTemperature(true);
 			}
 		}
 	}
