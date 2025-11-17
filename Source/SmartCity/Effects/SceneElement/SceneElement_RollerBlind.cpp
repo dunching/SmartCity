@@ -77,7 +77,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
-			QuitAllState();
+			EntryShowDevice();
 
 			return;
 		}

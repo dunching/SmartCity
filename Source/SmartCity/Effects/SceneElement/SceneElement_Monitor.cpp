@@ -101,7 +101,7 @@ void ASceneElement_Monitor::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
-			QuitAllState();
+			EntryShowDevice();
 
 			return;
 		}

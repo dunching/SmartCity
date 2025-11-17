@@ -114,6 +114,21 @@ void ASceneElement_Space_PolygonHelper::EntryFocusDevice(
 		case EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(false);
+
+				TArray<USplineMeshComponent*> Components;
+				GetComponents<USplineMeshComponent>(Components);
+
+				auto MaterialInstDynamicPtr = UMaterialInstanceDynamic::Create(MaterialInstance.LoadSynchronous(), this);
+
+				MaterialInstDynamicPtr->SetVectorParameterValue(TEXT("Color"),FocusColor);
+				
+				for (auto Iter : Components)
+				{
+					for (int32 Index = 0; Index < Iter->GetMaterials().Num(); Index++)
+					{
+						Iter->SetMaterial(Index, MaterialInstDynamicPtr);
+					}
+				}
 			}
 			break;
 		}

@@ -413,7 +413,7 @@ void ASceneElement_Lighting::SwitchLight(
 	{
 		if (Iter)
 		{
-			Iter->SetIntensity(Intensity);
+			Iter->SetIntensity(FMath::Lerp(0, 10, Intensity / 100.f));
 			// Iter->LightColor = LightColor.ToRGBE();
 			if (Intensity <= 0)
 			{
