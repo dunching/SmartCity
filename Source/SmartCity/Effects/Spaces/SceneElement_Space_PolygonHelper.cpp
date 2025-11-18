@@ -53,7 +53,7 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 		)
 		{
 			EntryShoweviceEffect(ConditionalSet);
-			
+
 			return;
 		}
 	}
@@ -115,20 +115,7 @@ void ASceneElement_Space_PolygonHelper::EntryFocusDevice(
 			{
 				SetActorHiddenInGame(false);
 
-				TArray<USplineMeshComponent*> Components;
-				GetComponents<USplineMeshComponent>(Components);
-
-				auto MaterialInstDynamicPtr = UMaterialInstanceDynamic::Create(MaterialInstance.LoadSynchronous(), this);
-
-				MaterialInstDynamicPtr->SetVectorParameterValue(TEXT("Color"),FocusColor);
-				
-				for (auto Iter : Components)
-				{
-					for (int32 Index = 0; Index < Iter->GetMaterials().Num(); Index++)
-					{
-						Iter->SetMaterial(Index, MaterialInstDynamicPtr);
-					}
-				}
+				SetColor(FocusColor);
 			}
 			break;
 		}
@@ -141,6 +128,7 @@ void ASceneElement_Space_PolygonHelper::EntryShowevice(
 {
 	SetActorHiddenInGame(false);
 
+	SetColor(NormalColor);
 }
 
 void ASceneElement_Space_PolygonHelper::EntryShoweviceEffect(
@@ -150,11 +138,11 @@ void ASceneElement_Space_PolygonHelper::EntryShoweviceEffect(
 	// 确认当前的模式
 	auto DecoratorSPtr =
 		DynamicCastSharedPtr<FInteraction_Decorator>(
-													 USceneInteractionWorldSystem::GetInstance()->
-													 GetDecorator(
-																  USmartCitySuiteTags::Interaction_Interaction
-																 )
-													);
+		                                             USceneInteractionWorldSystem::GetInstance()->
+		                                             GetDecorator(
+		                                                          USmartCitySuiteTags::Interaction_Interaction
+		                                                         )
+		                                            );
 	if (DecoratorSPtr)
 	{
 		switch (DecoratorSPtr->GetInteractionType())
@@ -167,6 +155,8 @@ void ASceneElement_Space_PolygonHelper::EntryShoweviceEffect(
 		case EInteractionType::kSpace:
 			{
 				SetActorHiddenInGame(false);
+
+				SetColor(NormalColor);
 			}
 		}
 	}
@@ -176,5 +166,24 @@ void ASceneElement_Space_PolygonHelper::QuitAllState()
 {
 	Super::QuitAllState();
 	SetActorHiddenInGame(true);
+}
 
+void ASceneElement_Space_PolygonHelper::SetColor(
+	const FLinearColor& Color
+	)
+{
+	TArray<USplineMeshComponent*> Components;
+	GetComponents<USplineMeshComponent>(Components);
+
+	auto MaterialInstDynamicPtr = UMaterialInstanceDynamic::Create(MaterialInstance.LoadSynchronous(), this);
+
+	MaterialInstDynamicPtr->SetVectorParameterValue(TEXT("Color"), Color);
+
+	for (auto Iter : Components)
+	{
+		for (int32 Index = 0; Index < Iter->GetMaterials().Num(); Index++)
+		{
+			Iter->SetMaterial(Index, MaterialInstDynamicPtr);
+		}
+	}
 }
