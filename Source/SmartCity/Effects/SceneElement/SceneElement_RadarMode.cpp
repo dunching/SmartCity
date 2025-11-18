@@ -380,7 +380,7 @@ void ASceneElement_RadarMode::ReplaceImp(
 
 			SweepActor = GetWorld()->SpawnActor<ASceneElement_RadarSweep>(GetActorLocation(), GetActorRotation());
 			SweepActor->StaticMeshComponent->SetStaticMesh(SweepMesh.LoadSynchronous());
-			SweepActor->StaticMeshComponent->SetRelativeRotation(FRotator(0, 135, 0));
+			SweepActor->StaticMeshComponent->SetRelativeRotation(FRotator(0, 180, 0));
 			const auto MatsNum = SweepActor->StaticMeshComponent->GetNumMaterials();
 			for (int32 Index = 0; Index < MatsNum; Index++)
 			{

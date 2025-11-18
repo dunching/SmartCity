@@ -45,12 +45,14 @@ protected:
 	virtual void QuitAllState(
 		) override;
 
+	void SetColor(const FLinearColor&Color );
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UMaterialInstance> MaterialInstance = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FLinearColor NormalColor = FColor (0,7,26);
+	FLinearColor NormalColor = FLinearColor (0,7,26);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FLinearColor FocusColor = FColor (26,7,0);
+	FLinearColor FocusColor = FLinearColor (26,7,0);
 };
