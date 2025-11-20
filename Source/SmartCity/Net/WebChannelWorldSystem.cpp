@@ -288,6 +288,7 @@ void UWebChannelWorldSystem::OnInput(
 			if (DeserializeStrategiesMap.Contains(Name))
 			{
 				DeserializeStrategiesMap[Name]->Deserialize(JsonStr);
+				DeserializeStrategiesMap[Name]->WriteLog();
 				DeserializeStrategiesMap[Name]->DoAction();
 			}
 		}

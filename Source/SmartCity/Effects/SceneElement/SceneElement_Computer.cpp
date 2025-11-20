@@ -138,9 +138,8 @@ void ASceneElement_Computer::SwitchInteractionType(
 		}
 	}
 	{
-		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-		)
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			EntryShowDevice();
 

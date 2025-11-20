@@ -51,6 +51,13 @@ public:
 		);
 
 	virtual void DoAction() const;
+
+	void WriteLog()const;
+private:
+	
+	virtual void WriteLogDate(int32 &Day, int32& Hour)const;
+
+	FString CurrentJsonStr;
 };
 
 USTRUCT()

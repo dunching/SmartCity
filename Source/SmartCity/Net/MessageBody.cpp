@@ -8,6 +8,7 @@
 #include "FloorHelper_Description.h"
 #include "GameOptions.h"
 #include "IPSSI.h"
+#include "LogWriter.h"
 #include "PlanetPlayerCameraManager.h"
 #include "SceneElementCategory.h"
 #include "SceneElement_DeviceBase.h"
@@ -54,6 +55,8 @@ void FMessageBody_Receive::Deserialize(
 	const FString& JsonStr
 	)
 {
+	CurrentJsonStr = JsonStr;
+
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
 
 	TSharedPtr<FJsonObject> jsonObject;
@@ -72,6 +75,23 @@ void FMessageBody_Receive::Deserialize(
 
 void FMessageBody_Receive::DoAction() const
 {
+}
+
+void FMessageBody_Receive::WriteLog() const
+{
+	int32 Day = 0;
+	int32 Hour = 0;
+	WriteLogDate(Day, Hour);
+	UKismetLogger::WriteLog(CMD_Name, CurrentJsonStr, Day, Hour);
+}
+
+void FMessageBody_Receive::WriteLogDate(
+	int32& Day,
+	int32& Hour
+	) const
+{
+	Day = -1;
+	Hour = 1;
 }
 
 FMessageBody_Receive_SwitchViewArea::FMessageBody_Receive_SwitchViewArea()
@@ -392,9 +412,9 @@ void FMessageBody_Receive_LocaterSpaceByID::DoAction() const
 		{
 			if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
 			{
-				continue;		
+				continue;
 			}
-			
+
 			TArray<AActor*> OutActors;
 			Iter.Value->GetAttachedActors(OutActors, true, true);
 
@@ -678,9 +698,9 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedSpace::SerializeBody() const
 	                          );
 
 	RootJsonObj->SetStringField(
-	                           TEXT("SpaceName"),
-	                           SpaceName
-	                          );
+	                            TEXT("SpaceName"),
+	                            SpaceName
+	                           );
 
 	return RootJsonObj;
 }
@@ -781,8 +801,8 @@ void FMessageBody_Receive_AdjustCameraSeat::DoAction() const
 		if (ViewBuildingProcessorSPtr)
 		{
 			Cast<APlanetPlayerCameraManager>(
-											 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
-											)->UpdateCameraSetting();
+			                                 GEngine->GetFirstLocalPlayerController(GetWorldImp())->PlayerCameraManager
+			                                )->UpdateCameraSetting();
 
 			ViewBuildingProcessorSPtr->AdjustCameraSeat(FRotator(MinPitch, 0, 0));
 			return;
@@ -839,14 +859,14 @@ TSharedPtr<FJsonObject> FMessageBody_ViewConfigChanged::SerializeBody() const
 	                           );
 
 	RootJsonObj->SetNumberField(
-	                          TEXT("ShowCurtainWall"),
-	                          ViewConfig.CurtainWallTranlucent
-	                         );
+	                            TEXT("ShowCurtainWall"),
+	                            ViewConfig.CurtainWallTranlucent
+	                           );
 
 	RootJsonObj->SetNumberField(
-	                          TEXT("ShowFurniture"),
-	                          ViewConfig.FurnitureTranlucent
-	                         );
+	                            TEXT("ShowFurniture"),
+	                            ViewConfig.FurnitureTranlucent
+	                           );
 
 	return RootJsonObj;
 }
@@ -928,7 +948,7 @@ void FMessageBody_Receive_ViewSpeacialArea::Deserialize(
 			}
 		}
 	}
-	
+
 	{
 		PriorityHideFloorSet.Empty();
 		const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
@@ -942,7 +962,7 @@ void FMessageBody_Receive_ViewSpeacialArea::Deserialize(
 			}
 		}
 	}
-	
+
 	FString AreaTagStr;
 	if (jsonObject->TryGetStringField(TEXT("AreaTag"), AreaTagStr))
 	{
@@ -960,7 +980,7 @@ void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
 
 	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		const auto PresetBuildingCameraSeat= Iter.Value->GetPresetBuildingCameraSeat();
+		const auto PresetBuildingCameraSeat = Iter.Value->GetPresetBuildingCameraSeat();
 		if (PresetBuildingCameraSeat.Contains(Seat))
 		{
 			auto ViewerPawnBasePtr = PresetBuildingCameraSeat[
@@ -988,7 +1008,8 @@ void FMessageBody_Receive_ViewSpeacialArea::DoAction() const
 						                                                                   FloorSet = FloorSet;
 
 					                                                                   SpaceAreaDecoratorSPtr->
-						                                                                   PriorityHideFloorSet = PriorityHideFloorSet;
+						                                                                   PriorityHideFloorSet =
+						                                                                   PriorityHideFloorSet;
 
 					                                                                   SpaceAreaDecoratorSPtr->
 						                                                                   Seat = Seat;
@@ -1030,9 +1051,9 @@ TSharedPtr<FJsonObject> FMessageBody_Test::SerializeBody() const
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 
 	RootJsonObj->SetStringField(
-							  TEXT("Text"),
-							  Text
-							 );
+	                            TEXT("Text"),
+	                            Text
+	                           );
 
 	return RootJsonObj;
 }
@@ -1134,7 +1155,7 @@ void FMessageBody_Receive_UpdateSceneElementParam::Deserialize(
 	}
 
 	ExtensionParamMap.Empty();
-	
+
 	const TSharedPtr<FJsonObject>* OutObject = nullptr;
 	if (jsonObject->TryGetObjectField(TEXT("SceneElements"), OutObject))
 	{

@@ -25,9 +25,8 @@ void ABuilding_Stairs::SwitchInteractionType(
 	}
 	{
 		//  只要是楼层就显示
-		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-		)
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			// 确认当前的模式
 			auto DecoratorSPtr =

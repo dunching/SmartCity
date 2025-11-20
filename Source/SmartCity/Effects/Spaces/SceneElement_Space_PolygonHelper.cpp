@@ -26,6 +26,15 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
+		)
+		{
+			EntryFocusDevice(ConditionalSet);
+			return;
+		}
+	}
+	{
+		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
 		)
 		{
@@ -58,9 +67,8 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 		}
 	}
 	{
-		if (
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor)
-		)
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			QuitAllState();
 
