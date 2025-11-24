@@ -12,18 +12,6 @@
 class UDataTable;
 class UPAD_Talent_Property;
 
-struct FToolProxy;
-struct FWeaponProxy;
-struct FSkillProxy;
-struct FCoinProxy;
-struct FBasicProxy;
-
-struct FTableRowProxy_TagExtendInfo;
-struct FTableRowProxy_CharacterGrowthAttribute;
-struct FTableRow_Regions;
-struct FTableRow_TalenSocket;
-struct FTableRow_RewardsItems_DefeatEnemy;
-
 /**
  * DataTables
  */

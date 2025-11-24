@@ -17,7 +17,7 @@ void UKismetLogger::WriteLog(
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-	PlatformFile.SetSandboxEnabled(false);
+	// PlatformFile.SetSandboxEnabled(false);
 	
 	PlatformFile.IterateDirectory(
 	                              *FullPath,
@@ -56,6 +56,15 @@ void UKismetLogger::WriteLog(
 	                              }
 	                             );
 
+	for (const auto& Iter : NeedDeleteDirAry)
+	{
+		if (PlatformFile.DirectoryExists(*Iter))
+		{
+			if (PlatformFile.DeleteDirectoryRecursively(*Iter))
+			{}
+		}
+	}
+	
 	const auto NowTimeDay = NowTime.ToString(TEXT("%Y.%m.%d-%H"));
 
 	const auto NowTimeHour = NowTime.ToString(TEXT("%M.%S"));
@@ -70,12 +79,4 @@ void UKismetLogger::WriteLog(
 
 	FFileHelper::SaveStringArrayToFile(LogLines, *NewFile);
 
-	for (const auto& Iter : NeedDeleteDirAry)
-	{
-		if (PlatformFile.DirectoryExists(*Iter))
-		{
-			if (PlatformFile.DeleteDirectoryRecursively(*Iter))
-			{}
-		}
-	}
 }

@@ -371,6 +371,8 @@ public:
 	FOnEnd OnEnd;
 
 protected:
+	void ProcessTask_ControlBorder();
+	
 	bool ProcessTask_StructItemSet(
 		ASceneElementCategory* SceneElementCategoryPtr,
 		FSceneElementMap& AllReference

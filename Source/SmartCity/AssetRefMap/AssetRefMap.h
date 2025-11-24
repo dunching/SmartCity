@@ -30,6 +30,15 @@ class AFloorHelper_Description;
 class AViewerPawnBase;
 class ASceneElement_RollerBlind;
 
+USTRUCT(BlueprintType, Blueprintable)
+struct SMARTCITY_API FControlBorderDevices
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AActor>>Devices;
+};
+
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
 {
@@ -194,5 +203,8 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TMap<FString, FString> ParamJson;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<TSoftObjectPtr<AActor>, FControlBorderDevices> ControlBorderMaps;
 
 };

@@ -557,6 +557,8 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 			ObjSPtr->TryGetNumberField(TEXT("posX"), UpdateRadarInfo.Position.X);
 			ObjSPtr->TryGetNumberField(TEXT("posY"), UpdateRadarInfo.Position.Y);
 
+			UpdateRadarInfo.Position.X = -UpdateRadarInfo.Position.X;
+			
 			ObjSPtr->TryGetNumberField(TEXT("velX"), UpdateRadarInfo.Velocity.X);
 			ObjSPtr->TryGetNumberField(TEXT("velY"), UpdateRadarInfo.Velocity.Y);
 

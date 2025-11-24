@@ -29,6 +29,7 @@
 #include "Elevator.h"
 #include "LandScapeBase.h"
 #include "SceneElementCategory.h"
+#include "SceneElement_ControlBorder.h"
 #include "SceneElement_LandScape.h"
 #include "SceneElement_PWR_Pipe.h"
 #include "SceneElement_Regualar.h"
@@ -394,6 +395,8 @@ void UGT_InitializeSceneActors::Activate()
 {
 	Super::Activate();
 
+	ProcessTask_ControlBorder();
+
 	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		{
@@ -578,12 +581,260 @@ void UGT_InitializeSceneActors::OnDestroy(
 	Super::OnDestroy(bInOwnerFinished);
 }
 
+void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
+{
+	ASceneElement_ControlBorder* SceneElement_ControlBorderPtr = nullptr;
+	for (const auto& ControlBorderIter : UAssetRefMap::GetInstance()->ControlBorderMaps)
+	{
+		{
+			TArray<AActor*> OutActors;
+
+			ControlBorderIter.Key.LoadSynchronous()->GetAttachedActors(OutActors, true, true);
+
+			auto Components = ControlBorderIter.Key->GetComponents();
+			for (auto SecondIter : Components)
+			{
+				auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+				if (!InterfacePtr)
+				{
+					continue;
+				}
+				auto AUDPtr = Cast<UDatasmithAssetUserData>(
+															InterfacePtr->GetAssetUserDataOfClass(
+																 UDatasmithAssetUserData::StaticClass()
+																)
+														   );
+				if (!AUDPtr)
+				{
+					continue;
+				}
+
+				auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
+				if (!Datasmith_UniqueId)
+				{
+					continue;
+				}
+
+				SceneElement_ControlBorderPtr= GetWorld()->SpawnActor<ASceneElement_ControlBorder>();
+
+				SceneElement_ControlBorderPtr->Replace(ControlBorderIter.Key, {}, AUDPtr->MetaData);
+				SceneElement_ControlBorderPtr->InitialSceneElement();
+				SceneElement_ControlBorderPtr->SceneElementID = *Datasmith_UniqueId;
+
+				USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
+															 Add(SceneElement_ControlBorderPtr->SceneElementID, SceneElement_ControlBorderPtr);
+
+				for (auto Iter : OutActors)
+				{
+					Iter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+				}
+
+				break;
+			}
+		}
+		
+		for (auto DSIter : ControlBorderIter.Value.Devices)
+		{
+			DSIter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+
+			TArray<AActor*> OutActors;
+
+			DSIter.LoadSynchronous()->GetAttachedActors(OutActors, true, true);
+
+			{
+				TArray<AActor*> TempOutActors;
+
+				DSIter.LoadSynchronous()->GetAttachedActors(TempOutActors, true);
+				for (auto Iter : TempOutActors)
+				{
+					Iter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+				}
+			}
+
+			TMap<int32, ASceneElementBase*> MergeActorsMap;
+			for (auto& Iter : OutActors)
+			{
+#if WITH_EDITOR
+				const auto SceneElementName = Iter->GetActorLabel();
+
+				if (SceneElementName == TEXT("墙_幕墙_幕墙_58"))
+				{
+					// checkNoEntry();
+				}
+#endif // WITH_EDITOR
+
+				if (!IsValid(Iter))
+				{
+					PRINTINVOKEINFO();
+					continue;
+				}
+
+				bool bIsSceneElement = false;
+				auto Components = Iter->GetComponents();
+				for (auto SecondIter : Components)
+				{
+					auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+					if (!InterfacePtr)
+					{
+						continue;
+					}
+					auto AUDPtr = Cast<UDatasmithAssetUserData>(
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
+					if (!AUDPtr)
+					{
+						continue;
+					}
+
+					auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
+					if (!Datasmith_UniqueId)
+					{
+						continue;
+					}
+
+					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
+					{
+						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
+						if (!MetaDataIter)
+						{
+							continue;
+						}
+						if (ThirdIter.Key.bOnlyKey)
+						{
+						}
+						else if (ThirdIter.Key.bSkip)
+						{
+							bIsSceneElement = true;
+							continue;
+						}
+						else
+						{
+							if (*MetaDataIter != ThirdIter.Key.Value)
+							{
+								continue;
+							}
+						}
+
+						{
+							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+								 ThirdIter.Value
+								);
+							NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+							NewActorPtr->InitialSceneElement();
+							NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+
+							USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
+							                                             Add(
+							                                                 NewActorPtr->SceneElementID,
+							                                                 NewActorPtr
+							                                                );
+						}
+						bIsSceneElement = true;
+						break;
+					}
+
+					for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedMergeByUserData)
+					{
+						auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
+						if (!MetaDataIter)
+						{
+							continue;
+						}
+
+						if (ThirdIter.Key.bOnlyKey)
+						{
+						}
+						else
+						{
+							if (*MetaDataIter != ThirdIter.Key.Value)
+							{
+								continue;
+							}
+						}
+
+						auto HashCode = HashCombine(
+						                            GetTypeHash(*MetaDataIter),
+						                            GetTypeHash(ThirdIter.Key)
+						                           );
+
+						if (MergeActorsMap.Contains(HashCode))
+						{
+							MergeActorsMap[HashCode]->Merge(
+							                                Iter,
+							                                {*ThirdIter.Key.Key, *MetaDataIter},
+							                                AUDPtr->MetaData
+							                               );
+						}
+						else
+						{
+							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
+								 ThirdIter.Value
+								);
+							NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+							NewActorPtr->InitialSceneElement();
+							if (ThirdIter.Value == ASceneElement_PWR_Pipe::StaticClass())
+							{
+							}
+							NewActorPtr->InitialSceneElement();
+
+							MergeActorsMap.Add(HashCode, NewActorPtr);
+							USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
+							                                             Add(
+							                                                 NewActorPtr->SceneElementID,
+							                                                 NewActorPtr
+							                                                );
+						}
+
+						bIsSceneElement = true;
+						break;
+					}
+
+					if (bIsSceneElement)
+					{
+						break;
+					}
+				}
+
+				if (bIsSceneElement)
+				{
+				}
+				else
+				{
+					if (Iter->IsA(ASceneElementBase::StaticClass()))
+					{
+						continue;
+					}
+
+					if (Iter->IsA(AStaticMeshActor::StaticClass()))
+					{
+						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
+							);
+						NewActorPtr->Replace(Iter, {}, {});
+						NewActorPtr->InitialSceneElement();
+					}
+					else
+					{
+						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
+							);
+						NewActorPtr->Replace(Iter, {}, {});
+						NewActorPtr->InitialSceneElement();
+					}
+				}
+			}
+
+			DSIter->Destroy();
+		}
+	}
+}
+
 bool UGT_InitializeSceneActors::ProcessTask_StructItemSet(
 	ASceneElementCategory* SceneElementCategoryPtr,
 	FSceneElementMap& AllReference
 	)
 {
-	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference,AllReference.StructItemSet);
+	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference, AllReference.StructItemSet);
 }
 
 bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet(
@@ -591,7 +842,7 @@ bool UGT_InitializeSceneActors::ProcessTask_InnerStructItemSet(
 	FSceneElementMap& AllReference
 	)
 {
-	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference,AllReference.InnerStructItemSet);
+	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference, AllReference.InnerStructItemSet);
 }
 
 bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet(
@@ -599,7 +850,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SoftDecorationItemSet(
 	FSceneElementMap& AllReference
 	)
 {
-	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference,AllReference.SoftDecorationItem);
+	return ProcessTask_Generic(SceneElementCategoryPtr, AllReference, AllReference.SoftDecorationItem);
 }
 
 bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet(
@@ -1096,7 +1347,7 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			else
 			{
 				ActorPtr->SetActorHiddenInGame(false);
-				
+
 				TArray<AActor*> OutActors;
 
 				ActorPtr->GetAttachedActors(OutActors, true, true);
@@ -1128,7 +1379,7 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			else
 			{
 				ActorPtr->SetActorHiddenInGame(true);
-				
+
 				TArray<AActor*> OutActors;
 
 				ActorPtr->GetAttachedActors(OutActors, true, true);
@@ -1319,7 +1570,7 @@ bool UGT_SwitchSceneElement_Tower::ProcessTask_SwitchState()
 				else
 				{
 					ActorPtr->SetActorHiddenInGame(false);
-				
+
 					TArray<AActor*> OutActors;
 
 					ActorPtr->GetAttachedActors(OutActors, true, true);
@@ -1582,7 +1833,7 @@ bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_SwitchState()
 			else
 			{
 				ActorPtr->SetActorHiddenInGame(true);
-				
+
 				TArray<AActor*> OutActors;
 
 				ActorPtr->GetAttachedActors(OutActors, true, true);
@@ -2022,7 +2273,7 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_SwitchState()
 			else
 			{
 				ActorPtr->SetActorHiddenInGame(true);
-				
+
 				TArray<AActor*> OutActors;
 
 				ActorPtr->GetAttachedActors(OutActors, true, true);
