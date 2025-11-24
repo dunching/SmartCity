@@ -21,6 +21,18 @@ class AViewerPawnBase;
 class UActorSequenceComponent;
 class AFloorHelper_Description;
 
+USTRUCT(BlueprintType, Blueprintable)
+struct SMARTCITY_API FControlBorderDevices
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AActor>>Devices;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSet<TSoftObjectPtr<AActor>>CurtainWall;
+};
+
 /**
  * 楼层
  */
@@ -64,6 +76,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AViewerPawnBase> ViewerPawnClass;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TMap<TSoftObjectPtr<AActor>, FControlBorderDevices> ControlBorderMaps;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

@@ -42,14 +42,14 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
+	void GenerateRollerBlind(AActor* ActorPtr);
+	
 protected:
 	
 	void OnHourChanged(int32 Hour);
 	
 	void OnExternalWall();
 
-	void GenerateRollerBlind(AActor* ActorPtr);
-	
 	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

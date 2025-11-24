@@ -371,7 +371,9 @@ public:
 	FOnEnd OnEnd;
 
 protected:
-	void ProcessTask_ControlBorder();
+	void ProcessTask_ControlBorder(
+		const TSoftObjectPtr<AFloorHelper>&FloorHelperRef
+		);
 	
 	bool ProcessTask_StructItemSet(
 		ASceneElementCategory* SceneElementCategoryPtr,
