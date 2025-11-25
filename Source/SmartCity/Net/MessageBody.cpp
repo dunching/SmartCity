@@ -1190,6 +1190,86 @@ void FMessageBody_Receive_UpdateSceneElementParam::DoAction() const
 	}
 }
 
+FMessageBody_Receive_UpdateSceneElementParamByArea::FMessageBody_Receive_UpdateSceneElementParamByArea()
+{
+	CMD_Name = TEXT("UpdateSceneElementParamByArea");
+}
+
+void FMessageBody_Receive_UpdateSceneElementParamByArea::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+								 JsonReader,
+								 jsonObject
+								);
+
+	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
+	{
+	}
+
+	ExtensionParamMap.Empty();
+
+	const TSharedPtr<FJsonObject>* OutObject = nullptr;
+	if (jsonObject->TryGetObjectField(TEXT("SceneElements"), OutObject))
+	{
+		for (auto Iter : (*OutObject)->Values)
+		{
+			auto& Ref = ExtensionParamMap.Add(Iter.Key, {});
+
+			const auto ObjSPtr = Iter.Value->AsObject();
+			for (const auto& SecondIter : ObjSPtr->Values)
+			{
+				Ref.Add(SecondIter.Key, SecondIter.Value->AsString());
+			}
+		}
+	}
+}
+
+void FMessageBody_Receive_UpdateSceneElementParamByArea::DoAction() const
+{
+	Super::DoAction();
+
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+											  USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+												   USmartCitySuiteTags::Interaction_Area
+												  )
+											 );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+
+	if (AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
+	{
+		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FFloor_Decorator>(AreaDecoratorSPtr);
+		if (TempAreaDecoratorSPtr)
+		{
+			TempAreaDecoratorSPtr->UpdateParam(ExtensionParamMap);
+		}
+		
+		return;
+	}
+	else if (AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Space))
+	{
+		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
+		if (TempAreaDecoratorSPtr)
+		{
+			TempAreaDecoratorSPtr->UpdateParam(ExtensionParamMap);
+		}
+		
+		return;
+	}
+}
+
 FString FMessageBody_Send::GetJsonString() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = SerializeBody();

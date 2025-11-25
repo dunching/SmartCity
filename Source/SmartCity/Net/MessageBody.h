@@ -336,6 +336,24 @@ struct FMessageBody_Receive_UpdateSceneElementParam : public FMessageBody_Receiv
 	bool bImmediatelyUpdate = true;
 };
 
+USTRUCT()
+struct FMessageBody_Receive_UpdateSceneElementParamByArea : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+	FMessageBody_Receive_UpdateSceneElementParamByArea();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
+
+	bool bImmediatelyUpdate = true;
+};
+
 #pragma endregion
 
 #pragma region Send

@@ -186,6 +186,10 @@ public:
 		EOperatorType OperatorType
 		) override;
 
+	void UpdateParam(
+		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+		);
+
 protected:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
@@ -259,6 +263,10 @@ public:
 	virtual void OnOtherDecoratorEntry(
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
+
+	void UpdateParam(
+		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+		);
 
 	FGameplayTag Floor;
 

@@ -1948,6 +1948,13 @@ bool FFloor_Decorator::Operation(
 	return false;
 }
 
+void FFloor_Decorator::UpdateParam(
+	const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+	)
+{
+	
+}
+
 void FFloor_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	UGT_SwitchSceneElement_Base* TaskPtr
@@ -2911,6 +2918,12 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 	SceneActorConditional.ConditionalSet = USceneInteractionWorldSystem::GetInstance()->GetAllInteractionTags();
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
+}
+
+void FViewSpace_Decorator::UpdateParam(
+	const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+	)
+{
 }
 
 void FViewSpace_Decorator::OnUpdateFilterComplete(
