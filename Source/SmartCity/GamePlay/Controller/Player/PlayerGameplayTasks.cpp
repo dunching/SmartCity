@@ -17,6 +17,7 @@
 #include "Tools.h"
 #include "GameplayTagsLibrary.h"
 #include "AssetRefMap.h"
+#include "Building_CurtainWall.h"
 #include "TowerHelperBase.h"
 #include "DatasmithSceneActor.h"
 #include "FloorHelper.h"
@@ -395,8 +396,6 @@ void UGT_InitializeSceneActors::Activate()
 {
 	Super::Activate();
 
-	ProcessTask_ControlBorder();
-
 	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		{
@@ -413,6 +412,8 @@ void UGT_InitializeSceneActors::Activate()
 			                                       FAttachmentTransformRules::KeepWorldTransform
 			                                      );
 
+			ProcessTask_ControlBorder(Iter.Value);
+			
 			ProcessTask_StructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
 		}
 		{
@@ -429,6 +430,8 @@ void UGT_InitializeSceneActors::Activate()
 			                                       FAttachmentTransformRules::KeepWorldTransform
 			                                      );
 
+			ProcessTask_ControlBorder(Iter.Value);
+			
 			ProcessTask_InnerStructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
 		}
 		{
@@ -445,6 +448,8 @@ void UGT_InitializeSceneActors::Activate()
 			                                       FAttachmentTransformRules::KeepWorldTransform
 			                                      );
 
+			ProcessTask_ControlBorder(Iter.Value);
+			
 			ProcessTask_SoftDecorationItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
 		}
 		{
@@ -461,6 +466,8 @@ void UGT_InitializeSceneActors::Activate()
 			                                       FAttachmentTransformRules::KeepWorldTransform
 			                                      );
 
+			ProcessTask_ControlBorder(Iter.Value);
+			
 			ProcessTask_SpaceItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
 		}
 	}
@@ -581,16 +588,14 @@ void UGT_InitializeSceneActors::OnDestroy(
 	Super::OnDestroy(bInOwnerFinished);
 }
 
-void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
+void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
+	const TSoftObjectPtr<AFloorHelper>&FloorHelperRef
+	)
 {
 	ASceneElement_ControlBorder* SceneElement_ControlBorderPtr = nullptr;
-	for (const auto& ControlBorderIter : UAssetRefMap::GetInstance()->ControlBorderMaps)
+	for (const auto& ControlBorderIter : FloorHelperRef.LoadSynchronous()->ControlBorderMaps)
 	{
 		{
-			TArray<AActor*> OutActors;
-
-			ControlBorderIter.Key.LoadSynchronous()->GetAttachedActors(OutActors, true, true);
-
 			auto Components = ControlBorderIter.Key->GetComponents();
 			for (auto SecondIter : Components)
 			{
@@ -600,10 +605,10 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 					continue;
 				}
 				auto AUDPtr = Cast<UDatasmithAssetUserData>(
-															InterfacePtr->GetAssetUserDataOfClass(
-																 UDatasmithAssetUserData::StaticClass()
-																)
-														   );
+				                                            InterfacePtr->GetAssetUserDataOfClass(
+					                                             UDatasmithAssetUserData::StaticClass()
+					                                            )
+				                                           );
 				if (!AUDPtr)
 				{
 					continue;
@@ -615,62 +620,27 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 					continue;
 				}
 
-				SceneElement_ControlBorderPtr= GetWorld()->SpawnActor<ASceneElement_ControlBorder>();
+				SceneElement_ControlBorderPtr = GetWorld()->SpawnActor<ASceneElement_ControlBorder>();
 
 				SceneElement_ControlBorderPtr->Replace(ControlBorderIter.Key, {}, AUDPtr->MetaData);
 				SceneElement_ControlBorderPtr->InitialSceneElement();
 				SceneElement_ControlBorderPtr->SceneElementID = *Datasmith_UniqueId;
 
 				USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
-															 Add(SceneElement_ControlBorderPtr->SceneElementID, SceneElement_ControlBorderPtr);
-
-				for (auto Iter : OutActors)
-				{
-					Iter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
-				}
-
+				                                             Add(
+				                                                 SceneElement_ControlBorderPtr->SceneElementID,
+				                                                 SceneElement_ControlBorderPtr
+				                                                );
 				break;
 			}
 		}
-		
-		for (auto DSIter : ControlBorderIter.Value.Devices)
 		{
-			DSIter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
-
-			TArray<AActor*> OutActors;
-
-			DSIter.LoadSynchronous()->GetAttachedActors(OutActors, true, true);
-
-			{
-				TArray<AActor*> TempOutActors;
-
-				DSIter.LoadSynchronous()->GetAttachedActors(TempOutActors, true);
-				for (auto Iter : TempOutActors)
-				{
-					Iter->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
-				}
-			}
-
 			TMap<int32, ASceneElementBase*> MergeActorsMap;
-			for (auto& Iter : OutActors)
+
+			for (auto DSIter : ControlBorderIter.Value.Devices)
 			{
-#if WITH_EDITOR
-				const auto SceneElementName = Iter->GetActorLabel();
-
-				if (SceneElementName == TEXT("墙_幕墙_幕墙_58"))
-				{
-					// checkNoEntry();
-				}
-#endif // WITH_EDITOR
-
-				if (!IsValid(Iter))
-				{
-					PRINTINVOKEINFO();
-					continue;
-				}
-
 				bool bIsSceneElement = false;
-				auto Components = Iter->GetComponents();
+				auto Components = DSIter->GetComponents();
 				for (auto SecondIter : Components)
 				{
 					auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
@@ -721,7 +691,10 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 								 ThirdIter.Value
 								);
-							NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+							NewActorPtr->Replace(DSIter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+
+							// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+
 							NewActorPtr->InitialSceneElement();
 							NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 
@@ -730,6 +703,8 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 							                                                 NewActorPtr->SceneElementID,
 							                                                 NewActorPtr
 							                                                );
+
+							SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 						}
 						bIsSceneElement = true;
 						break;
@@ -762,7 +737,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 						if (MergeActorsMap.Contains(HashCode))
 						{
 							MergeActorsMap[HashCode]->Merge(
-							                                Iter,
+							                                DSIter,
 							                                {*ThirdIter.Key.Key, *MetaDataIter},
 							                                AUDPtr->MetaData
 							                               );
@@ -772,12 +747,12 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 							auto NewActorPtr = GetWorld()->SpawnActor<ASceneElementBase>(
 								 ThirdIter.Value
 								);
-							NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+							NewActorPtr->Merge(DSIter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+
+							// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+
 							NewActorPtr->InitialSceneElement();
-							if (ThirdIter.Value == ASceneElement_PWR_Pipe::StaticClass())
-							{
-							}
-							NewActorPtr->InitialSceneElement();
+
 
 							MergeActorsMap.Add(HashCode, NewActorPtr);
 							USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
@@ -785,6 +760,8 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 							                                                 NewActorPtr->SceneElementID,
 							                                                 NewActorPtr
 							                                                );
+
+							SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 						}
 
 						bIsSceneElement = true;
@@ -802,29 +779,88 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder()
 				}
 				else
 				{
-					if (Iter->IsA(ASceneElementBase::StaticClass()))
+					if (DSIter->IsA(ASceneElementBase::StaticClass()))
 					{
 						continue;
 					}
 
-					if (Iter->IsA(AStaticMeshActor::StaticClass()))
+					if (DSIter->IsA(AStaticMeshActor::StaticClass()))
 					{
 						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
 							);
-						NewActorPtr->Replace(Iter, {}, {});
+						NewActorPtr->Replace(DSIter, {}, {});
+
+						// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+
 						NewActorPtr->InitialSceneElement();
+
+						SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 					}
 					else
 					{
 						auto NewActorPtr = GetWorld()->SpawnActor<ASceneElement_Regualar>(
 							);
-						NewActorPtr->Replace(Iter, {}, {});
+						NewActorPtr->Replace(DSIter, {}, {});
+
+						// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
+
 						NewActorPtr->InitialSceneElement();
+
+						SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 					}
 				}
 			}
+		}
+		{
+			for (auto DSIter : ControlBorderIter.Value.CurtainWall)
+			{
+				auto Components = DSIter->GetComponents();
+				for (auto SecondIter : Components)
+				{
+					auto InterfacePtr = Cast<IInterface_AssetUserData>(SecondIter);
+					if (!InterfacePtr)
+					{
+						continue;
+					}
+					auto AUDPtr = Cast<UDatasmithAssetUserData>(
+					                                            InterfacePtr->GetAssetUserDataOfClass(
+						                                             UDatasmithAssetUserData::StaticClass()
+						                                            )
+					                                           );
+					if (!AUDPtr)
+					{
+						continue;
+					}
 
-			DSIter->Destroy();
+					auto Datasmith_UniqueId = AUDPtr->MetaData.Find(TEXT("Datasmith_UniqueId"));
+					if (!Datasmith_UniqueId)
+					{
+						continue;
+					}
+
+					{
+						auto NewActorPtr = GetWorld()->SpawnActor<ABuilding_CurtainWall>();
+
+						NewActorPtr->GenerateRollerBlind(DSIter.LoadSynchronous());
+
+						NewActorPtr->Replace(DSIter, {}, AUDPtr->MetaData);
+
+						NewActorPtr->InitialSceneElement();
+
+						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+
+						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
+						                                             Add(
+						                                                 NewActorPtr->SceneElementID,
+						                                                 NewActorPtr
+						                                                );
+
+						SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
+					}
+
+					break;
+				}
+			}
 		}
 	}
 }
@@ -1342,7 +1378,15 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				SceneElementPtr->SwitchInteractionType(FilterTags);
+				auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(SceneElementPtr->GetAttachParentActor());
+				if (SceneElement_ControlBorderPtr)
+				{
+					
+				}
+				else
+				{
+					SceneElementPtr->SwitchInteractionType(FilterTags);
+				}
 			}
 			else
 			{
@@ -1374,7 +1418,15 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(SceneElementPtr->GetAttachParentActor());
+				if (SceneElement_ControlBorderPtr)
+				{
+					
+				}
+				else
+				{
+					SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				}
 			}
 			else
 			{
