@@ -1948,6 +1948,59 @@ bool FFloor_Decorator::Operation(
 	return false;
 }
 
+void FFloor_Decorator::UpdateParam(
+	const TMap<FString, TMap<FString, FString>>& ExtensionParamMap,
+	bool bImmediatelyUpdate
+	)
+{
+	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	{
+		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
+		{
+			for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
+			{
+				if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+				{
+					continue;
+				}
+
+				TArray<AActor*> OutActors;
+				Iter.Value->GetAttachedActors(OutActors, true, true);
+
+				for (auto SpaceIter : OutActors)
+				{
+					auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
+					if (SpacePtr)
+					{
+						auto DevicesSet = SpacePtr->GetAllDevices();
+						for (const auto& DeviceIter : DevicesSet)
+						{
+							if (DeviceIter)
+							{
+								if (ExtensionParamMap.Contains(DeviceIter->DeviceTypeStr))
+								{
+									DeviceIter->UpdateExtensionParamMap(
+									                                    ExtensionParamMap[DeviceIter->DeviceTypeStr],
+									                                    bImmediatelyUpdate
+									                                   );
+								}
+								else
+								{
+									DeviceIter->UpdateExtensionParamMap(
+																		{},
+																		bImmediatelyUpdate
+																	   );}
+							}
+						}
+					}
+				}
+			}
+
+			break;
+		}
+	}
+}
+
 void FFloor_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	UGT_SwitchSceneElement_Base* TaskPtr
@@ -2184,6 +2237,8 @@ void FViewDevice_Decorator::OnOtherDecoratorEntry(
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+
+
 		
 		)> MulticastDelegate;
 
@@ -2443,6 +2498,8 @@ void FViewDevice_Decorator::Process()
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+
+
 		
 		)> MulticastDelegate;
 
@@ -2728,6 +2785,8 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+
+
 		
 		)> MulticastDelegate;
 
@@ -2913,6 +2972,13 @@ void FViewSpace_Decorator::OnOtherDecoratorEntry(
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 }
 
+void FViewSpace_Decorator::UpdateParam(
+	const TMap<FString, TMap<FString, FString>>& ExtensionParamMap,
+	bool bImmediatelyUpdate
+	)
+{
+}
+
 void FViewSpace_Decorator::OnUpdateFilterComplete(
 	bool bIsOK,
 	UGT_SwitchSceneElement_Base* TaskPtr
@@ -2996,6 +3062,8 @@ void FViewSpace_Decorator::Process()
 		bool,
 
 		UGT_SwitchSceneElement_Base*
+
+
 		
 		)> MulticastDelegate;
 
