@@ -529,3 +529,9 @@ void SmartCityCommand::UpdateSceneElementParam(
 																  )
 												  );
 }
+
+void SmartCityCommand::UpdateSceneElementParamByArea(
+	const TArray<FString>& Args
+	)
+{
+}

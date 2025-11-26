@@ -100,7 +100,7 @@ protected:
 	TSoftObjectPtr<UMaterialInstance> EmissiveMaterialInstance;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FName EmissiveValue = TEXT("Emissive");
+	FName EmissiveValue = TEXT("自发光强度");
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FName Color = TEXT("Color");

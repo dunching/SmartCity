@@ -104,6 +104,12 @@ void ASceneElement_LightingPipe::ReplaceImp(
 				                                                  )
 			                                                 );
 			NewComponentPtr->SetStaticMesh(STPtr->GetStaticMeshComponent()->GetStaticMesh());
+			
+			for (int32 Index = 0; Index < STPtr->GetStaticMeshComponent()->GetNumMaterials(); Index++)
+			{
+				NewComponentPtr->SetMaterial(Index, STPtr->GetStaticMeshComponent()->GetMaterial(Index));
+			}
+
 			NewComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
 			NewComponentPtr->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
