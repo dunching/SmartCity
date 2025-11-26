@@ -1253,7 +1253,10 @@ void FMessageBody_Receive_UpdateSceneElementParamByArea::DoAction() const
 		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FFloor_Decorator>(AreaDecoratorSPtr);
 		if (TempAreaDecoratorSPtr)
 		{
-			TempAreaDecoratorSPtr->UpdateParam(ExtensionParamMap);
+			TempAreaDecoratorSPtr->UpdateParam(
+				ExtensionParamMap,
+				bImmediatelyUpdate
+				);
 		}
 		
 		return;
@@ -1263,7 +1266,10 @@ void FMessageBody_Receive_UpdateSceneElementParamByArea::DoAction() const
 		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
 		if (TempAreaDecoratorSPtr)
 		{
-			TempAreaDecoratorSPtr->UpdateParam(ExtensionParamMap);
+			TempAreaDecoratorSPtr->UpdateParam(
+				ExtensionParamMap,
+				bImmediatelyUpdate
+				);
 		}
 		
 		return;

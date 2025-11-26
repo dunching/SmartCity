@@ -187,7 +187,8 @@ public:
 		) override;
 
 	void UpdateParam(
-		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap,
+		bool bImmediatelyUpdate
 		);
 
 protected:
@@ -265,7 +266,8 @@ public:
 		) override;
 
 	void UpdateParam(
-		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap
+		const TMap<FString, TMap<FString, FString>>& ExtensionParamMap,
+		bool bImmediatelyUpdate
 		);
 
 	FGameplayTag Floor;
