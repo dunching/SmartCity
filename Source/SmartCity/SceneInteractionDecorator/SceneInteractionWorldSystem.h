@@ -69,7 +69,10 @@ public:
 	 * @param Interaction_Mode 
 	 */
 	void SwitchInteractionMode(
-		const FGameplayTag& Interaction_Mode
+	const FGameplayTag& Interaction_Mode,
+	const std::function<void(
+		const TSharedPtr<FDecoratorBase>&
+		)>& Func = nullptr
 		);
 
 	/**
@@ -79,11 +82,7 @@ public:
 	void SwitchInteractionArea(
 		const FGameplayTag& Interaction_Area,
 		const std::function<void(
-
 			const TSharedPtr<FDecoratorBase>&
-
-
-			
 			)>& Func = nullptr
 		);
 
@@ -129,7 +128,10 @@ public:
 			UGT_SwitchSceneElement_Base*
 			
 			)>& OnEnd,
-		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr
+		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr,
+		
+		const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet
+
 		);
 
 	UGT_SwitchSceneElement_Base* UpdateFilter_Device(
@@ -141,6 +143,18 @@ public:
 			
 			)>& OnEnd,
 		TWeakObjectPtr<ASceneElement_DeviceBase> SceneElementPtr
+		);
+
+	UGT_SwitchSceneElement_Base* UpdateFilter_BatchControlDevice(
+		const FSceneElementConditional& FilterTags,
+		bool bBreakRuntimeTask,
+		const TMulticastDelegate<void(
+			bool,
+			UGT_SwitchSceneElement_Base*
+			
+			)>& OnEnd,
+		TSet<TObjectPtr<ASceneElement_DeviceBase> >SceneElementSet,
+		FGameplayTag FloorTag
 		);
 
 	UGT_SwitchSceneElement_Base* UpdateFilter_SpeacialArea(
@@ -191,11 +205,7 @@ public:
 		const FGameplayTag& MainTag,
 		const FGameplayTag& BranchTag,
 		const std::function<void(
-
 			const TSharedPtr<FDecoratorBase>&
-
-
-			
 			)>& Func = nullptr
 		);
 
@@ -231,9 +241,6 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	const FGameplayTag& BranchTag,
 	const std::function<void(
 		const TSharedPtr<FDecoratorBase>&
-
-
-		
 		)>& Func
 	)
 {
@@ -248,6 +255,8 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 			}
 
 			OldDecoratorSPtr->ReEntry();
+
+			NotifyOtherDecoratorsWhenEntry(MainTag, OldDecoratorSPtr);
 
 			return;
 		}

@@ -89,6 +89,9 @@ void ABuilding_CurtainWall::ReplaceImp(
 		}
 		UpdateCollisionBox({StaticMeshComponent});
 
+		// 生成窗帘
+		GenerateRollerBlind(ActorPtr);
+
 		// 附加到AS
 		auto ParentPtr = GetAttachParentActor();
 		AFloorHelper* FloorPtr = nullptr;

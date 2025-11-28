@@ -24,6 +24,7 @@
 #include "IPSSI.h"
 #include "NavagationPaths.h"
 #include "PersonMark.h"
+#include "SceneElementCategory.h"
 #include "SceneElement_Space.h"
 #include "SmartCitySuiteTags.h"
 #include "ViewSingleFloorProcessor.h"
@@ -464,4 +465,178 @@ void FSingleDeviceMode_Decorator::Entry()
 	{
 		auto FloorPtr = UAssetRefMap::GetInstance()->FloorHelpers[AreaTag];
 	}
+}
+
+FBatchControlMode_Decorator::FBatchControlMode_Decorator() :
+	  Super(
+		   )
+{
+}
+
+void FBatchControlMode_Decorator::Entry()
+{
+	Super::Entry();
+
+	Initial();
+}
+
+void FBatchControlMode_Decorator::ReEntry()
+{
+	Super::ReEntry();
+
+	Initial();
+}
+
+void FBatchControlMode_Decorator::OnOtherDecoratorEntry(
+	const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+	)
+{
+	Super::OnOtherDecoratorEntry(NewDecoratorSPtr);
+
+	
+}
+
+void FBatchControlMode_Decorator::OnUpdateFilterComplete(
+	bool bIsOK,
+	UGT_SwitchSceneElement_Base* TaskPtr
+	)
+{
+	Super::OnUpdateFilterComplete(bIsOK, TaskPtr);
+
+	Process();
+}
+
+void FBatchControlMode_Decorator::Initial()
+{
+	auto AreaDecoratorSPtr =
+		DynamicCastSharedPtr<FArea_Decorator>(
+											  USceneInteractionWorldSystem::GetInstance()->GetDecorator(
+												   USmartCitySuiteTags::Interaction_Area
+												  )
+											 );
+
+	if (!AreaDecoratorSPtr)
+	{
+		return;
+	}
+	
+
+	if (
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor)
+	)
+	{
+		auto ViewFloor_DecoratorSPtr = DynamicCastSharedPtr<FFloor_Decorator>(AreaDecoratorSPtr);
+		
+		FloorTag = AreaDecoratorSPtr->GetBranchDecoratorType();
+
+		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+		{
+			if (FloorIter.Value->GameplayTagContainer.HasTag(GetBranchDecoratorType()))
+			{
+				auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
+
+				for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
+				{
+					if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+					{
+						continue;
+					}
+
+					TArray<AActor*> OutActors;
+					Iter.Value->GetAttachedActors(OutActors, true, true);
+
+					for (auto SpaceIter : OutActors)
+					{
+						auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
+						if (SpacePtr)
+						{
+							const auto DevicesSet = SpacePtr->GetAllDevices();
+			
+							SceneElementSet.Append(DevicesSet);
+							
+							for (const auto& DeviceIter : DevicesSet)
+							{
+								if (DeviceIter)
+								{
+									if (ExtensionParamMap.Contains(DeviceIter->DeviceTypeStr))
+									{
+										DeviceIter->UpdateExtensionParamMap(
+																			ExtensionParamMap[DeviceIter->DeviceTypeStr],
+																			false
+																		   );
+									}
+									else
+									{
+										DeviceIter->UpdateExtensionParamMap(
+																			{},
+																			false
+																		   );
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Space)
+	)
+	{
+		auto ViewSpace_DecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
+		
+		FloorTag = ViewSpace_DecoratorSPtr->SceneElementPtr->BelongFloor->FloorTag;
+
+		const auto DevicesSet = ViewSpace_DecoratorSPtr->SceneElementPtr->GetAllDevices();
+			
+		SceneElementSet.Append(DevicesSet);
+							
+		for (const auto& DeviceIter : DevicesSet)
+		{
+			if (DeviceIter)
+			{
+				if (ExtensionParamMap.Contains(DeviceIter->DeviceTypeStr))
+				{
+					DeviceIter->UpdateExtensionParamMap(
+														ExtensionParamMap[DeviceIter->DeviceTypeStr],
+														false
+													   );
+				}
+				else
+				{
+					DeviceIter->UpdateExtensionParamMap(
+														{},
+														false
+													   );
+				}
+			}
+		}
+	}
+}
+
+void FBatchControlMode_Decorator::Process()
+{
+	FSceneElementConditional SceneActorConditional;
+
+	TMulticastDelegate<void(
+		bool,
+
+		UGT_SwitchSceneElement_Base*
+
+
+		
+		)> MulticastDelegate;
+
+	ON_SCOPE_EXIT
+	{
+		USceneInteractionWorldSystem::GetInstance()->UpdateFilter_BatchControlDevice(
+																		SceneActorConditional,
+																		true,
+																		MulticastDelegate,
+																		SceneElementSet,
+																		FloorTag
+																	   );
+	};
 }

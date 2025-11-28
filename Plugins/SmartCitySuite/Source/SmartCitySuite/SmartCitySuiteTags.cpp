@@ -116,6 +116,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_Intelligence,"Interaction.Mode.Intelligence");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_BatchControl,"Interaction.Mode.BatchControl");
+
 	
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Interaction,"Interaction.Interaction");
 
