@@ -182,7 +182,11 @@ void USceneInteractionWorldSystem::SetInteractionOption(
 }
 
 void USceneInteractionWorldSystem::SwitchInteractionMode(
-	const FGameplayTag& Interaction_Mode
+	const FGameplayTag& Interaction_Mode,
+	const std::function<void(
+		const TSharedPtr<FDecoratorBase>&
+		
+		)>& Func
 	)
 {
 	if (Interaction_Mode == FGameplayTag::EmptyTag || Interaction_Mode == USmartCitySuiteTags::Interaction_Mode_Empty)
@@ -198,7 +202,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 		SwitchDecoratorImp<FEmpty_Decorator>(
 		                                     USmartCitySuiteTags::Interaction_Mode,
-		                                     USmartCitySuiteTags::Interaction_Mode_Empty
+		                                     USmartCitySuiteTags::Interaction_Mode_Empty,
+		                                     Func
 		                                    );
 
 		return;
@@ -223,7 +228,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 					SwitchDecoratorImp<FHVACMode_Decorator>(
 					                                        USmartCitySuiteTags::Interaction_Mode,
-					                                        USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC
+					                                        USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_HVAC,
+					                                        Func
 					                                       );
 
 					return;
@@ -242,7 +248,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 					SwitchDecoratorImp<FLightingMode_Decorator>(
 					                                            USmartCitySuiteTags::Interaction_Mode,
-					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting
+					                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR_Lighting,
+					                                            Func
 					                                           );
 
 					return;
@@ -259,7 +266,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				SwitchDecoratorImp<FDeviceManaggerPWRMode_Decorator>(
 				                                                     USmartCitySuiteTags::Interaction_Mode,
-				                                                     USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR
+				                                                     USmartCitySuiteTags::Interaction_Mode_DeviceManagger_PWR,
+				                                                     Func
 				                                                    );
 
 				return;
@@ -279,7 +287,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 					SwitchDecoratorImp<FRadarMode_Decorator>(
 					                                         USmartCitySuiteTags::Interaction_Mode,
-					                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar
+					                                         USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_Radar,
+					                                         Func
 					                                        );
 
 					return;
@@ -297,7 +306,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 					SwitchDecoratorImp<FAccessControlMode_Decorator>(
 					                                                 USmartCitySuiteTags::Interaction_Mode,
-					                                                 USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl
+					                                                 USmartCitySuiteTags::Interaction_Mode_DeviceManagger_ELV_AccessControl,
+					                                                 Func
 					                                                );
 
 					return;
@@ -317,7 +327,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				SwitchDecoratorImp<FElevatorMode_Decorator>(
 				                                            USmartCitySuiteTags::Interaction_Mode,
-				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_Elevator,
+				                                            Func
 				                                           );
 
 				return;
@@ -335,7 +346,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				SwitchDecoratorImp<FSunShadeMode_Decorator>(
 				                                            USmartCitySuiteTags::Interaction_Mode,
-				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_SunShadow,
+				                                            Func
 				                                           );
 
 				return;
@@ -353,14 +365,16 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 				SwitchDecoratorImp<FSunShadeMode_Decorator>(
 				                                            USmartCitySuiteTags::Interaction_Mode,
-				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind
+				                                            USmartCitySuiteTags::Interaction_Mode_DeviceManagger_RollerBlind,
+				                                            Func
 				                                           );
 
 				return;
 			}
 			SwitchDecoratorImp<FDeviceManaggerMode_Decorator>(
 			                                                  USmartCitySuiteTags::Interaction_Mode,
-			                                                  USmartCitySuiteTags::Interaction_Mode_DeviceManagger
+			                                                  USmartCitySuiteTags::Interaction_Mode_DeviceManagger,
+			                                                  Func
 			                                                 );
 
 			return;
@@ -378,7 +392,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			SwitchDecoratorImp<FSceneMode_Decorator>(
 			                                         USmartCitySuiteTags::Interaction_Mode,
-			                                         USmartCitySuiteTags::Interaction_Mode_Scene
+			                                         USmartCitySuiteTags::Interaction_Mode_Scene,
+			                                         Func
 			                                        );
 
 			return;
@@ -396,7 +411,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			SwitchDecoratorImp<FEmergencyMode_Decorator>(
 			                                             USmartCitySuiteTags::Interaction_Mode,
-			                                             USmartCitySuiteTags::Interaction_Mode_EmergencySystem
+			                                             USmartCitySuiteTags::Interaction_Mode_EmergencySystem,
+			                                             Func
 			                                            );
 
 			return;
@@ -414,7 +430,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			SwitchDecoratorImp<FEnergyMode_Decorator>(
 			                                          USmartCitySuiteTags::Interaction_Mode,
-			                                          USmartCitySuiteTags::Interaction_Mode_EnergyManagement
+			                                          USmartCitySuiteTags::Interaction_Mode_EnergyManagement,
+			                                          Func
 			                                         );
 
 			return;
@@ -432,7 +449,27 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			SwitchDecoratorImp<FEnvironmentalPerceptionMode_Decorator>(
 			                                                           USmartCitySuiteTags::Interaction_Mode,
-			                                                           USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception
+			                                                           USmartCitySuiteTags::Interaction_Mode_EnvironmentalPerception,
+			                                                           Func
+			                                                          );
+
+			return;
+		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_BatchControl))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_BatchControl)
+				{
+					// return;
+				}
+			}
+
+			SwitchDecoratorImp<FBatchControlMode_Decorator>(
+			                                                           USmartCitySuiteTags::Interaction_Mode,
+			                                                           USmartCitySuiteTags::Interaction_Mode_BatchControl,
+			                                                           Func
 			                                                          );
 
 			return;
@@ -443,10 +480,7 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 void USceneInteractionWorldSystem::SwitchInteractionArea(
 	const FGameplayTag& Interaction_Area,
 	const std::function<void(
-
 		const TSharedPtr<FDecoratorBase>&
-
-
 		
 		)>& Func
 	)
@@ -619,6 +653,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Tower(
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+
 		
 		)>& OnEnd
 	)
@@ -648,6 +683,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+		
 		)>& OnEnd
 	)
 {
@@ -703,13 +739,15 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
 
 		
 		)>& OnEnd,
-	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr
+		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr,
+		
+			const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Space>(
 		 bBreakRuntimeTask,
-		 [this, OnEnd, &FilterTags, SceneElementPtr](
+		 [this, OnEnd, &FilterTags, SceneElementPtr, SkipSceneElementSet](
 		 UGT_SwitchSceneElement_Space* GTPtr
 		 )
 		 {
@@ -720,6 +758,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
 					 this;
 				 GTPtr->FilterTags = FilterTags;
 				 GTPtr->SceneElementPtr = SceneElementPtr;
+				 GTPtr->SkipSceneElementSet = SkipSceneElementSet;
 				 GTPtr->OnEnd = OnEnd;
 			 }
 		 }
@@ -763,12 +802,46 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Device(
 		);
 }
 
+UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_BatchControlDevice(
+	const FSceneElementConditional& FilterTags,
+	bool bBreakRuntimeTask,
+	const TMulticastDelegate<void(bool, UGT_SwitchSceneElement_Base*)>& OnEnd,
+	TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet,
+	FGameplayTag FloorTag
+	)
+{
+	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
+	return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_BatchDevicesControl>(
+		 bBreakRuntimeTask,
+		 [this, OnEnd, &FilterTags, SceneElementSet, FloorTag](
+		 UGT_SwitchSceneElement_BatchDevicesControl* GTPtr
+		 )
+		 {
+			 if (GTPtr)
+			 {
+				 GTPtr->
+					 SceneInteractionWorldSystemPtr =
+					 this;
+			 	
+				 GTPtr->FilterTags = FilterTags;
+
+				 GTPtr->SceneElementSet = SceneElementSet;
+
+				 GTPtr->FloorTag = FloorTag;
+
+				 GTPtr->OnEnd = OnEnd;
+			 }
+		 }
+		);
+}
+
 UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_SpeacialArea(
 	const FSceneElementConditional& FilterTags,
 	bool bBreakRuntimeTask,
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+
 		
 		)>& OnEnd,
 
@@ -846,7 +919,7 @@ TWeakObjectPtr<ASceneElementBase> USceneInteractionWorldSystem::FindSceneActor(
 void USceneInteractionWorldSystem::SetSceneActor(
 	const FString& ID,
 	ASceneElementBase* SceneElementPtr
-	) 
+	)
 {
 	SceneElementMap.Add(ID, SceneElementPtr);
 }

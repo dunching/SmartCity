@@ -191,6 +191,15 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_BatchControl)
+		)
+		{
+			EntryShoweviceEffect();
+			return;
+		}
+	}
+	{
+		if (
 			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_View)
@@ -325,6 +334,7 @@ void ASceneElement_PWR_Pipe::EntryShowDevice()
 void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
+	
 	if (
 		(CurrentUserData.Key == TEXT("Element*照明回路编号")) ||
 		(CurrentUserData.Key == TEXT("Element*管线类型编号")) ||
@@ -338,29 +348,32 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 
 		auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
-		EnergyValue = FMath::RandRange(0.f, 1.f);
-		
 		if (ExtensionParamMap.Contains(TEXT("Intensity")))
 		{
-			EnergyValue = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
-		}
+			EnergyValue = FMath::RandRange(0.f, 1.f);
 		
-		MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
-		for (auto Iter : StaticMeshComponentsAry)
-		{
-			if (Iter)
+			EnergyValue = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
+		
+			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
+			for (auto Iter : StaticMeshComponentsAry)
 			{
-				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+				if (Iter)
 				{
-					Iter->SetMaterial(Index, MaterialInstanceDynamic);
+					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
+					{
+						Iter->SetMaterial(Index, MaterialInstanceDynamic);
+					}
 				}
 			}
+
+			return;
 		}
 	}
 	else
 	{
-		SetActorHiddenInGame(true);
 	}
+
+	QuitAllState();
 }
 
 void ASceneElement_PWR_Pipe::QuitAllState()

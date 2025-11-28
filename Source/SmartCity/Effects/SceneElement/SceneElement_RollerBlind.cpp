@@ -60,6 +60,16 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_BatchControl)
+		)
+		{
+			EntryShoweviceEffect();
+
+			return;
+		}
+	}
+	{
+		if (
 			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
@@ -174,7 +184,7 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 		return;
 	}
 
-	EntryShowDevice();
+	QuitAllState();
 }
 
 void ASceneElement_RollerBlind::QuitAllState()

@@ -332,3 +332,43 @@ public:
 	TWeakObjectPtr<ASceneElement_DeviceBase>TargetDevicePtr = nullptr;
 };
 
+
+/**
+ * 按区域控制
+ */
+class SMARTCITY_API FBatchControlMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FBatchControlMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FBatchControlMode_Decorator(
+		);
+
+	virtual void Entry() override;
+	
+	virtual void ReEntry() override;
+
+	virtual void OnOtherDecoratorEntry(
+		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
+		) override;
+	
+	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
+
+	TSet<TObjectPtr<ASceneElement_DeviceBase> >SceneElementSet;
+
+	FGameplayTag FloorTag;
+	
+protected:
+	virtual void OnUpdateFilterComplete(
+		bool bIsOK,
+		UGT_SwitchSceneElement_Base* TaskPtr
+		) override;
+
+	void Initial();
+
+	void Process();
+};
+

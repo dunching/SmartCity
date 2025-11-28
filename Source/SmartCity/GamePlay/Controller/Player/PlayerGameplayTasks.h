@@ -568,6 +568,8 @@ public:
 
 	virtual bool ProcessTask_SwitchState() override;
 
+	TSet<TObjectPtr<ASceneElementBase>> SkipSceneElementSet;
+
 	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr = nullptr;
 
 	FGameplayTag FloorTag;
@@ -590,9 +592,34 @@ public:
 
 	virtual bool ProcessTask_SwitchState() override;
 
-	TSet<TObjectPtr<ASceneElementBase>> SceneElementSet;
+	TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet;
 
 	FGameplayTag FloorTag;
+};
+
+/**
+ * 
+ */
+UCLASS()
+class SMARTCITY_API UGT_SwitchSceneElement_BatchDevicesControl : public UGT_SwitchSceneElement_Base
+{
+	GENERATED_BODY()
+
+public:
+	virtual void Activate() override;
+
+	virtual bool ProcessTask_Display() override;
+
+	virtual bool ProcessTask_Hiden() override;
+
+	virtual bool ProcessTask_SwitchState() override;
+
+	TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet;
+
+	FGameplayTag FloorTag;
+	
+	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
+
 };
 
 /**

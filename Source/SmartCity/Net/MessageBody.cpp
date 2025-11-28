@@ -16,6 +16,7 @@
 #include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
 #include "SceneInteractionDecorator_Area.h"
+#include "SceneInteractionDecorator_Mode.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "TemplateHelper.h"
@@ -558,7 +559,7 @@ void FMessageBody_Receive_UpdateRadarInfo::Deserialize(
 			ObjSPtr->TryGetNumberField(TEXT("posY"), UpdateRadarInfo.Position.Y);
 
 			UpdateRadarInfo.Position.X = -UpdateRadarInfo.Position.X;
-			
+
 			ObjSPtr->TryGetNumberField(TEXT("velX"), UpdateRadarInfo.Velocity.X);
 			ObjSPtr->TryGetNumberField(TEXT("velY"), UpdateRadarInfo.Velocity.Y);
 
@@ -1206,9 +1207,9 @@ void FMessageBody_Receive_UpdateSceneElementParamByArea::Deserialize(
 	TSharedPtr<FJsonObject> jsonObject;
 
 	FJsonSerializer::Deserialize(
-								 JsonReader,
-								 jsonObject
-								);
+	                             JsonReader,
+	                             jsonObject
+	                            );
 
 	if (jsonObject->TryGetBoolField(TEXT("ImmediatelyUpdate"), bImmediatelyUpdate))
 	{
@@ -1236,44 +1237,26 @@ void FMessageBody_Receive_UpdateSceneElementParamByArea::DoAction() const
 {
 	Super::DoAction();
 
-	auto AreaDecoratorSPtr =
-		DynamicCastSharedPtr<FArea_Decorator>(
-											  USceneInteractionWorldSystem::GetInstance()->GetDecorator(
-												   USmartCitySuiteTags::Interaction_Area
-												  )
-											 );
-
-	if (!AreaDecoratorSPtr)
-	{
-		return;
-	}
-
-	if (AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
-	{
-		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FFloor_Decorator>(AreaDecoratorSPtr);
-		if (TempAreaDecoratorSPtr)
-		{
-			TempAreaDecoratorSPtr->UpdateParam(
-				ExtensionParamMap,
-				bImmediatelyUpdate
-				);
-		}
-		
-		return;
-	}
-	else if (AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Space))
-	{
-		auto TempAreaDecoratorSPtr = DynamicCastSharedPtr<FViewSpace_Decorator>(AreaDecoratorSPtr);
-		if (TempAreaDecoratorSPtr)
-		{
-			TempAreaDecoratorSPtr->UpdateParam(
-				ExtensionParamMap,
-				bImmediatelyUpdate
-				);
-		}
-		
-		return;
-	}
+	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
+	                                                                   USmartCitySuiteTags::Interaction_Mode_BatchControl,
+	                                                                   [this](
+	                                                                   const TSharedPtr<FDecoratorBase>&
+	                                                                   AreaDecoratorSPtr
+	                                                                   )
+	                                                                   {
+		                                                                   auto BatchControlModeDecoratorSPtr =
+			                                                                   DynamicCastSharedPtr<
+				                                                                   FBatchControlMode_Decorator>(
+				                                                                    AreaDecoratorSPtr
+				                                                                   );
+		                                                                   if (BatchControlModeDecoratorSPtr)
+		                                                                   {
+			                                                                   BatchControlModeDecoratorSPtr->
+				                                                                   ExtensionParamMap =
+				                                                                   ExtensionParamMap;
+		                                                                   }
+	                                                                   }
+	                                                                  );
 }
 
 FString FMessageBody_Send::GetJsonString() const

@@ -806,7 +806,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 			}
 		}
 		{
-			for (auto DSIter :  ControlBorderIter.LoadSynchronous()->CurtainWall)
+			for (auto DSIter : ControlBorderIter.LoadSynchronous()->CurtainWall)
 			{
 				auto Components = DSIter->GetComponents();
 				for (auto SecondIter : Components)
@@ -1372,16 +1372,16 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(
-					 SceneElementPtr->GetAttachParentActor()
-					);
-				if (SceneElement_ControlBorderPtr)
-				{
-				}
-				else
-				{
-					SceneElementPtr->SwitchInteractionType(FilterTags);
-				}
+				// auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(
+				// 	 SceneElementPtr->GetAttachParentActor()
+				// 	);
+				// if (SceneElement_ControlBorderPtr)
+				// {
+				// }
+				// else
+				// {
+				SceneElementPtr->SwitchInteractionType(FilterTags);
+				// }
 			}
 			else
 			{
@@ -1413,16 +1413,16 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(
-					 SceneElementPtr->GetAttachParentActor()
-					);
-				if (SceneElement_ControlBorderPtr)
-				{
-				}
-				else
-				{
-					SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
-				}
+				// auto SceneElement_ControlBorderPtr = Cast<ASceneElement_ControlBorder>(
+				// 	 SceneElementPtr->GetAttachParentActor()
+				// 	);
+				// if (SceneElement_ControlBorderPtr)
+				// {
+				// }
+				// else
+				// {
+				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				// }
 			}
 			else
 			{
@@ -1939,6 +1939,10 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 						if (ActorIter == SceneElementPtr)
 						{
 						}
+						else if (SkipSceneElementSet.Contains(SceneElementBasePtr))
+						{
+							PRINTFUNC();
+						}
 						else
 						{
 							NeedDisplayAry.Add(SceneElementBasePtr);
@@ -1957,7 +1961,14 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_Display()
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
 				if (SceneElementBasePtr)
 				{
-					NeedDisplayAry.Add(SceneElementBasePtr);
+					if (SkipSceneElementSet.Contains(SceneElementBasePtr))
+					{
+						PRINTFUNC();
+					}
+					else
+					{
+						NeedDisplayAry.Add(SceneElementBasePtr);
+					}
 				}
 			}
 		}
@@ -2073,7 +2084,7 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_Display()
 
 				for (auto ActorIter : OutActors)
 				{
-					auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+					auto SceneElementBasePtr = Cast<ASceneElement_DeviceBase>(ActorIter);
 					if (SceneElementBasePtr)
 					{
 						if (SceneElementSet.Contains(SceneElementBasePtr))
@@ -2169,6 +2180,151 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
 		FSceneElementConditional TempFilterTags;
 
 		TempFilterTags.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
+		// TempFilterTags.ConditionalSet.AddTag(FloorTag);
+
+		for (auto Iter : SceneElementSet)
+		{
+			Iter->SwitchInteractionType(TempFilterTags);
+		}
+		SceneElementSet.Empty();
+		return true;
+	}
+}
+
+void UGT_SwitchSceneElement_BatchDevicesControl::Activate()
+{
+	Super::Activate();
+
+	FilterTags.ConditionalSet = FGameplayTagContainer{FloorTag};
+}
+
+bool UGT_SwitchSceneElement_BatchDevicesControl::ProcessTask_Display()
+{
+	// for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	// {
+	// 	if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
+	// 	{
+	// 	}
+	// 	else
+	// 	{
+	// 		continue;
+	// 	}
+	//
+	// 	NeedDisplayAry.Add(FloorIter.Value.LoadSynchronous());
+	// 	for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+	// 	{
+	// 		if (Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Soft))
+	// 		{
+	// 			TArray<AActor*> OutActors;
+	//
+	// 			Iter.Value->GetAttachedActors(OutActors, true, true);
+	//
+	// 			for (auto ActorIter : OutActors)
+	// 			{
+	// 				auto SceneElementBasePtr = Cast<ASceneElement_DeviceBase>(ActorIter);
+	// 				if (SceneElementBasePtr)
+	// 				{
+	// 					if (SceneElementSet.Contains(SceneElementBasePtr))
+	// 					{
+	// 						PRINTFUNC();
+	// 					}
+	// 					else
+	// 					{
+	// 						NeedDisplayAry.Add(SceneElementBasePtr);
+	// 					}
+	// 				}
+	// 			}
+	// 			continue;
+	// 		}
+	//
+	// 		TArray<AActor*> OutActors;
+	//
+	// 		Iter.Value->GetAttachedActors(OutActors, true, true);
+	//
+	// 		for (auto ActorIter : OutActors)
+	// 		{
+	// 			auto SceneElementBasePtr = Cast<ASceneElement_DeviceBase>(ActorIter);
+	// 			if (SceneElementBasePtr)
+	// 			{
+	// 				if (SceneElementSet.Contains(SceneElementBasePtr))
+	// 				{
+	// 					PRINTFUNC();
+	// 				}
+	// 				else
+	// 				{
+	// 					NeedDisplayAry.Add(SceneElementBasePtr);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+	return false;
+}
+
+bool UGT_SwitchSceneElement_BatchDevicesControl::ProcessTask_Hiden()
+{
+	// for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+	// {
+	// 	if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
+	// 	{
+	// 		continue;
+	// 	}
+	// 	else
+	// 	{
+	// 	}
+	//
+	// 	NeedHideAry.Add(FloorIter.Value.LoadSynchronous());
+	// 	for (const auto& Iter : FloorIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+	// 	{
+	// 		TArray<AActor*> OutActors;
+	//
+	// 		Iter.Value->GetAttachedActors(OutActors, true, true);
+	//
+	// 		for (auto ActorIter : OutActors)
+	// 		{
+	// 			auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+	// 			if (SceneElementBasePtr)
+	// 			{
+	// 				NeedHideAry.Add(SceneElementBasePtr);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	//
+	// for (const auto& LandScapeIter : UAssetRefMap::GetInstance()->LandScapeHelper)
+	// {
+	// 	NeedHideAry.Add(LandScapeIter.Value.LoadSynchronous());
+	// 	for (const auto& Iter : LandScapeIter.Value.LoadSynchronous()->SceneElementCategoryMap)
+	// 	{
+	// 		TArray<AActor*> OutActors;
+	//
+	// 		Iter.Value->GetAttachedActors(OutActors, true, true);
+	//
+	// 		for (auto ActorIter : OutActors)
+	// 		{
+	// 			auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
+	// 			if (SceneElementBasePtr)
+	// 			{
+	// 				NeedHideAry.Add(SceneElementBasePtr);
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	return false;
+}
+
+bool UGT_SwitchSceneElement_BatchDevicesControl::ProcessTask_SwitchState()
+{
+	if (SceneElementSet.IsEmpty())
+	{
+		return Super::ProcessTask_SwitchState();
+	}
+	else
+	{
+		FSceneElementConditional TempFilterTags;
+
+		TempFilterTags.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_BatchControl);
 		// TempFilterTags.ConditionalSet.AddTag(FloorTag);
 
 		for (auto Iter : SceneElementSet)
