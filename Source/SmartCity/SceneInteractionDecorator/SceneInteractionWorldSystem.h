@@ -69,10 +69,12 @@ public:
 	 * @param Interaction_Mode 
 	 */
 	void SwitchInteractionMode(
-	const FGameplayTag& Interaction_Mode,
-	const std::function<void(
-		const TSharedPtr<FDecoratorBase>&
-		)>& Func = nullptr
+		const FGameplayTag& Interaction_Mode,
+		const std::function<void(
+			const TSharedPtr<FDecoratorBase>&
+
+			
+			)>& Func = nullptr
 		);
 
 	/**
@@ -83,6 +85,8 @@ public:
 		const FGameplayTag& Interaction_Area,
 		const std::function<void(
 			const TSharedPtr<FDecoratorBase>&
+
+			
 			)>& Func = nullptr
 		);
 
@@ -106,6 +110,8 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
 			)>& OnEnd
 		);
@@ -116,8 +122,12 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
-			)>& OnEnd
+			)>& OnEnd,
+		const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet,
+		const FGameplayTag& FloorTag
 		);
 
 	UGT_SwitchSceneElement_Base* UpdateFilter_Space(
@@ -126,10 +136,12 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
 			)>& OnEnd,
 		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr,
-		
+
 		const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet
 
 		);
@@ -140,6 +152,8 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
 			)>& OnEnd,
 		TWeakObjectPtr<ASceneElement_DeviceBase> SceneElementPtr
@@ -151,9 +165,11 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
 			)>& OnEnd,
-		TSet<TObjectPtr<ASceneElement_DeviceBase> >SceneElementSet,
+		TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet,
 		FGameplayTag FloorTag
 		);
 
@@ -163,6 +179,8 @@ public:
 		const TMulticastDelegate<void(
 			bool,
 			UGT_SwitchSceneElement_Base*
+
+
 			
 			)>& OnEnd,
 
@@ -179,8 +197,8 @@ public:
 
 	void SetSceneActor(
 		const FString& ID,
-		ASceneElementBase*SceneElementPtr
-		) ;
+		ASceneElementBase* SceneElementPtr
+		);
 
 	FString GetName(
 		AActor* DevicePtr
@@ -206,6 +224,8 @@ public:
 		const FGameplayTag& BranchTag,
 		const std::function<void(
 			const TSharedPtr<FDecoratorBase>&
+
+			
 			)>& Func = nullptr
 		);
 
@@ -241,6 +261,8 @@ void USceneInteractionWorldSystem::SwitchDecoratorImp(
 	const FGameplayTag& BranchTag,
 	const std::function<void(
 		const TSharedPtr<FDecoratorBase>&
+
+		
 		)>& Func
 	)
 {

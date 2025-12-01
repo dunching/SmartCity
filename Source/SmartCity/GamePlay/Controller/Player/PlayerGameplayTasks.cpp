@@ -1650,19 +1650,6 @@ bool UGT_SwitchSceneElement_Tower::ProcessTask_SwitchState_Elevator()
 
 bool UGT_SwitchSceneElement_Floor::ProcessTask_Display()
 {
-	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
-	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
-	{
-		for (const auto Iter : FilterTags.ConditionalSet)
-		{
-			if (Iter.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
-			{
-				FloorTag = Iter;
-				break;
-			}
-		}
-	}
-
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
@@ -1685,7 +1672,14 @@ bool UGT_SwitchSceneElement_Floor::ProcessTask_Display()
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(ActorIter);
 				if (SceneElementBasePtr)
 				{
-					NeedDisplayAry.Add(SceneElementBasePtr);
+					if (SkipSceneElementSet.Contains(SceneElementBasePtr))
+					{
+						PRINTFUNC();
+					}
+					else
+					{
+						NeedDisplayAry.Add(SceneElementBasePtr);
+					}
 				}
 			}
 		}
@@ -1695,19 +1689,6 @@ bool UGT_SwitchSceneElement_Floor::ProcessTask_Display()
 
 bool UGT_SwitchSceneElement_Floor::ProcessTask_Hiden()
 {
-	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
-	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
-	{
-		for (const auto Iter : FilterTags.ConditionalSet)
-		{
-			if (Iter.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor))
-			{
-				FloorTag = Iter;
-				break;
-			}
-		}
-	}
-
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
 		if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
@@ -1789,7 +1770,6 @@ bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_Hiden()
 		}
 	}
 
-	auto FloorTag = USmartCitySuiteTags::Interaction_Area_Floor.GetTag();
 	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor))
 	{
 		for (const auto Iter : FilterTags.ConditionalSet)

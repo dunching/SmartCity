@@ -72,7 +72,7 @@ void UFeatureWheel::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	SetAlignmentInViewport(FVector2D(.5f, .5f));
+	SetAlignmentInViewport(FVector2D(.5f, 1.f));
 }
 
 FVector UFeatureWheel::GetHoverPosition()

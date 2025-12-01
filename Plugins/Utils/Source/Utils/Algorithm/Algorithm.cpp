@@ -72,14 +72,14 @@ FBox UKismetAlgorithm::GetActorBox(
 		}
 	}
 
-	// DrawDebugBox(
-	//              GetWorldImp(),
-	//              Box.GetCenter(),
-	//              Box.GetExtent(),
-	//              FColor::Green,
-	//              false,
-	//              10
-	//             );
+	DrawDebugBox(
+	             GetWorldImp(),
+	             Box.GetCenter(),
+	             Box.GetExtent(),
+	             FColor::Green,
+	             false,
+	             10
+	            );
 
 	return Box;
 }

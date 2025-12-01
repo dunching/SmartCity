@@ -355,6 +355,8 @@ public:
 		const TSharedPtr<FDecoratorBase>& NewDecoratorSPtr
 		) override;
 	
+	void Initial();
+
 	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
 
 	TSet<TObjectPtr<ASceneElement_DeviceBase> >SceneElementSet;
@@ -366,8 +368,6 @@ protected:
 		bool bIsOK,
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
-
-	void Initial();
 
 	void Process();
 };

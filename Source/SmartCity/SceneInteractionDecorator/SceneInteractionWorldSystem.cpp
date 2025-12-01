@@ -185,6 +185,8 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 	const FGameplayTag& Interaction_Mode,
 	const std::function<void(
 		const TSharedPtr<FDecoratorBase>&
+
+
 		
 		)>& Func
 	)
@@ -467,10 +469,10 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			}
 
 			SwitchDecoratorImp<FBatchControlMode_Decorator>(
-			                                                           USmartCitySuiteTags::Interaction_Mode,
-			                                                           USmartCitySuiteTags::Interaction_Mode_BatchControl,
-			                                                           Func
-			                                                          );
+			                                                USmartCitySuiteTags::Interaction_Mode,
+			                                                USmartCitySuiteTags::Interaction_Mode_BatchControl,
+			                                                Func
+			                                               );
 
 			return;
 		}
@@ -481,6 +483,8 @@ void USceneInteractionWorldSystem::SwitchInteractionArea(
 	const FGameplayTag& Interaction_Area,
 	const std::function<void(
 		const TSharedPtr<FDecoratorBase>&
+
+
 		
 		)>& Func
 	)
@@ -654,6 +658,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Tower(
 		bool,
 		UGT_SwitchSceneElement_Base*
 
+
 		
 		)>& OnEnd
 	)
@@ -683,8 +688,12 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+
+
 		
-		)>& OnEnd
+		)>& OnEnd,
+		const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet,
+			const FGameplayTag& FloorTag
 	)
 {
 	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
@@ -692,7 +701,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 		auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 		return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Floor_JF>(
 			 bBreakRuntimeTask,
-			 [this, OnEnd, &FilterTags](
+			 [this, OnEnd, &FilterTags, SkipSceneElementSet, FloorTag](
 			 UGT_SwitchSceneElement_Floor_JF* GTPtr
 			 )
 			 {
@@ -702,6 +711,8 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 						 SceneInteractionWorldSystemPtr =
 						 this;
 					 GTPtr->FilterTags = FilterTags;
+					 GTPtr->SkipSceneElementSet = SkipSceneElementSet;
+					 GTPtr->FloorTag = FloorTag;
 					 GTPtr->OnEnd = OnEnd;
 				 }
 			 }
@@ -712,7 +723,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 		auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
 		return PCPtr->GameplayTasksComponentPtr->StartGameplayTask<UGT_SwitchSceneElement_Floor>(
 			 bBreakRuntimeTask,
-			 [this, OnEnd, &FilterTags](
+			 [this, OnEnd, &FilterTags, SkipSceneElementSet, FloorTag](
 			 UGT_SwitchSceneElement_Floor* GTPtr
 			 )
 			 {
@@ -722,6 +733,8 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 						 SceneInteractionWorldSystemPtr =
 						 this;
 					 GTPtr->FilterTags = FilterTags;
+					 GTPtr->SkipSceneElementSet = SkipSceneElementSet;
+					 GTPtr->FloorTag = FloorTag;
 					 GTPtr->OnEnd = OnEnd;
 				 }
 			 }
@@ -739,9 +752,9 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Space(
 
 		
 		)>& OnEnd,
-		TWeakObjectPtr<ASceneElement_Space> SceneElementPtr,
-		
-			const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet
+	TWeakObjectPtr<ASceneElement_Space> SceneElementPtr,
+
+	const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet
 	)
 {
 	auto PCPtr = Cast<APlanetPlayerController>(GEngine->GetFirstLocalPlayerController(GetWorldImp()));
@@ -805,7 +818,11 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Device(
 UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_BatchControlDevice(
 	const FSceneElementConditional& FilterTags,
 	bool bBreakRuntimeTask,
-	const TMulticastDelegate<void(bool, UGT_SwitchSceneElement_Base*)>& OnEnd,
+	const TMulticastDelegate<void(
+		bool,
+		UGT_SwitchSceneElement_Base*
+		
+		)>& OnEnd,
 	TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet,
 	FGameplayTag FloorTag
 	)
@@ -822,7 +839,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_BatchCon
 				 GTPtr->
 					 SceneInteractionWorldSystemPtr =
 					 this;
-			 	
+
 				 GTPtr->FilterTags = FilterTags;
 
 				 GTPtr->SceneElementSet = SceneElementSet;
@@ -841,6 +858,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Speacial
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+
 
 		
 		)>& OnEnd,

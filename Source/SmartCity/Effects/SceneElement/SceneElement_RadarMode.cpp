@@ -162,7 +162,8 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_BatchControl)
 		)
 		{
-			EntryShoweviceEffect();
+			// EntryShoweviceEffect();
+		QuitAllState();
 
 			return;
 		}

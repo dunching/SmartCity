@@ -534,6 +534,9 @@ public:
 
 	virtual bool ProcessTask_Hiden() override;
 
+	TSet<TObjectPtr<ASceneElementBase>> SkipSceneElementSet;
+
+	FGameplayTag FloorTag;
 };
 
 UCLASS()
