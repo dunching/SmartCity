@@ -361,7 +361,7 @@ void ASceneElement_HVAC::EntryShoweviceEffect()
 		return;
 	}
 
-	QuitAllState();
+	EntryShowDevice();
 }
 
 void ASceneElement_HVAC::QuitShowDeviceEffect()

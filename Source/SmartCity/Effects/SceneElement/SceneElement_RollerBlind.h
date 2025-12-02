@@ -33,6 +33,11 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
+	virtual void ReplaceImp(
+		AActor* ActorPtr,
+		const TPair<FName, FString>& InUserData
+		) override;
+	
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;

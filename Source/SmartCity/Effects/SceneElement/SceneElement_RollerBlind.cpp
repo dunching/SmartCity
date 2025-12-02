@@ -4,11 +4,14 @@
 #include "ActorSequencePlayer.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Engine/StaticMeshActor.h"
 
 #include "AssetRefMap.h"
+#include "FloorHelper.h"
 #include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
+#include "Components/BoxComponent.h"
 
 ASceneElement_RollerBlind::ASceneElement_RollerBlind(
 	const FObjectInitializer& ObjectInitializer
@@ -27,6 +30,82 @@ void ASceneElement_RollerBlind::EndPlay(
 	)
 {
 	Super::EndPlay(EndPlayReason);
+}
+
+void ASceneElement_RollerBlind::ReplaceImp(
+	AActor* ActorPtr,
+	const TPair<FName, FString>& InUserData
+	)
+{
+	Super::ReplaceImp(ActorPtr, InUserData);
+
+	if (ActorPtr && ActorPtr->IsA(AStaticMeshActor::StaticClass()))
+	{
+		auto ParentPtr = ActorPtr->GetAttachParentActor();
+
+		AFloorHelper* FloorPtr = nullptr;
+		for (; ParentPtr;)
+		{
+			ParentPtr = ParentPtr->GetAttachParentActor();
+			FloorPtr = Cast<AFloorHelper>(ParentPtr);
+			if (FloorPtr)
+			{
+				break;
+			}
+		}
+
+		if (!FloorPtr)
+		{
+			return;
+		}
+
+		const auto FloorCenter = FloorPtr->BoxComponentPtr->CalcBounds(
+		                                                               FloorPtr->BoxComponentPtr->
+		                                                               GetComponentToWorld()
+		                                                              )
+		                                 .GetBox().GetCenter();
+		const auto Dir = FloorCenter - GetActorLocation();
+
+		const auto Dot = FVector::DotProduct(Dir, GetActorRightVector());
+
+		auto STPtr = Cast<AStaticMeshActor>(ActorPtr);
+		if (STPtr)
+		{
+			FBox Box(ForceInit);
+
+			FBox TemoBox(ForceInit);
+			TemoBox.IsValid = true;
+			STPtr->GetStaticMeshComponent()->GetLocalBounds(TemoBox.Min, TemoBox.Max);
+			TemoBox = TemoBox.TransformBy(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			Box += TemoBox;
+
+			if (!UserData.Contains(TEXT("Datasmith_UniqueId")))
+			{
+				return;
+			}
+
+			const auto Size = Box.GetSize();
+			if (Dot > 0)
+			{
+				SetActorRelativeRotation(FRotator(0, 180, 0));
+			}
+			else
+			{
+			}
+
+			SetActorRelativeLocation(Box.GetCenter() - FVector(0, 0, Size.Z / 2));
+			
+			SetActorScale3D(
+			                FVector(
+			                        Size.X / DefaultSize.
+			                        X,
+			                        1,
+			                        (Size.Z - 40) /
+			                        DefaultSize.Z
+			                       )
+			               );
+		}
+	}
 }
 
 void ASceneElement_RollerBlind::SwitchInteractionType(
@@ -94,7 +173,7 @@ void ASceneElement_RollerBlind::SwitchInteractionType(
 	}
 	{
 		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
+		     ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			EntryShowDevice();
 
@@ -184,7 +263,7 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 		return;
 	}
 
-	QuitAllState();
+	EntryShowDevice();
 }
 
 void ASceneElement_RollerBlind::QuitAllState()
