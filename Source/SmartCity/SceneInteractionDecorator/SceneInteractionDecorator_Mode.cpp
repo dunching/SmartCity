@@ -520,6 +520,67 @@ void FBatchControlMode_Decorator::Initial()
 		return;
 	}
 	
+
+	if (
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor)
+	)
+	{
+		auto ViewFloor_DecoratorSPtr = DynamicCastSharedPtr<FFloor_Decorator>(AreaDecoratorSPtr);
+		
+		FloorTag = AreaDecoratorSPtr->GetBranchDecoratorType();
+
+		for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
+		{
+			if (FloorIter.Value->GameplayTagContainer.HasTag(FloorTag))
+			{
+				auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
+
+				for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
+				{
+					if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+					{
+						continue;
+					}
+
+					TArray<AActor*> OutActors;
+					Iter.Value->GetAttachedActors(OutActors, true, true);
+
+					for (auto SpaceIter : OutActors)
+					{
+						auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
+						if (SpacePtr)
+						{
+							const auto DevicesSet = SpacePtr->GetAllDevices();
+			
+							for (const auto& DeviceIter : DevicesSet)
+							{
+								if (DeviceIter)
+								{
+									if (ExtensionParamMap.Contains(DeviceIter->DeviceTypeStr))
+									{
+										DeviceIter->UpdateExtensionParamMap(
+																			ExtensionParamMap[DeviceIter->DeviceTypeStr],
+																			false
+																		   );
+									}
+									else
+									{
+										DeviceIter->UpdateExtensionParamMap(
+																			{},
+																			false
+																		   );
+									}
+								}
+							}
+						}
+					}
+				}
+
+				return;
+			}
+		}
+	}
+
 	if (
 		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Space)
 	)
@@ -552,6 +613,8 @@ void FBatchControlMode_Decorator::Initial()
 				}
 			}
 		}
+
+		return;
 	}
 }
 

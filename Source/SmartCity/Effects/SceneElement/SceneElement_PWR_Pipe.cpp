@@ -373,7 +373,7 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 	{
 	}
 
-	QuitAllState();
+	EntryShowDevice();
 }
 
 void ASceneElement_PWR_Pipe::QuitAllState()

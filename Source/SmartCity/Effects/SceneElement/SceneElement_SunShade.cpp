@@ -251,7 +251,7 @@ void ASceneElement_SunShade::EntryShoweviceEffect()
 		return;
 	}
 
-	QuitAllState();
+	EntryShowDevice();
 }
 
 void ASceneElement_SunShade::UpdateAngle(

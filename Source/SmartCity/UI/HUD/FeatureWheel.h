@@ -75,6 +75,8 @@ public:
 		);
 
 	void SetOncliced(const FOnButtonClickedEvent&OnClicked);
+
+	// void SetViewType(bool bIs);
 	
 	FVector TargetPt = FVector::ZeroVector;
 

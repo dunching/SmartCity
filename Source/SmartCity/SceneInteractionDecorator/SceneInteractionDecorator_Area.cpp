@@ -943,6 +943,9 @@ void FFloor_Decorator::Entry()
 		{
 			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_BatchControl))
 			{
+				USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
+																				   USmartCitySuiteTags::Interaction_Mode_Empty
+																				  );
 			}
 		}
 	}
@@ -1096,13 +1099,7 @@ void FFloor_Decorator::Entry()
 			                                                       USmartCitySuiteTags::Interaction_Mode_BatchControl
 			                                                      ))
 			{
-				auto BatchControlMode_DecoratorSPtr = DynamicCastSharedPtr<FBatchControlMode_Decorator>(DecoratorSPtr);
-				for (auto Iter : BatchControlMode_DecoratorSPtr->SceneElementSet)
-				{
-					SceneElementSet.Add(Iter);
-				}
-
-				SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_BatchControl);
+				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 				// MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
@@ -2897,8 +2894,9 @@ void FViewSpace_Decorator::Process()
 		{
 			if (DecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Mode_BatchControl))
 			{
-				// 不处理
-				// return;
+				USceneInteractionWorldSystem::GetInstance()->SwitchInteractionMode(
+																				   USmartCitySuiteTags::Interaction_Mode_Empty
+																				  );
 			}
 		}
 	}
@@ -3008,18 +3006,8 @@ void FViewSpace_Decorator::Process()
 			                                                       USmartCitySuiteTags::Interaction_Mode_BatchControl
 			                                                      ))
 			{
-				auto BatchControlMode_DecoratorSPtr = DynamicCastSharedPtr<FBatchControlMode_Decorator>(DecoratorSPtr);
-
-				BatchControlMode_DecoratorSPtr->Initial();
-				
-				for (auto Iter : BatchControlMode_DecoratorSPtr->SceneElementSet)
-				{
-					SceneElementSet.Add(Iter);
-				}
-
 				SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 
-				MulticastDelegate.AddRaw(DecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
 				MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 				return;
@@ -3039,7 +3027,6 @@ void FViewSpace_Decorator::Process()
 
 	SceneActorConditional.ConditionalSet.AddTag(Floor);
 	SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Area_Space);
-	SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Mode_View);
 
 	MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 }
