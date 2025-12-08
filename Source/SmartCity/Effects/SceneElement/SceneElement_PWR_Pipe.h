@@ -83,6 +83,11 @@ protected:
 		UDatasmithAssetUserData* AUDPtr
 		) override;
 
+	virtual void UpdateExtensionParamMap(
+		const TMap<FString, FString>& NewExtensionParamMap,
+		bool bImmediatelyUpdate
+		) override;
+
 	TPair<FName, FString> CurrentUserData;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

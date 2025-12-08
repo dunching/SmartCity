@@ -114,6 +114,14 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateSceneElementParamByArea>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_SelectedDevices>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_ClearSelectedDevices>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
 }
 
 void UWebChannelWorldSystem::SendMessage(

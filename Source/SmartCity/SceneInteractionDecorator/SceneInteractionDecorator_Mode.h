@@ -130,7 +130,7 @@ public:
 		UGT_SwitchSceneElement_Base* TaskPtr
 		) override;
 
-	TMap<FString, ASceneElement_PWR_Pipe*>IDMap;
+	// TMap<FString, ASceneElement_PWR_Pipe*>IDMap;
 	
 private:
 	TSet<ASceneElement_PWR_Pipe*> PipeActors;
@@ -150,6 +150,20 @@ public:
 	                   );
 
 	FEnvironmentalPerceptionMode_Decorator();
+};
+
+/**
+ * 选择安全模式
+ */
+class SMARTCITY_API FSafeManagementMode_Decorator : public FDecoratorBase
+{
+public:
+	GENERATIONCLASSINFO(
+	                    FSafeManagementMode_Decorator,
+	                    FDecoratorBase
+	                   );
+
+	FSafeManagementMode_Decorator();
 };
 
 /**

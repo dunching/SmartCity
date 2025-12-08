@@ -29,7 +29,8 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_View)
 		)
 		{
-			EntryFocusDevice(ConditionalSet);
+			// EntryFocusDevice(ConditionalSet);
+			QuitAllState();
 			return;
 		}
 	}
@@ -38,7 +39,8 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_Focus)
 		)
 		{
-			EntryFocusDevice(ConditionalSet);
+			// EntryFocusDevice(ConditionalSet);
+			QuitAllState();
 			return;
 		}
 	}
@@ -49,7 +51,8 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect(ConditionalSet);
+			// EntryShoweviceEffect(ConditionalSet);
+			QuitAllState();
 			return;
 		}
 	}
@@ -59,7 +62,8 @@ void ASceneElement_Space_PolygonHelper::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
-			EntryShoweviceEffect(ConditionalSet);
+			// EntryShoweviceEffect(ConditionalSet);
+			QuitAllState();
 
 			return;
 		}

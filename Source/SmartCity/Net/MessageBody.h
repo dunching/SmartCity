@@ -354,6 +354,34 @@ struct FMessageBody_Receive_UpdateSceneElementParamByArea : public FMessageBody_
 	bool bImmediatelyUpdate = true;
 };
 
+USTRUCT()
+struct FMessageBody_Receive_SelectedDevices : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+	FMessageBody_Receive_SelectedDevices();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	TArray<FString> DeviceIDAry;
+
+};
+
+USTRUCT()
+struct FMessageBody_Receive_ClearSelectedDevices : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+	FMessageBody_Receive_ClearSelectedDevices();
+
+	virtual void DoAction() const override;
+
+};
+
 #pragma endregion
 
 #pragma region Send
@@ -376,6 +404,8 @@ struct FMessageBody_SelectedFloor : public FMessageBody_Send
 	FMessageBody_SelectedFloor();
 
 	TMap<ASceneElement_Space*, TSet<ASceneElement_DeviceBase*>> SpacesMap;
+
+	TArray<ASceneElement_PWR_Pipe*> PWR_PipeAry;
 
 	TObjectPtr<AFloorHelper> FloorHelper = nullptr;
 
@@ -425,6 +455,21 @@ struct FMessageBody_ViewDevice : public FMessageBody_Send
 	GENERATED_BODY()
 
 	FMessageBody_ViewDevice();
+
+	FString Type;
+
+	FString DeviceID;
+
+protected:
+	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
+};
+
+USTRUCT()
+struct FMessageBody_ClickedMonitor : public FMessageBody_Send
+{
+	GENERATED_BODY()
+
+	FMessageBody_ClickedMonitor();
 
 	FString Type;
 

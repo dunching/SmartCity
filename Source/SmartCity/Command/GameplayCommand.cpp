@@ -69,7 +69,7 @@ void SmartCityCommand::SwitchInteractionType(
 												   FString::Printf(
 																   TEXT(
 																		R"({
-    "CMD": "SwitchInteractionType",
+    "CMD": "UpdateInteractionType",
     "InteractionType": "%s"
 })"
 																	   ),

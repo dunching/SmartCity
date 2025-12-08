@@ -1358,7 +1358,7 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
-			IncreaseWaitTaskCount();
+			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
@@ -1397,6 +1397,8 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 
 			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
 			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+
+			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
@@ -1476,6 +1478,27 @@ void FFloor_Decorator::OnOtherDecoratorEntry(
 			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
 
 			MulticastDelegate.AddRaw(NewDecoratorSPtr.Get(), &FDecoratorBase::OnUpdateFilterComplete);
+
+			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
+				TourProcessor::FViewSingleFloorProcessor>(
+				                                          [ this](
+				                                          auto NewProcessor
+				                                          )
+				                                          {
+					                                          NewProcessor->Interaction_Area =
+						                                          GetBranchDecoratorType();
+				                                          }
+				                                         );
+
+			return;
+		}
+		if (NewDecoratorSPtr->GetBranchDecoratorType().
+		                      MatchesTag(USmartCitySuiteTags::Interaction_Mode_SafeManagement))
+		{
+			SceneActorConditional.ConditionalSet.AddTag(GetBranchDecoratorType());
+			SceneActorConditional.ConditionalSet.AddTag(NewDecoratorSPtr->GetBranchDecoratorType());
+			
+			MulticastDelegate.AddRaw(this, &ThisClass::OnUpdateFilterComplete);
 
 			UInputProcessorSubSystem_Imp::GetInstance()->SwitchToProcessor<
 				TourProcessor::FViewSingleFloorProcessor>(
@@ -1802,20 +1825,32 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 			for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
 			{
-				if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+				if (Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Soft))
 				{
-					continue;
-				}
+					TArray<AActor*> OutActors;
+					Iter.Value->GetAttachedActors(OutActors, true, true);
 
-				TArray<AActor*> OutActors;
-				Iter.Value->GetAttachedActors(OutActors, true, true);
-
-				for (auto SpaceIter : OutActors)
-				{
-					auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
-					if (SpacePtr)
+					for (auto SpaceIter : OutActors)
 					{
-						MessageSPtr->SpacesMap.Add(SpacePtr, SpacePtr->GetAllDevices());
+						auto PipePtr = Cast<ASceneElement_PWR_Pipe>(SpaceIter);
+						if (PipePtr)
+						{
+							MessageSPtr->PWR_PipeAry.Add(PipePtr);
+						}
+					}
+				}
+				if (Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+				{
+					TArray<AActor*> OutActors;
+					Iter.Value->GetAttachedActors(OutActors, true, true);
+
+					for (auto SpaceIter : OutActors)
+					{
+						auto SpacePtr = Cast<ASceneElement_Space>(SpaceIter);
+						if (SpacePtr)
+						{
+							MessageSPtr->SpacesMap.Add(SpacePtr, SpacePtr->GetAllDevices());
+						}
 					}
 				}
 			}

@@ -457,6 +457,25 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 
 			return;
 		}
+		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_SafeManagement))
+		{
+			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
+			{
+				if (DecoratorLayerAssetMap[USmartCitySuiteTags::Interaction_Mode]->GetBranchDecoratorType() ==
+				    USmartCitySuiteTags::Interaction_Mode_SafeManagement)
+				{
+					return;
+				}
+			}
+
+			SwitchDecoratorImp<FSafeManagementMode_Decorator>(
+			                                                           USmartCitySuiteTags::Interaction_Mode,
+			                                                           USmartCitySuiteTags::Interaction_Mode_SafeManagement,
+			                                                           Func
+			                                                          );
+
+			return;
+		}
 		if (Interaction_Mode.MatchesTag(USmartCitySuiteTags::Interaction_Mode_BatchControl))
 		{
 			if (DecoratorLayerAssetMap.Contains(USmartCitySuiteTags::Interaction_Mode))
@@ -1026,7 +1045,7 @@ void USceneInteractionWorldSystem::NotifyOtherDecoratorsWhenQuit(
 	}
 }
 
-void USceneInteractionWorldSystem::SwitchInteractionType(
+void USceneInteractionWorldSystem::UpdateInteractionType(
 	const TSet<ASceneElementBase*>& FocusActorsAry,
 	const FSceneElementConditional& FilterTags
 	)
@@ -1040,18 +1059,68 @@ void USceneInteractionWorldSystem::SwitchInteractionType(
 
 		if (Iter)
 		{
-			Iter->SwitchInteractionType(FilterTags);
+			Iter->UpdateInteractionType(FilterTags);
 
 			FocusActors.Add(Iter);
 		}
 	}
 }
 
-void USceneInteractionWorldSystem::AddFocusActor(
-	AActor* ActorPtr
+void USceneInteractionWorldSystem::AddInteractionType(
+	const TSet<ASceneElementBase*>& FocusActorsAry,
+	const FSceneElementConditional& FilterTags
 	)
 {
-	FocusActors.Add(ActorPtr);
+	for (auto Iter : FocusActorsAry)
+	{
+		if (FocusActors.Contains(Iter))
+		{
+			return;
+		}
+
+		if (Iter)
+		{
+			Iter->AddInteractionType(FilterTags);
+
+			FocusActors.Add(Iter);
+		}
+	}
+}
+
+void USceneInteractionWorldSystem::RemoveInteractionType(
+	const TSet<ASceneElementBase*>& FocusActorsAry,
+	const FSceneElementConditional& FilterTags
+	)
+{
+	for (auto Iter : FocusActorsAry)
+	{
+		if (FocusActors.Contains(Iter))
+		{
+			return;
+		}
+
+		if (Iter)
+		{
+			Iter->RemoveInteractionType(FilterTags);
+
+			FocusActors.Remove(Iter);
+		}
+	}
+}
+
+void USceneInteractionWorldSystem::RemoveInteractionType(
+	const FSceneElementConditional& FilterTags
+	)
+{
+	for (auto Iter : FocusActors)
+	{
+		if (Iter)
+		{
+			Iter->RemoveInteractionType(FilterTags);
+		}
+	}
+
+	FocusActors.Empty();
 }
 
 void USceneInteractionWorldSystem::ClearFocus()
@@ -1065,7 +1134,7 @@ void USceneInteractionWorldSystem::ClearFocus()
 				auto SceneElementBasePtr = Cast<ASceneElementBase>(Iter);
 				if (SceneElementBasePtr)
 				{
-					SceneElementBasePtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+					SceneElementBasePtr->UpdateInteractionType(FSceneElementConditional::EmptyConditional);
 				}
 			}
 			else

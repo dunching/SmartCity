@@ -67,6 +67,8 @@ void ASceneElement_PWR_Pipe::Merge(
 
 	CurrentUserData = InUserData;
 
+	SceneElementID = CurrentUserData.Value;
+
 	if (ActorRef.ToSoftObjectPath().IsValid())
 	{
 		auto STPtr = Cast<AStaticMeshActor>(ActorRef.Get());
@@ -309,26 +311,10 @@ void ASceneElement_PWR_Pipe::EntryViewDevice()
 void ASceneElement_PWR_Pipe::EntryShowDevice()
 {
 	Super::EntryShowDevice();
-
+	
 	SetActorHiddenInGame(false);
-
-	for (auto Iter : StaticMeshComponentsAry)
-	{
-		if (Iter)
-		{
-			if (OriginalMaterials.Contains(Iter))
-			{
-				auto& Ref = OriginalMaterials[Iter];
-				if (Ref.MaterialsCacheAry.Num() >= Iter->GetNumMaterials())
-				{
-					for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-					{
-						Iter->SetMaterial(Index, Ref.MaterialsCacheAry[Index]);
-					}
-				}
-			}
-		}
-	}
+	RevertOnriginalMat();
+	
 }
 
 void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
@@ -348,12 +334,8 @@ void ASceneElement_PWR_Pipe::EntryShoweviceEffect()
 
 		auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
-		if (ExtensionParamMap.Contains(TEXT("Intensity")))
+		if (ExtensionParamMap.Contains(TEXT("value")))
 		{
-			EnergyValue = FMath::RandRange(0.f, 1.f);
-		
-			EnergyValue = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("Intensity")]);
-		
 			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
 			for (auto Iter : StaticMeshComponentsAry)
 			{
@@ -427,5 +409,20 @@ void ASceneElement_PWR_Pipe::CheckIsJiaCeng(
 				}
 			}
 		}
+	}
+}
+
+void ASceneElement_PWR_Pipe::UpdateExtensionParamMap(
+	const TMap<FString, FString>& NewExtensionParamMap,
+	bool bImmediatelyUpdate
+	)
+{
+	Super::UpdateExtensionParamMap(NewExtensionParamMap, bImmediatelyUpdate);
+	
+	if (ExtensionParamMap.Contains(TEXT("value")))
+	{
+		const auto TempEnergyValue = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("value")]);
+
+		EnergyValue = FMath::Clamp(TempEnergyValue,0,1000.f) / 1000.f;
 	}
 }

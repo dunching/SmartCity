@@ -69,6 +69,8 @@ namespace USmartCitySuiteTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_ViewDevice ,"Interaction.Area.ViewDevice");
 
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_Selectd ,"Interaction.Area.Selectd");
+
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SplitFloor,"Interaction.Area.SplitFloor");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Area_SpecialArea,"Interaction.Area.SpecialArea");
@@ -117,6 +119,8 @@ namespace USmartCitySuiteTags
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_Intelligence,"Interaction.Mode.Intelligence");
 
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_BatchControl,"Interaction.Mode.BatchControl");
+
+	UE_DEFINE_GAMEPLAY_TAG(Interaction_Mode_SafeManagement,"Interaction.Mode.SafeManagement");
 
 	
 	UE_DEFINE_GAMEPLAY_TAG(Interaction_Interaction,"Interaction.Interaction");

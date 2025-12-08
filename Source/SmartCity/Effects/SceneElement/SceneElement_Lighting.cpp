@@ -192,28 +192,24 @@ void ASceneElement_Lighting::SwitchInteractionType(
 			// SetEmissiveValue(0, -1, FColor::White);
 			SwitchLight(0, -1, FColor::White);
 
-			auto DecoratorSPtr =
-				DynamicCastSharedPtr<FEnergyMode_Decorator>(
-				                                            USceneInteractionWorldSystem::GetInstance()->
-				                                            GetDecorator(
-				                                                         USmartCitySuiteTags::Interaction_Mode
-				                                                        )
-				                                           );
-			if (!DecoratorSPtr)
-			{
-				return;
-			}
-			if (!DecoratorSPtr->IDMap.Contains(PWR_ID))
+			auto TempPipePtr = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(PWR_ID);
+			if (!TempPipePtr .IsValid())
 			{
 				return;
 			}
 
+			auto PipePtr = Cast<ASceneElement_PWR_Pipe>(TempPipePtr);
+			if (!PipePtr)
+			{
+				return;
+			}
+			
 			CacheOriginalMat(StaticMeshComponentsAry);
 			auto EnergyMaterialInst = UAssetRefMap::GetInstance()->EnergyDeviceMaterialInst.LoadSynchronous();
 
 			auto MaterialInstanceDynamic = UMaterialInstanceDynamic::Create(EnergyMaterialInst, this);
 
-			const auto EnergyValue = DecoratorSPtr->IDMap[PWR_ID]->EnergyValue;
+			const auto EnergyValue = PipePtr->EnergyValue;
 			MaterialInstanceDynamic->SetScalarParameterValue(TEXT("EnergyValue"), EnergyValue);
 			for (auto Iter : StaticMeshComponentsAry)
 			{

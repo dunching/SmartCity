@@ -101,6 +101,33 @@ TMap<FString, FString> ASceneElementBase::GetStateDescription() const
 	return {};
 }
 
+void ASceneElementBase::UpdateInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	CurrentConditionalSet = ConditionalSet;
+	
+	SwitchInteractionType(CurrentConditionalSet);
+}
+
+void ASceneElementBase::AddInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	CurrentConditionalSet.ConditionalSet.AppendTags(ConditionalSet.ConditionalSet);
+	
+	SwitchInteractionType(CurrentConditionalSet);
+}
+
+void ASceneElementBase::RemoveInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	CurrentConditionalSet.ConditionalSet.RemoveTags(ConditionalSet.ConditionalSet);
+	
+	SwitchInteractionType(CurrentConditionalSet);
+}
+
 void ASceneElementBase::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)

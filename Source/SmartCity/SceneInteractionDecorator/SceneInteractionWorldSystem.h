@@ -90,16 +90,6 @@ public:
 			)>& Func = nullptr
 		);
 
-	/**
-	 * 直接修改状态
-	 * @param FocusActorsAry 
-	 * @param FilterTags 
-	 */
-	void SwitchInteractionType(
-		const TSet<ASceneElementBase*>& FocusActorsAry,
-		const FSceneElementConditional& FilterTags
-		);
-
 	void Operation(
 		EOperatorType OperatorType
 		) const;
@@ -210,8 +200,28 @@ public:
 	 */
 	FGameplayTagContainer GetAllFilterTags() const;
 
-	void AddFocusActor(
-		AActor* ActorPtr
+	/**
+	 * 直接修改状态
+	 * @param FocusActorsAry 
+	 * @param FilterTags 
+	 */
+	void UpdateInteractionType(
+		const TSet<ASceneElementBase*>& FocusActorsAry,
+		const FSceneElementConditional& FilterTags
+		);
+
+	void AddInteractionType(
+		const TSet<ASceneElementBase*>& FocusActorsAry,
+		const FSceneElementConditional& FilterTags
+		);
+
+	void RemoveInteractionType(
+		const TSet<ASceneElementBase*>& FocusActorsAry,
+		const FSceneElementConditional& FilterTags
+		);
+
+	void RemoveInteractionType(
+		const FSceneElementConditional& FilterTags
 		);
 
 	void ClearFocus();
@@ -249,7 +259,7 @@ private:
 
 	TMap<FString, ASceneElementBase*> SceneElementMap;
 
-	TSet<AActor*> FocusActors;
+	TSet<ASceneElementBase*> FocusActors;
 
 	UPROPERTY(Transient)
 	TMap<AActor*, URouteMarker*> RouteMarkers;

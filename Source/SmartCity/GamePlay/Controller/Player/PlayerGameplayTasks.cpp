@@ -1380,7 +1380,7 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 				// }
 				// else
 				// {
-				SceneElementPtr->SwitchInteractionType(FilterTags);
+				SceneElementPtr->UpdateInteractionType(FilterTags);
 				// }
 			}
 			else
@@ -1421,7 +1421,7 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState()
 				// }
 				// else
 				// {
-				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				SceneElementPtr->UpdateInteractionType(FSceneElementConditional::EmptyConditional);
 				// }
 			}
 			else
@@ -1450,7 +1450,7 @@ bool UGT_SwitchSceneElement_Base::ProcessTask_SwitchState_Elevator()
 	{
 		if (FloorIter.Value)
 		{
-			FloorIter.Value->SwitchInteractionType(FilterTags);
+			FloorIter.Value->UpdateInteractionType(FilterTags);
 		}
 	}
 
@@ -1613,7 +1613,7 @@ bool UGT_SwitchSceneElement_Tower::ProcessTask_SwitchState()
 				auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 				if (SceneElementPtr)
 				{
-					SceneElementPtr->SwitchInteractionType(FilterTags);
+					SceneElementPtr->UpdateInteractionType(FilterTags);
 				}
 				else
 				{
@@ -1641,7 +1641,7 @@ bool UGT_SwitchSceneElement_Tower::ProcessTask_SwitchState_Elevator()
 	{
 		if (FloorIter.Value)
 		{
-			FloorIter.Value->SwitchInteractionType(FilterTags);
+			FloorIter.Value->UpdateInteractionType(FilterTags);
 		}
 	}
 
@@ -1856,7 +1856,7 @@ bool UGT_SwitchSceneElement_Floor_JF::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				SceneElementPtr->UpdateInteractionType(FSceneElementConditional::EmptyConditional);
 			}
 			else
 			{
@@ -2019,7 +2019,7 @@ bool UGT_SwitchSceneElement_Space::ProcessTask_SwitchState()
 
 		if (SceneElementPtr.IsValid())
 		{
-			SceneElementPtr->SwitchInteractionType(TempFilterTags);
+			SceneElementPtr->UpdateInteractionType(TempFilterTags);
 		}
 
 		SceneElementPtr = nullptr;
@@ -2164,7 +2164,7 @@ bool UGT_SwitchSceneElement_Device::ProcessTask_SwitchState()
 
 		for (auto Iter : SceneElementSet)
 		{
-			Iter->SwitchInteractionType(TempFilterTags);
+			Iter->UpdateInteractionType(TempFilterTags);
 		}
 		SceneElementSet.Empty();
 		return true;
@@ -2309,7 +2309,7 @@ bool UGT_SwitchSceneElement_BatchDevicesControl::ProcessTask_SwitchState()
 
 		for (auto Iter : SceneElementSet)
 		{
-			Iter->SwitchInteractionType(TempFilterTags);
+			Iter->UpdateInteractionType(TempFilterTags);
 		}
 		SceneElementSet.Empty();
 		return true;
@@ -2452,7 +2452,7 @@ bool UGT_SwitchSceneElement_SpecialArea::ProcessTask_SwitchState()
 			auto SceneElementPtr = Cast<ASceneElementBase>(ActorPtr);
 			if (SceneElementPtr)
 			{
-				SceneElementPtr->SwitchInteractionType(FSceneElementConditional::EmptyConditional);
+				SceneElementPtr->UpdateInteractionType(FSceneElementConditional::EmptyConditional);
 			}
 			else
 			{
