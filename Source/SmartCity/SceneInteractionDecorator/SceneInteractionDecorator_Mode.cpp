@@ -233,6 +233,12 @@ FEnvironmentalPerceptionMode_Decorator::FEnvironmentalPerceptionMode_Decorator()
 {
 }
 
+FSafeManagementMode_Decorator::FSafeManagementMode_Decorator():
+	Super(
+		 )
+{
+}
+
 FRadarMode_Decorator::FRadarMode_Decorator() :
                                              Super(
                                                   )
@@ -374,7 +380,7 @@ void FAccessControlMode_Decorator::Entry()
 			FocusActorsAry.Add(SceneElementActorPtr);
 		}
 	}
-	USceneInteractionWorldSystem::GetInstance()->SwitchInteractionType(FocusActorsAry, SceneActorConditional);
+	USceneInteractionWorldSystem::GetInstance()->UpdateInteractionType(FocusActorsAry, SceneActorConditional);
 }
 
 FElevatorMode_Decorator::FElevatorMode_Decorator() :

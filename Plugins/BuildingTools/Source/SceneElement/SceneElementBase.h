@@ -63,7 +63,15 @@ public:
 
 	virtual TMap<FString, FString> GetStateDescription() const;
 
-	virtual void SwitchInteractionType(
+	void UpdateInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		);
+
+	void AddInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		);
+
+	void RemoveInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		);
 
@@ -71,7 +79,7 @@ public:
 
 	void RevertOnriginalMat();
 
-	void UpdateExtensionParamMap(
+	virtual void UpdateExtensionParamMap(
 		const TMap<FString, FString>& NewExtensionParamMap,
 		bool bImmediatelyUpdate
 		);
@@ -88,6 +96,10 @@ public:
 	TMap<FName, FString> UserData;
 	
 protected:
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		);
+
 	void SetTranslucentImp(
 		const TArray<UStaticMeshComponent*>& Components,
 		int32 Value,

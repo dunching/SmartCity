@@ -216,7 +216,7 @@ void ASceneElement_ControlBorder::SwitchInteractionType(
 	{
 		if (Iter)
 		{
-			Iter->SwitchInteractionType(ConditionalSet);
+			Iter->UpdateInteractionType(ConditionalSet);
 		}
 	}
 

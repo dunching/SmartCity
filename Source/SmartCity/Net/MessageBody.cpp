@@ -12,6 +12,7 @@
 #include "PlanetPlayerCameraManager.h"
 #include "SceneElementCategory.h"
 #include "SceneElement_DeviceBase.h"
+#include "SceneElement_PWR_Pipe.h"
 #include "SceneElement_RadarMode.h"
 #include "SceneElement_Space.h"
 #include "SceneInteractionDecorator.h"
@@ -449,7 +450,7 @@ void FMessageBody_Receive_LocaterSpaceByID::DoAction() const
 
 FMessageBody_Receive_SwitchInteractionType::FMessageBody_Receive_SwitchInteractionType()
 {
-	CMD_Name = TEXT("SwitchInteractionType");
+	CMD_Name = TEXT("UpdateInteractionType");
 }
 
 void FMessageBody_Receive_SwitchInteractionType::Deserialize(
@@ -634,6 +635,7 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		                           Array
 		                          );
 	}
+	
 	{
 		TArray<TSharedPtr<FJsonValue>> Array;
 
@@ -649,6 +651,23 @@ TSharedPtr<FJsonObject> FMessageBody_SelectedFloor::SerializeBody() const
 		                           Array
 		                          );
 	}
+	
+	{
+		TArray<TSharedPtr<FJsonValue>> Array;
+
+		for (const auto& Iter : PWR_PipeAry)
+		{
+			auto PresetValueSPtr = MakeShared<FJsonValueString>(Iter->GetID());
+
+			Array.Add(PresetValueSPtr);
+		}
+
+		RootJsonObj->SetArrayField(
+		                           TEXT("PipeAry"),
+		                           Array
+		                          );
+	}
+	
 	if (FloorHelper)
 	{
 		RootJsonObj->SetStringField(
@@ -833,6 +852,28 @@ TSharedPtr<FJsonObject> FMessageBody_ViewDevice::SerializeBody() const
 	                            TEXT("SceneElementID"),
 	                            DeviceID
 	                           );
+
+	return RootJsonObj;
+}
+
+FMessageBody_ClickedMonitor::FMessageBody_ClickedMonitor()
+{
+	CMD_Name = TEXT("ClickedMonitor");
+}
+
+TSharedPtr<FJsonObject> FMessageBody_ClickedMonitor::SerializeBody() const
+{
+	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
+
+	RootJsonObj->SetStringField(
+								TEXT("Type"),
+								Type
+							   );
+
+	RootJsonObj->SetStringField(
+								TEXT("SceneElementID"),
+								DeviceID
+							   );
 
 	return RootJsonObj;
 }
@@ -1257,6 +1298,76 @@ void FMessageBody_Receive_UpdateSceneElementParamByArea::DoAction() const
 		                                                                   }
 	                                                                   }
 	                                                                  );
+}
+
+FMessageBody_Receive_SelectedDevices::FMessageBody_Receive_SelectedDevices()
+{
+	CMD_Name = TEXT("SelectedDevices");
+}
+
+void FMessageBody_Receive_SelectedDevices::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+								 JsonReader,
+								 jsonObject
+								);
+
+	DeviceIDAry.Empty();
+	
+	const TArray<TSharedPtr<FJsonValue>>* OutArray = nullptr;
+	if (jsonObject->TryGetArrayField(TEXT("Devices"), OutArray))
+	{
+		for (auto Iter : *OutArray)
+		{
+			DeviceIDAry.Add(Iter->AsString());
+		}
+	}
+}
+
+void FMessageBody_Receive_SelectedDevices::DoAction() const
+{
+	Super::DoAction();
+
+	TSet<ASceneElementBase*> FocusActorsAry;
+
+	for (auto Iter : DeviceIDAry)
+	{
+		auto Temp = USceneInteractionWorldSystem::GetInstance()->FindSceneActor(Iter);
+		if (Temp.IsValid())
+		{
+			FocusActorsAry.Add(Temp.Get());	
+		}
+	}
+
+	FSceneElementConditional SceneElementConditional;
+
+	SceneElementConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Area_Selectd);
+	
+	USceneInteractionWorldSystem::GetInstance()->AddInteractionType(FocusActorsAry, SceneElementConditional);
+}
+
+FMessageBody_Receive_ClearSelectedDevices::FMessageBody_Receive_ClearSelectedDevices()
+{
+	CMD_Name = TEXT("ClearSelectedDevices");
+}
+
+void FMessageBody_Receive_ClearSelectedDevices::DoAction() const
+{
+	Super::DoAction();
+
+	FSceneElementConditional SceneElementConditional;
+
+	SceneElementConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Area_Selectd);
+	
+	USceneInteractionWorldSystem::GetInstance()->RemoveInteractionType(SceneElementConditional);
 }
 
 FString FMessageBody_Send::GetJsonString() const

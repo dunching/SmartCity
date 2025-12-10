@@ -66,8 +66,6 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-	
-		
 	/**
 	 * 选中的状态
 	 */
@@ -119,12 +117,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> RelativeTransformComponent = nullptr;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
+	
 protected:
 
 	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;

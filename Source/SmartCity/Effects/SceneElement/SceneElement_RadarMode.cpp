@@ -387,6 +387,9 @@ void ASceneElement_RadarMode::ReplaceImp(
 			}
 
 			UpdateCollisionBox({StaticMeshComponent});
+			
+			const auto Box = CollisionComponentHelper->GetScaledBoxExtent();
+			CollisionComponentHelper->SetBoxExtent(Box  + FVector(50));
 
 			SweepActor = GetWorld()->SpawnActor<ASceneElement_RadarSweep>(GetActorLocation(), GetActorRotation());
 			SweepActor->StaticMeshComponent->SetStaticMesh(SweepMesh.LoadSynchronous());

@@ -3,11 +3,13 @@
 #include "Engine/StaticMeshActor.h"
 #include "ActorSequenceComponent.h"
 #include "DatasmithAssetUserData.h"
+#include "Components/BoxComponent.h"
 
 #include "CollisionDataStruct.h"
 #include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
+#include "Components/WidgetSwitcher.h"
 
 ASceneElement_Monitor::ASceneElement_Monitor(
 	const FObjectInitializer& ObjectInitializer
@@ -55,6 +57,9 @@ void ASceneElement_Monitor::ReplaceImp(
 			}
 
 			UpdateCollisionBox({StaticMeshComponent});
+			
+			const auto Box = CollisionComponentHelper->GetScaledBoxExtent();
+			CollisionComponentHelper->SetBoxExtent(Box  + FVector(50));
 		}
 	}
 }
@@ -63,7 +68,7 @@ void ASceneElement_Monitor::SwitchInteractionType(
 	const FSceneElementConditional& ConditionalSet
 	)
 {
-	 Super::SwitchInteractionType(ConditionalSet);
+	Super::SwitchInteractionType(ConditionalSet);
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
@@ -72,13 +77,13 @@ void ASceneElement_Monitor::SwitchInteractionType(
 	}
 
 	{
-	 	if (
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-			 ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
-			 )
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
 		{
 			QuitAllState();
-			
+
 			return;
 		}
 	}
@@ -86,11 +91,32 @@ void ASceneElement_Monitor::SwitchInteractionType(
 		if (
 			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
-			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
-			)
+			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_SafeManagement)
+		)
 		{
-			EntryShowDevice();
+			EntryShoweviceEffect();
 
+			{
+				if (
+					ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Selectd)
+					)
+				{
+					EntryFocusDevice();
+
+					if (MonitorHoverWidgetPtr)
+					{
+						MonitorHoverWidgetPtr->SetIsSelected(true);
+			
+						return;
+					}
+				}
+			}
+
+			if (MonitorHoverWidgetPtr)
+			{
+				MonitorHoverWidgetPtr->SetIsSelected(false);
+			}
+			
 			return;
 		}
 	}
@@ -108,7 +134,7 @@ void ASceneElement_Monitor::SwitchInteractionType(
 	}
 	{
 		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space))	)
+		     ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			EntryShowDevice();
 
@@ -136,10 +162,13 @@ void ASceneElement_Monitor::EntryFocusDevice()
 {
 	Super::EntryFocusDevice();
 
+	SetActorHiddenInGame(false);
+
 	if (StaticMeshComponent)
 	{
-		StaticMeshComponent->SetRenderCustomDepth(true);
-		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
+		StaticMeshComponent->SetRenderCustomDepth(false);
+//		StaticMeshComponent->SetRenderCustomDepth(true);
+//		StaticMeshComponent->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 	}
 
 	auto MessageBodySPtr = MakeShared<FMessageBody_ViewDevice>();
@@ -153,20 +182,48 @@ void ASceneElement_Monitor::EntryFocusDevice()
 void ASceneElement_Monitor::EntryViewDevice()
 {
 	Super::EntryViewDevice();
+	
 	SetActorHiddenInGame(false);
+
+	if (MonitorHoverWidgetPtr)
+	{
+		MonitorHoverWidgetPtr->RemoveFromParent();
+	}
+	MonitorHoverWidgetPtr = nullptr;
 }
 
 void ASceneElement_Monitor::EntryShowDevice()
 {
 	Super::EntryShowDevice();
-	
+
 	SetActorHiddenInGame(false);
+
+	if (MonitorHoverWidgetPtr)
+	{
+		MonitorHoverWidgetPtr->RemoveFromParent();
+	}
+	MonitorHoverWidgetPtr = nullptr;
 }
 
 void ASceneElement_Monitor::EntryShoweviceEffect()
 {
 	Super::EntryShoweviceEffect();
+	
 	SetActorHiddenInGame(false);
+
+	if (StaticMeshComponent)
+	{
+		StaticMeshComponent->SetRenderCustomDepth(false);
+	}
+
+	if (!MonitorHoverWidgetPtr)
+	{
+		MonitorHoverWidgetPtr = CreateWidget<UMonitorHoverWidget>(GetWorld(), MonitorHoverWidgetClass);
+		MonitorHoverWidgetPtr->SceneElement_MonitorPtr = this;
+		MonitorHoverWidgetPtr->Button->OnClicked.AddDynamic(this, &ThisClass::OnClicked);
+
+		MonitorHoverWidgetPtr->AddToViewport();
+	}
 }
 
 void ASceneElement_Monitor::QuitAllState()
@@ -178,4 +235,51 @@ void ASceneElement_Monitor::QuitAllState()
 	{
 		StaticMeshComponent->SetRenderCustomDepth(false);
 	}
+
+	if (MonitorHoverWidgetPtr)
+	{
+		MonitorHoverWidgetPtr->RemoveFromParent();
+	}
+	MonitorHoverWidgetPtr = nullptr;
+}
+
+void ASceneElement_Monitor::OnClicked()
+{										
+	auto MessageBodySPtr = MakeShared<FMessageBody_ClickedMonitor>();
+
+	MessageBodySPtr->DeviceID = SceneElementID;
+	MessageBodySPtr->Type = DeviceTypeStr;
+
+	UWebChannelWorldSystem::GetInstance()->SendMessage(MessageBodySPtr);									
+}
+
+void UMonitorHoverWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	SetAlignmentInViewport(FVector2D(.5f, 1.f));
+
+	SetIsSelected(false);
+}
+
+FVector UMonitorHoverWidget::GetHoverPosition()
+{
+	const auto BoxPt = SceneElement_MonitorPtr->CollisionComponentHelper->GetComponentLocation();
+
+	const auto Bounds = SceneElement_MonitorPtr->CollisionComponentHelper->GetScaledBoxExtent();
+
+	return BoxPt + FVector(0,0,Bounds.Z);
+}
+
+void UMonitorHoverWidget::SetIsSelected(
+	bool bIsSelected
+	)
+{
+	Switcher->SetActiveWidgetIndex(bIsSelected ? 0 : 1);
+}
+
+void UMonitorHoverWidget::SetOncliced(
+	const FOnButtonClickedEvent& OnClicked
+	)
+{
 }
