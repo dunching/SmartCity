@@ -71,7 +71,9 @@ void AGameMode_Main::BeginPlay()
 	                                   }
 	                                  );
 
-	GWorld->AddOnActorSpawnedHandler(Delegate_OnActorSpawned);
+	// GWorld->AddOnActorSpawnedHandler(Delegate_OnActorSpawned);
+
+	FApp::SetBenchmarking(true);
 }
 
 void AGameMode_Main::EndPlay(

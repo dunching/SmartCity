@@ -133,22 +133,6 @@ void ASceneElement_PWR_Pipe::SwitchInteractionType(
 {
 	 Super::SwitchInteractionType(ConditionalSet);
 
-	if (OriginalMaterials.IsEmpty())
-	{
-		for (auto Iter : StaticMeshComponentsAry)
-		{
-			if (Iter)
-			{
-				FMaterialsCache MaterialsCache;
-				for (int32 Index = 0; Index < Iter->GetNumMaterials(); Index++)
-				{
-					MaterialsCache.MaterialsCacheAry.Add(Iter->GetMaterial(Index));
-				}
-				OriginalMaterials.Add(Iter, MaterialsCache);
-			}
-		}
-	}
-
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
 		SetActorHiddenInGame(true);

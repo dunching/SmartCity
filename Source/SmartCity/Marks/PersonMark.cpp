@@ -144,6 +144,15 @@ void APersonMark::Tick(
 	}
 }
 
+void APersonMark::SetStartPt(
+	const FVector& NewLocation
+	)
+{
+	Update(NewLocation);
+	
+	SetActorRelativeLocation(TargetLocation, false);
+}
+
 void APersonMark::Update(
 	const FVector& NewLocation
 	)

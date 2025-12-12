@@ -370,7 +370,25 @@ public:
 
 	FOnEnd OnEnd;
 
+	enum class EStep
+	{
+		kFloor_ControlBorder,
+		kFloor_AS,
+		kFloor_ID,
+		kFloor_Sost,
+		kFloor_Space,
+		kBuilding,
+		kLandscape,
+		kComplete,
+	};
+
+	EStep Step = EStep::kFloor_ControlBorder;
+
 protected:
+	virtual bool ProcessTask(
+		float DeltaTime
+		) override;
+	
 	void ProcessTask_ControlBorder(
 		const TSoftObjectPtr<AFloorHelper>&FloorHelperRef
 		);

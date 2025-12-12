@@ -34,6 +34,9 @@ public:
 	virtual ~UPlanetGameInstance();
 
 protected:
+	void SetTaskbarWindowName(
+		const FString& NewWindowName
+		);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GameOptions")
 	TSoftObjectPtr<UGameOptions> GameOptions;

@@ -506,7 +506,7 @@ void ASceneElement_RadarMode::UpdatePositions(
 						                              RelativeTransformComponent,
 						                              FAttachmentTransformRules::KeepRelativeTransform
 						                             );
-						NewMarkPtr->Update(Pt);
+						NewMarkPtr->SetStartPt(Pt);
 
 						NewMarkPtr->Marks = Marks;
 

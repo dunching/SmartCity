@@ -543,7 +543,13 @@ void FBatchControlMode_Decorator::Initial()
 
 				for (auto Iter : FloorIter.Value->SceneElementCategoryMap)
 				{
-					if (!Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space))
+					if (
+						Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Soft) ||
+						Iter.Key.MatchesTag(USmartCitySuiteTags::SceneElement_Category_Space) 
+						)
+					{
+					}
+					else
 					{
 						continue;
 					}

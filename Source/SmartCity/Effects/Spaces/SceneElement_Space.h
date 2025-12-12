@@ -94,7 +94,7 @@ protected:
 	virtual void EntryShowEffect(
 		const FSceneElementConditional& ConditionalSet
 		);
-
+public:
 	virtual void QuitAllState(
 		) override;
 
