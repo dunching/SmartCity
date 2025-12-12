@@ -469,10 +469,10 @@ void USceneInteractionWorldSystem::SwitchInteractionMode(
 			}
 
 			SwitchDecoratorImp<FSafeManagementMode_Decorator>(
-			                                                           USmartCitySuiteTags::Interaction_Mode,
-			                                                           USmartCitySuiteTags::Interaction_Mode_SafeManagement,
-			                                                           Func
-			                                                          );
+			                                                  USmartCitySuiteTags::Interaction_Mode,
+			                                                  USmartCitySuiteTags::Interaction_Mode_SafeManagement,
+			                                                  Func
+			                                                 );
 
 			return;
 		}
@@ -711,8 +711,8 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_Floor(
 
 		
 		)>& OnEnd,
-		const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet,
-			const FGameplayTag& FloorTag
+	const TSet<TObjectPtr<ASceneElementBase>>& SkipSceneElementSet,
+	const FGameplayTag& FloorTag
 	)
 {
 	if (FilterTags.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF))
@@ -840,6 +840,7 @@ UGT_SwitchSceneElement_Base* USceneInteractionWorldSystem::UpdateFilter_BatchCon
 	const TMulticastDelegate<void(
 		bool,
 		UGT_SwitchSceneElement_Base*
+
 		
 		)>& OnEnd,
 	TSet<TObjectPtr<ASceneElement_DeviceBase>> SceneElementSet,
@@ -928,13 +929,28 @@ void USceneInteractionWorldSystem::InitializeSceneActors()
 				                        bool
 				                        )
 				                        {
-					                        USceneInteractionWorldSystem::GetInstance()->SwitchInteractionArea(
-						                         USmartCitySuiteTags::Interaction_Area_ExternalWall
+					                        FTSTicker::GetCoreTicker().AddTicker(
+						                         FTickerDelegate::CreateLambda(
+						                                                       [](
+						                                                       auto
+						                                                       )
+						                                                       {
+							                                                       USceneInteractionWorldSystem::GetInstance()
+								                                                       ->SwitchInteractionArea(
+									                                                        USmartCitySuiteTags::Interaction_Area_ExternalWall
+									                                                       );
+
+							                                                       auto MessageSPtr = MakeShared<
+								                                                       FMessageBody_UE_Initialized>();
+
+							                                                       UWebChannelWorldSystem::GetInstance()
+								                                                       ->SendMessage(MessageSPtr);
+
+							                                                       return false;
+						                                                       }
+						                                                      ),
+						                         10.f
 						                        );
-
-					                        auto MessageSPtr = MakeShared<FMessageBody_UE_Initialized>();
-
-					                        UWebChannelWorldSystem::GetInstance()->SendMessage(MessageSPtr);
 				                        }
 				                       );
 			 }

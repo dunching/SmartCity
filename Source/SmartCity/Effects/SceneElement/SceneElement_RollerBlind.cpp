@@ -73,10 +73,10 @@ void ASceneElement_RollerBlind::ReplaceImp(
 		{
 			FBox Box(ForceInit);
 
-			FBox TemoBox(ForceInit);
-			TemoBox.IsValid = true;
-			STPtr->GetStaticMeshComponent()->GetLocalBounds(TemoBox.Min, TemoBox.Max);
-			TemoBox = TemoBox.TransformBy(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
+			FBox STBox(ForceInit);
+			STBox.IsValid = true;
+			STPtr->GetStaticMeshComponent()->GetLocalBounds(STBox.Min, STBox.Max);
+			const auto TemoBox = STBox.TransformBy(STPtr->GetStaticMeshComponent()->GetRelativeTransform());
 			Box += TemoBox;
 
 			if (!UserData.Contains(TEXT("Datasmith_UniqueId")))
@@ -87,23 +87,50 @@ void ASceneElement_RollerBlind::ReplaceImp(
 			const auto Size = Box.GetSize();
 			if (Dot > 0)
 			{
-				SetActorRelativeRotation(FRotator(0, 180, 0));
 			}
 			else
 			{
 			}
 
-			SetActorRelativeLocation(Box.GetCenter() - FVector(0, 0, Size.Z / 2));
+			if (STBox.GetSize().X > STBox.GetSize().Y)
+			{
+				SetActorRelativeRotation(STPtr->GetStaticMeshComponent()->GetRelativeRotation());
+			}
+			else
+			{
+				SetActorRelativeRotation(STPtr->GetStaticMeshComponent()->GetRelativeRotation() + FRotator(0,90,0));
+			}
 			
-			SetActorScale3D(
-			                FVector(
-			                        Size.X / DefaultSize.
-			                        X,
-			                        1,
-			                        (Size.Z - 40) /
-			                        DefaultSize.Z
-			                       )
-			               );
+			if (Size.X > Size.Y)
+			{
+			
+				SetActorRelativeScale3D(
+								FVector(
+										Size.X / DefaultSize.
+										X,
+										1,
+										(Size.Z ) /
+										DefaultSize.Z
+									   )
+							   );
+				
+			}
+			else
+			{
+			
+				SetActorRelativeScale3D(
+								FVector(
+										Size.Y / DefaultSize.
+										X,
+										1,
+										(Size.Z ) /
+										DefaultSize.Z
+									   )
+							   );
+				
+			}
+			
+			SetActorRelativeLocation(Box.GetCenter() - FVector(0, 0, Size.Z / 2));
 		}
 	}
 }
@@ -258,7 +285,7 @@ void ASceneElement_RollerBlind::EntryShoweviceEffect()
 	{
 		const auto Value = UKismetStringLibrary::Conv_StringToInt(ExtensionParamMap[TEXT("开关")]);
 
-		PlayAnimation(Value / 100.0f);
+		PlayAnimation(1 - (Value / 100.0f));
 
 		return;
 	}

@@ -63,10 +63,10 @@ public:
 		const FSceneElementConditional& ConditionalSet
 		) override;
 
-protected:
 	virtual void QuitAllState(
 		) override;
 	
+protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FGameplayTag DeviceType;
 

@@ -330,10 +330,10 @@ void ASceneElement_LightingPipe::EntryShowDevice()
 
 	SetActorHiddenInGame(false);
 
-	// SetEmissiveValue(0, -1, FColor::White);
+	SetEmissiveValue(0, -1, FColor::White);
 	SwitchLight(0, -1, FColor::White);
 
-	RevertOnriginalMat();
+	// RevertOnriginalMat();
 }
 
 void ASceneElement_LightingPipe::QuitShowDevice()
@@ -456,7 +456,27 @@ void ASceneElement_LightingPipe::SetEmissiveValue(
 {
 	if (Value <= 0)
 	{
-	RevertOnriginalMat();
+
+		CacheOriginalMat(StaticMeshComponentsAry);
+		for (auto MeshIter : StaticMeshComponentsAry)
+		{
+			const auto Num = MeshIter->GetNumMaterials();
+			for (int32 Index = 0; Index < Num; Index++)
+			{
+				auto MaterialPtr = UMaterialInstanceDynamic::Create(EmissiveMaterialInstance.LoadSynchronous(), this);
+				MeshIter->SetMaterial(Index, MaterialPtr);
+			}
+
+			for (int32 Index = 0; Index < Num; Index++)
+			{
+				auto MaterialPtr = Cast<UMaterialInstanceDynamic>(MeshIter->GetMaterial(Index));
+				if (MaterialPtr)
+				{
+					MaterialPtr->SetScalarParameterValue(EmissiveValue, Value);
+					MaterialPtr->SetVectorParameterValue(Color, LightColor);
+				}
+			}
+		}
 	}
 	else
 	{

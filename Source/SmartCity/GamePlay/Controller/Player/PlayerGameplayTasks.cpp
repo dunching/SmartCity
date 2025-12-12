@@ -395,175 +395,6 @@ UGT_InitializeSceneActors::UGT_InitializeSceneActors(
 void UGT_InitializeSceneActors::Activate()
 {
 	Super::Activate();
-
-	for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
-	{
-		ProcessTask_ControlBorder(Iter.Value);
-
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_AS;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_StructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_ID;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_InnerStructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Soft;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_SoftDecorationItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_SpaceItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-	}
-
-	for (const auto& Iter : UAssetRefMap::GetInstance()->BuildingHelpers)
-	{
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_AS;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_StructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_ID;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_InnerStructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Soft;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_SoftDecorationItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-		{
-			auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-			SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
-
-			Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-			                                                          SceneElementCategoryPtr->Category,
-			                                                          SceneElementCategoryPtr
-			                                                         );
-
-			SceneElementCategoryPtr->AttachToActor(
-			                                       Iter.Value.LoadSynchronous(),
-			                                       FAttachmentTransformRules::KeepWorldTransform
-			                                      );
-
-			ProcessTask_SpaceItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
-		}
-	}
-
-	for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
-	{
-		auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
-		SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
-
-		Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
-		                                                          SceneElementCategoryPtr->Category,
-		                                                          SceneElementCategoryPtr
-		                                                         );
-
-		SceneElementCategoryPtr->AttachToActor(
-		                                       Iter.Value.LoadSynchronous(),
-		                                       FAttachmentTransformRules::KeepWorldTransform
-		                                      );
-
-		ProcessTask_Lanscape(SceneElementCategoryPtr, Iter.Value->AllReference.StructItemSet.DatasmithSceneActorSet);
-		ProcessTask_Lanscape(
-		                     SceneElementCategoryPtr,
-		                     Iter.Value->AllReference.InnerStructItemSet.DatasmithSceneActorSet
-		                    );
-		ProcessTask_Lanscape(
-		                     SceneElementCategoryPtr,
-		                     Iter.Value->AllReference.SoftDecorationItem.DatasmithSceneActorSet
-		                    );
-		ProcessTask_Lanscape(SceneElementCategoryPtr, Iter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet);
-	}
-
-	OnEnd.Broadcast(true);
-
-	EndTask();
 }
 
 void UGT_InitializeSceneActors::TickTask(
@@ -571,6 +402,249 @@ void UGT_InitializeSceneActors::TickTask(
 	)
 {
 	Super::TickTask(DeltaTime);
+}
+
+bool UGT_InitializeSceneActors::ProcessTask(
+	float DeltaTime
+	)
+{
+	Super::ProcessTask(DeltaTime);
+
+	switch (Step)
+	{
+	case EStep::kFloor_ControlBorder:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				ProcessTask_ControlBorder(Iter.Value);
+			}
+
+			Step = EStep::kFloor_AS;
+			return true;
+		}
+		break;
+	case EStep::kFloor_AS:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_AS;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_StructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+			}
+
+
+			Step = EStep::kFloor_ID;
+			return true;
+		}
+		break;
+	case EStep::kFloor_ID:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_ID;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_InnerStructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+			}
+
+			Step = EStep::kFloor_Sost;
+			return true;
+		}
+		break;
+	case EStep::kFloor_Sost:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Soft;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_SoftDecorationItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+			}
+
+
+			Step = EStep::kFloor_Space;
+			return true;
+		}
+		break;
+	case EStep::kFloor_Space:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->FloorHelpers)
+			{
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_SpaceItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+			}
+
+
+			Step = EStep::kBuilding;
+			return true;
+		}
+		break;
+	case EStep::kBuilding:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->BuildingHelpers)
+			{
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_AS;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_StructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_ID;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_InnerStructItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Soft;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_SoftDecorationItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+				{
+					auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+					SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
+
+					Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+					                                                          SceneElementCategoryPtr->Category,
+					                                                          SceneElementCategoryPtr
+					                                                         );
+
+					SceneElementCategoryPtr->AttachToActor(
+					                                       Iter.Value.LoadSynchronous(),
+					                                       FAttachmentTransformRules::KeepWorldTransform
+					                                      );
+
+					ProcessTask_SpaceItemSet(SceneElementCategoryPtr, Iter.Value->AllReference);
+				}
+			}
+
+
+			Step = EStep::kLandscape;
+			return true;
+		}
+		break;
+	case EStep::kLandscape:
+		{
+			for (const auto& Iter : UAssetRefMap::GetInstance()->LandScapeHelper)
+			{
+				auto SceneElementCategoryPtr = GetWorld()->SpawnActor<ASceneElementCategory>();
+				SceneElementCategoryPtr->Category = USmartCitySuiteTags::SceneElement_Category_Space;
+
+				Iter.Value.LoadSynchronous()->SceneElementCategoryMap.Add(
+																		  SceneElementCategoryPtr->Category,
+																		  SceneElementCategoryPtr
+																		 );
+
+				SceneElementCategoryPtr->AttachToActor(
+													   Iter.Value.LoadSynchronous(),
+													   FAttachmentTransformRules::KeepWorldTransform
+													  );
+
+				ProcessTask_Lanscape(SceneElementCategoryPtr, Iter.Value->AllReference.StructItemSet.DatasmithSceneActorSet);
+				ProcessTask_Lanscape(
+									 SceneElementCategoryPtr,
+									 Iter.Value->AllReference.InnerStructItemSet.DatasmithSceneActorSet
+									);
+				ProcessTask_Lanscape(
+									 SceneElementCategoryPtr,
+									 Iter.Value->AllReference.SoftDecorationItem.DatasmithSceneActorSet
+									);
+				ProcessTask_Lanscape(SceneElementCategoryPtr, Iter.Value->AllReference.SpaceItemSet.DatasmithSceneActorSet);
+			}
+
+
+			Step = EStep::kComplete;
+			return true;
+		}
+		break;
+	case EStep::kComplete:
+	default:
+		{
+			return false;
+		}
+	}
 }
 
 void UGT_InitializeSceneActors::OnDestroy(
@@ -691,6 +765,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 
 							NewActorPtr->InitialSceneElement();
 							NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+							NewActorPtr->QuitAllState();
 
 							USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
 							                                             Add(
@@ -746,6 +821,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 							// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
 
 							NewActorPtr->InitialSceneElement();
+							NewActorPtr->QuitAllState();
 
 
 							MergeActorsMap.Add(HashCode, NewActorPtr);
@@ -787,6 +863,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 						// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
 
 						NewActorPtr->InitialSceneElement();
+						NewActorPtr->QuitAllState();
 
 						SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 					}
@@ -799,6 +876,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 						// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
 
 						NewActorPtr->InitialSceneElement();
+						NewActorPtr->QuitAllState();
 
 						SceneElement_ControlBorderPtr->ControlDevicesSet.Add(NewActorPtr);
 					}
@@ -842,6 +920,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 						NewActorPtr->InitialSceneElement();
 
 						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+						NewActorPtr->QuitAllState();
 
 						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
 						                                             Add(
@@ -972,6 +1051,7 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet(
 						NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value}, AUDPtr->MetaData);
 						NewActorPtr->InitialSceneElement();
 						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+						NewActorPtr->QuitAllState();
 
 						MergeActorsMap.Add(HashCode, NewActorPtr);
 					}
@@ -1016,6 +1096,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Lanscape(
 			                                                                  );
 			NewActorPtr->Replace(Iter, {}, {});
 			NewActorPtr->InitialSceneElement();
+			NewActorPtr->QuitAllState();
 		}
 
 		DSIter->Destroy();
@@ -1092,6 +1173,13 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 					continue;
 				}
 
+#if WITH_EDITOR
+				if (*Datasmith_UniqueId == TEXT("44163996a359ba6ed47aac1e4cfd50c0"))
+				{
+					checkNoEntry();
+				}
+#endif // WITH_EDITOR
+
 				for (const auto& ThirdIter : UAssetRefMap::GetInstance()->NeedReplaceByUserData)
 				{
 					auto MetaDataIter = AUDPtr->MetaData.Find(*ThirdIter.Key.Key);
@@ -1122,6 +1210,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 						NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
 						NewActorPtr->InitialSceneElement();
 						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+						NewActorPtr->QuitAllState();
 
 						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
 						                                             Add(NewActorPtr->SceneElementID, NewActorPtr);
@@ -1168,7 +1257,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 						if (ThirdIter.Value == ASceneElement_PWR_Pipe::StaticClass())
 						{
 						}
-						NewActorPtr->InitialSceneElement();
+						NewActorPtr->QuitAllState();
 
 						MergeActorsMap.Add(HashCode, NewActorPtr);
 						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
@@ -1201,6 +1290,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 						);
 					NewActorPtr->Replace(Iter, {}, {});
 					NewActorPtr->InitialSceneElement();
+					NewActorPtr->QuitAllState();
 				}
 				else
 				{
@@ -1208,6 +1298,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 						);
 					NewActorPtr->Replace(Iter, {}, {});
 					NewActorPtr->InitialSceneElement();
+					NewActorPtr->QuitAllState();
 				}
 			}
 		}

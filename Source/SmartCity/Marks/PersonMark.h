@@ -31,6 +31,10 @@ public:
 		float DeltaTime
 		) override;
 
+	void SetStartPt(
+		const FVector& NewLocation
+		);
+
 	void Update(
 		const FVector& NewLocation
 		);
