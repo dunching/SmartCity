@@ -46,6 +46,8 @@ public:
 		float DeltaTime
 		) override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	virtual FBox GetComponentsBoundingBox(
 		bool bNonColliding = false,
 		bool bIncludeFromChildActors = false
@@ -106,4 +108,8 @@ private:
 	TMap<FString, APersonMark*> GeneratedMarkers;
 
 private:
+
+	void ClearMarks();
+	
+	FTimerHandle ClearTimerHandle;
 };

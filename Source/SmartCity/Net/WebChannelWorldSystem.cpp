@@ -37,6 +37,11 @@ void UWebChannelWorldSystem::BindEvent()
 	                                            &ThisClass::NewConnectionNative
 	                                           );
 
+	Delegates->OnClosedConnectionNative.AddUObject(
+	                                            this,
+	                                            &ThisClass::OnClosedConnectionNative
+	                                           );
+
 	Delegates->OnAllConnectionsClosed.AddDynamic(
 	                                             this,
 	                                             &ThisClass::OnAllConnectionsClosed
@@ -239,6 +244,14 @@ void UWebChannelWorldSystem::OnConnectedToSignallingServerNative()
 {
 }
 
+void UWebChannelWorldSystem::OnClosedConnectionNative(
+	FString Str,
+	FPixelStreamingPlayerId ID,
+	bool bIsTrue
+	)
+{
+}
+
 void UWebChannelWorldSystem::NewConnectionNative(
 	FString Str,
 	FPixelStreamingPlayerId ID,
@@ -315,7 +328,7 @@ void UWebChannelWorldSystem::OnInput(
 
 void UWebChannelWorldSystem::MessageTickImp()
 {
-	auto MessageBody_TestSPtr = MakeShared<FMessageBody_Test>();
+	auto MessageBody_TestSPtr = MakeShared<FMessageBody_UE_Tick>();
 
 	MessageBody_TestSPtr->Text = TEXT("UE PixelStreamer Test");
 

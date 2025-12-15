@@ -74,6 +74,9 @@ void AGameMode_Main::BeginPlay()
 	// GWorld->AddOnActorSpawnedHandler(Delegate_OnActorSpawned);
 
 	FApp::SetBenchmarking(true);
+
+	GEngine->GetFirstLocalPlayerController(GetWorld())->DisableInput(nullptr);
+	 FSlateApplication::Get().SetAllUserFocusToGameViewport();
 }
 
 void AGameMode_Main::EndPlay(

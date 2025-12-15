@@ -272,6 +272,22 @@ void ASceneElement_Regualar::SwitchInteractionType(
 	}
 	{
 		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_BatchControl)
+		)
+		{
+			SetActorHiddenInGame(false);
+
+			auto PrimitiveComponentPtr = GetComponentByClass<UPrimitiveComponent>();
+			if (PrimitiveComponentPtr)
+			{
+				PrimitiveComponentPtr->SetRenderCustomDepth(false);
+			}
+
+			return;
+		}
+	}
+	{
+		if (
 			(ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)) &&
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)

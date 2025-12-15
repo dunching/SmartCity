@@ -59,7 +59,7 @@ void ASceneElement_Monitor::ReplaceImp(
 			UpdateCollisionBox({StaticMeshComponent});
 			
 			const auto Box = CollisionComponentHelper->GetScaledBoxExtent();
-			CollisionComponentHelper->SetBoxExtent(Box  + FVector(50));
+			CollisionComponentHelper->SetBoxExtent(Box  + FVector(0));
 		}
 	}
 }
