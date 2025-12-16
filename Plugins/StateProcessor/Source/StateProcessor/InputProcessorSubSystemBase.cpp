@@ -177,20 +177,20 @@ void UInputProcessorSubSystemBase::SwitchShowCursor(
 	bool bIsShowCursor
 )
 {
-	// auto PlayerPCPtr = GEngine->GetFirstLocalPlayerController(GetWorld());
-	// if (PlayerPCPtr)
-	// {
-	// 	if (bIsShowCursor)
-	// 	{
-	// 		PlayerPCPtr->SetShowMouseCursor(true);
-	//
-	// 		UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerPCPtr);
-	// 	}
-	// 	else
-	// 	{
-	// 		PlayerPCPtr->SetShowMouseCursor(false);
-	//
-	// 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerPCPtr);
-	// 	}
-	// }
+	auto PlayerPCPtr = GEngine->GetFirstLocalPlayerController(GetWorld());
+	if (PlayerPCPtr)
+	{
+		if (bIsShowCursor)
+		{
+			PlayerPCPtr->SetShowMouseCursor(true);
+	
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerPCPtr);
+		}
+		else
+		{
+			PlayerPCPtr->SetShowMouseCursor(false);
+	
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerPCPtr);
+		}
+	}
 }

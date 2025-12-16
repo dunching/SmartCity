@@ -75,8 +75,8 @@ void AGameMode_Main::BeginPlay()
 
 	FApp::SetBenchmarking(true);
 
-	GEngine->GetFirstLocalPlayerController(GetWorld())->DisableInput(nullptr);
-	 FSlateApplication::Get().SetAllUserFocusToGameViewport();
+	// GEngine->GetFirstLocalPlayerController(GetWorld())->DisableInput(nullptr);
+	//  FSlateApplication::Get().SetAllUserFocusToGameViewport();
 }
 
 void AGameMode_Main::EndPlay(
