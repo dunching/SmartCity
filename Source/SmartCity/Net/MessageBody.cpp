@@ -1086,11 +1086,12 @@ TSharedPtr<FJsonObject> FMessageBody_UE_Initialized::SerializeBody() const
 	return RootJsonObj;
 }
 
-FMessageBody_Test::FMessageBody_Test()
+FMessageBody_UE_Tick::FMessageBody_UE_Tick()
 {
+	CMD_Name = TEXT("UE_Tick");
 }
 
-TSharedPtr<FJsonObject> FMessageBody_Test::SerializeBody() const
+TSharedPtr<FJsonObject> FMessageBody_UE_Tick::SerializeBody() const
 {
 	TSharedPtr<FJsonObject> RootJsonObj = Super::SerializeBody();
 

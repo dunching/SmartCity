@@ -44,6 +44,8 @@ private:
 	UFUNCTION()
 	void OnConnectedToSignallingServerNative();
 
+	void OnClosedConnectionNative(FString Str, FPixelStreamingPlayerId ID, bool bIsTrue);
+
 	void NewConnectionNative(FString Str, FPixelStreamingPlayerId ID, bool bIsTrue);
 
 	UFUNCTION()

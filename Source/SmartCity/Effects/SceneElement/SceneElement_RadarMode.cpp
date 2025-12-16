@@ -74,6 +74,15 @@ void ASceneElement_RadarMode::Tick(
 	Super::Tick(DeltaTime);
 }
 
+void ASceneElement_RadarMode::EndPlay(
+	const EEndPlayReason::Type EndPlayReason
+	)
+{
+	GetWorldTimerManager().ClearTimer(ClearTimerHandle);
+				
+	Super::EndPlay(EndPlayReason);
+}
+
 FBox ASceneElement_RadarMode::GetComponentsBoundingBox(
 	bool bNonColliding,
 	bool bIncludeFromChildActors
@@ -163,7 +172,7 @@ void ASceneElement_RadarMode::SwitchInteractionType(
 		)
 		{
 			// EntryShoweviceEffect();
-		QuitAllState();
+			QuitAllState();
 
 			return;
 		}
@@ -344,6 +353,11 @@ void ASceneElement_RadarMode::QuitAllState()
 		StaticMeshComponent->SetRenderCustomDepth(false);
 	}
 
+	ClearMarks();
+}
+
+void ASceneElement_RadarMode::ClearMarks()
+{
 	for (auto Iter : GeneratedMarkers)
 	{
 		if (Iter.Value)
@@ -516,6 +530,11 @@ void ASceneElement_RadarMode::UpdatePositions(
 					}
 				}
 
+				GetWorldTimerManager().SetTimer(ClearTimerHandle, FTimerDelegate::CreateLambda([this]()
+				{
+					ClearMarks();
+				}), 2.f, false);
+				
 				for (auto PtIter = GeneratedMarkers.CreateIterator(); PtIter; ++PtIter)
 				{
 					if (Pts.Contains(PtIter->Key))

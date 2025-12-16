@@ -504,14 +504,16 @@ protected:
 };
 
 USTRUCT()
-struct FMessageBody_Test : public FMessageBody_Send
+struct FMessageBody_UE_Tick : public FMessageBody_Send
 {
 	GENERATED_BODY()
 
-	FMessageBody_Test();
+	FMessageBody_UE_Tick();
 
 	FString Text;
 
+	TSet<FString>ConnectedID;
+	
 protected:
 	virtual TSharedPtr<FJsonObject> SerializeBody() const override;
 };

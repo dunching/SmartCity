@@ -371,6 +371,10 @@ public:
 	
 	void Initial();
 
+	/**
+	 * Key:设备类型
+	 * Value：参数
+	 */
 	TMap<FString, TMap<FString, FString>> ExtensionParamMap;
 
 	TSet<TObjectPtr<ASceneElement_DeviceBase> >SceneElementSet;
