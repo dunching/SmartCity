@@ -12,6 +12,7 @@
 #include "WeatherSystem.h"
 #include "DatasmithAssetUserData.h"
 #include "FloorHelper.h"
+#include "HttpModule.h"
 #include "IPSSI.h"
 #include "LogWriter.h"
 #include "ViewTowerProcessor.h"
@@ -32,7 +33,9 @@ void AGameMode_Main::OnConstruction(
 void AGameMode_Main::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	FHttpModule::Get().GetHttpActivityTimeout();
+	
 	// 天气
 	UWeatherSystem::GetInstance()->RegisterCallback();
 	UWeatherSystem::GetInstance()->ResetTime();

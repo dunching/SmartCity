@@ -90,6 +90,9 @@ public:
 	FString SceneElementName;
 #endif
 
+	/**
+	 * Bim ID
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString SceneElementID;
 

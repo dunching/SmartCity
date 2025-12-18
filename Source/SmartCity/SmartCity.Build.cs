@@ -89,6 +89,9 @@ public class SmartCity : ModuleRules
 			"MediaAssets",
 			"DatasmithContent",
 			"MovieScene",
+			
+			"Http",
+			"WebSockets",
 
 			// 引擎插件
 			"GameplayTags",

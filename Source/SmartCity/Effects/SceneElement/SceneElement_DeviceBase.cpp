@@ -56,8 +56,8 @@ void ASceneElement_DeviceBase::ReplaceImp(
 
 void ASceneElement_DeviceBase::Merge(
 	const TSoftObjectPtr<AActor>& ActorRef,
-	const TPair<FName, FString>& InUserData
-	, const TMap<FName, FString>& NewUserData
+	const TPair<FName, FString>& InUserData,
+	const TMap<FName, FString>& NewUserData
 	)
 {
 	Super::Merge(ActorRef, InUserData, NewUserData);
@@ -104,6 +104,27 @@ void ASceneElement_DeviceBase::InitialSceneElement()
 	{
 		BelongFloor = FloorPtr;
 	}
+
+	UWebChannelWorldSystem::GetInstance()->QueryDeviceID(
+	                                                     SceneElementID,
+	                                                     [this](
+	                                                     bool bSuccess,
+	                                                     const FString& ResponStr
+	                                                     )
+	                                                     {
+		                                                     if (bSuccess)
+		                                                     {
+			                                                     FQueryDeviceInfo QueryDeviceInfo;
+			                                                     QueryDeviceInfo.Deserialize(ResponStr);
+
+			                                                     DeviceRealID = QueryDeviceInfo.ID;
+
+			                                                     UpdateReletiveTransform(
+				                                                      QueryDeviceInfo.Reletivetransform
+				                                                     );
+		                                                     }
+	                                                     }
+	                                                    );
 }
 
 TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const
@@ -273,6 +294,147 @@ TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 	return Result;
 }
 
+void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
+	const FString& JsonStr
+	)
+{
+	TSharedRef<TJsonReader<>> JsonReader =
+		TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+	                             JsonReader,
+	                             jsonObject
+	                            );
+
+	const TSharedPtr<FJsonObject>* body_OutObject = nullptr;
+	if (jsonObject->TryGetObjectField(
+	                                  TEXT("body"),
+	                                  body_OutObject
+	                                 ))
+	{
+		const TArray<TSharedPtr<FJsonValue>>* bimModelDeviceAssociations_OutArray = nullptr;
+		if ((*body_OutObject)->TryGetArrayField(
+		                                        TEXT("bimModelDeviceAssociations"),
+		                                        bimModelDeviceAssociations_OutArray
+		                                       ))
+		{
+			for (auto Iter : *bimModelDeviceAssociations_OutArray)
+			{
+				auto ObjSPtr = Iter->AsObject();
+				if (ObjSPtr->TryGetStringField(
+				                               TEXT("deviceId"),
+				                               ID
+				                              ))
+				{
+				}
+
+#if UE_GAME 
+				if (ID == TEXT("0001-0406-2527-0289"))
+				{
+					checkNoEntry();
+				}
+#endif
+				
+				FString extra_Str;
+				if (ObjSPtr->TryGetStringField(
+				                               TEXT("extra"),
+				                               extra_Str
+				                              ))
+				{
+					TSharedRef<TJsonReader<>> extraJsonReader =
+						TJsonReaderFactory<>::Create(extra_Str);
+
+					TSharedPtr<FJsonObject> extra_OutObject;
+
+					FJsonSerializer::Deserialize(
+												 extraJsonReader,
+												 extra_OutObject
+												);
+
+					const TSharedPtr<FJsonObject>* radarTransform_OutObject = nullptr;
+					if (extra_OutObject->TryGetObjectField(
+					                                          TEXT("radarTransform"),
+					                                          radarTransform_OutObject
+					                                         ))
+					{
+						FVector Translation;
+						{
+							const TSharedPtr<FJsonObject>* OutObject = nullptr;
+							if ((*radarTransform_OutObject)->TryGetObjectField(
+							                                                   TEXT("position"),
+							                                                   OutObject
+							                                                  ))
+							{
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("x"),
+								                                Translation.X
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("y"),
+								                                Translation.Y
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("z"),
+								                                Translation.Z
+								                               );
+							}
+						}
+						FRotator Rotator;
+						{
+							const TSharedPtr<FJsonObject>* OutObject = nullptr;
+							if ((*radarTransform_OutObject)->TryGetObjectField(
+							                                                   TEXT("rotation"),
+							                                                   OutObject
+							                                                  ))
+							{
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("pitch"),
+								                                Rotator.Pitch
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("yaw"),
+								                                Rotator.Yaw
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("roll"),
+								                                Rotator.Roll
+								                               );
+							}
+						}
+						FVector Scale;
+						{
+							const TSharedPtr<FJsonObject>* OutObject = nullptr;
+							if ((*radarTransform_OutObject)->TryGetObjectField(
+							                                                   TEXT("scale"),
+							                                                   OutObject
+							                                                  ))
+							{
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("x"),
+								                                Scale.X
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("y"),
+								                                Scale.Y
+								                               );
+								(*OutObject)->TryGetNumberField(
+								                                TEXT("z"),
+								                                Scale.Z
+								                               );
+							}
+						}
+
+						Reletivetransform = FTransform(Rotator, Translation, Scale);
+					}
+				}
+				return;
+			}
+		}
+	}
+}
+
 void ASceneElement_DeviceBase::UpdateCollisionBox(
 	const TArray<UStaticMeshComponent*>& SMCompsAry
 	)
@@ -286,7 +448,7 @@ void ASceneElement_DeviceBase::UpdateCollisionBox(
 		TemoBox.IsValid = true;
 		Iter->GetLocalBounds(TemoBox.Min, TemoBox.Max);
 		TemoBox = TemoBox.TransformBy(Iter->GetRelativeTransform());
-		
+
 		Box += TemoBox;
 	}
 

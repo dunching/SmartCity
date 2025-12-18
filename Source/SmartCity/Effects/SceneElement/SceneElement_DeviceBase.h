@@ -120,7 +120,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
 	
+	/**
+	 * 设备实际的ID
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString DeviceRealID;
+
 protected:
+
+	struct FQueryDeviceInfo
+	{
+		FString ID;
+
+		FTransform Reletivetransform;
+
+		void Deserialize(
+			const FString& JsonStr
+			);
+	};
 
 	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
 	

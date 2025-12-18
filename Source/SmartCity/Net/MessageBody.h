@@ -382,6 +382,23 @@ struct FMessageBody_Receive_ClearSelectedDevices : public FMessageBody_Receive
 
 };
 
+USTRUCT()
+struct FMessageBody_Receive_UpdateQueryDeviceToken : public FMessageBody_Receive
+{
+	GENERATED_BODY()
+
+	FMessageBody_Receive_UpdateQueryDeviceToken();
+
+	virtual void Deserialize(
+		const FString& JsonStr
+		) override;
+
+	virtual void DoAction() const override;
+
+	FString QueryDeviceToken;
+	
+};
+
 #pragma endregion
 
 #pragma region Send

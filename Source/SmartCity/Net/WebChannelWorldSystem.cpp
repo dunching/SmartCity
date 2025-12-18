@@ -3,6 +3,12 @@
 #include "Subsystems/SubsystemBlueprintLibrary.h"
 #include "WorldPartition/DataLayer/DataLayerManager.h"
 #include "PixelStreamingDelegates.h"
+#include "HttpModule.h"
+#include "IWebSocket.h"
+#include "PropertyAccess.h"
+#include "WebSocketsModule.h"
+#include "GenericPlatform/GenericPlatformHttp.h"
+#include "Interfaces/IHttpResponse.h"
 
 #include "Tools.h"
 #include "AssetRefMap.h"
@@ -125,6 +131,10 @@ void UWebChannelWorldSystem::InitializeDeserializeStrategies()
 	}
 	{
 		auto MessageSPtr = MakeShared<FMessageBody_Receive_ClearSelectedDevices>();
+		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
+	}
+	{
+		auto MessageSPtr = MakeShared<FMessageBody_Receive_UpdateQueryDeviceToken>();
 		DeserializeStrategiesMap.Add(MessageSPtr->GetCMDName(), MessageSPtr);
 	}
 }
@@ -324,6 +334,76 @@ void UWebChannelWorldSystem::OnInput(
 	else
 	{
 	}
+}
+
+void UWebChannelWorldSystem::QueryDeviceID(
+	const FString& BimID,
+	const TFunction<void(bool , const FString&)>& QueryComplete
+	)
+{
+	// 1. URL
+	FString QueryDeviceAddress;
+	GConfig->GetString(
+		TEXT("SmartCitySetting"),
+		TEXT("QueryDeviceAddress"),
+		QueryDeviceAddress,
+		GGameIni
+	);
+	FString Url = TEXT("http://") + QueryDeviceAddress;
+
+	// 2. data JSON（注意是字符串）
+	FString DataJson =
+		FString::Printf(
+			TEXT("{\"bimId\":\"%s\",\"status\":\"active\"}"),
+			*BimID
+			);
+
+	// 3. form-urlencoded 内容
+	FString PostData = FString::Printf(
+		TEXT("service=%s&version=%s&time=%s&token=%s&accessToken=%s&salt=%s&test=%s&osc=%s&data=%s"),
+		TEXT("getBimModelDeviceAssociation"),
+		TEXT("1.0"),
+		TEXT("0"),
+		TEXT("token"),
+		TEXT("accessToken"),
+		TEXT("salt"),
+		TEXT("yes"),
+		TEXT("test"),
+		*FGenericPlatformHttp::UrlEncode(DataJson) // ⚠️ 必须 URL 编码
+	);
+
+	// 4. 创建请求
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
+		FHttpModule::Get().CreateRequest();
+
+	Request->SetURL(Url);
+	Request->SetVerb(TEXT("POST"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/x-www-form-urlencoded"));
+	Request->SetHeader(TEXT("user"),UWebChannelWorldSystem::GetInstance()->QueryDeviceToken);
+	Request->SetContentAsString(PostData);
+
+	// 5. 回调
+	Request->OnProcessRequestComplete().BindLambda(
+		[QueryComplete](FHttpRequestPtr Req, FHttpResponsePtr Resp, bool bSuccess)
+		{
+			if (bSuccess && Resp.IsValid())
+			{
+				UE_LOG(LogTemp, Log, TEXT("HTTP Code: %d"), Resp->GetResponseCode());
+				UE_LOG(LogTemp, Log, TEXT("Response: %s"), *Resp->GetContentAsString());
+
+				QueryComplete(bSuccess, Resp->GetContentAsString());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Request Failed"));
+
+				QueryComplete(bSuccess, TEXT(""));
+			}
+		}
+	);
+
+	// 6. 发送
+	Request->ProcessRequest();
 }
 
 void UWebChannelWorldSystem::MessageTickImp()

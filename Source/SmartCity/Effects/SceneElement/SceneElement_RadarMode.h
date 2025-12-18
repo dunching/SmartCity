@@ -21,6 +21,7 @@ class AViewerPawnBase;
 class APersonMark;
 class AStaticMeshActor;
 class ASceneElement_RadarSweep;
+class IWebSocket;
 
 /**
  * 雷达扫描效果
@@ -61,6 +62,8 @@ public:
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
 		) override;
+
+	virtual void InitialSceneElement() override;
 
 	virtual void UpdateReletiveTransform(
 		const FTransform& NewRelativeTransform
@@ -112,4 +115,30 @@ private:
 	void ClearMarks();
 	
 	FTimerHandle ClearTimerHandle;
+
+	
+	TSharedPtr<IWebSocket> Socket;
+
+	void InitialSocket();
+	
+	UFUNCTION(BlueprintCallable)
+	void Connect();
+
+	UFUNCTION(BlueprintCallable)
+	void SendText(const FString& Message);
+
+	UFUNCTION(BlueprintCallable)
+	void Close(int32 Code = 1000, const FString& Reason = TEXT("Normal"));
+
+	void BindEvents();
+
+
+	// 简单重连参数（可按需增强）
+	FTimerHandle ReconnectTimer;
+	
+	int32 ReconnectTry = 0;
+	
+	FString LastUrl;
+
+	void ScheduleReconnect();
 };

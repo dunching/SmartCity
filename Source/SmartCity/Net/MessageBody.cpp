@@ -26,6 +26,7 @@
 #include "ViewSingleFloorProcessor.h"
 #include "TourPawn.h"
 #include "ViewerPawnBase.h"
+#include "WebChannelWorldSystem.h"
 
 FMessageBody::FMessageBody()
 {
@@ -595,7 +596,7 @@ void FMessageBody_Receive_UpdateRadarInfo::DoAction() const
 			Pts.Add(Iter.TID, FVector(Iter.Position.X, Iter.Position.Y, 0) * 100);
 		}
 
-		SceneElement_RadarModePtr->UpdatePositions(Pts);
+		// SceneElement_RadarModePtr->UpdatePositions(Pts);
 	}
 }
 
@@ -1369,6 +1370,39 @@ void FMessageBody_Receive_ClearSelectedDevices::DoAction() const
 	SceneElementConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Area_Selectd);
 	
 	USceneInteractionWorldSystem::GetInstance()->RemoveInteractionType(SceneElementConditional);
+}
+
+FMessageBody_Receive_UpdateQueryDeviceToken::FMessageBody_Receive_UpdateQueryDeviceToken()
+{
+	CMD_Name = TEXT("UpdateQueryDeviceToken");
+}
+
+void FMessageBody_Receive_UpdateQueryDeviceToken::Deserialize(
+	const FString& JsonStr
+	)
+{
+	Super::Deserialize(JsonStr);
+	
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonStr);
+
+	TSharedPtr<FJsonObject> jsonObject;
+
+	FJsonSerializer::Deserialize(
+								 JsonReader,
+								 jsonObject
+								);
+
+	if (jsonObject->TryGetStringField(TEXT("ImmediatelyUpdate"), QueryDeviceToken))
+	{
+	}
+
+}
+
+void FMessageBody_Receive_UpdateQueryDeviceToken::DoAction() const
+{
+	Super::DoAction();
+
+	UWebChannelWorldSystem::GetInstance()->QueryDeviceToken = QueryDeviceToken;
 }
 
 FString FMessageBody_Send::GetJsonString() const

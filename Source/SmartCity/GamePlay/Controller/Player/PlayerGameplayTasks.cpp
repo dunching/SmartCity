@@ -690,9 +690,9 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 
 				SceneElement_ControlBorderPtr = GetWorld()->SpawnActor<ASceneElement_ControlBorder>();
 
-				SceneElement_ControlBorderPtr->Replace(ControlBorderIter.LoadSynchronous()->P2, {}, AUDPtr->MetaData);
-				SceneElement_ControlBorderPtr->InitialSceneElement();
+				SceneElement_ControlBorderPtr->Replace(ControlBorderIter.LoadSynchronous()->P2, {}, AUDPtr->MetaData);;
 				SceneElement_ControlBorderPtr->SceneElementID = *Datasmith_UniqueId;
+				SceneElement_ControlBorderPtr->InitialSceneElement();
 
 				USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
 				                                             Add(
@@ -763,8 +763,8 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 
 							// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
 
-							NewActorPtr->InitialSceneElement();
 							NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+							NewActorPtr->InitialSceneElement();
 							NewActorPtr->QuitAllState();
 
 							USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
@@ -820,6 +820,7 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 
 							// NewActorPtr->AttachToActor(SceneElement_ControlBorderPtr, FAttachmentTransformRules::KeepWorldTransform);
 
+							NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 							NewActorPtr->InitialSceneElement();
 							NewActorPtr->QuitAllState();
 
@@ -917,9 +918,9 @@ void UGT_InitializeSceneActors::ProcessTask_ControlBorder(
 
 						NewActorPtr->Replace(DSIter, {}, AUDPtr->MetaData);
 
+						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 						NewActorPtr->InitialSceneElement();
 
-						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 						NewActorPtr->QuitAllState();
 
 						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
@@ -1049,8 +1050,8 @@ bool UGT_InitializeSceneActors::ProcessTask_SpaceItemSet(
 							 SceneElement_SpaceClass
 							);
 						NewActorPtr->Merge(Iter, {*SpaceInfo.Key, SpaceInfo.Value}, AUDPtr->MetaData);
-						NewActorPtr->InitialSceneElement();
 						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+						NewActorPtr->InitialSceneElement();
 						NewActorPtr->QuitAllState();
 
 						MergeActorsMap.Add(HashCode, NewActorPtr);
@@ -1208,8 +1209,8 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 							 ThirdIter.Value
 							);
 						NewActorPtr->Replace(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
-						NewActorPtr->InitialSceneElement();
 						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
+						NewActorPtr->InitialSceneElement();
 						NewActorPtr->QuitAllState();
 
 						USceneInteractionWorldSystem::GetInstance()->SceneElementMap.
@@ -1253,6 +1254,7 @@ bool UGT_InitializeSceneActors::ProcessTask_Generic(
 							 ThirdIter.Value
 							);
 						NewActorPtr->Merge(Iter, {*ThirdIter.Key.Key, *MetaDataIter}, AUDPtr->MetaData);
+						NewActorPtr->SceneElementID = *Datasmith_UniqueId;
 						NewActorPtr->InitialSceneElement();
 						if (ThirdIter.Value == ASceneElement_PWR_Pipe::StaticClass())
 						{
