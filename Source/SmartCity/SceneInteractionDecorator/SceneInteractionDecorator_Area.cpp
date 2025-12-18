@@ -1819,7 +1819,7 @@ void FFloor_Decorator::OnUpdateFilterComplete(
 
 	for (const auto& FloorIter : UAssetRefMap::GetInstance()->FloorHelpers)
 	{
-		if (FloorIter.Value->GameplayTagContainer.HasTag(GetBranchDecoratorType()))
+		if (FloorIter.Value->FloorTag.MatchesTag(GetBranchDecoratorType()))
 		{
 			auto MessageSPtr = MakeShared<FMessageBody_SelectedFloor>();
 

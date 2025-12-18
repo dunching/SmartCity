@@ -163,6 +163,6 @@ void APersonMark::Update(
 	if (OwnerActor)
 	{
 		const auto Transform = OwnerActor->GetActorTransform();
-		DrawDebugSphere(GetWorld(), Transform.TransformPosition(TargetLocation), 10.0f, 12, FColor::Red, false, 1);
+		// DrawDebugSphere(GetWorld(), Transform.TransformPosition(TargetLocation), 10.0f, 12, FColor::Red, false, 1);
 	}
 }
