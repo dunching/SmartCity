@@ -354,17 +354,28 @@ void ASceneElement_Computer::DisplayGroupWidget()
 			const auto Bounds = CollisionComponentHelper->GetScaledBoxExtent();
 
 			const auto Pt1 =
-				BoxPt + FVector(
+				BoxPt +
+					FVector(
 				                0,
 				                Bounds.Y,
-				                Bounds.Z
-				               );
+				                0
+				                ) +
+				                	FVector(
+								 0,
+								 0,
+								 Bounds.Z
+								);
+			
 			const auto Pt2 =
 				BoxPt - FVector(
 				                0,
 				                Bounds.Y,
-				                Bounds.Z
-				               );
+				                0
+				                ) + FVector(
+								 0,
+								 0,
+								 Bounds.Z
+								);
 
 			if (FVector::Distance(FloorBoxPt, Pt1) > FVector::Distance(FloorBoxPt, Pt2))
 			{

@@ -30,7 +30,7 @@ class SMARTCITY_API UComputerMarkGroupWidget : public UHoverWidgetReBase
 	GENERATED_BODY()
 
 public:
-	void NativeConstruct() override;
+	virtual void NativeConstruct() override;
 
 	void SetText(
 		const FString& InText
