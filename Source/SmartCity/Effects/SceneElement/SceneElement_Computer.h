@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Pawn.h"
+#include "Blueprint/UserWidget.h"
 
 #include "GameOptions.h"
+#include "HoverWidgetBase.h"
 #include "SceneElementBase.h"
 #include "SceneElement_DeviceBase.h"
 
@@ -19,6 +21,29 @@ class USpringArmComponent;
 class UCameraComponent;
 class AViewerPawn;
 class UActorSequenceComponent;
+class AComputerMarkGroup;
+class UTextBlock;
+
+UCLASS()
+class SMARTCITY_API UComputerMarkGroupWidget : public UHoverWidgetReBase
+{
+	GENERATED_BODY()
+
+public:
+	void NativeConstruct() override;
+
+	void SetText(
+		const FString& InText
+		);
+
+	virtual FVector GetHoverPosition() override;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* NameText = nullptr;
+
+	FVector TargetPt = FVector::ZeroVector;
+
+};
 
 /**
  * 门禁
@@ -66,6 +91,8 @@ public:
 		) override;
 
 	virtual TPair<FTransform, float> GetViewSeat()const override;
+
+	void DisplayGroupWidget();
 	
 protected:
 	
@@ -74,4 +101,8 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<UStaticMeshComponent*>StaticMeshComponentsAry;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UComputerMarkGroupWidget> ComputerMarkClass = nullptr;
+
+	TObjectPtr<UComputerMarkGroupWidget>WidgetPtr = nullptr;
 };

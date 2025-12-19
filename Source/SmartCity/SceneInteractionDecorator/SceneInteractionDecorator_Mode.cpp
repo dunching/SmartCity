@@ -198,6 +198,10 @@ void FEmergencyMode_Decorator::Spawn(
 									 FRotator::ZeroRotator
 									);
 								FireMarkSet.Add(FireMarkPtr);
+								if (FireMarkSet.Num() > 3)
+								{
+									return;
+								}
 							}
 						}
 					}

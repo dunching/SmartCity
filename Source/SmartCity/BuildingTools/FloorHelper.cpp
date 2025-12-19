@@ -4,6 +4,7 @@
 #include "Components/RectLightComponent.h"
 
 #include "AssetRefMap.h"
+#include "ComputerMark.h"
 #include "DatasmithAssetUserData.h"
 #include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
@@ -158,6 +159,58 @@ void AFloorHelper_Computer::OnConstruction(
 	)
 {
 	Super::OnConstruction(Transform);
+}
+
+void AFloorHelper_Computer::SwitchInteractionType(
+	const FSceneElementConditional& ConditionalSet
+	)
+{
+	Super::SwitchInteractionType(ConditionalSet);
+
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall)
+		)
+		{
+			SetActorHiddenInGame(true);
+
+			if (ComputerMarkRef.ToSoftObjectPath().IsValid())
+			{
+				ComputerMarkRef.LoadSynchronous()->SetActorHiddenInGame(true);
+			}
+			
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
+		)
+		{
+			SetActorHiddenInGame(true);
+
+			if (ComputerMarkRef.ToSoftObjectPath().IsValid())
+			{
+				ComputerMarkRef.LoadSynchronous()->SetActorHiddenInGame(true);
+			}
+			
+			return;
+		}
+	}
+	{
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
+		{
+			SetActorHiddenInGame(false);
+
+			if (ComputerMarkRef.ToSoftObjectPath().IsValid())
+			{
+				ComputerMarkRef.LoadSynchronous()->SetActorHiddenInGame(false);
+			}
+			
+			return;
+		}
+	}
 }
 
 TMap<FString, TSoftObjectPtr<AViewerPawnBase>> AFloorHelper_Computer::GetPresetBuildingCameraSeat() const

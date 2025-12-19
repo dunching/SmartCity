@@ -3168,6 +3168,7 @@ void FViewSpecialArea_Decorator::Process()
 	{
 		SceneActorConditional.ConditionalSet.AddTag(Iter);
 	}
+		SceneActorConditional.ConditionalSet.AddTag(USmartCitySuiteTags::Interaction_Area_SpecialArea);
 
 	TMulticastDelegate<void(
 		bool,
@@ -3250,6 +3251,7 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 									                     }
 								                     }
 								                    );
+							SceneElementBasePtr->DisplayGroupWidget();
 
 							return;
 						}
