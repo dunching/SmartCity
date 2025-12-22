@@ -3,7 +3,6 @@
 #pragma once
 
 #include <functional>
-#include <variant>
 #include <map>
 
 #include "CoreMinimal.h"

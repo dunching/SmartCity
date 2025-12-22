@@ -6,7 +6,6 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "GameOptions.h"
 #include "SceneElementBase.h"
 
 #include "SceneElement_Space.generated.h"
@@ -23,6 +22,7 @@ class ASceneElement_DeviceBase;
 class UFeatureWheel;
 class AFloorHelper;
 class ULocalLightComponent;
+class ASceneElement_Space_VolumetricFog;
 
 /**
  * 雷达扫描效果
@@ -111,6 +111,10 @@ public:
 
 	void OnExternalWall();
 
+	void ShowFog();
+
+	void ClearFog();
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	TArray<UStaticMeshComponent*> StaticMeshComponentsAry;
 
@@ -119,6 +123,7 @@ public:
 
 	TArray<FString> FeaturesAry;
 
+	TArray<TObjectPtr<ASceneElement_Space_VolumetricFog>> VolumetricFogAry;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;

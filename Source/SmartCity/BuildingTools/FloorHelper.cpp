@@ -5,8 +5,6 @@
 
 #include "AssetRefMap.h"
 #include "ComputerMark.h"
-#include "DatasmithAssetUserData.h"
-#include "DatasmithSceneActor.h"
 #include "Dynamic_SkyBase.h"
 #include "FloorHelper_Description.h"
 #include "SceneElementCategory.h"
