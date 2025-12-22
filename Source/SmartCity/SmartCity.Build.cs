@@ -24,6 +24,7 @@ public class SmartCity : ModuleRules
 		}
 
 		PublicDefinitions.Add("TEST_RADAR = 1");
+		// PublicDefinitions.Add("NOMINMAX");
 
 		PublicIncludePaths.Add("SmartCity");
 		PublicIncludePaths.Add("SmartCity/Marks");
@@ -90,9 +91,6 @@ public class SmartCity : ModuleRules
 			"DatasmithContent",
 			"MovieScene",
 			
-			"Http",
-			"WebSockets",
-
 			// 引擎插件
 			"GameplayTags",
 			"GameplayTasks",
@@ -102,6 +100,9 @@ public class SmartCity : ModuleRules
 			"GameplayCameras",
 			"Niagara",
 			"PixelStreaming",
+
+			"HTTP",
+			"WebSockets",
 
 			// 插件
 			"Common_UMG",

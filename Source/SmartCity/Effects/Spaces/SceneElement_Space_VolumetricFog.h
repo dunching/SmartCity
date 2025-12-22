@@ -24,4 +24,10 @@ class SMARTCITY_API ASceneElement_Space_VolumetricFog :
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetBoxSize(const FVector& InBoxSize);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetFogColor(const FColor& FogColor);
 };

@@ -4,6 +4,7 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/BoxComponent.h"
+#include "Components/PointLightComponent.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -11,20 +12,14 @@
 #include "Dynamic_SkyBase.h"
 #include "FeatureWheel.h"
 #include "FloorHelper.h"
-#include "GameplayTagsLibrary.h"
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
-#include "MessageBody.h"
-#include "PlanetPlayerController.h"
-#include "PlayerGameplayTasks.h"
-#include "RouteMarker.h"
 #include "SceneElement_DeviceBase.h"
+#include "SceneElement_Space_VolumetricFog.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
 #include "WeatherSystem.h"
-#include "WebChannelWorldSystem.h"
-#include "Components/PointLightComponent.h"
 
 ASceneElement_Space::ASceneElement_Space(
 	const FObjectInitializer& ObjectInitializer
@@ -56,7 +51,7 @@ FBox ASceneElement_Space::GetComponentsBoundingBox(
 
 	for (auto Iter : CollisionComponentsAry)
 	{
-			Box += Iter->Bounds.GetBox();
+		Box += Iter->Bounds.GetBox();
 	}
 
 	return Box;
@@ -229,14 +224,14 @@ void ASceneElement_Space::Merge(
 			if (!FloorPtr->FloorTag.MatchesTag(USmartCitySuiteTags::Interaction_Area_Floor_Roof))
 			{
 				auto LightComponentPtr = Cast<UPointLightComponent>(
-																	AddComponentByClass(
-																		 UPointLightComponent::StaticClass(),
-																		 true,
-																		 STPtr->GetStaticMeshComponent()->
-																				GetComponentTransform(),
-																		 false
-																		)
-																   );
+				                                                    AddComponentByClass(
+					                                                     UPointLightComponent::StaticClass(),
+					                                                     true,
+					                                                     STPtr->GetStaticMeshComponent()->
+					                                                     GetComponentTransform(),
+					                                                     false
+					                                                    )
+				                                                   );
 
 				LightComponentPtr->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 
@@ -269,7 +264,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	{
 		if (
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery) 
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
 			QuitAllState();
@@ -331,7 +326,7 @@ void ASceneElement_Space::SwitchInteractionType(
 	}
 	{
 		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
+		     ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			QuitAllState();
 
@@ -463,11 +458,13 @@ void ASceneElement_Space::EntryViewDevice(
 			PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 		}
 	}
-	
+
 	for (auto Iter : CollisionComponentsAry)
 	{
 		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	ShowFog();
 }
 
 void ASceneElement_Space::EntryFocusDevice(
@@ -522,7 +519,7 @@ void ASceneElement_Space::EntryFocusDevice(
 						Features.Add({Iter, nullptr});
 					}
 
-					FeatureWheelPtr->TargetPt = TargetPt.GetCenter() + FVector(0,0,TargetPt.GetExtent().Z);
+					FeatureWheelPtr->TargetPt = TargetPt.GetCenter() + FVector(0, 0, TargetPt.GetExtent().Z);
 					FeatureWheelPtr->InitalFeaturesItem(Category, Features);
 
 					FeatureWheelPtr->AddToViewport();
@@ -540,11 +537,13 @@ void ASceneElement_Space::EntryFocusDevice(
 						PrimitiveComponentPtr->SetCustomDepthStencilValue(UGameOptions::GetInstance()->FocusOutline);
 					}
 				}
-	
+
 				for (auto Iter : CollisionComponentsAry)
 				{
 					Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 				}
+
+				ShowFog();
 			}
 			break;
 		}
@@ -566,11 +565,13 @@ void ASceneElement_Space::EntryShow(
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
-	
+
 	for (auto Iter : CollisionComponentsAry)
 	{
 		Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
+
+	ClearFog();
 }
 
 void ASceneElement_Space::EntryShowEffect(
@@ -601,6 +602,8 @@ void ASceneElement_Space::EntryShowEffect(
 					}
 				}
 				FeatureWheelAry.Empty();
+
+				ClearFog();
 			}
 			break;
 		case EInteractionType::kSpace:
@@ -648,11 +651,13 @@ void ASceneElement_Space::EntryShowEffect(
 						PrimitiveComponentPtr->SetRenderCustomDepth(false);
 					}
 				}
-	
+
 				for (auto Iter : CollisionComponentsAry)
 				{
 					Iter->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 				}
+
+				ClearFog();
 			}
 			break;
 		}
@@ -684,11 +689,13 @@ void ASceneElement_Space::QuitAllState()
 			PrimitiveComponentPtr->SetRenderCustomDepth(false);
 		}
 	}
-	
+
 	for (auto Iter : CollisionComponentsAry)
 	{
 		Iter->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	ClearFog();
 }
 
 void ASceneElement_Space::SwitchColor(
@@ -744,8 +751,8 @@ void ASceneElement_Space::OnHourChanged(
 
 	if (
 		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_ExternalWall) ||
-		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Periphery) 
-		)
+		AreaDecoratorSPtr->GetBranchDecoratorType().MatchesTag(USmartCitySuiteTags::Interaction_Area_Periphery)
+	)
 	{
 		if (Hour > 18 || Hour < 8)
 		{
@@ -762,7 +769,7 @@ void ASceneElement_Space::OnHourChanged(
 		}
 		return;
 	}
-	
+
 	for (auto Iter : RectLightComponentAry)
 	{
 		Iter->SetHiddenInGame(true);
@@ -786,4 +793,51 @@ void ASceneElement_Space::OnExternalWall()
 		Iter->SetHiddenInGame(true);
 		DrawDebugSphere(GetWorld(), Iter->GetComponentLocation(), 20, 20, FColor::Red, false, 10);
 	}
+}
+
+void ASceneElement_Space::ShowFog()
+{
+	if (VolumetricFogAry.IsEmpty())
+	{
+		FActorSpawnParameters SpawnParameters;
+
+		for (auto MeshIter : CollisionComponentsAry)
+		{
+			SpawnParameters.CustomPreSpawnInitalization = [MeshIter](
+				AActor* Actor
+				)
+			{
+				auto FogPtr = Cast<ASceneElement_Space_VolumetricFog>(Actor);
+				if (FogPtr)
+				{
+					FogPtr->SetBoxSize(MeshIter->GetScaledBoxExtent() * 2);
+				}
+			};
+
+			VolumetricFogAry.Add(
+								 GetWorld()->SpawnActor<ASceneElement_Space_VolumetricFog>(
+									  UAssetRefMap::GetInstance()->SceneElement_Space_VolumetricFogClass,
+									  MeshIter->GetComponentLocation(),
+									  FRotator::ZeroRotator,
+									  SpawnParameters
+									 )
+								);
+		}
+	}
+	else
+	{
+	}
+}
+
+void ASceneElement_Space::ClearFog()
+{
+	for (auto Iter : VolumetricFogAry)
+	{
+		if (Iter)
+		{
+			Iter->Destroy();
+		}
+	}
+
+	VolumetricFogAry.Empty();
 }

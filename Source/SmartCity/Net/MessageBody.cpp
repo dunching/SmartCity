@@ -1101,6 +1101,19 @@ TSharedPtr<FJsonObject> FMessageBody_UE_Tick::SerializeBody() const
 	                            Text
 	                           );
 
+	TArray<TSharedPtr<FJsonValue>> Array;
+
+	const auto IDs = UWebChannelWorldSystem::GetInstance()->ConnetedPlayerIds;
+	for (auto Iter : IDs )
+	{
+		Array.Add(MakeShared<FJsonValueString>(Iter));
+	}
+	
+	RootJsonObj->SetArrayField(
+	                            TEXT("ConnectedID"),
+	                            Array
+	                           );
+
 	return RootJsonObj;
 }
 

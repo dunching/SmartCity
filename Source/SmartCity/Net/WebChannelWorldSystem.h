@@ -56,6 +56,8 @@ public:
 
 	FString QueryDeviceToken;
 
+	TSet<FPixelStreamingPlayerId>ConnetedPlayerIds;
+	
 private:
 	UFUNCTION()
 	void OnConnectedToSignallingServerNative();

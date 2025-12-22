@@ -6,7 +6,6 @@
 
 #include "GameFramework/Pawn.h"
 
-#include "GameOptions.h"
 #include "FloorHelperBase.h"
 
 #include "FloorHelper.generated.h"
@@ -103,6 +102,16 @@ public:
 	TSet<FString> Names;
 };
 
+// USTRUCT(BlueprintType, Blueprintable)
+// struct SMARTCITY_API FFloorHelper_ComputerNames_SameName
+// {
+// 	GENERATED_USTRUCT_BODY()
+//
+// public:
+// 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+// 	TMap<FString, FString> Names;
+// };
+
 UCLASS()
 class SMARTCITY_API AFloorHelper_Computer :
 	public AFloorHelper
@@ -125,6 +134,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TMap<FString,FFloorHelper_ComputerNames> ComputerNameMap;
+
+	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	// TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
 
 };
 

@@ -29,6 +29,7 @@ class ABuilding_Floor_Mask;
 class AFloorHelper_Description;
 class AViewerPawnBase;
 class ASceneElement_RollerBlind;
+class ASceneElement_Space_VolumetricFog;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -189,6 +190,13 @@ public:
 		EditAnywhere
 	)
 	TSubclassOf<ASceneElement_RollerBlind> SceneElement_RollerBlindClass;
+
+	UPROPERTY(
+
+		BlueprintReadWrite,
+		EditAnywhere
+	)
+	TSubclassOf<ASceneElement_Space_VolumetricFog> SceneElement_Space_VolumetricFogClass;
 
 #pragma endregion
 	

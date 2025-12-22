@@ -260,6 +260,7 @@ void UWebChannelWorldSystem::OnClosedConnectionNative(
 	bool bIsTrue
 	)
 {
+	ConnetedPlayerIds.Remove(ID);
 }
 
 void UWebChannelWorldSystem::NewConnectionNative(
@@ -268,6 +269,8 @@ void UWebChannelWorldSystem::NewConnectionNative(
 	bool bIsTrue
 	)
 {
+	ConnetedPlayerIds.Add(ID);
+	
 	if (MessageTickTimerHandle.IsValid())
 	{
 	}
@@ -288,6 +291,8 @@ void UWebChannelWorldSystem::OnAllConnectionsClosed(
 	)
 {
 	GetWorld()->GetTimerManager().ClearTimer(MessageTickTimerHandle);
+	
+	ConnetedPlayerIds.Empty();
 }
 
 void UWebChannelWorldSystem::OnInput(
