@@ -102,15 +102,15 @@ public:
 	TSet<FString> Names;
 };
 
-// USTRUCT(BlueprintType, Blueprintable)
-// struct SMARTCITY_API FFloorHelper_ComputerNames_SameName
-// {
-// 	GENERATED_USTRUCT_BODY()
-//
-// public:
-// 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-// 	TMap<FString, FString> Names;
-// };
+USTRUCT(BlueprintType, Blueprintable)
+struct SMARTCITY_API FFloorHelper_ComputerNames_SameName
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TMap<FString, FString> Names;
+};
 
 UCLASS()
 class SMARTCITY_API AFloorHelper_Computer :
@@ -135,8 +135,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TMap<FString,FFloorHelper_ComputerNames> ComputerNameMap;
 
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	// TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
 
 };
 

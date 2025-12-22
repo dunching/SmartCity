@@ -15,7 +15,7 @@
 #include "MainHUD.h"
 #include "MainHUDLayout.h"
 #include "SceneElement_DeviceBase.h"
-#include "SceneElement_Space_VolumetricFog.h"
+#include "Space_VolumetricFog.h"
 #include "SceneInteractionDecorator_Area.h"
 #include "SceneInteractionWorldSystem.h"
 #include "SmartCitySuiteTags.h"
@@ -800,22 +800,22 @@ void ASceneElement_Space::ShowFog()
 	if (VolumetricFogAry.IsEmpty())
 	{
 		FActorSpawnParameters SpawnParameters;
-
+	
 		for (auto MeshIter : CollisionComponentsAry)
 		{
 			SpawnParameters.CustomPreSpawnInitalization = [MeshIter](
 				AActor* Actor
 				)
 			{
-				auto FogPtr = Cast<ASceneElement_Space_VolumetricFog>(Actor);
+				auto FogPtr = Cast<ASpace_VolumetricFog>(Actor);
 				if (FogPtr)
 				{
 					FogPtr->SetBoxSize(MeshIter->GetScaledBoxExtent() * 2);
 				}
 			};
-
+			
 			VolumetricFogAry.Add(
-								 GetWorld()->SpawnActor<ASceneElement_Space_VolumetricFog>(
+								 GetWorld()->SpawnActor<ASpace_VolumetricFog>(
 									  UAssetRefMap::GetInstance()->SceneElement_Space_VolumetricFogClass,
 									  MeshIter->GetComponentLocation(),
 									  FRotator::ZeroRotator,
@@ -838,6 +838,6 @@ void ASceneElement_Space::ClearFog()
 			Iter->Destroy();
 		}
 	}
-
+	
 	VolumetricFogAry.Empty();
 }

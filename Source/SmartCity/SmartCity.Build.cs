@@ -23,8 +23,7 @@ public class SmartCity : ModuleRules
 		{
 		}
 
-		PublicDefinitions.Add("TEST_RADAR = 1");
-		// PublicDefinitions.Add("NOMINMAX");
+		PublicDefinitions.Add("TEST_RADAR = 1");  
 
 		PublicIncludePaths.Add("SmartCity");
 		PublicIncludePaths.Add("SmartCity/Marks");

@@ -22,7 +22,7 @@ class ASceneElement_DeviceBase;
 class UFeatureWheel;
 class AFloorHelper;
 class ULocalLightComponent;
-class ASceneElement_Space_VolumetricFog;
+class ASpace_VolumetricFog;
 
 /**
  * 雷达扫描效果
@@ -123,7 +123,7 @@ public:
 
 	TArray<FString> FeaturesAry;
 
-	TArray<TObjectPtr<ASceneElement_Space_VolumetricFog>> VolumetricFogAry;
+	TArray<TObjectPtr<ASpace_VolumetricFog>> VolumetricFogAry;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<AFloorHelper> BelongFloor = nullptr;

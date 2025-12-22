@@ -4,12 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "GameFramework/Pawn.h"
-
-#include "GameOptions.h"
-#include "SceneElementBase.h"
-
-#include "SceneElement_Space_VolumetricFog.generated.h"
+#include "Space_VolumetricFog.generated.h"
 
 class USplineComponent;
 class USplineMeshComponent;
@@ -18,16 +13,21 @@ class USplineMeshComponent;
  * 雷达扫描效果
  */
 UCLASS()
-class SMARTCITY_API ASceneElement_Space_VolumetricFog :
+class SMARTCITY_API ASpace_VolumetricFog :
 	public AActor
 {
 	GENERATED_BODY()
 
 public:
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetBoxSize(const FVector& InBoxSize);
+	void SetBoxSize(
+		const FVector& InBoxSize
+		);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetFogColor(const FColor& FogColor);
+	void SetFogColor(
+		const FColor& FogColor
+		);
 };
