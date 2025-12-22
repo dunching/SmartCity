@@ -20,6 +20,7 @@ class UCameraComponent;
 class AViewerPawnBase;
 class UActorSequenceComponent;
 class AFloorHelper_Description;
+class AComputerMark;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UControlBorderDevices : public UPrimaryDataAsset
@@ -92,6 +93,16 @@ protected:
 	bool bDisplayDescritpion = true;
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct SMARTCITY_API FFloorHelper_ComputerNames
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TSet<FString> Names;
+};
+
 UCLASS()
 class SMARTCITY_API AFloorHelper_Computer :
 	public AFloorHelper
@@ -103,7 +114,18 @@ public:
 		const FTransform& Transform
 		) override;
 
+	virtual void SwitchInteractionType(
+		const FSceneElementConditional& ConditionalSet
+		) override;
+
 	virtual TMap<FString, TSoftObjectPtr<AViewerPawnBase>> GetPresetBuildingCameraSeat() const override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSoftObjectPtr<AComputerMark> ComputerMarkRef = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TMap<FString,FFloorHelper_ComputerNames> ComputerNameMap;
+
 };
 
 UCLASS()

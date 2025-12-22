@@ -10,6 +10,27 @@
 #include "MessageBody.h"
 #include "SmartCitySuiteTags.h"
 #include "WebChannelWorldSystem.h"
+#include "ComputerMark.h"
+#include "Components/TextBlock.h"
+
+void UComputerMarkGroupWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	SetAlignmentInViewport(FVector2D(0.5f, 1.f));
+}
+
+void UComputerMarkGroupWidget::SetText(
+	const FString& InText
+	)
+{
+	NameText->SetText(FText::FromString(InText));
+}
+
+FVector UComputerMarkGroupWidget::GetHoverPosition()
+{
+	return TargetPt;
+}
 
 ASceneElement_Computer::ASceneElement_Computer(
 	const FObjectInitializer& ObjectInitializer
@@ -108,7 +129,23 @@ void ASceneElement_Computer::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			QuitAllState();
+
+			return;
+		}
+	}
+	{
+		if (
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_SpecialArea) 
+		)
+		{
+			EntryShowDevice();
 
 			return;
 		}
@@ -120,6 +157,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode_DeviceManagger)
 		)
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			EntryShowDevice();
 
 			return;
@@ -130,6 +173,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Mode_BatchControl)
 		)
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			EntryShowDevice();
 
 			return;
@@ -142,6 +191,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Mode)
 		)
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			EntryShowDevice();
 
 			return;
@@ -149,8 +204,14 @@ void ASceneElement_Computer::SwitchInteractionType(
 	}
 	{
 		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
-			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
+		     ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			EntryShowDevice();
 
 			return;
@@ -159,6 +220,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 
 	if (ProcessJiaCengLogic(ConditionalSet))
 	{
+		if (WidgetPtr)
+		{
+			WidgetPtr->RemoveFromParent();
+		}
+		WidgetPtr = nullptr;
+
 		QuitAllState();
 		return;
 	}
@@ -167,6 +234,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 		if (ConditionalSet.ConditionalSet.IsEmpty())
 		{
 		}
+		if (WidgetPtr)
+		{
+			WidgetPtr->RemoveFromParent();
+		}
+		WidgetPtr = nullptr;
+
 		QuitAllState();
 
 		return;
@@ -254,4 +327,78 @@ TPair<FTransform, float> ASceneElement_Computer::GetViewSeat() const
 	}
 
 	return Result;
+}
+
+void ASceneElement_Computer::DisplayGroupWidget()
+{
+	auto FloorPtr = Cast<AFloorHelper_Computer>(BelongFloor);
+	if (FloorPtr)
+	{
+		FString Str;
+		ON_SCOPE_EXIT
+
+		{
+			WidgetPtr = CreateWidget<UComputerMarkGroupWidget>(
+			                                                   GetWorld(),
+			                                                   ComputerMarkClass
+			                                                  );
+
+
+			WidgetPtr->SetText(Str);
+
+
+			const auto FloorBoxPt = BelongFloor->BoxComponentPtr->GetComponentLocation();
+
+			const auto BoxPt = CollisionComponentHelper->GetComponentLocation();
+
+			const auto Bounds = CollisionComponentHelper->GetScaledBoxExtent();
+
+			const auto Pt1 =
+				BoxPt +
+					FVector(
+				                0,
+				                Bounds.Y,
+				                0
+				                ) +
+				                	FVector(
+								 0,
+								 0,
+								 Bounds.Z
+								);
+			
+			const auto Pt2 =
+				BoxPt - FVector(
+				                0,
+				                Bounds.Y,
+				                0
+				                ) + FVector(
+								 0,
+								 0,
+								 Bounds.Z
+								);
+
+			if (FVector::Distance(FloorBoxPt, Pt1) > FVector::Distance(FloorBoxPt, Pt2))
+			{
+				WidgetPtr->TargetPt = Pt1;
+			}
+			else
+			{
+				WidgetPtr->TargetPt = Pt2;
+			}
+
+			WidgetPtr->AddToViewport();
+		};
+
+		for (const auto& Iter : FloorPtr->ComputerNameMap)
+		{
+			for (const auto& SecondIter : Iter.Value.Names)
+			{
+				if (SecondIter == CurrentUserData.Value)
+				{
+					Str = Iter.Key;
+					return;
+				}
+			}
+		}
+	}
 }

@@ -308,6 +308,13 @@ void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
 	                             jsonObject
 	                            );
 
+	if (jsonObject)
+	{}
+	else
+	{
+		return;
+	}
+	
 	const TSharedPtr<FJsonObject>* body_OutObject = nullptr;
 	if (jsonObject->TryGetObjectField(
 	                                  TEXT("body"),
