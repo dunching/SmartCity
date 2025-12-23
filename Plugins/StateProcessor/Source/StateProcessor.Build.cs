@@ -7,6 +7,7 @@ public class StateProcessor : ModuleRules
 {
 	public StateProcessor(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bUseUnity = false;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		DefaultBuildSettings = BuildSettingsVersion.Latest;

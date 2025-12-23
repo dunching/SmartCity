@@ -77,6 +77,9 @@ public:
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> NetState_StaticMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UStaticMesh> SweepMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -131,6 +134,11 @@ private:
 	void Close(int32 Code = 1000, const FString& Reason = TEXT("Normal"));
 
 	void BindEvents();
+
+	virtual void QueryDeviceInfoComplete(
+		bool bSuccess,
+		const FString& ResponStr
+		) override;
 
 
 	// 简单重连参数（可按需增强）

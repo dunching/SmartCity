@@ -6,6 +6,7 @@ public class Tools : ModuleRules
 {
 	public Tools(ReadOnlyTargetRules Target) : base(Target)
     {
+        bUseUnity = false;
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Error;

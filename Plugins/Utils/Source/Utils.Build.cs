@@ -7,6 +7,10 @@ public class Utils : ModuleRules
 {
 	public Utils(ReadOnlyTargetRules Target) : base(Target)
     {
+	    // Include What You Use (IWYU)
+	    bUseUnity = false;
+	    PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         DefaultBuildSettings = BuildSettingsVersion.Latest;
 
         CppStandard = CppStandardVersion.Cpp20;

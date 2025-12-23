@@ -6,6 +6,7 @@ public class EditTool : ModuleRules
 {
 	public EditTool(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bUseUnity = false;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Error;

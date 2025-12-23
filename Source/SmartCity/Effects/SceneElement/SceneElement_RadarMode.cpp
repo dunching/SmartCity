@@ -249,6 +249,11 @@ ASceneElement_RadarMode::ASceneElement_RadarMode(
 	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	StaticMeshComponent->SetRelativeRotation(FRotator(0, 90, 0));
+	
+	NetState_StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("NetState_StaticMeshComponent"));
+	NetState_StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
+
+	NetState_StaticMeshComponent->SetRelativeRotation(FRotator(0, 90, 0));
 }
 
 void ASceneElement_RadarMode::OnConstruction(
@@ -655,7 +660,9 @@ void ASceneElement_RadarMode::Close(
 void ASceneElement_RadarMode::BindEvents()
 {
 	if (!Socket.IsValid())
+	{
 		return;
+	}
 
 	Socket->OnConnected().AddLambda(
 	                                [this]()
@@ -747,6 +754,16 @@ void ASceneElement_RadarMode::BindEvents()
 	// 	                                       );
 	//                                  }
 	//                                 );
+}
+
+void ASceneElement_RadarMode::QueryDeviceInfoComplete(
+	bool bSuccess,
+	const FString& ResponStr
+	)
+{
+	Super::QueryDeviceInfoComplete(bSuccess, ResponStr);
+
+	InitialSocket();
 }
 
 void ASceneElement_RadarMode::ScheduleReconnect()

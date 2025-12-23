@@ -6,6 +6,7 @@ public class CommonType : ModuleRules
 {
 	public CommonType(ReadOnlyTargetRules Target) : base(Target)
     {
+        bUseUnity = false;
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Error;

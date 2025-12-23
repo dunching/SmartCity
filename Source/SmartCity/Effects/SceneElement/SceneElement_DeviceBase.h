@@ -42,8 +42,10 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	
+	virtual void EndPlay(
+		const EEndPlayReason::Type EndPlayReason
+		) override;
+
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
@@ -51,12 +53,14 @@ public:
 
 	virtual void Merge(
 		const TSoftObjectPtr<AActor>& ActorRef,
-		const TPair<FName, FString>& InUserData
-		, const TMap<FName, FString>& NewUserData
+		const TPair<FName, FString>& InUserData,
+		const TMap<FName, FString>& NewUserData
 		) override;
 
-	virtual void UpdateReletiveTransform(const FTransform& NewRelativeTransform);
-	
+	virtual void UpdateReletiveTransform(
+		const FTransform& NewRelativeTransform
+		);
+
 	virtual void BeginInteraction() override;
 
 	virtual void EndInteraction() override;
@@ -105,7 +109,7 @@ public:
 	virtual void QuitShowDeviceEffect(
 		);
 
-	
+
 	virtual void QuitAllState(
 		) override;
 
@@ -122,7 +126,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> CollisionComponentHelper = nullptr;
-	
+
 	/**
 	 * 设备实际的ID
 	 */
@@ -130,16 +134,20 @@ public:
 	FString DeviceRealID;
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float IntervalTime = 10.f;;
 
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> Request;
-	
+
 	void QueryDeviceInfo();
 
+	virtual void QueryDeviceInfoComplete(
+		bool bSuccess,
+		const FString& ResponStr
+		);
+
 	FTimerHandle QueryDeviceTimerHandel;
-	
+
 	struct FQueryDeviceInfo
 	{
 		FString ID;
@@ -151,8 +159,10 @@ protected:
 			);
 	};
 
-	void UpdateCollisionBox(const TArray<UStaticMeshComponent*>& SMCompsAry);
-	
+	void UpdateCollisionBox(
+		const TArray<UStaticMeshComponent*>& SMCompsAry
+		);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FGameplayTag DeviceType;
 

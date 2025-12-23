@@ -7,6 +7,7 @@ public class SmartCity : ModuleRules
 	public SmartCity(ReadOnlyTargetRules Target) : base(Target)
 	{
 		// Include What You Use (IWYU)
+		bUseUnity = false;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		DefaultBuildSettings = BuildSettingsVersion.Latest;

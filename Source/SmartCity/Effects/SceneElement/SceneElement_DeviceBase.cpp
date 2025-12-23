@@ -53,9 +53,9 @@ void ASceneElement_DeviceBase::EndPlay(
 	{
 		Request->CancelRequest();
 	}
-	
+
 	GetWorldTimerManager().ClearTimer(QueryDeviceTimerHandel);
-	
+
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -296,27 +296,34 @@ void ASceneElement_DeviceBase::QueryDeviceInfo()
 	{
 		Request->CancelRequest();
 	}
-	
+
 	Request = UWebChannelWorldSystem::GetInstance()->QueryDeviceID(
-														 SceneElementID,
-														 [this](
-														 bool bSuccess,
-														 const FString& ResponStr
-														 )
-														 {
-															 if (bSuccess)
-															 {
-																 FQueryDeviceInfo QueryDeviceInfo;
-																 QueryDeviceInfo.Deserialize(ResponStr);
+	                                                               SceneElementID,
+	                                                               std::bind(
+	                                                                         &ThisClass::QueryDeviceInfoComplete,
+	                                                                         this,
+	                                                                         std::placeholders::_1,
+	                                                                         std::placeholders::_2
+	                                                                        )
+	                                                              );
+}
 
-																 DeviceRealID = QueryDeviceInfo.ID;
+void ASceneElement_DeviceBase::QueryDeviceInfoComplete(
+	bool bSuccess,
+	const FString& ResponStr
+	)
+{
+	if (bSuccess)
+	{
+		FQueryDeviceInfo QueryDeviceInfo;
+		QueryDeviceInfo.Deserialize(ResponStr);
 
-																 UpdateReletiveTransform(
-																	  QueryDeviceInfo.Reletivetransform
-																	 );
-															 }
-														 }
-														);
+		DeviceRealID = QueryDeviceInfo.ID;
+
+		UpdateReletiveTransform(
+		                        QueryDeviceInfo.Reletivetransform
+		                       );
+	}
 }
 
 void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
@@ -334,12 +341,13 @@ void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
 	                            );
 
 	if (jsonObject)
-	{}
+	{
+	}
 	else
 	{
 		return;
 	}
-	
+
 	const TSharedPtr<FJsonObject>* body_OutObject = nullptr;
 	if (jsonObject->TryGetObjectField(
 	                                  TEXT("body"),
@@ -362,13 +370,13 @@ void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
 				{
 				}
 
-#if UE_GAME 
+#if UE_GAME
 				if (ID == TEXT("0001-0406-2527-0289"))
 				{
 					checkNoEntry();
 				}
 #endif
-				
+
 				FString extra_Str;
 				if (ObjSPtr->TryGetStringField(
 				                               TEXT("extra"),
@@ -381,15 +389,15 @@ void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(
 					TSharedPtr<FJsonObject> extra_OutObject;
 
 					FJsonSerializer::Deserialize(
-												 extraJsonReader,
-												 extra_OutObject
-												);
+					                             extraJsonReader,
+					                             extra_OutObject
+					                            );
 
 					const TSharedPtr<FJsonObject>* radarTransform_OutObject = nullptr;
 					if (extra_OutObject->TryGetObjectField(
-					                                          TEXT("radarTransform"),
-					                                          radarTransform_OutObject
-					                                         ))
+					                                       TEXT("radarTransform"),
+					                                       radarTransform_OutObject
+					                                      ))
 					{
 						FVector Translation;
 						{

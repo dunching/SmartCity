@@ -6,6 +6,7 @@ public class AssetRef : ModuleRules
 {
 	public AssetRef(ReadOnlyTargetRules Target) : base(Target)
     {
+        bUseUnity = false;
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         CppCompileWarningSettings.UndefinedIdentifierWarningLevel = WarningLevel.Error;

@@ -164,14 +164,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> FurnitureTranslucentMatInst;
 
-	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	// TSoftObjectPtr<UStaticMesh> RadarOnline;
-	//
-	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	// TSoftObjectPtr<UStaticMesh> RadarOffline;
-	//
-	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	// TSoftObjectPtr<UStaticMesh> RadarQueryFailed;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UStaticMesh> RadarOnline;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UStaticMesh> RadarOffline;
+	
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSoftObjectPtr<UStaticMesh> RadarQueryFailed;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<UFeatureWheel> FeatureWheelClass;

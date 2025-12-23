@@ -7,6 +7,7 @@ public class Common_UMG : ModuleRules
 {
 	public Common_UMG(ReadOnlyTargetRules Target) : base(Target)
 	{
+		bUseUnity = false;
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
