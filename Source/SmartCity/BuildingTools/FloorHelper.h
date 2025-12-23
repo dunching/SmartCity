@@ -25,16 +25,16 @@ UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UControlBorderDevices : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-public:
 
+public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<AActor> P2;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<TSoftObjectPtr<AActor>>Devices;
+	TArray<TSoftObjectPtr<AActor>> Devices;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	TArray<TSoftObjectPtr<AActor>>CurtainWall;
+	TArray<TSoftObjectPtr<AActor>> CurtainWall;
 };
 
 /**
@@ -92,26 +92,6 @@ protected:
 	bool bDisplayDescritpion = true;
 };
 
-USTRUCT(BlueprintType, Blueprintable)
-struct SMARTCITY_API FFloorHelper_ComputerNames
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TSet<FString> Names;
-};
-
-USTRUCT(BlueprintType, Blueprintable)
-struct SMARTCITY_API FFloorHelper_ComputerNames_SameName
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TMap<FString, FString> Names;
-};
-
 UCLASS()
 class SMARTCITY_API AFloorHelper_Computer :
 	public AFloorHelper
@@ -132,12 +112,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<AComputerMark> ComputerMarkRef = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TMap<FString,FFloorHelper_ComputerNames> ComputerNameMap;
-
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
-
+	/**
+	 * 机柜
+	 *	名字
+	 *	索引
+	 */
+	TMap<FString, TMap<FString, FString>> ComputerNameMap;
 };
 
 UCLASS()

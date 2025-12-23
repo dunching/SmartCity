@@ -341,7 +341,7 @@ void UWebChannelWorldSystem::OnInput(
 	}
 }
 
-void UWebChannelWorldSystem::QueryDeviceID(
+TSharedRef<IHttpRequest, ESPMode::ThreadSafe> UWebChannelWorldSystem::QueryDeviceID(
 	const FString& BimID,
 	const TFunction<void(bool , const FString&)>& QueryComplete
 	)
@@ -409,6 +409,8 @@ void UWebChannelWorldSystem::QueryDeviceID(
 
 	// 6. 发送
 	Request->ProcessRequest();
+
+	return  Request;
 }
 
 void UWebChannelWorldSystem::MessageTickImp()

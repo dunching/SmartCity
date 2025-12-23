@@ -71,6 +71,8 @@ public:
 		, const TMap<FName, FString>& NewUserData
 		) override;
 
+	virtual void InitialSceneElement() override;
+
 	virtual void SwitchInteractionType(
 		const FSceneElementConditional& ConditionalSet
 		) override;

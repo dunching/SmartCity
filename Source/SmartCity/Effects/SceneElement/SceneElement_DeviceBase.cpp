@@ -3,6 +3,7 @@
 #include "ActorSequenceComponent.h"
 #include "DatasmithAssetUserData.h"
 #include "Components/BoxComponent.h"
+#include "Interfaces/IHttpRequest.h"
 
 #include "AssetRefMap.h"
 #include "CollisionDataStruct.h"
@@ -42,6 +43,20 @@ void ASceneElement_DeviceBase::UpdateReletiveTransform(
 void ASceneElement_DeviceBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ASceneElement_DeviceBase::EndPlay(
+	const EEndPlayReason::Type EndPlayReason
+	)
+{
+	if (Request.IsValid())
+	{
+		Request->CancelRequest();
+	}
+	
+	GetWorldTimerManager().ClearTimer(QueryDeviceTimerHandel);
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASceneElement_DeviceBase::ReplaceImp(
@@ -105,26 +120,7 @@ void ASceneElement_DeviceBase::InitialSceneElement()
 		BelongFloor = FloorPtr;
 	}
 
-	UWebChannelWorldSystem::GetInstance()->QueryDeviceID(
-	                                                     SceneElementID,
-	                                                     [this](
-	                                                     bool bSuccess,
-	                                                     const FString& ResponStr
-	                                                     )
-	                                                     {
-		                                                     if (bSuccess)
-		                                                     {
-			                                                     FQueryDeviceInfo QueryDeviceInfo;
-			                                                     QueryDeviceInfo.Deserialize(ResponStr);
-
-			                                                     DeviceRealID = QueryDeviceInfo.ID;
-
-			                                                     UpdateReletiveTransform(
-				                                                      QueryDeviceInfo.Reletivetransform
-				                                                     );
-		                                                     }
-	                                                     }
-	                                                    );
+	GetWorldTimerManager().SetTimer(QueryDeviceTimerHandel, this, &ThisClass::QueryDeviceInfo, IntervalTime, true);
 }
 
 TMap<FString, FString> ASceneElement_DeviceBase::GetStateDescription() const
@@ -292,6 +288,35 @@ TSharedPtr<FJsonValue> ASceneElement_DeviceBase::GetSceneElementData() const
 	                           );
 
 	return Result;
+}
+
+void ASceneElement_DeviceBase::QueryDeviceInfo()
+{
+	if (Request.IsValid())
+	{
+		Request->CancelRequest();
+	}
+	
+	Request = UWebChannelWorldSystem::GetInstance()->QueryDeviceID(
+														 SceneElementID,
+														 [this](
+														 bool bSuccess,
+														 const FString& ResponStr
+														 )
+														 {
+															 if (bSuccess)
+															 {
+																 FQueryDeviceInfo QueryDeviceInfo;
+																 QueryDeviceInfo.Deserialize(ResponStr);
+
+																 DeviceRealID = QueryDeviceInfo.ID;
+
+																 UpdateReletiveTransform(
+																	  QueryDeviceInfo.Reletivetransform
+																	 );
+															 }
+														 }
+														);
 }
 
 void ASceneElement_DeviceBase::FQueryDeviceInfo::Deserialize(

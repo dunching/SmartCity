@@ -3192,7 +3192,7 @@ void FViewSpecialArea_Decorator::Process()
 	AdjustCamera();
 }
 
-void FViewSpecialArea_Decorator::AdjustCamera() const
+void FViewSpecialArea_Decorator::AdjustCamera() 
 {
 	auto PCPtr = Cast<APlanetPlayerController>(
 	                                           GEngine->GetFirstLocalPlayerController(GetWorldImp())
@@ -3231,6 +3231,12 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 
 					for (auto ActorIter : OutActors)
 					{
+						if (PreviousPtr)
+						{
+							PreviousPtr->QuitAllState();
+						}
+						PreviousPtr = nullptr;
+						
 						auto SceneElementBasePtr = Cast<ASceneElement_Computer>(ActorIter);
 						if (SceneElementBasePtr && SceneElementBasePtr->DeviceTypeStr == Seat)
 						{
@@ -3252,6 +3258,7 @@ void FViewSpecialArea_Decorator::AdjustCamera() const
 								                     }
 								                    );
 							SceneElementBasePtr->DisplayGroupWidget();
+							PreviousPtr = SceneElementBasePtr;
 
 							return;
 						}

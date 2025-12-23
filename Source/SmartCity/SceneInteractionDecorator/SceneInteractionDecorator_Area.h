@@ -24,6 +24,7 @@ class UGT_SwitchSceneElement_Tower;
 class ASceneElement_DeviceBase;
 class AFireMark;
 class FArea_Decorator;
+class ASceneElement_Computer;
 
 /**
  * 
@@ -301,6 +302,8 @@ public:
 
 	TWeakObjectPtr<AViewerPawnBase> ViewerPawnBasePtr = nullptr;
 
+	TObjectPtr<ASceneElement_Computer>PreviousPtr = nullptr;
+	
 private:
 	virtual void OnUpdateFilterComplete(
 		bool bIsOK,
@@ -309,5 +312,5 @@ private:
 
 	void Process();
 
-	void AdjustCamera() const;
+	void AdjustCamera() ;
 };

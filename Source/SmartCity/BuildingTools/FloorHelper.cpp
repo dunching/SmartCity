@@ -196,7 +196,7 @@ void AFloorHelper_Computer::SwitchInteractionType(
 		}
 	}
 	{
-		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor_F12JF) ||
 			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
 		{
 			SetActorHiddenInGame(false);
@@ -208,6 +208,28 @@ void AFloorHelper_Computer::SwitchInteractionType(
 			
 			return;
 		}
+	}
+	{
+		if ((ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Floor) ||
+			 ConditionalSet.ConditionalSet.HasTag(USmartCitySuiteTags::Interaction_Area_Space)))
+		{
+			SetActorHiddenInGame(false);
+
+			if (ComputerMarkRef.ToSoftObjectPath().IsValid())
+			{
+				ComputerMarkRef.LoadSynchronous()->SetActorHiddenInGame(true);
+			}
+			
+			return;
+		}
+	}
+	{
+		if (ComputerMarkRef.ToSoftObjectPath().IsValid())
+		{
+			ComputerMarkRef.LoadSynchronous()->SetActorHiddenInGame(true);
+		}
+			
+		return;
 	}
 }
 

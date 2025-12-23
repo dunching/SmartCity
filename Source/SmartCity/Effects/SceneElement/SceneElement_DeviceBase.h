@@ -23,6 +23,7 @@ class UActorSequenceComponent;
 class URouteMarker;
 class UDatasmithAssetUserData;
 class UBoxComponent;
+class IHttpRequest;
 
 /**
  * 门禁
@@ -41,6 +42,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	virtual void ReplaceImp(
 		AActor* ActorPtr,
 		const TPair<FName, FString>& InUserData
@@ -128,6 +131,15 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float IntervalTime = 10.f;;
+
+	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> Request;
+	
+	void QueryDeviceInfo();
+
+	FTimerHandle QueryDeviceTimerHandel;
+	
 	struct FQueryDeviceInfo
 	{
 		FString ID;

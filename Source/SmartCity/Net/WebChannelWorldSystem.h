@@ -15,6 +15,7 @@
 #include "WebChannelWorldSystem.generated.h"
 
 class FDecoratorBase;
+class IHttpRequest;
 struct FMessageBody;
 struct FMessageBody_Send;
 struct FMessageBody_Receive;
@@ -47,7 +48,7 @@ public:
 	 * @param BimID 
 	 * @param QueryComplete 
 	 */
-	void QueryDeviceID(
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> QueryDeviceID(
 		const FString& BimID,
 		const TFunction<void(
 			bool bSuccess, const FString&

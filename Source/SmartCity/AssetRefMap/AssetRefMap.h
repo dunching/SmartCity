@@ -30,6 +30,7 @@ class AFloorHelper_Description;
 class AViewerPawnBase;
 class ASceneElement_RollerBlind;
 class ASpace_VolumetricFog;
+class UStaticMesh;
 
 UCLASS(BlueprintType, Blueprintable)
 class SMARTCITY_API UAssetRefMap : public UAssetRefBase
@@ -163,39 +164,28 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSoftObjectPtr<UMaterialInstance> FurnitureTranslucentMatInst;
 
-	UPROPERTY(
+	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	// TSoftObjectPtr<UStaticMesh> RadarOnline;
+	//
+	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	// TSoftObjectPtr<UStaticMesh> RadarOffline;
+	//
+	// UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	// TSoftObjectPtr<UStaticMesh> RadarQueryFailed;
 
-		BlueprintReadWrite,
-		EditAnywhere
-	)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<UFeatureWheel> FeatureWheelClass;
 
-	UPROPERTY(
-
-		BlueprintReadWrite,
-		EditAnywhere
-	)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<ABuilding_Floor_Mask> Building_Floor_MaskClass;
 
-	UPROPERTY(
-
-		BlueprintReadWrite,
-		EditAnywhere
-	)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<AFloorHelper_Description> FloorHelper_DescriptionClass;
 
-	UPROPERTY(
-
-		BlueprintReadWrite,
-		EditAnywhere
-	)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<ASceneElement_RollerBlind> SceneElement_RollerBlindClass;
 
-	UPROPERTY(
-	
-		BlueprintReadWrite,
-		EditAnywhere
-	)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<ASpace_VolumetricFog> SceneElement_Space_VolumetricFogClass;
 
 #pragma endregion
