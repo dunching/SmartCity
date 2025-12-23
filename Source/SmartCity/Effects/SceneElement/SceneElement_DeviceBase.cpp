@@ -313,6 +313,8 @@ void ASceneElement_DeviceBase::QueryDeviceInfoComplete(
 	const FString& ResponStr
 	)
 {
+	Request = nullptr;
+	
 	if (bSuccess)
 	{
 		FQueryDeviceInfo QueryDeviceInfo;

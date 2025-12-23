@@ -393,14 +393,14 @@ TSharedRef<IHttpRequest, ESPMode::ThreadSafe> UWebChannelWorldSystem::QueryDevic
 		{
 			if (bSuccess && Resp.IsValid())
 			{
-				UE_LOG(LogTemp, Log, TEXT("HTTP Code: %d"), Resp->GetResponseCode());
-				UE_LOG(LogTemp, Log, TEXT("Response: %s"), *Resp->GetContentAsString());
+				// UE_LOG(LogTemp, Log, TEXT("HTTP Code: %d"), Resp->GetResponseCode());
+				// UE_LOG(LogTemp, Log, TEXT("Response: %s"), *Resp->GetContentAsString());
 
 				QueryComplete(bSuccess, Resp->GetContentAsString());
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("Request Failed"));
+				// UE_LOG(LogTemp, Error, TEXT("Request Failed"));
 
 				QueryComplete(bSuccess, TEXT(""));
 			}

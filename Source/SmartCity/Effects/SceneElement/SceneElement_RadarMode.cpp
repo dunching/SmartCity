@@ -680,7 +680,7 @@ void ASceneElement_RadarMode::BindEvents()
 	                                      )
 	                                      {
 		                                      UE_LOG(LogTemp, Error, TEXT("[WS] ConnectionError: %s"), *Error);
-		                                      ScheduleReconnect();
+		                                      // ScheduleReconnect();
 	                                      }
 	                                     );
 
@@ -702,7 +702,7 @@ void ASceneElement_RadarMode::BindEvents()
 		                             // 非正常关闭就重连（按你业务调整）
 		                             if (!bWasClean)
 		                             {
-			                             ScheduleReconnect();
+			                             // ScheduleReconnect();
 		                             }
 	                             }
 	                            );
@@ -763,7 +763,7 @@ void ASceneElement_RadarMode::QueryDeviceInfoComplete(
 {
 	Super::QueryDeviceInfoComplete(bSuccess, ResponStr);
 
-	InitialSocket();
+	Connect();
 }
 
 void ASceneElement_RadarMode::ScheduleReconnect()
@@ -771,7 +771,9 @@ void ASceneElement_RadarMode::ScheduleReconnect()
 	// 没有 World 就不重连（比如在非游戏线程/生命周期不对）
 	UWorld* World = GetWorld();
 	if (!World)
+	{
 		return;
+	}
 
 	ReconnectTry++;
 	const float Delay = FMath::Clamp(1.0f * ReconnectTry, 1.0f, 10.0f); // 简单线性退避
