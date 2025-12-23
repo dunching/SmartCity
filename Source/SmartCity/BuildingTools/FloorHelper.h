@@ -92,6 +92,16 @@ protected:
 	bool bDisplayDescritpion = true;
 };
 
+USTRUCT(BlueprintType, Blueprintable)
+struct SMARTCITY_API FFloorHelper_ComputerNames_SameName
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TMap<FString, FString> Names;
+};
+
 UCLASS()
 class SMARTCITY_API AFloorHelper_Computer :
 	public AFloorHelper
@@ -118,6 +128,10 @@ public:
 	 *	索引
 	 */
 	TMap<FString, TMap<FString, FString>> ComputerNameMap;
+	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
+
 };
 
 UCLASS()
