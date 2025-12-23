@@ -1,6 +1,8 @@
 #include "PlanetGameInstance.h"
 
 #include <Windows.Data.Text.h>
+
+#include "HttpModule.h"
 #include "GameFramework/PlayerInput.h"
 #include "Windows/WindowsApplication.h"
 
@@ -58,6 +60,8 @@ void UPlanetGameInstance::Shutdown()
 {
 	GIsExiting = true;
 
+	FHttpModule::Get().FHttpModule::ShutdownModule();
+	
 	// 注意：这里提前释放的会，之后编辑器模式下保存资源会出错
 	// GUObjectArray.ShutdownUObjectArray();
 

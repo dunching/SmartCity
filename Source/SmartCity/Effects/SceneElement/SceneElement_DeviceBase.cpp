@@ -53,6 +53,7 @@ void ASceneElement_DeviceBase::EndPlay(
 	{
 		Request->CancelRequest();
 	}
+	Request = nullptr;
 
 	GetWorldTimerManager().ClearTimer(QueryDeviceTimerHandel);
 

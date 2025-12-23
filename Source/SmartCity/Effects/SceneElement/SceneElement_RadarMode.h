@@ -114,7 +114,15 @@ private:
 	TMap<FString, APersonMark*> GeneratedMarkers;
 
 private:
-
+	enum class ENetState
+	{
+		kOnLine,
+		kOffLine,
+		kQueryFailed,
+	};
+	
+	void SetNetState(ENetState NetState);
+	
 	void ClearMarks();
 	
 	FTimerHandle ClearTimerHandle;
@@ -141,6 +149,8 @@ private:
 		) override;
 
 
+	void ScheduleReconnect();
+	
 	// 简单重连参数（可按需增强）
 	FTimerHandle ReconnectTimer;
 	
@@ -148,5 +158,4 @@ private:
 	
 	FString LastUrl;
 
-	void ScheduleReconnect();
 };

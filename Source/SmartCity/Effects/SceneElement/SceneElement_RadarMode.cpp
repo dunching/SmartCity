@@ -249,11 +249,16 @@ ASceneElement_RadarMode::ASceneElement_RadarMode(
 	StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
 
 	StaticMeshComponent->SetRelativeRotation(FRotator(0, 90, 0));
-	
+
 	NetState_StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("NetState_StaticMeshComponent"));
-	NetState_StaticMeshComponent->SetupAttachment(RelativeTransformComponent);
+	NetState_StaticMeshComponent->SetupAttachment(RootComponent);
 
 	NetState_StaticMeshComponent->SetRelativeRotation(FRotator(0, 90, 0));
+
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 1.f / 24;
+
+	IntervalTime = 10.f;
 }
 
 void ASceneElement_RadarMode::OnConstruction(
@@ -273,6 +278,16 @@ void ASceneElement_RadarMode::Tick(
 	)
 {
 	Super::Tick(DeltaTime);
+
+	const auto Pt = GEngine->GetFirstLocalPlayerController(GetWorld())->PlayerCameraManager->GetCameraLocation();
+	auto Dir = (Pt - NetState_StaticMeshComponent->GetComponentLocation()).GetSafeNormal();
+	auto Rot = Dir.Rotation();
+
+	Rot.Roll = 0.f;
+	Rot.Pitch = 0.f;
+	Rot.Yaw += 90.f;
+	
+	NetState_StaticMeshComponent->SetWorldRotation(Rot);
 }
 
 void ASceneElement_RadarMode::EndPlay(
@@ -566,6 +581,21 @@ void ASceneElement_RadarMode::QuitAllState()
 	Close();
 }
 
+void ASceneElement_RadarMode::SetNetState(
+	ENetState NetState
+	)
+{
+	switch (NetState)
+	{
+	case ENetState::kOnLine:
+		break;
+	case ENetState::kOffLine:
+		break;
+	case ENetState::kQueryFailed:
+		break;
+	}
+}
+
 void ASceneElement_RadarMode::ClearMarks()
 {
 	for (auto Iter : GeneratedMarkers)
@@ -763,7 +793,16 @@ void ASceneElement_RadarMode::QueryDeviceInfoComplete(
 {
 	Super::QueryDeviceInfoComplete(bSuccess, ResponStr);
 
-	Connect();
+	SetNetState(ENetState::kQueryFailed);
+
+	if (DeviceRealID.IsEmpty())
+	{
+		Close();
+	}
+	else
+	{
+		Connect();
+	}
 }
 
 void ASceneElement_RadarMode::ScheduleReconnect()
@@ -852,6 +891,16 @@ void ASceneElement_RadarMode::ReplaceImp(
 void ASceneElement_RadarMode::InitialSceneElement()
 {
 	Super::InitialSceneElement();
+
+	SetNetState(ENetState::kQueryFailed);
+
+	const auto Extent = BelongFloor->BoxComponentPtr->GetScaledBoxExtent();
+	const auto Pt = BelongFloor->BoxComponentPtr->GetComponentLocation();
+	auto NewPt = NetState_StaticMeshComponent->GetComponentLocation();
+
+	NewPt.Z = Pt.Z + Extent.Z + 20;
+
+	NetState_StaticMeshComponent->SetWorldLocation(NewPt);
 }
 
 void ASceneElement_RadarMode::UpdateReletiveTransform(
@@ -960,11 +1009,15 @@ void ASceneElement_RadarMode::UpdatePositions(
 					}
 				}
 
+				SetNetState(ENetState::kOnLine);
+
 				GetWorldTimerManager().SetTimer(
 				                                ClearTimerHandle,
 				                                FTimerDelegate::CreateLambda(
 				                                                             [this]()
 				                                                             {
+					                                                             SetNetState(ENetState::kOffLine);
+
 					                                                             ClearMarks();
 				                                                             }
 				                                                            ),

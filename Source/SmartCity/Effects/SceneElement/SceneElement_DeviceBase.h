@@ -135,7 +135,7 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	float IntervalTime = 10.f;;
+	float IntervalTime = 60.f;;
 
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> Request;
 

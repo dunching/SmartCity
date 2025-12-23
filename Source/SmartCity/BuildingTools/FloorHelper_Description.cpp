@@ -24,7 +24,7 @@ AFloorHelper_Description::AFloorHelper_Description(
 	FloorDecriptionText->SetupAttachment(BorderAddScenePtr);
 
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 1.f / 30;
+	PrimaryActorTick.TickInterval = 1.f / 24;
 }
 
 void AFloorHelper_Description::UpdateFloorDescription(
