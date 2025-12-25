@@ -122,13 +122,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<AComputerMark> ComputerMarkRef = nullptr;
 
-	/**
-	 * 机柜
-	 *	名字
-	 *	索引
-	 */
-	TMap<FString, TMap<FString, FString>> ComputerNameMap;
-	
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	TMap<FString,FFloorHelper_ComputerNames_SameName> ComputerNameMap_SameName;
 

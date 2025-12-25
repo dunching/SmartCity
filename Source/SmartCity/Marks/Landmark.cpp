@@ -24,8 +24,8 @@ ALandmark::ALandmark(
 	FloorDecriptionText = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	FloorDecriptionText->SetupAttachment(BorderAddScenePtr);
 
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 1.f / 30;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.TickInterval = 1.f / 24;
 }
 
 void ALandmark::OnConstruction(

@@ -53,6 +53,8 @@ public:
 	virtual void DoAction() const;
 
 	void WriteLog()const;
+protected:
+	bool bIsWriteLog = true;
 private:
 	
 	virtual void WriteLogDate(int32 &Day, int32& Hour)const;

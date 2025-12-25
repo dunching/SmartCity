@@ -418,6 +418,7 @@ void UWebChannelWorldSystem::MessageTickImp()
 	auto MessageBody_TestSPtr = MakeShared<FMessageBody_UE_Tick>();
 
 	MessageBody_TestSPtr->Text = TEXT("UE PixelStreamer Test");
+	MessageBody_TestSPtr->ConnectedID = ConnetedPlayerIds;
 
-	// SendMessage(MessageBody_TestSPtr);
+	SendMessage(MessageBody_TestSPtr);
 }

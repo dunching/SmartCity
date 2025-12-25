@@ -9,7 +9,7 @@ APlanetPlayerState::APlanetPlayerState(
 	) :
 	  Super(ObjectInitializer)
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.TickInterval = 1.f;
 
 	AudioComponentPtr = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));

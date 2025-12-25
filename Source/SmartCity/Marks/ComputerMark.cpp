@@ -24,7 +24,7 @@ AComputerMark::AComputerMark(
 	FloorDecriptionText = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
 	FloorDecriptionText->SetupAttachment(BorderAddScenePtr);
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.TickInterval = 1.f / 30;
 }
 

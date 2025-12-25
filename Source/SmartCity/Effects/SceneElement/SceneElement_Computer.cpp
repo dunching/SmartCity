@@ -128,29 +128,12 @@ void ASceneElement_Computer::InitialSceneElement()
 		{
 			if (UserData.Contains(TEXT("索引")))
 			{
-				if (FloorHelper_Computer->ComputerNameMap.Contains(UserData[TEXT("机柜")]))
-				{
-					FloorHelper_Computer->ComputerNameMap[UserData[TEXT("机柜")]].Add(UserData[TEXT("服务器")], UserData[TEXT("索引")]);
-				}
-				else
-				{
-					FloorHelper_Computer->ComputerNameMap.Add(UserData[TEXT("机柜")], {{ UserData[TEXT("服务器")], UserData[TEXT("索引")]}});
-				}
 			}
 			else
 			{
-				if (FloorHelper_Computer->ComputerNameMap.Contains(UserData[TEXT("机柜")]))
-				{
-					FloorHelper_Computer->ComputerNameMap[UserData[TEXT("机柜")]].Add(UserData[TEXT("服务器")]);
-				}
-				else
-				{
-					FloorHelper_Computer->ComputerNameMap.Add(UserData[TEXT("机柜")], {{ UserData[TEXT("服务器")], TEXT("")}});
-				}
 			}
 		}
 	}
-		
 }
 
 void ASceneElement_Computer::SwitchInteractionType(
@@ -165,6 +148,12 @@ void ASceneElement_Computer::SwitchInteractionType(
 			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_Periphery)
 		)
 		{
+			if (WidgetPtr)
+			{
+				WidgetPtr->RemoveFromParent();
+			}
+			WidgetPtr = nullptr;
+
 			QuitAllState();
 
 			return;
@@ -172,7 +161,7 @@ void ASceneElement_Computer::SwitchInteractionType(
 	}
 	{
 		if (
-			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_SpecialArea) 
+			ConditionalSet.ConditionalSet.HasTagExact(USmartCitySuiteTags::Interaction_Area_SpecialArea)
 		)
 		{
 			EntryShowDevice();
@@ -391,27 +380,27 @@ void ASceneElement_Computer::DisplayGroupWidget()
 
 			const auto Pt1 =
 				BoxPt +
-					FVector(
-				                0,
-				                Bounds.Y,
-				                0
-				                ) +
-				                	FVector(
-								 0,
-								 0,
-								 Bounds.Z
-								);
-			
+				FVector(
+				        0,
+				        Bounds.Y,
+				        0
+				       ) +
+				FVector(
+				        0,
+				        0,
+				        Bounds.Z
+				       );
+
 			const auto Pt2 =
 				BoxPt - FVector(
 				                0,
 				                Bounds.Y,
 				                0
-				                ) + FVector(
-								 0,
-								 0,
-								 Bounds.Z
-								);
+				               ) + FVector(
+				                           0,
+				                           0,
+				                           Bounds.Z
+				                          );
 
 			if (FVector::Distance(FloorBoxPt, Pt1) > FVector::Distance(FloorBoxPt, Pt2))
 			{
@@ -425,16 +414,16 @@ void ASceneElement_Computer::DisplayGroupWidget()
 			WidgetPtr->AddToViewport();
 		};
 
-		// for (const auto& Iter : FloorPtr->ComputerNameMap)
-		// {
-		// 	for (const auto& SecondIter : Iter.Value.Names)
-		// 	{
-		// 		if (SecondIter == CurrentUserData.Value)
-		// 		{
-		// 			Str = Iter.Key;
-		// 			return;
-		// 		}
-		// 	}
-		// }
+		for (const auto& Iter : FloorPtr->ComputerNameMap_SameName)
+		{
+			for (const auto& SecondIter : Iter.Value.Names)
+			{
+				if (SecondIter.Key == SceneElementID)
+				{
+					Str = Iter.Key;
+					return;
+				}
+			}
+		}
 	}
 }

@@ -82,10 +82,13 @@ void FMessageBody_Receive::DoAction() const
 
 void FMessageBody_Receive::WriteLog() const
 {
-	int32 Day = 0;
-	int32 Hour = 0;
-	WriteLogDate(Day, Hour);
-	UKismetLogger::WriteLog(CMD_Name, CurrentJsonStr, Day, Hour);
+	if (bIsWriteLog)
+	{
+		int32 Day = 0;
+		int32 Hour = 0;
+		WriteLogDate(Day, Hour);
+		UKismetLogger::WriteLog(CMD_Name, CurrentJsonStr, Day, Hour);
+	}
 }
 
 void FMessageBody_Receive::WriteLogDate(
@@ -522,6 +525,8 @@ void FMessageBody_Receive_SwitchInteractionType::DoAction() const
 FMessageBody_Receive_UpdateRadarInfo::FMessageBody_Receive_UpdateRadarInfo()
 {
 	CMD_Name = TEXT("UpdateRadarInfo");
+
+	bIsWriteLog = false;
 }
 
 void FMessageBody_Receive_UpdateRadarInfo::Deserialize(

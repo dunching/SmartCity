@@ -797,36 +797,36 @@ void ASceneElement_Space::OnExternalWall()
 
 void ASceneElement_Space::ShowFog()
 {
-	if (VolumetricFogAry.IsEmpty())
-	{
-		FActorSpawnParameters SpawnParameters;
-	
-		for (auto MeshIter : CollisionComponentsAry)
-		{
-			SpawnParameters.CustomPreSpawnInitalization = [MeshIter](
-				AActor* Actor
-				)
-			{
-				auto FogPtr = Cast<ASpace_VolumetricFog>(Actor);
-				if (FogPtr)
-				{
-					FogPtr->SetBoxSize(MeshIter->GetScaledBoxExtent() * 2);
-				}
-			};
-			
-			VolumetricFogAry.Add(
-								 GetWorld()->SpawnActor<ASpace_VolumetricFog>(
-									  UAssetRefMap::GetInstance()->SceneElement_Space_VolumetricFogClass,
-									  MeshIter->GetComponentLocation(),
-									  FRotator::ZeroRotator,
-									  SpawnParameters
-									 )
-								);
-		}
-	}
-	else
-	{
-	}
+	// if (VolumetricFogAry.IsEmpty())
+	// {
+	// 	FActorSpawnParameters SpawnParameters;
+	//
+	// 	for (auto MeshIter : CollisionComponentsAry)
+	// 	{
+	// 		SpawnParameters.CustomPreSpawnInitalization = [MeshIter](
+	// 			AActor* Actor
+	// 			)
+	// 		{
+	// 			auto FogPtr = Cast<ASpace_VolumetricFog>(Actor);
+	// 			if (FogPtr)
+	// 			{
+	// 				FogPtr->SetBoxSize(MeshIter->GetScaledBoxExtent() * 2);
+	// 			}
+	// 		};
+	// 		
+	// 		VolumetricFogAry.Add(
+	// 							 GetWorld()->SpawnActor<ASpace_VolumetricFog>(
+	// 								  UAssetRefMap::GetInstance()->SceneElement_Space_VolumetricFogClass,
+	// 								  MeshIter->GetComponentLocation(),
+	// 								  FRotator::ZeroRotator,
+	// 								  SpawnParameters
+	// 								 )
+	// 							);
+	// 	}
+	// }
+	// else
+	// {
+	// }
 }
 
 void ASceneElement_Space::ClearFog()
